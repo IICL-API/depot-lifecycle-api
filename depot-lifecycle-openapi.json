@@ -1,0 +1,1481 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Depot Lifecycle API",
+    "description": "# Purpose\nA depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to faciliate real time communication between systems instead of traditional EDI files.\n\n# Overview\nThe depot lifecycle API is a RESTful API.  It's requests & responses are loosely based upon traditional EDI files.  For code defintions, explanations, or traditional EDI definitions refer to [IICL TB 002, February 2003](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf).  The requests and responses are formatted according to the [JSON](https://www.json.org/) standard.\n\n# Reference\nThis API is documented by the [OpenAPI](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) specification.  This page was created by the [Swagger-Editor](https://github.com/swagger-api/swagger-editor) tool.  The *yaml* specification file can be found [here](depot-lifecycle-openapi.yaml).\n\n# Expectations\nNot all parties are required or expected to implement every feature.  Any feature not implemented should return a http status code of `501`.\n\n# Depreciation\nIf this API were to be discontinued, a minimum of 6 months time would pass before it's removal.\n\n# Authentication\n[JSON Web Token, or JWT,](https://jwt.io/) is used for stateless authentication to secure all endpoints of this API.  Since all requests are sent using https, tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.  \n\n## 1. Example JWT Token\n```\n{\n    \"username\": \"jdoe\",\n    \"roles\": [\n        \"ROLE_GATE_CREATE\",\n        \"ROLE_GATE_UPDATE\"\n    ],\n    \"email\":\"j.doe@example.com\",\n    \"token_type\":\"Bearer\",\n    \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\",\n    \"expires_in\":28800,        \n    \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\n}\n```\n\nAn access_token is provided for authentication to API endpoints and a refresh_token is provided to generate a new access_token when one expires.\n\n## 2. Obtaining an access token\nIssuing a POST request to `/api/login` with a username and password payload will cause a JWT token to be issued in the response.\n```\nPOST /api/login HTTP/1.1\nContent-Type: text/plain; charset=utf-8\nHost: www.example.com\n\n{\n  \"username\": \"jdoe\",\n  \"password\": \"jdoepassword\"\n}\n```\n\n## 3. Refreshing an expired token\nIssuing a POST request to `/oauth/access_token` with the refresh_token from the JWT token previously issued and a grant_type of refresh_token will reissue the JWT.\n```\nPOST /oauth/access_token HTTP/1.1\nHost: www.example.com\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n```\n\n## 4. Checking if a token is valid\nAny token can be checked if it's still valid by issuing a POST request to `/api/validate`.\n```\nGET /api/validate HTTP/1.1\nHost: www.example.com\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9...\nContent-Type: application/json; charset=utf-8\n```\n\n## 5. Accessing a protected resource\nUse the authorization header to supply the JWT for authentication to a protected resource.\n```\nGET /api/v2/gate/CONU1234561 HTTP/1.1\nHost: www.example.com\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n```\n",
+    "contact": {
+      "email": "api-edi@trtn.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "2.0.0"
+  },
+  "externalDocs": {
+    "description": "Find out more about this api",
+    "url": "https://github.com/TritonInternationalLimited/depot-lifecycle-api"
+  },
+  "servers": [
+    {
+      "url": "https://www.example.com/api/v2"
+    }
+  ],
+  "tags": [
+    {
+      "name": "gate",
+      "description": "*manage gate ins and gate outs of shipping containers*\n"
+    },
+    {
+      "name": "estimate",
+      "description": "*create damage estimates for shipping containers*\n"
+    },
+    {
+      "name": "workOrder",
+      "description": "*manage damage estimates approved for repair*\n"
+    }
+  ],
+  "paths": {
+    "/gate": {
+      "post": {
+        "tags": [
+          "gate"
+        ],
+        "summary": "create a gate record",
+        "description": "Creates either a gate-in or gate-out record for the given shipping container against the provided advice and depot data.\n",
+        "operationId": "saveGate",
+        "requestBody": {
+          "description": "gate object to create a new gate in or gate out record",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successfully created a gate in or gate out record for the shipping container",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GateResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "gate accepted for processing, but not created due to manual processing requirement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "the shipping container was not found"
+          },
+          "403": {
+            "description": "create a gate record is disallowed by security configuration"
+          },
+          "405": {
+            "description": "an error occurred",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "this feature is not supported by this server"
+          }
+        }
+      }
+    },
+    "/gate/{unitNumber}": {
+      "parameters": [
+        {
+          "name": "unitNumber",
+          "in": "path",
+          "description": "the current remark of the shipping container",
+          "schema": {
+            "type": "string",
+            "pattern": "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          },
+          "required": true,
+          "example": "CONU1234561"
+        }
+      ],
+      "get": {
+        "tags": [
+          "gate"
+        ],
+        "summary": "fetch the current gate status",
+        "description": "For the given unit number, if the shipping container is currently gated in or gated out, fetch the current interchange information - damage status, the time of the gate, etc.\n",
+        "operationId": "getGate",
+        "responses": {
+          "200": {
+            "description": "successfully found current gate status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GateStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "an invalid identifier was supplied"
+          },
+          "403": {
+            "description": "fetching a gate record is disallowed by security"
+          },
+          "404": {
+            "description": "the shipping container was not found"
+          },
+          "405": {
+            "description": "an error ocurred trying to fetch the current gate status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "this feature is not supported by this server"
+          }
+        }
+      }
+    },
+    "/gate/{adviceNumber}/{unitNumber}": {
+      "parameters": [
+        {
+          "name": "adviceNumber",
+          "in": "path",
+          "description": "the redelivery or release advice number for the gate record",
+          "example": "AHAMG000000",
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16
+          },
+          "required": true
+        },
+        {
+          "name": "unitNumber",
+          "in": "path",
+          "description": "the current remark of the shipping container",
+          "example": "CONU123456",
+          "schema": {
+            "type": "string",
+            "pattern": "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          },
+          "required": true
+        }
+      ],
+      "put": {
+        "tags": [
+          "gate"
+        ],
+        "operationId": "updateGate",
+        "summary": "update a gate record",
+        "description": "Correct the initial damage indicator status or activity time from when the gate record was created.\n",
+        "requestBody": {
+          "description": "gate object to update an existing record",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GateUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successfully update the gate record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GateResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "gate update accepted for processing, but not created due to manual processing requirement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid unit number supplied"
+          },
+          "403": {
+            "description": "update a gate record is disallowed by security"
+          },
+          "404": {
+            "description": "shipping container not found"
+          },
+          "405": {
+            "description": "an error occurred trying to update a gate record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "this feature is not supported by this server"
+          }
+        }
+      }
+    },
+    "/estimate": {
+      "get": {
+        "tags": [
+          "estimate"
+        ],
+        "summary": "searches for estimates",
+        "description": "Given search criteria, return estimates that match that criteria.  This interface is *limited* to a maximum of 10 estimates.\n",
+        "operationId": "indexEstimate",
+        "parameters": [
+          {
+            "name": "estimateNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "the estimate number",
+            "example": "DEHAMCE1856373"
+          },
+          {
+            "name": "unitId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+            },
+            "description": "the unit number of the shipping container at the time of turn in",
+            "example": "CONU1234561"
+          },
+          {
+            "name": "depotId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z0-9]{9}$"
+            },
+            "description": "the identifier of the depot",
+            "example": "DEHAMCMRA"
+          },
+          {
+            "name": "lesseeId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z0-9]{9}$"
+            },
+            "description": "the identifier of the lessee",
+            "example": "SGSINONEA"
+          },
+          {
+            "name": "revision",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "the revision number of the estimate",
+            "example": 0
+          },
+          {
+            "name": "equipmentCode",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "the ISO equipment code of the shipping container",
+            "example": "22G1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully found estimates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Estimate"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid estimate search object was provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "searching for estimates is disallowed by security"
+          },
+          "404": {
+            "description": "no estimates were found"
+          },
+          "405": {
+            "description": "an unexpected error occurred",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "this feature is not supported by this server"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "estimate"
+        ],
+        "summary": "create an estimate revision",
+        "description": "Create a damage estimate or a revision to an existing estimate that documents the type of damage and the cost of the repairs.\n",
+        "operationId": "saveEstimate",
+        "requestBody": {
+          "description": "Estimate object to create a new estimate revision",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Estimate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successfully created and accepted the estimate revision",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstimateResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "successfully created the estimate revision, accepted it, and created a repair authorization for the estimate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairSummary"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "estimate accepted for processing, but not created due to manual processing requirement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "an invalid request was provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "creating an estimate is disallowed by security"
+          },
+          "404": {
+            "description": "a depot could not be found"
+          },
+          "405": {
+            "description": "an unexpected error occurred",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "this feature is not supported by this server"
+          }
+        }
+      }
+    },
+    "/estimate/{estimateNumber}": {
+      "parameters": [
+        {
+          "name": "estimateNumber",
+          "in": "path",
+          "description": "the estimate number",
+          "required": true,
+          "example": "DEHAMCE1856373",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "depot",
+          "in": "query",
+          "description": "the depot id to search for an estimate",
+          "required": true,
+          "example": "DEHAMCMRA",
+          "schema": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{9}$"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "estimate"
+        ],
+        "summary": "fetches the details of the given estimate number",
+        "description": "Finds an estimate by the given estimate number and depot, returning the revision specified.  If revision is not specified, the current estimate revision is returned.\n",
+        "operationId": "showEstimate",
+        "parameters": [
+          {
+            "name": "revision",
+            "in": "query",
+            "description": "the revision number to show for the estimate",
+            "required": false,
+            "example": 0,
+            "schema": {
+              "type": "number",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfully found the estimate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estimate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request was supplied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "fetching estimate is disallowed by security"
+          },
+          "404": {
+            "description": "estimate not found"
+          },
+          "405": {
+            "description": "an unexpected error occurred",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "this feature is not supported by this server"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "estimate"
+        ],
+        "operationId": "customerApproveEstimate",
+        "summary": "customer approve an estimate",
+        "description": "Instead of sending in a full estimate revision, this endpoint can be used to approve an estimate without revising it.\n",
+        "requestBody": {
+          "description": "customer approval object to update an existing estimate",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstimateCustomerApproval"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successfully customer approved the estimate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstimateResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "successfully approved the estimate, and created a repair authorization for the estimate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairSummary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid estimate number or depot supplied"
+          },
+          "403": {
+            "description": "customer approval is disallowed by security"
+          },
+          "404": {
+            "description": "estimate was not found"
+          },
+          "405": {
+            "description": "an error occurred trying to customer approve the estimate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "this feature is not supported by this server"
+          }
+        }
+      }
+    },
+    "/workOrder": {
+      "post": {
+        "tags": [
+          "workOrder"
+        ],
+        "summary": "authorizes a repair",
+        "description": "Submits a work order to repair a shipping container to the given inspection criteria.\n",
+        "operationId": "saveWorkOrder",
+        "requestBody": {
+          "description": "Work Order object to approve a repair",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepairSummary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successfully approved repair",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairSummary"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "work order was found and the cancel request was accepted, but it was not processed immediately",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request - i.e. incorrect work order number supplied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "repair authorization is not allowed by security"
+          },
+          "405": {
+            "description": "an unexpected error occurred",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "this feature is not supported by this server"
+          }
+        }
+      }
+    },
+    "/workOrder/{workOrderNumber}": {
+      "parameters": [
+        {
+          "name": "workOrderNumber",
+          "in": "path",
+          "description": "the work order number",
+          "required": true,
+          "example": "WHAMG30001",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "tags": [
+          "workOrder"
+        ],
+        "summary": "marks a shipping container repaired",
+        "description": "For the given work order, attempt to mark it repair complete.\n",
+        "operationId": "updateWorkOrder",
+        "requestBody": {
+          "description": "Repair Complete object to repair complete a repair",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepairComplete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successfully cancelled the workOrder"
+          },
+          "400": {
+            "description": "invalid request - i.e. incorrect work order number supplied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "repair completion is not allowed by security"
+          },
+          "404": {
+            "description": "work order was not found"
+          },
+          "405": {
+            "description": "an error occurred",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "this feature is not supported by this server"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "description": "a general response object used when an error occurs to describe why it occurred\n\n`400` http status codes are used when a request is invalid or the basic requirements are not met\n\n`405` http status codes are used for business validations\n",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{3}[0-9]{3}$",
+            "description": "indicator code specific to this error",
+            "example": "TRI521"
+          },
+          "message:": {
+            "type": "string",
+            "description": "a descriptive error message",
+            "example": "Info TRI521 - Unit has been gated-in but is not off-hired"
+          }
+        }
+      },
+      "PendingResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{3}[0-9]{3}$",
+            "description": "indicator code for this response",
+            "example": "TRI365"
+          },
+          "message": {
+            "type": "string",
+            "description": "the reason the activity was not immediately created",
+            "example": "Info TRI365 - Estimate accepted, but requires manual DV calculation to process."
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "Party": {
+        "type": "object",
+        "description": "represents a company (or location) and user",
+        "properties": {
+          "userCode": {
+            "type": "string",
+            "description": "the user identifier",
+            "maxLength": 16,
+            "example": "jdoe"
+          },
+          "userName": {
+            "type": "string",
+            "description": "the full name for the user identified by `userCode`",
+            "maxLength": 70,
+            "example": "John Doe"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "the identifier for the company this user belongs to",
+            "pattern": "^[A-Z0-9]{9}$",
+            "example": "DEHAMCMRA"
+          }
+        },
+        "required": [
+          "companyId"
+        ]
+      },
+      "InsuranceCoverage": {
+        "type": "object",
+        "description": "describes the type of insurance coverage a given shipping container has for a damage repair",
+        "properties": {
+          "amountCovered": {
+            "type": "number",
+            "format": "double",
+            "description": "the total amount allowable to by covered by insurance"
+          },
+          "exceptions": {
+            "type": "string",
+            "description": "any contractual reason why the coverage may not apply"
+          },
+          "exclusions": {
+            "type": "array",
+            "description": "reasons insurance coverage would be excluded from a repair",
+            "items": {
+              "type": "string"
+            }
+          },
+          "inclusions": {
+            "type": "array",
+            "description": "reasons insurance coverage would include a repair",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "GateStatus": {
+        "type": "object",
+        "properties": {
+          "adviceNumber": {
+            "type": "string",
+            "description": "the redelivery or release advice number for the gate record",
+            "example": "AHAMG000000"
+          },
+          "depot": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "status": {
+            "type": "string",
+            "example": "D",
+            "enum": [
+              "A",
+              "D"
+            ],
+            "description": "the current damage indicator status\n\n`A` - Non-damaged\n\n`D` - Damaged\n"
+          },
+          "activityTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2017-07-21T17:32:28Z",
+            "description": "The date and time of the gate activity \n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )\n"
+          },
+          "insuranceCoverage": {
+            "$ref": "#/components/schemas/InsuranceCoverage"
+          },
+          "currentExchangeRate": {
+            "type": "number",
+            "format": "double",
+            "description": "the exchange rate to use for a damage repair estimate",
+            "example": 0.8133
+          },
+          "currentInspectionCriteria": {
+            "type": "string",
+            "description": "the last reported grade or category standard this unit",
+            "example": "IICL",
+            "maxLength": 10
+          }
+        },
+        "required": [
+          "status",
+          "adviceNumber",
+          "activityTime"
+        ]
+      },
+      "GateRequest": {
+        "type": "object",
+        "description": "data required to create a gate in or gate out record",
+        "properties": {
+          "adviceNumber": {
+            "type": "string",
+            "example": "AHAMG000000",
+            "description": "the redelivery or release advice number for the gate record"
+          },
+          "depot": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "the unit number of the shipping container",
+            "pattern": "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$",
+            "example": "CONU1234561"
+          },
+          "status": {
+            "type": "string",
+            "example": "D",
+            "enum": [
+              "A",
+              "D"
+            ],
+            "description": "a damage indicator status\n\n`A` - Non-damaged\n\n`D` - Damaged\n"
+          },
+          "activityTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-04-10T19:37:04Z",
+            "description": "The date and time of the gate activity \n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )\n"
+          }
+        },
+        "required": [
+          "unitNumber",
+          "adviceNumber",
+          "status",
+          "advice",
+          "depot",
+          "activityTime"
+        ]
+      },
+      "GateUpdateRequest": {
+        "type": "object",
+        "description": "Data required to update a gate in or gate out record. Any data not provided will result in no update.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "D",
+            "enum": [
+              "A",
+              "D"
+            ],
+            "description": "a damage indicator status\n\n`A` - Non-damaged\n\n`D` - Damaged\n"
+          },
+          "activityTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-04-10T19:37:04Z",
+            "description": "The date and time of the gate activity \n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )\n"
+          }
+        }
+      },
+      "GateResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{3}[0-9]{3}$",
+            "description": "indicator code for this response",
+            "example": "TRI521"
+          },
+          "message": {
+            "type": "string",
+            "description": "A descriptive message concerning this gate in",
+            "example": "Info TRI521 - Unit has been gated-in but is not off-hired"
+          },
+          "adviceNumber": {
+            "type": "string",
+            "description": "either the submitted advice number for the gate record or the adjusted one",
+            "example": "AHAMG000000"
+          },
+          "customerReference": {
+            "type": "string",
+            "description": "the customer reference for the unit; typically an internal customer identifier or contract code",
+            "maxLength": 35,
+            "example": "MAEX"
+          },
+          "transactionReference": {
+            "type": "string",
+            "description": "the transaction reference for this activity",
+            "maxLength": 35,
+            "example": "74454D"
+          },
+          "insuranceCoverage": {
+            "$ref": "#/components/schemas/InsuranceCoverage"
+          },
+          "currentExchangeRate": {
+            "type": "number",
+            "format": "double",
+            "description": "the exchange rate to use for a damage repair estimate",
+            "example": 0.8133
+          },
+          "comments": {
+            "type": "array",
+            "description": "comments pertaining to this gate record",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "ALL CLEANING MUST BE CODED TO \"O\" FOR OWNER."
+            ]
+          },
+          "currentInspectionCriteria": {
+            "type": "string",
+            "description": "the last reported grade or category standard this unit",
+            "example": "IICL",
+            "maxLength": 10
+          }
+        },
+        "required": [
+          "adviceNumber",
+          "currentExchangeRate",
+          "currentInspectionCriteria"
+        ]
+      },
+      "Estimate": {
+        "type": "object",
+        "properties": {
+          "estimateNumber": {
+            "type": "string",
+            "description": "The identifier for this estimate",
+            "minLength": 1,
+            "maxLength": 16,
+            "example": "DEHAMCE1856373"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "The unit number of the shipping container at the time of turn in.",
+            "pattern": "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$",
+            "example": "CONU1234561"
+          },
+          "condition": {
+            "type": "string",
+            "enum": [
+              "D",
+              "E",
+              "F",
+              "G",
+              "L"
+            ],
+            "example": "D",
+            "description": "an indicator on the status of the estimate and where it is in the revision process\n\n`D` - Damaged, Initial Estimate\n\n`E` - Customer Surveyed, No Approval\n\n`F` - Customer Approved Estimate, No Survey\n\n`G` - Customer Approved Estimate, Surveyed\n\n`L` - Owner Surveyed, No Approval\n"
+          },
+          "estimateTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-04-10T19:37:04Z",
+            "description": "The date and time of the estimate revision activity in local time\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )\n"
+          },
+          "comments": {
+            "type": "string",
+            "description": "The comments concerning this estimate",
+            "maxLength": 500
+          },
+          "requester": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "depot": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "The currency of estimate",
+            "example": "EUR"
+          },
+          "total": {
+            "type": "number",
+            "format": "double",
+            "description": "the total of the estimate in local currency",
+            "example": 544.95
+          },
+          "exchangeRate": {
+            "type": "number",
+            "format": "double",
+            "description": "the exchange rate to convert billed currency to the local currency of this estimate",
+            "example": 0.8133
+          },
+          "customerApproval": {
+            "$ref": "#/components/schemas/EstimateCustomerApproval"
+          },
+          "lineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EstimateLineItem"
+            },
+            "minItems": 1,
+            "maxItems": 200
+          }
+        },
+        "required": [
+          "estimateNumber",
+          "unitNumber",
+          "condition",
+          "estimateTime",
+          "depot",
+          "currency",
+          "total",
+          "lineItems"
+        ]
+      },
+      "EstimateResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "description": "the total for the estimate",
+            "example": 544.95
+          },
+          "ownerTotal": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "description": "the total of the owner portion for the estimate",
+            "example": 0
+          },
+          "customerTotal": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "description": "the total of the customer portion for the estimate",
+            "example": 422.96
+          },
+          "insuranceTotal": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "description": "the total of the insurance portion for the estimate",
+            "example": 121.99
+          },
+          "ctl": {
+            "type": "boolean",
+            "description": "indicates if the estimate causes the unit to be a constructive total lost\n",
+            "example": false
+          },
+          "comments": {
+            "type": "string",
+            "description": "comments pertaining to the estimate creation",
+            "maxLength": 500,
+            "example": "Base Currency is: EUR; Based on estimate, user damages total: 0.00; Calculated DV (base): 1151.84; Coverage amount: 121.99; Damage exceeds DPP Coverage.; Damages exceed coverage amount. User pays excess.; Total paid by DPP Coverage: 121.99; Total owed by user: 422.96;"
+          },
+          "preliminaryDecision": {
+            "type": "object",
+            "properties": {
+              "recommendation": {
+                "type": "string",
+                "maxLength": 11,
+                "example": "SELL",
+                "description": "a speculative repair decision code to indicate if a box will be repaired, sold, held for repair, could not determine a decision, requires a survey before proceeding, etc"
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 255,
+                "description": "in the event a decision could not be determined, or a prerequisite exists, a more descriptive message than the code provided by the `recommendation` field"
+              },
+              "difference": {
+                "type": "number",
+                "format": "double",
+                "description": "An amount showing how close the repair estimate was to a decision change"
+              }
+            },
+            "required": [
+              "recommendation"
+            ]
+          }
+        },
+        "required": [
+          "total",
+          "ownerTotal",
+          "customerTotal",
+          "insuranceTotal",
+          "ctl"
+        ]
+      },
+      "EstimateLineItem": {
+        "type": "object",
+        "properties": {
+          "line": {
+            "type": "number",
+            "format": "int32",
+            "description": "The line number",
+            "example": 1
+          },
+          "repair": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{2}$",
+            "example": "IT",
+            "description": "repair code \n\n[see IICL Preferred Repair Codes, Section 5.4](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf)\n"
+          },
+          "damage": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{2}$",
+            "example": "CK",
+            "description": "damage code\n\n[see IICL Preferred Damage Codes, Section 5.2](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf)\n"
+          },
+          "material": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{2}$",
+            "example": "MU",
+            "description": "component material code\n\n[see IICL Preferred Material Type Codes, Section 5.5](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf)\n"
+          },
+          "component": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{3}$",
+            "example": "CMA",
+            "description": "component code\n\n[see IICL Preferred Component Codes, Section 5.1](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf)\n"
+          },
+          "location": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{4}$",
+            "example": "UR1N",
+            "description": "specifies the damage location code on a container \n\n[see IICL Preferred Location Codes, Section 5.7](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf)\n"
+          },
+          "length": {
+            "type": "number",
+            "format": "int32",
+            "description": "the length dimension",
+            "example": 15
+          },
+          "width": {
+            "type": "number",
+            "format": "int32",
+            "description": "the width dimension",
+            "example": 0
+          },
+          "height": {
+            "type": "number",
+            "format": "int32",
+            "description": "the height dimension",
+            "example": 0
+          },
+          "unitOfMeasure": {
+            "type": "string",
+            "enum": [
+              "CMT",
+              "FOT",
+              "GRM",
+              "INH",
+              "KGM",
+              "MTR",
+              "TON",
+              "MTT",
+              "MMT"
+            ],
+            "example": "CMT",
+            "description": "`CMT` - \"Centimeters\"\n\n`FOT` - \"Feet\"\n\n`GRM` - \"Grams\"\n\n`INH` - \"Inches\"\n\n`MTR` - \"Meters\"\n\n`MMT` - \"Millimeters\"\n"
+          },
+          "hours": {
+            "type": "number",
+            "format": "double",
+            "description": "the hours to repair",
+            "minimum": 0,
+            "example": 1
+          },
+          "materialCost": {
+            "type": "number",
+            "format": "double",
+            "description": "the material cost",
+            "minimum": 0,
+            "example": 9.95
+          },
+          "laborRate": {
+            "type": "number",
+            "format": "double",
+            "description": "the labor rate",
+            "minimum": 0,
+            "example": 35
+          },
+          "party": {
+            "$ref": "#/components/schemas/EstimatePartyIndicator"
+          },
+          "comments": {
+            "type": "string",
+            "description": "comments concerning this line item repair",
+            "maxLength": 256
+          },
+          "taxRule": {
+            "type": "string",
+            "enum": [
+              "B",
+              "N",
+              "L",
+              "M"
+            ],
+            "example": "B",
+            "description": "which amount should taxes apply\n\n`B` - Both Labor Cost & Material Cost\n\n`N` - Neither\n\n`L` - Labor Cost\n\n`M` - Material Cost\n"
+          },
+          "quantity": {
+            "type": "number",
+            "format": "int32",
+            "description": "the number of damages",
+            "example": 1
+          }
+        },
+        "required": [
+          "line",
+          "repair",
+          "damage",
+          "material",
+          "component",
+          "hours",
+          "materialCost",
+          "laborRate",
+          "party"
+        ]
+      },
+      "EstimatePartyIndicator": {
+        "type": "string",
+        "enum": [
+          "O",
+          "U",
+          "I",
+          "W",
+          "S",
+          "D"
+        ],
+        "example": "I",
+        "description": "`O` - Owner\n\n`U` - Customer\n\n`I` - Insurance\n\n`W` - Warranty\n\n`S` - Special\n\n`D` - Deleted\n"
+      },
+      "EstimateCustomerApproval": {
+        "type": "object",
+        "description": "reports customer approval on an estimate when the estimate condition is either `F` or `G`\n",
+        "properties": {
+          "approvalNumber": {
+            "type": "string",
+            "description": "The approval number from the customer",
+            "maxLength": 128,
+            "example": "RAMON ROUBAL"
+          },
+          "approvalDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2017-04-10T19:37:04Z",
+            "description": "The time the estimate was approved by the customer\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )\n"
+          },
+          "approvalUser": {
+            "type": "string",
+            "description": "the user name or code who approved this estimate on behalf of the customer",
+            "maxLength": 64,
+            "example": "KAERTS"
+          },
+          "approvalTotal": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0,
+            "description": "the amount approved by the customer",
+            "example": 422.96
+          }
+        },
+        "required": [
+          "approvalDateTime",
+          "approvalTotal"
+        ]
+      },
+      "RepairSummary": {
+        "type": "object",
+        "properties": {
+          "workOrderNumber": {
+            "type": "string",
+            "description": "the identifier for this work order",
+            "minLength": 1,
+            "maxLength": 16,
+            "example": "WHAMG46019"
+          },
+          "depot": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "billingParty": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "type": {
+            "type": "string",
+            "description": "the type of repair approved",
+            "example": "SELLCWCA"
+          },
+          "approvalDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2017-05-10T19:37:04Z"
+          },
+          "approvalTotal": {
+            "type": "number",
+            "format": "double",
+            "description": "the total approved for repair",
+            "example": 175
+          },
+          "approvalCurrency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "the currency of the approval total",
+            "example": "EUR"
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "the time this repair must be completed by"
+          },
+          "comments": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "comments pertaining to the repair",
+            "example": "CWCA repairs for unit TCKU3456654 total 175.00 EUR per DEHAMCE1856373.1"
+          },
+          "lineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RepairUnitSummary"
+            },
+            "minItems": 1,
+            "maxItems": 200
+          }
+        },
+        "required": [
+          "workOrderNumber",
+          "depot",
+          "owner",
+          "billingParty",
+          "approvalDate",
+          "type",
+          "approvalTotal",
+          "approvalCurrency",
+          "lineItems"
+        ]
+      },
+      "RepairUnitSummary": {
+        "type": "object",
+        "properties": {
+          "unitNumber": {
+            "type": "string",
+            "example": "CONU1234561",
+            "description": "the unit number of the shipping container at the time of repair approval",
+            "pattern": "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          },
+          "effectiveInspectionCriteria": {
+            "type": "string",
+            "example": "CWCA-1",
+            "description": "repair the shipping container to this grade or category standard"
+          },
+          "remark": {
+            "type": "string",
+            "description": "the unit number to remark the shipping container on repair",
+            "pattern": "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          },
+          "releaseNumber": {
+            "type": "string",
+            "maxLength": 16,
+            "description": "the Release approved for gate out after repair"
+          }
+        },
+        "required": [
+          "unitNumber",
+          "effectiveInspectionCriteria"
+        ]
+      },
+      "RepairComplete": {
+        "type": "object",
+        "properties": {
+          "depot": {
+            "$ref": "#/components/schemas/Party"
+          },
+          "completionDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2018-04-10T19:37:04Z"
+          },
+          "unitNumber": {
+            "type": "string",
+            "example": "CONU1234561",
+            "description": "the unit number of the shipping container at the time of turn in",
+            "pattern": "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          }
+        },
+        "required": [
+          "workOrderNumber",
+          "unitNumber",
+          "depot",
+          "completionDate"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}
