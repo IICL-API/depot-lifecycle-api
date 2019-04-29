@@ -6,7 +6,7 @@ info:
     A depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to faciliate real time communication between systems instead of traditional EDI files.
     
     # Overview
-    The depot lifecycle API is a RESTful API.  It's requests & responses are loosely based upon traditional EDI files.  For code defintions, explanations, or traditional EDI definitions refer to [IICL TB 002, February 2003](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf).  The requests and responses are formatted according to the [JSON](https://www.json.org/) standard.
+    The depot lifecycle API is a RESTful API.  It's requests & responses are loosely based upon traditional EDI files.  For code defintions, explanations, or traditional EDI definitions refer to [IICL TB 002, February 2003](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf).  The requests and responses are formatted according to the [JSON](https://www.json.org/) standard.
 
     # Reference
     This API is documented by the [OpenAPI](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) specification.  This page was created by the [Swagger-Editor](https://github.com/swagger-api/swagger-editor) tool.  The *yaml* specification file can be found [here](depot-lifecycle-openapi.yaml).
@@ -950,7 +950,7 @@ components:
           description: |
             repair code 
             
-            [see IICL Preferred Repair Codes, Section 5.4](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf)
+            [see IICL Preferred Repair Codes, Section 5.4](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
         damage:
           type: string
           pattern: '^[A-Z0-9]{2}$'
@@ -958,7 +958,7 @@ components:
           description: |
             damage code
             
-            [see IICL Preferred Damage Codes, Section 5.2](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf)
+            [see IICL Preferred Damage Codes, Section 5.2](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
         material:
           type: string
           pattern: '^[A-Z0-9]{2}$'
@@ -966,7 +966,7 @@ components:
           description: |
             component material code
             
-            [see IICL Preferred Material Type Codes, Section 5.5](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf)
+            [see IICL Preferred Material Type Codes, Section 5.5](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
         component:
           type: string
           pattern: '^[A-Z0-9]{3}$'
@@ -974,7 +974,7 @@ components:
           description: |
             component code
             
-            [see IICL Preferred Component Codes, Section 5.1](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf)
+            [see IICL Preferred Component Codes, Section 5.1](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
         location:
           type: string
           pattern: '^[A-Z0-9]{4}$'
@@ -982,7 +982,7 @@ components:
           description: |
             specifies the damage location code on a container 
             
-            [see IICL Preferred Location Codes, Section 5.7](https://www.iicl.org/techcorner/bulletins/TB002_EDIS_February_2003.pdf)
+            [see IICL Preferred Location Codes, Section 5.7](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
         length:
           type: number
           format: int32
