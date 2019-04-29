@@ -460,7 +460,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         501:
           description: this feature is not supported by this server
-    /workOrder:
+  /workOrder:
     post: 
       tags:
         - workOrder
