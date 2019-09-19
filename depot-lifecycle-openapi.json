@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Depot Lifecycle API",
-    "description": "# Purpose\nA depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to faciliate real time communication between systems instead of traditional EDI files.\n\n# Overview\nThe depot lifecycle API is a RESTful API.  It's requests & responses are loosely based upon traditional EDI files.  For code defintions, explanations, or traditional EDI definitions refer to [IICL TB 002, February 2003](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf).  The requests and responses are formatted according to the [JSON](https://www.json.org/) standard.\n\n# Reference\nThis API is documented by the [OpenAPI](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) specification.  This page was created by the [Swagger-Editor](https://github.com/swagger-api/swagger-editor) tool.  The *yaml* specification file can be found [here](depot-lifecycle-openapi.yaml).\n\n# Expectations\nNot all parties are required or expected to implement every feature.  Any feature not implemented should return a http status code of `501`.\n\n# Depreciation\nIf this API were to be discontinued, a minimum of 6 months time would pass before it's removal.\n\n# Authentication\n[JSON Web Token, or JWT,](https://jwt.io/) is used for stateless authentication to secure all endpoints of this API.  Since all requests are sent using https, tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.  \n\n## 1. Example JWT Token\n```\n{\n    \"username\": \"jdoe\",\n    \"roles\": [\n        \"ROLE_GATE_CREATE\",\n        \"ROLE_GATE_UPDATE\"\n    ],\n    \"email\":\"j.doe@example.com\",\n    \"token_type\":\"Bearer\",\n    \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\",\n    \"expires_in\":28800,        \n    \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\n}\n```\n\nAn access_token is provided for authentication to API endpoints and a refresh_token is provided to generate a new access_token when one expires.\n\n## 2. Obtaining an access token\nIssuing a POST request to `/api/login` with a username and password payload will cause a JWT token to be issued in the response.\n```\nPOST /api/login HTTP/1.1\nContent-Type: text/plain; charset=utf-8\nHost: www.example.com\n\n{\n  \"username\": \"jdoe\",\n  \"password\": \"jdoepassword\"\n}\n```\n\n## 3. Refreshing an expired token\nIssuing a POST request to `/oauth/access_token` with the refresh_token from the JWT token previously issued and a grant_type of refresh_token will reissue the JWT.\n```\nPOST /oauth/access_token HTTP/1.1\nHost: www.example.com\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n```\n\n## 4. Checking if a token is valid\nAny token can be checked if it's still valid by issuing a POST request to `/api/validate`.\n```\nGET /api/validate HTTP/1.1\nHost: www.example.com\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9...\nContent-Type: application/json; charset=utf-8\n```\n\n## 5. Accessing a protected resource\nUse the authorization header to supply the JWT for authentication to a protected resource.\n```\nGET /api/v2/gate/CONU1234561 HTTP/1.1\nHost: www.example.com\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n```\n",
+    "description": "# Purpose\nA depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to faciliate real time communication between systems instead of traditional EDI files.\n\n# Overview\nThe depot lifecycle API is a RESTful API.  It's requests & responses are loosely based upon traditional EDI files.  For code defintions, explanations, or traditional EDI definitions refer to [IICL TB 002, February 2003](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf).  The requests and responses are formatted according to the [JSON](https://www.json.org/) standard.\n\n# Reference\nThis API is documented by the [OpenAPI](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) specification.  This page was created by the [Swagger-Editor](https://github.com/swagger-api/swagger-editor) tool.  The *yaml* specification file can be found [here](depot-lifecycle-openapi.yaml).\n\n# Expectations\nNot all parties are required or expected to implement every feature.  Any feature not implemented should return a http status code of `501`.\n\n# Depreciation\nIf this API were to be discontinued, a minimum of 6 months time would pass before it's removal.\n\n# Authentication\n[JSON Web Token, or JWT,](https://jwt.io/) is used for stateless authentication to secure all endpoints of this API.  Since all requests are sent using https, tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.  \n\n## 1. Example JWT Token\n```\n{\n    \"username\": \"jdoe\",\n    \"roles\": [\n        \"ROLE_GATE_CREATE\",\n        \"ROLE_GATE_UPDATE\"\n    ],\n    \"email\":\"j.doe@example.com\",\n    \"token_type\":\"Bearer\",\n    \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\",\n    \"expires_in\":3600,        \n    \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\n}\n```\n\nAn access_token is provided for authentication to API endpoints and a refresh_token is provided to generate a new access_token when one expires.\n\n## 2. Obtaining an access token\nIssuing a POST request to `/api/login` with a username and password payload will cause a JWT token to be issued in the response.\n```\nPOST /api/login HTTP/1.1\nContent-Type: text/plain; charset=utf-8\nHost: www.example.com\n\n{\n  \"username\": \"jdoe\",\n  \"password\": \"jdoepassword\"\n}\n```\n\n## 3. Refreshing an expired token\nTokens expire after 1 hour.  Issuing a POST request to `/oauth/access_token` with the refresh_token from the JWT token previously issued and a grant_type of refresh_token will reissue the JWT.\n```\nPOST /oauth/access_token HTTP/1.1\nHost: www.example.com\nContent-Type: application/x-www-form-urlencoded\n\ngrant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n```\n\n## 4. Checking if a token is valid\nAny token can be checked if it's still valid by issuing a POST request to `/api/validate`.\n```\nGET /api/validate HTTP/1.1\nHost: www.example.com\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9...\nContent-Type: application/json; charset=utf-8\n```\n\n## 5. Accessing a protected resource\nUse the authorization header to supply the JWT for authentication to a protected resource.\n```\nGET /api/v2/gate/CONU1234561 HTTP/1.1\nHost: www.example.com\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n```\n",
     "contact": {
       "email": "api-edi@trtn.com"
     },
@@ -76,12 +76,6 @@
             }
           },
           "400": {
-            "description": "the shipping container was not found"
-          },
-          "403": {
-            "description": "create a gate record is disallowed by security configuration"
-          },
-          "405": {
             "description": "an error occurred",
             "content": {
               "application/json": {
@@ -91,8 +85,17 @@
               }
             }
           },
+          "403": {
+            "description": "create a gate record is disallowed by security configuration"
+          },
+          "404": {
+            "description": "the shipping container or depot was not found"
+          },
           "501": {
             "description": "this feature is not supported by this server"
+          },
+          "503": {
+            "description": "API is temporarily paused, and not accepting any activity"
           }
         }
       }
@@ -130,16 +133,7 @@
             }
           },
           "400": {
-            "description": "an invalid identifier was supplied"
-          },
-          "403": {
-            "description": "fetching a gate record is disallowed by security"
-          },
-          "404": {
-            "description": "the shipping container was not found"
-          },
-          "405": {
-            "description": "an error ocurred trying to fetch the current gate status",
+            "description": "an error occurred",
             "content": {
               "application/json": {
                 "schema": {
@@ -148,13 +142,22 @@
               }
             }
           },
+          "403": {
+            "description": "fetching a gate record is disallowed by security"
+          },
+          "404": {
+            "description": "the shipping container was not found"
+          },
           "501": {
             "description": "this feature is not supported by this server"
+          },
+          "503": {
+            "description": "API is temporarily paused, and not accepting any activity"
           }
         }
       }
     },
-    "/gate/{adviceNumber}/{unitNumber}": {
+    "/gate/{depot}/{adviceNumber}/{unitNumber}": {
       "parameters": [
         {
           "name": "adviceNumber",
@@ -178,6 +181,17 @@
             "pattern": "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
           },
           "required": true
+        },
+        {
+          "name": "depot",
+          "in": "path",
+          "description": "the depot id",
+          "required": true,
+          "example": "DEHAMCMRA",
+          "schema": {
+            "type": "string",
+            "pattern": "^[A-Z0-9]{9}$"
+          }
         }
       ],
       "put": {
@@ -219,16 +233,7 @@
             }
           },
           "400": {
-            "description": "invalid unit number supplied"
-          },
-          "403": {
-            "description": "update a gate record is disallowed by security"
-          },
-          "404": {
-            "description": "shipping container not found"
-          },
-          "405": {
-            "description": "an error occurred trying to update a gate record",
+            "description": "an error occurred",
             "content": {
               "application/json": {
                 "schema": {
@@ -237,8 +242,17 @@
               }
             }
           },
+          "403": {
+            "description": "update a gate record is disallowed by security"
+          },
+          "404": {
+            "description": "shipping container or depot was not found"
+          },
           "501": {
             "description": "this feature is not supported by this server"
+          },
+          "503": {
+            "description": "API is temporarily paused, and not accepting any activity"
           }
         }
       }
@@ -262,7 +276,7 @@
             "example": "DEHAMCE1856373"
           },
           {
-            "name": "unitId",
+            "name": "unitNumber",
             "in": "query",
             "schema": {
               "type": "string",
@@ -272,7 +286,7 @@
             "example": "CONU1234561"
           },
           {
-            "name": "depotId",
+            "name": "depot",
             "in": "query",
             "schema": {
               "type": "string",
@@ -282,7 +296,7 @@
             "example": "DEHAMCMRA"
           },
           {
-            "name": "lesseeId",
+            "name": "lessee",
             "in": "query",
             "schema": {
               "type": "string",
@@ -341,18 +355,11 @@
           "404": {
             "description": "no estimates were found"
           },
-          "405": {
-            "description": "an unexpected error occurred",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "501": {
             "description": "this feature is not supported by this server"
+          },
+          "503": {
+            "description": "API is temporarily paused, and not accepting any activity"
           }
         }
       },
@@ -418,20 +425,13 @@
             "description": "creating an estimate is disallowed by security"
           },
           "404": {
-            "description": "a depot could not be found"
-          },
-          "405": {
-            "description": "an unexpected error occurred",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "the shipping conatiner or depot could not be found"
           },
           "501": {
             "description": "this feature is not supported by this server"
+          },
+          "503": {
+            "description": "API is temporarily paused, and not accepting any activity"
           }
         }
       }
@@ -507,18 +507,11 @@
           "404": {
             "description": "estimate not found"
           },
-          "405": {
-            "description": "an unexpected error occurred",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "501": {
             "description": "this feature is not supported by this server"
+          },
+          "503": {
+            "description": "API is temporarily paused, and not accepting any activity"
           }
         }
       },
@@ -541,7 +534,7 @@
         },
         "responses": {
           "200": {
-            "description": "successfully customer approved the estimate",
+            "description": "successfully approved the estimate revision",
             "content": {
               "application/json": {
                 "schema": {
@@ -551,7 +544,7 @@
             }
           },
           "201": {
-            "description": "successfully approved the estimate, and created a repair authorization for the estimate",
+            "description": "successfully received the customer approval and issued a repair authorization for the estimate",
             "content": {
               "application/json": {
                 "schema": {
@@ -560,16 +553,17 @@
               }
             }
           },
+          "202": {
+            "description": "customer approval accepted for processing, but not created due to manual processing requirement",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingResponse"
+                }
+              }
+            }
+          },
           "400": {
-            "description": "invalid estimate number or depot supplied"
-          },
-          "403": {
-            "description": "customer approval is disallowed by security"
-          },
-          "404": {
-            "description": "estimate was not found"
-          },
-          "405": {
             "description": "an error occurred trying to customer approve the estimate",
             "content": {
               "application/json": {
@@ -579,8 +573,17 @@
               }
             }
           },
+          "403": {
+            "description": "customer approval is disallowed by security"
+          },
+          "404": {
+            "description": "estimate or depot were not found"
+          },
           "501": {
             "description": "this feature is not supported by this server"
+          },
+          "503": {
+            "description": "API is temporarily paused, and not accepting any activity"
           }
         }
       }
@@ -625,7 +628,7 @@
             }
           },
           "400": {
-            "description": "invalid request - i.e. incorrect work order number supplied",
+            "description": "an error occurred trying to create the work order",
             "content": {
               "application/json": {
                 "schema": {
@@ -637,18 +640,14 @@
           "403": {
             "description": "repair authorization is not allowed by security"
           },
-          "405": {
-            "description": "an unexpected error occurred",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+          "404": {
+            "description": "depot or unit were not found"
           },
           "501": {
             "description": "this feature is not supported by this server"
+          },
+          "503": {
+            "description": "API is temporarily paused, and not accepting any activity"
           }
         }
       }
@@ -685,10 +684,10 @@
         },
         "responses": {
           "200": {
-            "description": "successfully cancelled the workOrder"
+            "description": "successfully repair completed the workOrder"
           },
           "400": {
-            "description": "invalid request - i.e. incorrect work order number supplied",
+            "description": "an error occurred trying to repair complete the work order",
             "content": {
               "application/json": {
                 "schema": {
@@ -701,20 +700,13 @@
             "description": "repair completion is not allowed by security"
           },
           "404": {
-            "description": "work order was not found"
-          },
-          "405": {
-            "description": "an error occurred",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
+            "description": "unit, depot, or work order ereot found"
           },
           "501": {
             "description": "this feature is not supported by this server"
+          },
+          "503": {
+            "description": "API is temporarily paused, and not accepting any activity"
           }
         }
       }
@@ -793,6 +785,17 @@
             "type": "number",
             "format": "double",
             "description": "the total amount allowable to by covered by insurance"
+          },
+          "amountCurrency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "The currency for the insurance coverage amount",
+            "example": "EUR"
+          },
+          "allOrNothing": {
+            "type": "boolean",
+            "description": "indicates if the amount of damage exceeds the insurance coverage, whether the lessee if fully responsible for the damage.\n",
+            "example": false
           },
           "exceptions": {
             "type": "string",
@@ -894,6 +897,15 @@
             "format": "date-time",
             "example": "2019-04-10T19:37:04Z",
             "description": "The date and time of the gate activity \n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )\n"
+          },
+          "type": {
+            "type": "string",
+            "example": "IN",
+            "enum": [
+              "IN",
+              "OUT"
+            ],
+            "description": "gate type indicator\n\n`IN` - Gate In\n`OUT` - Gate Out\n"
           }
         },
         "required": [
@@ -902,7 +914,8 @@
           "status",
           "advice",
           "depot",
-          "activityTime"
+          "activityTime",
+          "type"
         ]
       },
       "GateUpdateRequest": {
@@ -923,6 +936,15 @@
             "format": "date-time",
             "example": "2019-04-10T19:37:04Z",
             "description": "The date and time of the gate activity \n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )\n"
+          },
+          "type": {
+            "type": "string",
+            "example": "IN",
+            "enum": [
+              "IN",
+              "OUT"
+            ],
+            "description": "gate type indicator\n\n`IN` - Gate In\n`OUT` - Gate Out\n"
           }
         }
       },
@@ -1060,6 +1082,48 @@
           },
           "customerApproval": {
             "$ref": "#/components/schemas/EstimateCustomerApproval"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "R",
+              "RI",
+              "RC",
+              "SC",
+              "SU",
+              "AS",
+              "AU",
+              "AR"
+            ],
+            "example": "D",
+            "description": "delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision\n\n`R` - Primary (Unknown Estimation Standard)\n\n`RI` - Primary (IICL)\n\n`RC` - Primary (CWCA)\n\n`SC` - Secondary (CWCA)\n\n`SU` - Secondary Upgrade\n\n`AS` - Sell Upgrade\n\n`AU` - Ancillary Upgrade\n\n`AR` - Ancillary Repair\n"
+          },
+          "upgradeType": {
+            "type": "string",
+            "enum": [
+              "FG",
+              "ML",
+              "DB",
+              "EV",
+              "WH",
+              "SU",
+              "CF",
+              "TB",
+              "MC",
+              "MP",
+              "AM",
+              "CH",
+              "TE",
+              "FT"
+            ],
+            "example": "AM",
+            "description": "The type of secondary upgrade this estimate represents.\n\n`FG` - Food grade\n\n`ML` - Malt\n\n`DB` - Dairy Board\n\n`EV` - Evian\n\n`WH` - Whiskey\n\n`SU` - Sugar\n\n`CF` - Coffee\n\n`TB` - Tobacco\n\n`MC` - Milk cartons\n\n`MP` - Milk powder\n\n`AM` - Ammunition\n\n`CH` - Cotton/Hay\n\n`TE` - Tea\n\n`FT` - Flexitank\n"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "the revision number of the estimate",
+            "example": 0
           },
           "lineItems": {
             "type": "array",
@@ -1227,7 +1291,7 @@
               "MMT"
             ],
             "example": "CMT",
-            "description": "`CMT` - \"Centimeters\"\n\n`FOT` - \"Feet\"\n\n`GRM` - \"Grams\"\n\n`INH` - \"Inches\"\n\n`MTR` - \"Meters\"\n\n`MMT` - \"Millimeters\"\n"
+            "description": "`CMT` - \"Centimeters\"\n\n`FOT` - \"Feet\"\n\n`GRM` - \"Grams\"\n\n`INH` - \"Inches\"\n\n`KGM` - \"Kilograms\"\n\n`MTR` - \"Meters\"\n\n`TON` - \"Tons\"\n\n`MTT` - \"Metric Tons\"\n\n`MMT` - \"Millimeters\"\n"
           },
           "hours": {
             "type": "number",
@@ -1401,11 +1465,8 @@
           "workOrderNumber",
           "depot",
           "owner",
-          "billingParty",
           "approvalDate",
           "type",
-          "approvalTotal",
-          "approvalCurrency",
           "lineItems"
         ]
       },

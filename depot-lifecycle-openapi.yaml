@@ -31,7 +31,7 @@ info:
         "email":"j.doe@example.com",
         "token_type":"Bearer",
         "access_token":"eyJhbGciOiJIUzI1NiJ9...",
-        "expires_in":28800,        
+        "expires_in":3600,        
         "refresh_token":"eyJhbGciOiJIUzI1NiJ9..."
     }
     ```
@@ -52,7 +52,7 @@ info:
     ```
 
     ## 3. Refreshing an expired token
-    Issuing a POST request to `/oauth/access_token` with the refresh_token from the JWT token previously issued and a grant_type of refresh_token will reissue the JWT.
+    Tokens expire after 1 hour.  Issuing a POST request to `/oauth/access_token` with the refresh_token from the JWT token previously issued and a grant_type of refresh_token will reissue the JWT.
     ```
     POST /oauth/access_token HTTP/1.1
     Host: www.example.com
@@ -127,18 +127,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PendingResponse'
-        400:
-          description: the shipping container was not found
-        403:
-          description: create a gate record is disallowed by security configuration
-        405: 
+        400: 
           description: an error occurred
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: create a gate record is disallowed by security configuration
+        404:
+          description: the shipping container or depot was not found
         501:
           description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
   /gate/{unitNumber}:
     parameters:
       - name: unitNumber
@@ -163,21 +165,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GateStatus'
-        400:
-          description: an invalid identifier was supplied
-        403:
-          description: fetching a gate record is disallowed by security
-        404:
-          description: the shipping container was not found
-        405:
-          description: an error ocurred trying to fetch the current gate status
+        400: 
+          description: an error occurred
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: fetching a gate record is disallowed by security
+        404:
+          description: the shipping container was not found
         501:
           description: this feature is not supported by this server
-  /gate/{adviceNumber}/{unitNumber}:
+        503:
+          description: API is temporarily paused, and not accepting any activity
+  /gate/{depot}/{adviceNumber}/{unitNumber}:
     parameters:
       - name: adviceNumber
         in: path
@@ -196,6 +198,14 @@ paths:
           type: string
           pattern: '^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$'
         required: true
+      - name: depot
+        in: path
+        description: 'the depot id'
+        required: true
+        example: 'DEHAMCMRA'
+        schema:
+          type: string
+          pattern: '^[A-Z0-9]{9}$'
     put: 
       tags:
         - gate
@@ -222,20 +232,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PendingResponse'
-        400:
-          description: invalid unit number supplied
-        403:
-          description: update a gate record is disallowed by security
-        404:
-          description: shipping container not found
-        405: 
-          description: an error occurred trying to update a gate record
+        400: 
+          description: an error occurred
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: update a gate record is disallowed by security
+        404:
+          description: shipping container or depot was not found
         501:
           description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
   /estimate:
     get:
       tags:
@@ -251,21 +261,21 @@ paths:
             type: string
           description: "the estimate number"
           example: 'DEHAMCE1856373'
-        - name: unitId
+        - name: unitNumber
           in: query
           schema: 
             type: string
             pattern: '^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$'
           description: "the unit number of the shipping container at the time of turn in"
           example: 'CONU1234561'
-        - name: depotId
+        - name: depot
           in: query
           schema:
             type: string
             pattern: '^[A-Z0-9]{9}$'
           description: "the identifier of the depot"
           example: 'DEHAMCMRA'
-        - name: lesseeId
+        - name: lessee
           in: query
           schema: 
             type: string
@@ -304,14 +314,10 @@ paths:
           description: searching for estimates is disallowed by security
         404:
           description: no estimates were found
-        405:
-          description: an unexpected error occurred
-          content:
-            application/json:
-              schema: 
-                $ref: '#/components/schemas/ErrorResponse'
         501:
           description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
     post:
       tags: 
         - estimate
@@ -353,15 +359,11 @@ paths:
         403:
           description: creating an estimate is disallowed by security
         404:
-          description: a depot could not be found
-        405:
-          description: an unexpected error occurred
-          content:
-            application/json:
-              schema: 
-                $ref: '#/components/schemas/ErrorResponse'
+          description: the shipping conatiner or depot could not be found
         501:
           description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
   /estimate/{estimateNumber}:
     parameters: 
       - name: estimateNumber
@@ -412,14 +414,10 @@ paths:
           description: fetching estimate is disallowed by security
         404:
           description: estimate not found
-        405:
-          description: an unexpected error occurred
-          content:
-            application/json:
-              schema: 
-                $ref: '#/components/schemas/ErrorResponse'
         501:
           description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
     put: 
       tags:
         - estimate
@@ -435,31 +433,37 @@ paths:
               $ref: '#/components/schemas/EstimateCustomerApproval'
       responses:
         200:
-          description: successfully customer approved the estimate
+          description: successfully approved the estimate revision
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EstimateResponse'
         201:
-          description: successfully approved the estimate, and created a repair authorization for the estimate
+          description: successfully received the customer approval and issued a repair authorization for the estimate
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RepairSummary'
-        400:
-          description: invalid estimate number or depot supplied
-        403:
-          description: customer approval is disallowed by security
-        404:
-          description: estimate was not found
-        405: 
+        202:
+          description: customer approval accepted for processing, but not created due to manual processing requirement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingResponse'
+        400: 
           description: an error occurred trying to customer approve the estimate
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: customer approval is disallowed by security
+        404:
+          description: estimate or depot were not found
         501:
           description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
   /workOrder:
     post: 
       tags:
@@ -488,21 +492,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/PendingResponse'
         400:
-          description: invalid request - i.e. incorrect work order number supplied
+          description: an error occurred trying to create the work order
           content:
             application/json:
               schema: 
                 $ref: '#/components/schemas/ErrorResponse'
         403: 
           description: repair authorization is not allowed by security
-        405:
-          description: an unexpected error occurred
-          content:
-            application/json:
-              schema: 
-                $ref: '#/components/schemas/ErrorResponse'
+        404:
+          description: depot or unit were not found
         501:
           description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
   /workOrder/{workOrderNumber}:
     parameters: 
       - name: workOrderNumber
@@ -527,9 +529,9 @@ paths:
                 $ref: '#/components/schemas/RepairComplete'
       responses: 
         200:
-          description: 'successfully cancelled the workOrder'          
+          description: 'successfully repair completed the workOrder'          
         400:
-          description: invalid request - i.e. incorrect work order number supplied
+          description: an error occurred trying to repair complete the work order
           content:
             application/json:
               schema: 
@@ -537,15 +539,11 @@ paths:
         403:
           description: repair completion is not allowed by security
         404:
-          description: work order was not found  
-        405:
-          description: an error occurred
-          content:
-            application/json:
-              schema: 
-                $ref: '#/components/schemas/ErrorResponse'
+          description: unit, depot, or work order ereot found  
         501:
           description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
 components:
   schemas:
     ErrorResponse:
@@ -609,6 +607,16 @@ components:
           type: number
           format: double
           description: 'the total amount allowable to by covered by insurance'
+        amountCurrency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: "The currency for the insurance coverage amount"
+          example: 'EUR'
+        allOrNothing:
+          type: boolean
+          description: |
+            indicates if the amount of damage exceeds the insurance coverage, whether the lessee if fully responsible for the damage.
+          example: false
         exceptions:
           type: string
           description: 'any contractual reason why the coverage may not apply'
@@ -703,6 +711,17 @@ components:
             The date and time of the gate activity 
             
             ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+        type: 
+          type: string
+          example: 'IN'
+          enum: 
+            - IN
+            - OUT
+          description: | 
+            gate type indicator
+            
+            `IN` - Gate In
+            `OUT` - Gate Out
       required:
         - unitNumber
         - adviceNumber
@@ -710,6 +729,7 @@ components:
         - advice
         - depot
         - activityTime
+        - type
     GateUpdateRequest:
       type: object
       description: 'Data required to update a gate in or gate out record. Any data not provided will result in no update.'
@@ -734,6 +754,17 @@ components:
             The date and time of the gate activity 
             
             ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+        type: 
+          type: string
+          example: 'IN'
+          enum: 
+            - IN
+            - OUT
+          description: | 
+            gate type indicator
+            
+            `IN` - Gate In
+            `OUT` - Gate Out
     GateResponse:
       type: object
       properties: 
@@ -858,7 +889,91 @@ components:
           example: 0.8133
         customerApproval:
           $ref: '#/components/schemas/EstimateCustomerApproval'
-          
+        
+        type:
+          type: string
+          enum: 
+            - R
+            - RI
+            - RC
+            - SC
+            - SU
+            - AS
+            - AU
+            - AR
+          example: 'RI'
+          description: |
+            delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision
+            
+            `R` - Primary (Unknown Estimation Standard)
+            
+            `RI` - Primary (IICL)
+            
+            `RC` - Primary (CWCA)
+            
+            `SC` - Secondary (CWCA)
+            
+            `SU` - Secondary Upgrade
+            
+            `AS` - Sell Upgrade
+            
+            `AU` - Ancillary Upgrade
+            
+            `AR` - Ancillary Repair
+        upgradeType: 
+          type: string
+          enum: 
+            - FG
+            - ML
+            - DB
+            - EV
+            - WH
+            - SU
+            - CF
+            - TB
+            - MC
+            - MP
+            - AM
+            - CH
+            - TE
+            - FT
+          example: 'AM'
+          description: | 
+            The type of secondary upgrade this estimate represents.
+            
+            `FG` - Food grade
+            
+            `ML` - Malt
+            
+            `DB` - Dairy Board
+            
+            `EV` - Evian
+            
+            `WH` - Whiskey
+            
+            `SU` - Sugar
+            
+            `CF` - Coffee
+            
+            `TB` - Tobacco
+            
+            `MC` - Milk cartons
+            
+            `MP` - Milk powder
+            
+            `AM` - Ammunition
+            
+            `CH` - Cotton/Hay
+            
+            `TE` - Tea
+            
+            `FT` - Flexitank
+        
+        revision:
+          type: integer
+          format: int32
+          description: "the revision number of the estimate"
+          example: 0
         lineItems:
           type: array
           items: 
@@ -1020,7 +1135,13 @@ components:
             
             `INH` - "Inches"
             
+            `KGM` - "Kilograms"
+            
             `MTR` - "Meters"
+            
+            `TON` - "Tons"
+            
+            `MTT` - "Metric Tons"
             
             `MMT` - "Millimeters"
         hours:
@@ -1191,11 +1312,8 @@ components:
         - workOrderNumber
         - depot
         - owner
-        - billingParty
         - approvalDate
         - type
-        - approvalTotal
-        - approvalCurrency
         - lineItems
     RepairUnitSummary:
       type: object
