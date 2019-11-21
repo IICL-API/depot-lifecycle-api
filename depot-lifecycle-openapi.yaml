@@ -618,8 +618,10 @@ components:
             indicates if the amount of damage exceeds the insurance coverage, whether the lessee if fully responsible for the damage.
           example: false
         exceptions:
-          type: string
-          description: 'any contractual reason why the coverage may not apply'
+          type: array
+          description: 'any contractual reasons why the coverage may not apply'
+          items:
+            type: string
         exclusions:
           type: array
           description: 'reasons insurance coverage would be excluded from a repair'
