@@ -1,12 +1,21 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.hibernate:hibernate-gradle-plugin:5.4.3.Final"
+    }
+}
+
 plugins {
     id "net.ltgt.apt-eclipse" version "0.21"
     id "com.github.johnrengelman.shadow" version "5.0.0"
     id "application"
 }
 
+apply plugin: 'org.hibernate.orm'
 
-
-version "0.1"
+version "3.0"
 group "depotlifecycle"
 
 repositories {
@@ -20,6 +29,10 @@ configurations {
 }
 
 dependencies {
+    //Lombok annotations must come before micronaut definitions
+    compileOnly 'org.projectlombok:lombok:1.16.20'
+    annotationProcessor "org.projectlombok:lombok:1.16.20"
+
     annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
     annotationProcessor "io.micronaut:micronaut-inject-java"
     annotationProcessor "io.micronaut:micronaut-validation"
@@ -36,6 +49,16 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "io.micronaut.test:micronaut-test-junit5"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+
+    //DB access
+    annotationProcessor "io.micronaut.data:micronaut-data-processor:$micronautDataVersion"
+    implementation "io.micronaut.data:micronaut-data-hibernate-jpa:$micronautDataVersion"
+    implementation "io.micronaut.configuration:micronaut-jdbc-hikari"
+    runtime "com.h2database:h2"
+    
+    //open api 
+    annotationProcessor "io.micronaut.configuration:micronaut-openapi"
+    compile "io.swagger.core.v3:swagger-annotations"
 }
 
 test.classpath += configurations.developmentOnly
@@ -54,5 +77,13 @@ shadowJar {
     mergeServiceFiles()
 }
 
+hibernate {
+    enhance {
+        enableLazyInitialization= true
+        enableDirtyTracking = true
+        enableAssociationManagement = true
+    }
+}
+
 run.classpath += configurations.developmentOnly
-run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005')
