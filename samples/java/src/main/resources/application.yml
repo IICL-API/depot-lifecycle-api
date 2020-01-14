@@ -1,6 +1,8 @@
 micronaut:
   application:
     name: depotlifecycle
+  server:
+      port: 8086
   router:
     static-resources:
       swagger:
@@ -19,8 +21,9 @@ jackson:
   bean-introspection-module: true
   serialization:
     indentOutput: true
-#    writeDatesAsTimestamps: false
-#  deserialization:
+    writeDatesAsTimestamps: false
+    writeDatesWithZoneId: false
+  deserialization:
 #    useBigIntegerForInts: true
 #    failOnUnknownProperties: false
 datasources:

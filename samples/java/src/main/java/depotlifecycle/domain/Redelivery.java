@@ -1,5 +1,6 @@
 package depotlifecycle.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,13 +36,15 @@ public class Redelivery {
     @Column(name = "redeliveryNumber", nullable = false, unique = true)
     String redeliveryNumber;
 
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
     @Schema(description = "the date and time in the depot local time zone that this redelivery is considered no longer valid\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2020-07-21T17:32:28Z", type = "string", format = "date-time")
     @Column(name = "expirationDate")
-    LocalDateTime expirationDate;
+    ZonedDateTime expirationDate;
 
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
     @Schema(description = "the date and time in the depot local time zone that this redelivery is considered approved\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2019-07-21T17:32:28Z", type = "string", format = "date-time")
     @Column(name = "approvalDate", nullable = false)
-    LocalDateTime approvalDate;
+    ZonedDateTime approvalDate;
 
     @Schema(description = "comments pertaining to this redelivery for the intended recipient of this message", maxLength = 500, example = "an example redelivery level comment")
     @Column(name = "comments", nullable = false, length = 500)

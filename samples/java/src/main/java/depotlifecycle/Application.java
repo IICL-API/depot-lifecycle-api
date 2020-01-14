@@ -5,11 +5,8 @@ import depotlifecycle.domain.Party;
 import depotlifecycle.domain.Redelivery;
 import depotlifecycle.domain.RedeliveryDetail;
 import depotlifecycle.domain.RedeliveryUnit;
-import depotlifecycle.repositories.InsuranceCoverageRepository;
 import depotlifecycle.repositories.PartyRepository;
-import depotlifecycle.repositories.RedeliveryDetailRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
-import depotlifecycle.repositories.RedeliveryUnitRepository;
 import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
@@ -18,6 +15,7 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -27,6 +25,8 @@ import javax.inject.Singleton;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 
 @OpenAPIDefinition(
@@ -38,7 +38,8 @@ import java.util.Arrays;
         contact = @Contact(url = "https://tritoninternationallimited.github.io/depot-lifecycle-api/", email = "api-edi@trtn.com")
     ),
     externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/TritonInternationalLimited/depot-lifecycle-api"),
-    tags = {@Tag(name = "redelivery", description = "notify turn in approval for shipping containers")}
+    tags = {@Tag(name = "redelivery", description = "*notify turn in approval for shipping containers*")},
+    servers = { @Server(url = "https://www.example.com/api/v3" )}
 )
 @Singleton
 @RequiredArgsConstructor
@@ -59,7 +60,10 @@ public class Application {
             LOG.info("Populating data");
         }
 
+        buildTestData();
+    }
 
+    private void buildTestData() {
         Party depot1 = new Party();
         depot1.setCompanyId("DEHAMCMRA");
         depot1.setUserCode("JDOE");
@@ -84,8 +88,8 @@ public class Application {
 
         Redelivery redelivery = new Redelivery();
         redelivery.setRedeliveryNumber("AHAMG33141");
-        redelivery.setApprovalDate(LocalDateTime.now().minusDays(5));
-        redelivery.setExpirationDate(LocalDateTime.now().plusMonths(4));
+        redelivery.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
+        redelivery.setExpirationDate(getLocal(LocalDateTime.now().plusMonths(4)));
         redelivery.setComments("an example redelivery level comment");
         redelivery.setDepot(depot1);
         redelivery.setRecipient(depot1);
@@ -135,5 +139,10 @@ public class Application {
         insuranceDetail.getUnits().add(unit2);
 
         redeliveryRepository.save(redelivery);
+    }
+
+    private static ZonedDateTime getLocal(LocalDateTime date) {
+        //Don't actually store a time zone for the purposes of this application
+        return ZonedDateTime.of(date, ZoneId.systemDefault());
     }
 }
