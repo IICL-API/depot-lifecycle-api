@@ -36,13 +36,15 @@ public class Redelivery {
     @Column(name = "redeliveryNumber", nullable = false, unique = true)
     String redeliveryNumber;
 
+    //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2020-07-21T17:32:28Z"
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this redelivery is considered no longer valid\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2020-07-21T17:32:28Z", type = "string", format = "date-time")
+    @Schema(description = "the date and time in the depot local time zone that this redelivery is considered no longer valid\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
     @Column(name = "expirationDate")
     ZonedDateTime expirationDate;
 
+    //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2019-07-21T17:32:28Z"
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this redelivery is considered approved\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2019-07-21T17:32:28Z", type = "string", format = "date-time")
+    @Schema(description = "the date and time in the depot local time zone that this redelivery is considered approved\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
     @Column(name = "approvalDate", nullable = false)
     ZonedDateTime approvalDate;
 
