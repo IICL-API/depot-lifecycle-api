@@ -27,7 +27,7 @@ import java.util.List;
 @JsonView
 @NoArgsConstructor
 @Entity
-@Table(name = "redeliveryDetail")
+@Table()
 @Schema(description = "unit criteria that groups similar units on a redelivery")
 @EqualsAndHashCode(of= {"id"} )
 @ToString(of= {"id"} )
@@ -46,11 +46,11 @@ public class RedeliveryDetail {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party customer;
 
-    @Schema(description = "the contract code for the given units", required = true, example = "CNCX05-100000")
+    @Schema(description = "the contract code for the given shipping containers", required = true, example = "CNCX05-100000")
     @Column(nullable = false)
     String contract;
 
-    @Schema(description = "the equipment type ISO code or an internal code if one does not exist for the given units", required = true, example = "22G1")
+    @Schema(description = "the equipment type ISO code or an internal code if one does not exist for the given shipping containers", required = true, example = "22G1")
     @Column(nullable = false)
     String equipment;
 

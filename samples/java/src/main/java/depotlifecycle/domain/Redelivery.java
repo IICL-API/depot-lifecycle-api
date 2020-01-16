@@ -25,7 +25,7 @@ import java.util.List;
 @JsonView
 @NoArgsConstructor
 @Entity
-@Table(name = "redelivery")
+@Table()
 @Schema(description = "An approval to deliver units to a storage location.")
 @EqualsAndHashCode(of= {"redeliveryNumber"} )
 @ToString(of= {"redeliveryNumber"} )
@@ -33,23 +33,23 @@ import java.util.List;
 public class Redelivery {
     @Id
     @Schema(description = "the identifier for this redelivery, also referred to as the advice number or redelivery number", example = "AHAMG33141", maxLength = 16, required = true)
-    @Column(name = "redeliveryNumber", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     String redeliveryNumber;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2020-07-21T17:32:28Z"
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this redelivery is considered no longer valid\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
-    @Column(name = "expirationDate")
+    @Schema(description = "the date and time in the depot local time zone that this redelivery is considered no longer valid\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Column()
     ZonedDateTime expirationDate;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2019-07-21T17:32:28Z"
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this redelivery is considered approved\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
-    @Column(name = "approvalDate", nullable = false)
+    @Schema(description = "the date and time in the depot local time zone that this redelivery is considered approved\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Column(nullable = false)
     ZonedDateTime approvalDate;
 
     @Schema(description = "comments pertaining to this redelivery for the intended recipient of this message", maxLength = 500, example = "an example redelivery level comment")
-    @Column(name = "comments", nullable = false, length = 500)
+    @Column(nullable = false, length = 500)
     String comments;
 
     @Schema(description = "The location for this redelivery", required = true)

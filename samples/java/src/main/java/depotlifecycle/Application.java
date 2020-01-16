@@ -128,12 +128,14 @@ public class Application {
         unit1.setLastOnHireDate(LocalDate.of(2012, 2, 1));
         unit1.setLastOnHireLocation(depot2);
         unit1.setComments("Example unit comment #1.");
+        unit1.setStatus("TIED");
 
         RedeliveryUnit unit2 = new RedeliveryUnit();
         unit2.setRedeliveryDetail(insuranceDetail);
         unit2.setUnitNumber("CONU1234526");
         unit2.setManufactureDate(LocalDate.of(2012, 1, 1));
         unit2.setComments("Example unit comment #2.");
+        unit2.setStatus("TIED");
 
         redelivery.getDetails().add(insuranceDetail);
         redelivery.getDetails().add(noInsuranceDetail);
