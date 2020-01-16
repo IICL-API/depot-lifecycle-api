@@ -101,6 +101,7 @@ public class Application {
         noInsuranceDetail.setEquipment("22G1");
         noInsuranceDetail.setInspectionCriteria("IICL");
         noInsuranceDetail.setBillingParty(depot1);
+        noInsuranceDetail.setQuantity(1);
 
         InsuranceCoverage coverage = new InsuranceCoverage();
         coverage.setAmountCovered(new BigDecimal(2000.0));
@@ -118,6 +119,7 @@ public class Application {
         insuranceDetail.setInspectionCriteria("IICL");
         insuranceDetail.setBillingParty(depot1);
         insuranceDetail.setInsuranceCoverage(coverage);
+        insuranceDetail.setQuantity(1);
 
         RedeliveryUnit unit1 = new RedeliveryUnit();
         unit1.setRedeliveryDetail(noInsuranceDetail);

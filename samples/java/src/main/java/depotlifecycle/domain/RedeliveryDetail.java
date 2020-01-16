@@ -47,11 +47,11 @@ public class RedeliveryDetail {
     Party customer;
 
     @Schema(description = "the contract code for the given units", required = true, example = "CNCX05-100000")
-    @Column(name = "contract", nullable = false)
+    @Column(nullable = false)
     String contract;
 
     @Schema(description = "the equipment type ISO code or an internal code if one does not exist for the given units", required = true, example = "22G1")
-    @Column(name = "equipment", nullable = false)
+    @Column(nullable = false)
     String equipment;
 
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
@@ -59,7 +59,7 @@ public class RedeliveryDetail {
     InsuranceCoverage insuranceCoverage;
 
     @Schema(description = "the grade / category of the unit as it was when it last left a depot", required = true, example = "IICL")
-    @Column(name = "inspectionCriteria", nullable = false)
+    @Column(nullable = false)
     String inspectionCriteria;
 
     @Schema(description = "The party that will handle any repair billing for units associated with this detail.", required = true)
@@ -69,4 +69,8 @@ public class RedeliveryDetail {
     @Schema(description = "the specific units for this redelivery if defined, if not, assumed blanket")
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<RedeliveryUnit> units = new ArrayList<>();
+
+    @Schema(description = "the number of shipping containers assigned to this detail", required = true, example = "1", minimum = "0")
+    @Column(nullable = false)
+    Integer quantity;
 }
