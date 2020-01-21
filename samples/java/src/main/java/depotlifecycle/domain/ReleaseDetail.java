@@ -27,7 +27,7 @@ import java.util.List;
 @JsonView
 @NoArgsConstructor
 @Entity
-@Table(name = "releaseDetail")
+@Table
 @Schema(description = "unit criteria that groups similar units on a release")
 @EqualsAndHashCode(of= {"id"} )
 @ToString(of= {"id"} )

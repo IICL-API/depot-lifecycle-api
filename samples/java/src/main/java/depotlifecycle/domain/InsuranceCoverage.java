@@ -31,7 +31,7 @@ import java.util.List;
 @JsonView
 @NoArgsConstructor
 @Entity
-@Table(name = "insuranceCoverage")
+@Table
 @Schema(description = "describes the type of insurance coverage a given shipping container has for a damage repair")
 @EqualsAndHashCode(of= {"id"} )
 @ToString(of= {"id"} )
@@ -43,15 +43,15 @@ public class InsuranceCoverage {
     Long id;
 
     @Schema(description = "the total amount allowable to by covered by insurance", format = "double")
-    @Column(name = "amountCovered", nullable = false)
+    @Column(nullable = false)
     BigDecimal amountCovered;
 
     @Schema(description = "The currency for the insurance coverage amount", pattern = "^[A-Z]{3}$", example = "EUR")
-    @Column(name = "amountCurrency", nullable = false, length = 3)
+    @Column(nullable = false, length = 3)
     String amountCurrency;
 
     @Schema(description = "indicates if the amount of damage exceeds the insurance coverage, whether the lessee if fully responsible for the damage")
-    @Column(name = "allOrNothing", nullable = false)
+    @Column(nullable = false)
     Boolean allOrNothing;
 
     @Schema(description = "any contractual reason why the coverage may not apply")

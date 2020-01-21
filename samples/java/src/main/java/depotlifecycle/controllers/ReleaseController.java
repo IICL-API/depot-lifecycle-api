@@ -1,7 +1,7 @@
-package depotlifecycle;
+package depotlifecycle.controllers;
 
-import depotlifecycle.domain.Redelivery;
-import depotlifecycle.repositories.RedeliveryRepository;
+import depotlifecycle.domain.Release;
+import depotlifecycle.repositories.ReleaseRepository;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -22,81 +22,79 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 
-@Tag(name = "redelivery")
+@Tag(name = "release")
 @Validated
-@Controller("redelivery")
-public class RedeliveryController {
-    private final RedeliveryRepository redeliveryRepository;
-
-    public RedeliveryController(RedeliveryRepository redeliveryRepository) {
-        this.redeliveryRepository = redeliveryRepository;
-    }
+@Controller("release")
+@RequiredArgsConstructor
+public class ReleaseController {
+    private final ReleaseRepository releaseRepository;
 
     @Get(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "Redelivery Search", description = "Finds Redeliveries for the given the criteria.", operationId = "searchRedeliveries")
+    @Operation(summary = "Release Search", description = "Finds Releases for the given the criteria.", operationId = "indexRelease")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful search", content = { @Content( array = @ArraySchema(schema = @Schema(implementation = Redelivery.class))) }),
+        @ApiResponse(responseCode = "200", description = "successful search", content = { @Content( array = @ArraySchema(schema = @Schema(implementation = Release.class))) }),
         @ApiResponse(responseCode = "400", description = "an error occurred"),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@Parameter(name="redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false) String redeliveryNumber) {
-        List<Redelivery> redeliveries = new ArrayList<>();
-        if(redeliveryNumber != null) {
-            Optional<Redelivery> redelivery = redeliveryRepository.findById(redeliveryNumber);
-            redelivery.ifPresent(redeliveries::add);
+    public HttpResponse index(@Parameter(name="releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false) String releaseNumber) {
+        List<Release> releases = new ArrayList<>();
+        if(releaseNumber != null) {
+            Optional<Release> release = releaseRepository.findById(releaseNumber);
+            release.ifPresent(releases::add);
         }
         else {
-            for (Redelivery redelivery : redeliveryRepository.findAll()) {
-                redeliveries.add(redelivery);
+            for (Release release : releaseRepository.findAll()) {
+                releases.add(release);
             }
         }
 
-        if(redeliveries.isEmpty()) {
+        if(releases.isEmpty()) {
             return HttpResponse.notFound();
         }
         else {
-            return HttpResponse.ok(redeliveries);
+            return HttpResponse.ok(releases);
         }
     }
 
     @Post(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "Redelivery Create", description = "Creates a Redelivery for the given criteria.", method = "POST", operationId = "saveRedelivery")
+    @Operation(summary = "Release Create", description = "Creates a Release for the given criteria.", method = "POST", operationId = "saveRelease")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful create"),
         @ApiResponse(responseCode = "400", description = "an error occurred"),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
-        @ApiResponse(responseCode = "404", description = "the redelivery depot was not found"),
+        @ApiResponse(responseCode = "404", description = "the release depot was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void create(@RequestBody( description =  "Data to use to update the given Redelivery", required = true, content = { @Content( schema = @Schema(implementation = Redelivery.class) ) }) Redelivery redelivery) {
-        redeliveryRepository.save(redelivery);
+    public void create(@RequestBody( description =  "Data to use to update the given Release", required = true, content = { @Content( schema = @Schema(implementation = Release.class) ) }) Release release) {
+        releaseRepository.save(release);
     }
 
-    @Post(uri = "/{redeliveryNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "Redelivery Update", description = "Updates an existing Redelivery.", method = "POST", operationId = "updateRedelivery")
+    @Post(uri = "/{releaseNumber}", produces = MediaType.APPLICATION_JSON)
+    @Operation(summary = "Release Update", description = "Updates an existing Release.", method = "POST", operationId = "updateRelease")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful update"),
         @ApiResponse(responseCode = "400", description = "an error occurred"),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
-        @ApiResponse(responseCode = "404", description = "the redelivery was not found"),
+        @ApiResponse(responseCode = "404", description = "the release was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH) String redeliveryNumber,
-                       @RequestBody( description =  "Data to use to update the given Redelivery", required = true, content = { @Content( schema = @Schema(implementation = Redelivery.class) ) })  Redelivery redelivery) {
-        if(!redeliveryRepository.existsById(redeliveryNumber)) {
-            throw new IllegalArgumentException("Redelivery does not exist.");
+    public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH) String releaseNumber,
+                       @RequestBody( description =  "Data to use to update the given Release", required = true, content = { @Content( schema = @Schema(implementation = Release.class) ) })  Release release) {
+        if(!releaseRepository.existsById(releaseNumber)) {
+            throw new IllegalArgumentException("Release does not exist.");
         }
-        redeliveryRepository.update(redelivery);
+        releaseRepository.update(release);
     }
 
     @Error(status = HttpStatus.NOT_FOUND)

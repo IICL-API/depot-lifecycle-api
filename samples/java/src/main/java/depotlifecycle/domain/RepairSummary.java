@@ -1,0 +1,85 @@
+package depotlifecycle.domain;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Data
+@JsonView
+@NoArgsConstructor
+@Entity
+@Table
+@Schema(description = "An approval of a damage estimate signifying a depot may repair a shipping container")
+@EqualsAndHashCode(of = {"workOrderNumber"})
+@ToString(of = {"workOrderNumber"})
+public class RepairSummary {
+    @Schema(description = "The estimate number that initiated this approval", example = "DEHAMCE1856373", minLength = 1, maxLength = 16, required = false)
+    @Column
+    String estimateNumber;
+
+    @Id
+    @Schema(description = "the identifier for this work order", example = "WHAMG46019", minLength = 1, maxLength = 16, required = true)
+    @Column(nullable = false, unique = true)
+    String workOrderNumber;
+
+    @Schema(required = true, description = "the storage location where the shipping container is being repaired")
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    Party depot;
+
+    @Schema(required = true, description = "the owner of the shipping container")
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    Party owner;
+
+    @Schema(required = false, description = "the party that will bill the customer portion of damages for this repair")
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    Party billingParty;
+
+    @Schema(description = "the type of repair approved", example = "SELLCWCA", required = true)
+    @Column(nullable = false)
+    String type;
+
+    //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2017-05-10T19:37:04Z"
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
+    @Schema(description = "the date and time in the depot local time zone that this work order is authorized for repair\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Column(nullable = false)
+    ZonedDateTime approvalDate;
+
+    @Schema(description = "the total approved for repair", required = false, type = "number", format = "double", example = "175.00")
+    @Column
+    BigDecimal approvalTotal;
+
+    @Schema(description = "the currency of the approval total", required = false, example = "EUR", pattern = "^[A-Z]{3}$")
+    @Column(length = 3)
+    String approvalCurrency;
+
+    //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2020-07-21T17:32:28Z"
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
+    @Schema(description = "the date and time in the depot local time zone that this repair must be completed by\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Column
+    ZonedDateTime expirationDate;
+
+    @Schema(description = "comments pertaining to this repair for the intended recipient of this message", maxLength = 500, example = "CWCA repairs for unit TCKU3456654 total 175.00 EUR per DEHAMCE1856373.1", required = false)
+    @Column(length = 500)
+    String comments;
+
+    @Schema(description = "units associated to this work order", required = true, minLength = 1, maxLength = 200)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    List<RepairUnitSummary> lineItems = new ArrayList<>();
+}

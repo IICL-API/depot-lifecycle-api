@@ -25,7 +25,7 @@ import java.util.List;
 @JsonView
 @NoArgsConstructor
 @Entity
-@Table()
+@Table
 @Schema(description = "An approval to remove shipping containers from a storage location.")
 @EqualsAndHashCode(of= {"releaseNumber"} )
 @ToString(of= {"releaseNumber"} )
@@ -53,7 +53,7 @@ public class Release {
     ZonedDateTime approvalDate;
 
     @Schema(description = "comments pertaining to this release for the intended recipient of this message", maxLength = 500, example = "an example release level comment")
-    @Column(nullable = false, length = 500)
+    @Column(length = 500)
     String comments;
 
     @Schema(description = "The location for this release", required = true)

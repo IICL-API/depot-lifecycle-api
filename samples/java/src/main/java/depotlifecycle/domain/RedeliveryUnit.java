@@ -23,7 +23,7 @@ import javax.persistence.Table;
 @JsonView
 @NoArgsConstructor
 @Entity
-@Table()
+@Table
 @Schema(description = "information for a specific unit on a redelivery")
 @EqualsAndHashCode(of= {"id"} )
 @ToString(of= {"id"} )
@@ -38,8 +38,8 @@ public class RedeliveryUnit {
     @JsonIgnore
     RedeliveryDetail redeliveryDetail;
 
-    @Schema(description = "the current remark of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, example = "CONU1234561")
-    @Column(nullable = false)
+    @Schema(description = "the current remark of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, example = "CONU1234561", maxLength = 11)
+    @Column(nullable = false, length = 11)
     String unitNumber;
 
     @Schema(description = "date and month this unit was manufactured\n\n( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2001-07-21", type = "string", format = "date", required = true)
