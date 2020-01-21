@@ -1,0 +1,109 @@
+package depotlifecycle;
+
+import depotlifecycle.domain.Release;
+import depotlifecycle.repositories.ReleaseRepository;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Error;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.hateoas.JsonError;
+import io.micronaut.validation.Validated;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+
+@Tag(name = "release")
+@Validated
+@Controller("release")
+public class ReleaseController {
+    private final ReleaseRepository releaseRepository;
+
+    public ReleaseController(ReleaseRepository releaseRepository) {
+        this.releaseRepository = releaseRepository;
+    }
+
+    @Get(produces = MediaType.APPLICATION_JSON)
+    @Operation(summary = "Release Search", description = "Finds Releases for the given the criteria.", operationId = "searchReleases")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful search", content = { @Content( array = @ArraySchema(schema = @Schema(implementation = Release.class))) }),
+        @ApiResponse(responseCode = "400", description = "an error occurred"),
+        @ApiResponse(responseCode = "403", description = "security disallows access"),
+        @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
+        @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
+    })
+    public HttpResponse index(@Parameter(name="releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false) String releaseNumber) {
+        List<Release> releases = new ArrayList<>();
+        if(releaseNumber != null) {
+            Optional<Release> release = releaseRepository.findById(releaseNumber);
+            release.ifPresent(releases::add);
+        }
+        else {
+            for (Release release : releaseRepository.findAll()) {
+                releases.add(release);
+            }
+        }
+
+        if(releases.isEmpty()) {
+            return HttpResponse.notFound();
+        }
+        else {
+            return HttpResponse.ok(releases);
+        }
+    }
+
+    @Post(produces = MediaType.APPLICATION_JSON)
+    @Operation(summary = "Release Create", description = "Creates a Release for the given criteria.", method = "POST", operationId = "saveRelease")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful create"),
+        @ApiResponse(responseCode = "400", description = "an error occurred"),
+        @ApiResponse(responseCode = "403", description = "security disallows access"),
+        @ApiResponse(responseCode = "404", description = "the release depot was not found"),
+        @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
+        @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
+    })
+    public void create(@RequestBody( description =  "Data to use to update the given Release", required = true, content = { @Content( schema = @Schema(implementation = Release.class) ) }) Release release) {
+        releaseRepository.save(release);
+    }
+
+    @Post(uri = "/{releaseNumber}", produces = MediaType.APPLICATION_JSON)
+    @Operation(summary = "Release Update", description = "Updates an existing Release.", method = "POST", operationId = "updateRelease")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successful update"),
+        @ApiResponse(responseCode = "400", description = "an error occurred"),
+        @ApiResponse(responseCode = "403", description = "security disallows access"),
+        @ApiResponse(responseCode = "404", description = "the release was not found"),
+        @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
+        @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
+    })
+    public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH) String releaseNumber,
+                       @RequestBody( description =  "Data to use to update the given Release", required = true, content = { @Content( schema = @Schema(implementation = Release.class) ) })  Release release) {
+        if(!releaseRepository.existsById(releaseNumber)) {
+            throw new IllegalArgumentException("Release does not exist.");
+        }
+        releaseRepository.update(release);
+    }
+
+    @Error(status = HttpStatus.NOT_FOUND)
+    public HttpResponse notFound(HttpRequest request) {
+        JsonError error = new JsonError("Not Found");
+
+        return HttpResponse.<JsonError>notFound()
+            .body(error);
+    }
+}
