@@ -38,7 +38,11 @@ import java.util.Arrays;
         contact = @Contact(url = "https://tritoninternationallimited.github.io/depot-lifecycle-api/", email = "api-edi@trtn.com")
     ),
     externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/TritonInternationalLimited/depot-lifecycle-api"),
-    tags = {@Tag(name = "redelivery", description = "*turn in approval for shipping containers*"), @Tag(name = "release", description = "*lease out approval for shipping containers*"), @Tag(name = "estimate", description = "*a damage or upgrade estimate for a shipping container after turn in*")},
+    tags = {@Tag(name = "redelivery", description = "*turn in approval for shipping containers*"),
+        @Tag(name = "release", description = "*lease out approval for shipping containers*"),
+        @Tag(name = "estimate", description = "*a damage or upgrade estimate for a shipping container after turn in*"),
+        @Tag(name = "workOrder", description = "*manage damage estimates that are approved for repair*")
+    },
     servers = {@Server(url = "https://www.example.com/api/v3")}
 )
 @Singleton
