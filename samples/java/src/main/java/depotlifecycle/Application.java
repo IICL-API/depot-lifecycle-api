@@ -40,6 +40,7 @@ import java.util.Arrays;
     externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/TritonInternationalLimited/depot-lifecycle-api"),
     tags = {@Tag(name = "redelivery", description = "*turn in approval for shipping containers*"),
         @Tag(name = "release", description = "*lease out approval for shipping containers*"),
+        @Tag(name = "gate", description = "*manage gate ins and gate outs of shipping containers*"),
         @Tag(name = "estimate", description = "*a damage or upgrade estimate for a shipping container after turn in*"),
         @Tag(name = "workOrder", description = "*manage damage estimates that are approved for repair*")
     },
