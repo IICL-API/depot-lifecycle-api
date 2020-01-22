@@ -1,7 +1,7 @@
 package depotlifecycle.controllers;
 
 import depotlifecycle.ErrorResponse;
-import depotlifecycle.EstimateResponse;
+import depotlifecycle.domain.EstimateAllocation;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.Estimate;
 import depotlifecycle.domain.EstimateCustomerApproval;
@@ -15,6 +15,7 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Patch;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
@@ -61,7 +62,7 @@ public class EstimateController {
     @Post(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "create an estimate revision", description = "Create a damage estimate or a revision to an existing estimate that documents the type of damage and the cost of the repairs.", method = "POST", operationId = "saveEstimate")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully created and accepted the estimate revision", content = {@Content(schema = @Schema(implementation = EstimateResponse.class))}),
+        @ApiResponse(responseCode = "200", description = "successfully created and accepted the estimate revision", content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}),
         @ApiResponse(responseCode = "201", description = "successfully created the estimate revision, accepted it, and created a repair authorization for the estimate", content = {@Content(schema = @Schema(implementation = RepairSummary.class))}),
         @ApiResponse(responseCode = "202", description = "estimate accepted for processing, but not created due to manual processing requirement", content = {@Content(schema = @Schema(implementation = PendingResponse.class))}),
         @ApiResponse(responseCode = "400", description = "an invalid request was provided", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -94,7 +95,7 @@ public class EstimateController {
     @Put(uri = "/{estimateNumber}", produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "customer approve an estimate", description = "Instead of sending in a full estimate revision, this endpoint can be used to approve an estimate without revising it.", method = "PUT", operationId = "customerApproveEstimate")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully approved the estimate revision", content = {@Content(schema = @Schema(implementation = EstimateResponse.class))}),
+        @ApiResponse(responseCode = "200", description = "successfully approved the estimate revision", content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}),
         @ApiResponse(responseCode = "201", description = "successfully received the customer approval and issued a repair authorization for the estimate", content = {@Content(schema = @Schema(implementation = RepairSummary.class))}),
         @ApiResponse(responseCode = "202", description = "customer approval accepted for processing, but not created due to manual processing requirement", content = {@Content(schema = @Schema(implementation = PendingResponse.class))}),
         @ApiResponse(responseCode = "400", description = "an error occurred trying to customer approve the estimate", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -106,6 +107,20 @@ public class EstimateController {
     public HttpResponse update(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
                                @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                @RequestBody(description = "customer approval object to update an existing estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateCustomerApproval.class))}) EstimateCustomerApproval customerApproval) {
+        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
+    }
+
+    @Patch(produces = MediaType.APPLICATION_JSON)
+    @Operation(summary = "update estimate totals", description = "When the creation of the estimate is delayed due to a 202, after the manual processing is complete, this method is called to perform the update of the totals", method = "PUT", operationId = "updateTotals")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successfully received estimate totals"),
+        @ApiResponse(responseCode = "400", description = "an error occurred trying to update totals", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "estimate total update is disallowed by security"),
+        @ApiResponse(responseCode = "404", description = "the estimate was not found"),
+        @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
+        @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
+    })
+    public HttpResponse allocate(@RequestBody(description = "total breakdowns to finish creating an estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}) EstimateAllocation allocation) {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }
 
