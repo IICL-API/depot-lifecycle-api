@@ -25,7 +25,7 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "data required to create a gate in or gate out record")
+@Schema(description = "data required to create a gate in or gate out record", requiredProperties = {"adviceNumber", "depot", "unitNumber", "status", "activityTime", "type"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
@@ -35,8 +35,8 @@ public class GateCreateRequest {
     @JsonIgnore
     Long id;
 
-    @Schema(required = true, description = "the redelivery or release advice number for the gate record", example = "AHAMG000000")
-    @Column(nullable = false)
+    @Schema(required = true, description = "the redelivery or release advice number for the gate record", example = "AHAMG000000", maxLength = 16)
+    @Column(nullable = false, length = 16)
     String adviceNumber;
 
     @Schema(required = true, description = "the storage location for the given advice number")
@@ -53,7 +53,7 @@ public class GateCreateRequest {
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2019-04-10T19:37:04Z"
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time of the gate activity in local time\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time", required = true)
+    @Schema(description = "the date and time of the gate activity in local time; i.e. `2019-04-10T19:37:04Z` \n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time", required = true)
     @Column(nullable = false)
     ZonedDateTime activityTime;
 

@@ -34,20 +34,6 @@ import lombok.RequiredArgsConstructor;
 @Controller("/api/v2/gate")
 @RequiredArgsConstructor
 public class GateController {
-    @Get(uri = "/{unitNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "fetch the current gate status", description = "For the given unit number, if the shipping container is currently gated in or gated out, fetch the current interchange information - damage status, the time of the gate, etc.", operationId = "showGate")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully found current gate status", content = {@Content(schema = @Schema(implementation = GateStatus.class))}),
-        @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "fetching a gate record is disallowed by security"),
-        @ApiResponse(responseCode = "404", description = "the shipping container was not found"),
-        @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
-        @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
-    })
-    public HttpResponse get(@Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561", maxLength = 11)) String unitNumber) {
-        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
-    }
-
     @Post(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "create a gate record", description = "Creates either a gate-in or gate-out record for the given shipping container against the provided advice and depot data.", method = "POST", operationId = "saveGate")
     @ApiResponses(value = {
@@ -60,6 +46,20 @@ public class GateController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse create(@RequestBody(description = "gate object to create a new gate in or gate out record", required = true, content = {@Content(schema = @Schema(implementation = GateCreateRequest.class))}) GateCreateRequest gateCreateRequest) {
+        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
+    }
+
+    @Get(uri = "/{unitNumber}", produces = MediaType.APPLICATION_JSON)
+    @Operation(summary = "fetch the current gate status", description = "For the given unit number, if the shipping container is currently gated in or gated out, fetch the current interchange information - damage status, the time of the gate, etc.", operationId = "showGate")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successfully found current gate status", content = {@Content(schema = @Schema(implementation = GateStatus.class))}),
+        @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "fetching a gate record is disallowed by security"),
+        @ApiResponse(responseCode = "404", description = "the shipping container was not found"),
+        @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
+        @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
+    })
+    public HttpResponse get(@Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561", maxLength = 11)) String unitNumber) {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -76,7 +76,7 @@ public class GateController {
     })
     public HttpResponse update(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number for the gate record", in = ParameterIn.PATH, required = true, schema = @Schema(example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
                                @Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
-                               @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA")) String depot,
+                               @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                @RequestBody(description = "gate object to update an existing record", required = true, content = {@Content(schema = @Schema(implementation = GateUpdateRequest.class))}) GateUpdateRequest gateUpdateRequest) {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }

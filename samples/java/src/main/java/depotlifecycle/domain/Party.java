@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "represents a company (or location) involving shipping containers")
+@Schema(description = "represents a company (or location) involving shipping containers", requiredProperties = {"companyId"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
@@ -36,18 +36,18 @@ public class Party {
     String companyId;
 
     @Schema(description = "the user identifier at this company that concerns this message", example = "JDOE", maxLength = 16)
-    @Column(nullable = false)
+    @Column(length = 16)
     String userCode;
 
     @Schema(description = "the full name for the user identified by `userCode`", example = "John Doe", maxLength = 70)
-    @Column(nullable = false)
+    @Column(length = 70)
     String userName;
 
     @Schema(description = "the name of this company", example = "CMR Container Maintenance Rep.", maxLength = 150)
-    @Column(nullable = false)
+    @Column(length = 150)
     String name;
 
-    @Schema(description = "the internal system code for this company, will be system specific to the system delivering or receiving this message", example = "HAMG", maxLength = 9)
-    @Column(nullable = false)
+    @Schema(description = "the internal system code for this company, will be system specific to the system delivering or receiving this message", example = "HAMG", maxLength = 10)
+    @Column(length = 10)
     String code;
 }

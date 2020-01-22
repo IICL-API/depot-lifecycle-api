@@ -26,25 +26,25 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "An approval to deliver units to a storage location.")
-@EqualsAndHashCode(of= {"redeliveryNumber"} )
-@ToString(of= {"redeliveryNumber"} )
+@Schema(description = "An approval to deliver units to a storage location.", requiredProperties = {"redeliveryNumber", "approvalDate", "depot", "recipient", "details"})
+@EqualsAndHashCode(of = {"redeliveryNumber"})
+@ToString(of = {"redeliveryNumber"})
 @Introspected
 public class Redelivery {
     @Id
     @Schema(description = "the identifier for this redelivery, also referred to as the advice number or redelivery number", example = "AHAMG33141", maxLength = 16, required = true)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 16)
     String redeliveryNumber;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2020-07-21T17:32:28Z"
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this redelivery is considered no longer valid\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
-    @Column()
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
+    @Schema(description = "the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this redelivery is considered no longer valid\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Column
     ZonedDateTime expirationDate;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2019-07-21T17:32:28Z"
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this redelivery is considered approved\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
+    @Schema(description = "the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this redelivery is considered approved\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
     @Column(nullable = false)
     ZonedDateTime approvalDate;
 
@@ -60,7 +60,7 @@ public class Redelivery {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party recipient;
 
-    @Schema(description = "groups of like-criteria units", required = true)
+    @Schema(description = "groups of like-criteria units", required = true, minLength = 1)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<RedeliveryDetail> details = new ArrayList<>();
 }

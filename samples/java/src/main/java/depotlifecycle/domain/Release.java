@@ -26,14 +26,14 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "An approval to remove shipping containers from a storage location.")
-@EqualsAndHashCode(of= {"releaseNumber"} )
-@ToString(of= {"releaseNumber"} )
+@Schema(description = "An approval to remove shipping containers from a storage location.", requiredProperties = {"releaseNumber", "type", "approvalDate", "depot", "owner", "recipient", "details"})
+@EqualsAndHashCode(of = {"releaseNumber"})
+@ToString(of = {"releaseNumber"})
 @Introspected
 public class Release {
     @Id
     @Schema(description = "the identifier for this release, also referred to as the advice number or release number", example = "AHAMG33141", maxLength = 16, required = true)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 16)
     String releaseNumber;
 
     @Schema(description = "Describes the intended purpose of the release: \n\n`SALE` - Shipping Containers are being sold\n\n`BOOK` - Shipping Containers are being leased to a customer\n\n`REPO` - Shipping Containers are being relocated by the owner to another storage location", allowableValues = {"SALE", "BOOK", "REPO"}, required = true)
@@ -41,14 +41,14 @@ public class Release {
     String type;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2020-07-21T17:32:28Z"
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this release is considered no longer valid\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
-    @Column()
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
+    @Schema(description = "the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this release is considered no longer valid\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Column
     ZonedDateTime expirationDate;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2019-07-21T17:32:28Z"
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this release is considered approved\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
+    @Schema(description = "the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
     @Column(nullable = false)
     ZonedDateTime approvalDate;
 
@@ -68,7 +68,7 @@ public class Release {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party recipient;
 
-    @Schema(description = "groups of like-criteria units", required = true)
+    @Schema(description = "groups of like-criteria units", required = true, minLength = 1)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<ReleaseDetail> details = new ArrayList<>();
 }

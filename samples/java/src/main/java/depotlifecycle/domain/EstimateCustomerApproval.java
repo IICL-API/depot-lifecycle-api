@@ -24,7 +24,7 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Represents the approval of the customer amount portion.")
+@Schema(description = "Represents the approval of the customer amount portion.", requiredProperties = {"approvalDateTime", "approvalTotal"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
@@ -40,7 +40,7 @@ public class EstimateCustomerApproval {
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2017-04-10T19:37:04Z"
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "The time the estimate was approved by the customer\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time", required = true)
+    @Schema(description = "The time the estimate was approved by the customer; i.e. `2017-04-10T19:37:04Z` \n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time", required = true)
     @Column(nullable = false)
     ZonedDateTime approvalDateTime;
 

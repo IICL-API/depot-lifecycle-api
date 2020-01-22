@@ -28,9 +28,9 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "unit criteria that groups similar units on a release")
-@EqualsAndHashCode(of= {"id"} )
-@ToString(of= {"id"} )
+@Schema(description = "unit criteria that groups similar units on a release", requiredProperties = {"customer", "contract", "equipment", "grade", "quantity"})
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"id"})
 @Introspected
 public class ReleaseDetail {
     @Id
@@ -46,20 +46,20 @@ public class ReleaseDetail {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party customer;
 
-    @Schema(description = "the contract code for the given shipping containers", required = true, example = "CNCX05-100000")
-    @Column(nullable = false)
+    @Schema(description = "the contract code for the given shipping containers", required = true, example = "CNCX05-100000", maxLength = 16)
+    @Column(nullable = false, length = 16)
     String contract;
 
-    @Schema(description = "the equipment type ISO code or an internal code if one does not exist for the given shipping containers", required = true, example = "22G1")
-    @Column(nullable = false)
+    @Schema(description = "the equipment type ISO code or an internal code if one does not exist for the given shipping containers", required = true, example = "22G1", maxLength = 10)
+    @Column(nullable = false, length = 10)
     String equipment;
 
-    @Schema(description = "the current grade of the unit", required = true, example = "IICL")
-    @Column(nullable = false)
+    @Schema(description = "the current grade of the unit", required = true, example = "IICL", maxLength = 10)
+    @Column(nullable = false, length = 10)
     String grade;
 
-    @Schema(description = "an indicator for the upgrades applied to units on this detail.  This will be lessor specific, but an example could be AMMO to indicate the box is capable of carrying ammunition.", required = false, example = "AMMO")
-    @Column()
+    @Schema(description = "an indicator for the upgrades applied to units on this detail.\n\n`FG` - Food grade\n\n`ML` - Malt\n\n`DB` - Dairy Board\n\n`EV` - Evian\n\n`WH` - Whiskey\n\n`SU` - Sugar\n\n`CF` - Coffee\n\n`TB` - Tobacco\n\n`MC` - Milk cartons\n\n`MP` - Milk powder\n\n`AM` - Ammunition\n\n`CH` - Cotton/Hay\n\n`TE` - Tea\n\n`FT` - Flexitank", allowableValues = {"FG", "ML", "DB", "EV", "WH", "SU", "CF", "TB", "MC", "MP", "AM", "CH", "TE", "FT"}, required = false, example = "AM", maxLength = 2)
+    @Column(length = 2)
     String upgradeType;
 
     @Schema(description = "the specific units for this release if defined, if not, assumed blanket")

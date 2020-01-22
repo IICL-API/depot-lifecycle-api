@@ -23,9 +23,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "information for a specific unit on a release")
-@EqualsAndHashCode(of= {"id"} )
-@ToString(of= {"id"} )
+@Schema(description = "information for a specific unit on a release", requiredProperties = {"unitNumber", "status"})
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"id"})
 @Introspected
 public class ReleaseUnit {
     @Id
@@ -42,7 +42,7 @@ public class ReleaseUnit {
     String unitNumber;
 
     @Schema(description = "comments pertaining only to this unit for the intended recipient of this message", maxLength = 500)
-    @Column(nullable = false, length = 500)
+    @Column(length = 500)
     String comments;
 
     @Schema(description = "Describes the state of the shipping container for this release: \n\n`TIED` - Shipping Container is assigned to this release and ready to lease out.\n\n`REMOVED` - Shipping Container was attached to this release, but is no longer valid for release.\n\n`LOT` - Shipping Container has left the storage location.", allowableValues = {"REMOVED", "TIED", "LOT"}, example = "TIED")

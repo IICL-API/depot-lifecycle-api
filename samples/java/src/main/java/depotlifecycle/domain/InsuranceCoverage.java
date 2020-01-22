@@ -33,8 +33,8 @@ import java.util.List;
 @Entity
 @Table
 @Schema(description = "describes the type of insurance coverage a given shipping container has for a damage repair")
-@EqualsAndHashCode(of= {"id"} )
-@ToString(of= {"id"} )
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"id"})
 @Introspected
 public class InsuranceCoverage {
     @Id
@@ -43,15 +43,15 @@ public class InsuranceCoverage {
     Long id;
 
     @Schema(description = "the total amount allowable to by covered by insurance", format = "double")
-    @Column(nullable = false)
+    @Column
     BigDecimal amountCovered;
 
     @Schema(description = "The currency for the insurance coverage amount", pattern = "^[A-Z]{3}$", example = "EUR")
-    @Column(nullable = false, length = 3)
+    @Column(length = 3)
     String amountCurrency;
 
     @Schema(description = "indicates if the amount of damage exceeds the insurance coverage, whether the lessee if fully responsible for the damage")
-    @Column(nullable = false)
+    @Column
     Boolean allOrNothing;
 
     @Schema(description = "any contractual reason why the coverage may not apply")

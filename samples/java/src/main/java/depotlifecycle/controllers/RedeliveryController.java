@@ -37,17 +37,17 @@ public class RedeliveryController {
     private final RedeliveryRepository redeliveryRepository;
 
     @Get(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "Redelivery Search", description = "Finds Redeliveries for the given the criteria.", operationId = "indexRedelivery")
+    @Operation(summary = "search for a redelivery", description = "Finds Redeliveries for the given the criteria.", operationId = "indexRedelivery")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful search", content = { @Content( array = @ArraySchema(schema = @Schema(implementation = Redelivery.class))) }),
+        @ApiResponse(responseCode = "200", description = "successful search", content = {@Content(array = @ArraySchema(schema = @Schema(implementation = Redelivery.class)))}),
         @ApiResponse(responseCode = "400", description = "an error occurred"),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@Parameter(name="redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false) String redeliveryNumber) {
+    public HttpResponse index(@Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber) {
         List<Redelivery> redeliveries = new ArrayList<>();
-        if(redeliveryNumber != null) {
+        if (redeliveryNumber != null) {
             Optional<Redelivery> redelivery = redeliveryRepository.findById(redeliveryNumber);
             redelivery.ifPresent(redeliveries::add);
         }
@@ -57,7 +57,7 @@ public class RedeliveryController {
             }
         }
 
-        if(redeliveries.isEmpty()) {
+        if (redeliveries.isEmpty()) {
             return HttpResponse.notFound();
         }
         else {
@@ -66,7 +66,7 @@ public class RedeliveryController {
     }
 
     @Post(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "Redelivery Create", description = "Creates a Redelivery for the given criteria.", method = "POST", operationId = "saveRedelivery")
+    @Operation(summary = "create redelivery", description = "Creates a Redelivery for the given criteria.", method = "POST", operationId = "saveRedelivery")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful create"),
         @ApiResponse(responseCode = "400", description = "an error occurred"),
@@ -75,12 +75,12 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void create(@RequestBody( description =  "Data to use to update the given Redelivery", required = true, content = { @Content( schema = @Schema(implementation = Redelivery.class) ) }) Redelivery redelivery) {
+    public void create(@RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
         redeliveryRepository.save(redelivery);
     }
 
     @Post(uri = "/{redeliveryNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "Redelivery Update", description = "Updates an existing Redelivery.", method = "POST", operationId = "updateRedelivery")
+    @Operation(summary = "update redelivery", description = "Updates an existing Redelivery.", method = "POST", operationId = "updateRedelivery")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful update"),
         @ApiResponse(responseCode = "400", description = "an error occurred"),
@@ -89,9 +89,9 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH) String redeliveryNumber,
-                       @RequestBody( description =  "Data to use to update the given Redelivery", required = true, content = { @Content( schema = @Schema(implementation = Redelivery.class) ) })  Redelivery redelivery) {
-        if(!redeliveryRepository.existsById(redeliveryNumber)) {
+    public void update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
+                       @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
+        if (!redeliveryRepository.existsById(redeliveryNumber)) {
             throw new IllegalArgumentException("Redelivery does not exist.");
         }
         redeliveryRepository.update(redelivery);

@@ -37,17 +37,17 @@ public class ReleaseController {
     private final ReleaseRepository releaseRepository;
 
     @Get(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "Release Search", description = "Finds Releases for the given the criteria.", operationId = "indexRelease")
+    @Operation(summary = "search for a release", description = "Finds Releases for the given the criteria.", operationId = "indexRelease")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful search", content = { @Content( array = @ArraySchema(schema = @Schema(implementation = Release.class))) }),
+        @ApiResponse(responseCode = "200", description = "successful search", content = {@Content(array = @ArraySchema(schema = @Schema(implementation = Release.class)))}),
         @ApiResponse(responseCode = "400", description = "an error occurred"),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@Parameter(name="releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false) String releaseNumber) {
+    public HttpResponse index(@Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String releaseNumber) {
         List<Release> releases = new ArrayList<>();
-        if(releaseNumber != null) {
+        if (releaseNumber != null) {
             Optional<Release> release = releaseRepository.findById(releaseNumber);
             release.ifPresent(releases::add);
         }
@@ -57,7 +57,7 @@ public class ReleaseController {
             }
         }
 
-        if(releases.isEmpty()) {
+        if (releases.isEmpty()) {
             return HttpResponse.notFound();
         }
         else {
@@ -66,7 +66,7 @@ public class ReleaseController {
     }
 
     @Post(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "Release Create", description = "Creates a Release for the given criteria.", method = "POST", operationId = "saveRelease")
+    @Operation(summary = "create release", description = "Creates a Release for the given criteria.", method = "POST", operationId = "saveRelease")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful create"),
         @ApiResponse(responseCode = "400", description = "an error occurred"),
@@ -75,12 +75,12 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void create(@RequestBody( description =  "Data to use to update the given Release", required = true, content = { @Content( schema = @Schema(implementation = Release.class) ) }) Release release) {
+    public void create(@RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
         releaseRepository.save(release);
     }
 
     @Post(uri = "/{releaseNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "Release Update", description = "Updates an existing Release.", method = "POST", operationId = "updateRelease")
+    @Operation(summary = "update release", description = "Updates an existing Release.", method = "POST", operationId = "updateRelease")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful update"),
         @ApiResponse(responseCode = "400", description = "an error occurred"),
@@ -89,9 +89,9 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH) String releaseNumber,
-                       @RequestBody( description =  "Data to use to update the given Release", required = true, content = { @Content( schema = @Schema(implementation = Release.class) ) })  Release release) {
-        if(!releaseRepository.existsById(releaseNumber)) {
+    public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String releaseNumber,
+                       @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
+        if (!releaseRepository.existsById(releaseNumber)) {
             throw new IllegalArgumentException("Release does not exist.");
         }
         releaseRepository.update(release);

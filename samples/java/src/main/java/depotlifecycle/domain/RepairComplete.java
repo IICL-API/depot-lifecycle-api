@@ -25,7 +25,7 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"workOrderNumber", "unitNumber"})})
-@Schema(description = "Necessary information to mark a specific unit under a work order repaired")
+@Schema(description = "Necessary information to mark a specific unit under a work order repaired", requiredProperties = {"workOrderNumber", "depot", "completionDate", "unitNumber"})
 @EqualsAndHashCode(of = {"workOrderNumber", "unitNumber"})
 @ToString(of = {"workOrderNumber", "unitNumber"})
 public class RepairComplete {
@@ -35,7 +35,7 @@ public class RepairComplete {
     Long id;
 
     @Schema(description = "the identifier of the work order to repair complete", example = "WHAMG46019", minLength = 1, maxLength = 16, required = true)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 16)
     String workOrderNumber;
 
     @Schema(required = true, description = "the storage location where the shipping container is being repaired")
@@ -44,7 +44,7 @@ public class RepairComplete {
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2018-04-10T19:37:04Z"
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this work order was repaired.\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Schema(description = "the date and time in the depot local time zone (i.e. `2018-04-10T19:37:04Z`) that this work order was repaired.\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
     @Column(nullable = false)
     ZonedDateTime completionDate;
 

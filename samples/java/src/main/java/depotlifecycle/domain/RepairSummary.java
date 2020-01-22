@@ -26,7 +26,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "An approval of a damage estimate signifying a depot may repair a shipping container")
+@Schema(description = "An approval of a damage estimate signifying a depot may repair a shipping container", requiredProperties = {"workOrderNumber", "depot", "owner", "type", "approvalDate", "lineItems"})
 @EqualsAndHashCode(of = {"workOrderNumber"})
 @ToString(of = {"workOrderNumber"})
 public class RepairSummary {
@@ -36,7 +36,7 @@ public class RepairSummary {
 
     @Id
     @Schema(description = "the identifier for this work order", example = "WHAMG46019", minLength = 1, maxLength = 16, required = true)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 16)
     String workOrderNumber;
 
     @Schema(required = true, description = "the storage location where the shipping container is being repaired")
@@ -51,13 +51,13 @@ public class RepairSummary {
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     Party billingParty;
 
-    @Schema(description = "the type of repair approved", example = "SELLCWCA", required = true)
-    @Column(nullable = false)
+    @Schema(description = "the type of repair approved", example = "SELLCWCA", required = true, maxLength = 11)
+    @Column(nullable = false, length = 11)
     String type;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2017-05-10T19:37:04Z"
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this work order is authorized for repair\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Schema(description = "the date and time in the depot local time zone (i.e. `2017-05-10T19:37:04Z`) that this work order is authorized for repair\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time", required = true)
     @Column(nullable = false)
     ZonedDateTime approvalDate;
 
@@ -65,13 +65,13 @@ public class RepairSummary {
     @Column
     BigDecimal approvalTotal;
 
-    @Schema(description = "the currency of the approval total", required = false, example = "EUR", pattern = "^[A-Z]{3}$")
+    @Schema(description = "the currency of the approval total", required = false, example = "EUR", pattern = "^[A-Z]{3}$", maxLength = 3)
     @Column(length = 3)
     String approvalCurrency;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2020-07-21T17:32:28Z"
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone that this repair must be completed by\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Schema(description = "the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this repair must be completed by\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
     @Column
     ZonedDateTime expirationDate;
 

@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "information for a specific unit on a work order")
+@Schema(description = "information for a specific unit on a work order", requiredProperties = {"unitNumber", "effectiveInspectionCriteria"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
@@ -35,11 +35,11 @@ public class RepairUnitSummary {
     @Column(nullable = false, length = 11)
     String unitNumber;
 
-    @Schema(description = "repair the shipping container to this grade or category standard", required = true, example = "CWCA-1")
-    @Column(nullable = false)
+    @Schema(description = "repair the shipping container to this grade or category standard", required = true, example = "CWCA-1", maxLength = 10)
+    @Column(nullable = false, length = 10)
     String effectiveInspectionCriteria;
 
-    @Schema(description = "the unit number to remark the shipping container on repair", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = false)
+    @Schema(description = "the unit number to remark the shipping container on repair", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = false, maxLength = 11)
     @Column(length = 11)
     String remark;
 

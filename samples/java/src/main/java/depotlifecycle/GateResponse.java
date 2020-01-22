@@ -15,16 +15,16 @@ import java.util.List;
 @Setter
 @JsonView
 @NoArgsConstructor
-@Schema(description = "A confirmation that a gate completed successfully and the necessary information to perform a damage estimate if required.")
+@Schema(description = "A confirmation that a gate completed successfully and the necessary information to perform a damage estimate if required.", requiredProperties = {"adviceNumber", "currentInspectionCriteria"})
 @Introspected
 public class GateResponse {
-    @Schema(pattern = "^[A-Z0-9]{3}[0-9]{3}$", description = "indicator code for this response", example = "TRI521", required = false)
+    @Schema(pattern = "^[A-Z0-9]{3}[0-9]{3}$", description = "indicator code for this response", example = "TRI521", required = false, maxLength = 6)
     String code;
 
     @Schema(description = "A descriptive message concerning this gate in", required = false, example = "Info TRI521 - Unit has been gated-in but is not off-hired")
     String message;
 
-    @Schema(required = true, description = "either the submitted advice number for the gate record or the adjusted one", example = "AHAMG000000")
+    @Schema(required = true, description = "either the submitted advice number for the gate record or the adjusted one", example = "AHAMG000000", maxLength = 16)
     String adviceNumber;
 
     @Schema(description = "the customer reference for the unit; typically an internal customer identifier or contract code", maxLength = 35, example = "MAEX", required = false)

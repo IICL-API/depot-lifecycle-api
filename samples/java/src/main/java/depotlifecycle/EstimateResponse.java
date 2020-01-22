@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Setter
 @JsonView
 @NoArgsConstructor
-@Schema(description = "Indicates the allocated estimate totals, including any comments on the allocation and if the box is considered a constructive loss")
+@Schema(description = "Indicates the allocated estimate totals, including any comments on the allocation and if the box is considered a constructive loss.", requiredProperties = {"total", "ownerTotal", "customerTotal", "insuranceTotal", "ctl"})
 @Introspected
 public class EstimateResponse {
     @Schema(required = true, type = "number", format = "double", minimum = "0.0", example = "544.95", description = "the total for the estimate")

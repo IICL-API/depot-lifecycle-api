@@ -17,10 +17,10 @@ import java.time.ZonedDateTime;
 @Setter
 @JsonView
 @NoArgsConstructor
-@Schema(description = "The current gate status of a given shipping container")
+@Schema(description = "the current gate status of a given shipping container", requiredProperties = {"adviceNumber", "depot", "status", "activityTime", "currentInspectionCriteria"})
 @Introspected
 public class GateStatus {
-    @Schema(required = true, description = "the redelivery or release advice number for the gate record", example = "AHAMG000000")
+    @Schema(required = true, description = "the redelivery or release advice number for the gate record", example = "AHAMG000000", maxLength = 16)
     String adviceNumber;
 
     @Schema(required = true, description = "the storage location for the given advice number")

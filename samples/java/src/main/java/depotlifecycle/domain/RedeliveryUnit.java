@@ -13,6 +13,7 @@ import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,9 +25,9 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "information for a specific unit on a redelivery")
-@EqualsAndHashCode(of= {"id"} )
-@ToString(of= {"id"} )
+@Schema(description = "information for a specific unit on a redelivery", requiredProperties = {"unitNumber", "manufactureDate", "status"})
+@EqualsAndHashCode(of = {"id"})
+@ToString(of = {"id"})
 @Introspected
 public class RedeliveryUnit {
     @Id
@@ -47,11 +48,11 @@ public class RedeliveryUnit {
     LocalDate manufactureDate;
 
     @Schema(description = "the date this unit was on hired to the customer for this unit's detail\n\n( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2001-07-21", type = "string", format = "date")
-    @Column()
+    @Column
     LocalDate lastOnHireDate;
 
     @Schema(description = "The location this unit was last on-hired.")
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.EAGER)
     Party lastOnHireLocation;
 
     @Schema(description = "Describes the state of the shipping container for this redelivery: \n\n`TIED` - Shipping Container is assigned to this redelivery and ready to turn in.\n\n`REMOVED` - Shipping Container was attached to this redelivery, but is no longer valid for redelivery.\n\n`LOT` - Shipping Container has turned into the storage location of this redelivery.", allowableValues = {"REMOVED", "TIED", "TIN"}, example = "TIED")
@@ -59,6 +60,6 @@ public class RedeliveryUnit {
     String status;
 
     @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 500, example = "Unit requires reefer testing before repair!")
-    @Column(nullable = false, length = 500)
+    @Column(length = 500)
     String comments;
 }

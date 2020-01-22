@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
@@ -39,7 +40,7 @@ import java.util.Arrays;
         version = "2.1.0",
         description = "# Purpose\n\n A depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to facilitate real time communication between systems instead of traditional EDI files.\n\n \n\n # Overview\n\n The depot lifecycle API is a RESTful API.  It's requests & responses are loosely based upon traditional EDI files.  For code defintions, explanations, or traditional EDI definitions refer to [IICL TB 002, February 2003](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf).  The requests and responses are formatted according to the [JSON](https://www.json.org/) standard.\n\n \n\n # Reference\n\n This API is documented by the [OpenAPI](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) specification.  This page was created by the [Swagger-Editor](https://github.com/swagger-api/swagger-editor) tool.  The *yaml* specification file can be found [here](depot-lifecycle-openapi.yaml).\n\n \n\n # Expectations\n\n Not all parties are required or expected to implement every feature.  Any feature not implemented should return a http status code of `501`.\n\n \n\n # Depreciation\n\n If this API were to be discontinued, a minimum of 6 months time would pass before it's removal.\n\n # Security \n\n [JSON Web Token, or JWT,](https://jwt.io/) is used for stateless authentication to secure all endpoints of this API.  Since all requests are sent using https, tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\n## 1. Example JWT Token\n\n \n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n \n\n \n\n An access_token is provided for authentication to API endpoints and a refresh_token is provided to generate a new access_token when one expires.\n\n \n\n \n\n ## 2. Obtaining an access token\n\n Issuing a POST request to `/api/login` with a username and password payload will cause a JWT token to be issued in the response.\n\n ```\n\n POST /api/login HTTP/1.1\n\n Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\n \n\n \n\n {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n }\n\n ```\n\n \n\n \n\n ## 3. Refreshing an expired token\n\n Tokens expire after 1 hour.  Issuing a POST request to `/oauth/access_token` with the refresh_token from the JWT token previously issued and a grant_type of refresh_token will reissue the JWT.\n\n ```\n\n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type: application/x-www-form-urlencoded\n\n \n\n \n\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\n ```\n\n \n\n \n\n ## 4. Checking if a token is valid\n\n Any token can be checked if it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n\n GET /api/validate HTTP/1.1\n\n Host: www.example.com\n\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n\n Content-Type: application/json; charset=utf-8\n\n ```\n\n \n\n \n\n ## 5. Accessing a protected resource\n\n Use the authorization header to supply the JWT for authentication to a protected resource.\n\n ```\n\n GET /api/v3/gate/CONU1234561 HTTP/1.1\n\n Host: www.example.com\n\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n\n ```\n\n",
         license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html"),
-        contact = @Contact(url = "https://tritoninternationallimited.github.io/depot-lifecycle-api/", email = "api-edi@trtn.com")
+        contact = @Contact(email = "api-edi@trtn.com")
     ),
     externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/TritonInternationalLimited/depot-lifecycle-api"),
     tags = {
@@ -51,10 +52,13 @@ import java.util.Arrays;
     },
     servers = {
         @Server(url = "https://testapi.trtn.com/triton")
+    },
+    security = {
+        @SecurityRequirement(name = "JWT")
     }
 )
 @SecuritySchemes({
-    @SecurityScheme(name = "JWT Based Authentication", type = SecuritySchemeType.HTTP, paramName = "Authorization", in = SecuritySchemeIn.HEADER, scheme = "bearer", bearerFormat = "JWT", description = "[JSON Web Token, or JWT,](https://jwt.io/) is used for stateless authentication to secure all endpoints of this API.  Since all requests are sent using https, tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.")
+    @SecurityScheme(name = "JWT", type = SecuritySchemeType.HTTP, paramName = "Authorization", in = SecuritySchemeIn.HEADER, scheme = "bearer", bearerFormat = "JWT", description = "[JSON Web Token, or JWT,](https://jwt.io/) is used for stateless authentication to secure all endpoints of this API.  Since all requests are sent using https, tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.")
 })
 @Singleton
 @RequiredArgsConstructor
