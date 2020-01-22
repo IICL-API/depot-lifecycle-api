@@ -1,5 +1,6 @@
 package depotlifecycle.controllers;
 
+import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.Redelivery;
 import depotlifecycle.repositories.RedeliveryRepository;
 import io.micronaut.http.HttpRequest;
@@ -40,7 +41,7 @@ public class RedeliveryController {
     @Operation(summary = "search for a redelivery", description = "Finds Redeliveries for the given the criteria.", operationId = "indexRedelivery")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful search", content = {@Content(array = @ArraySchema(schema = @Schema(implementation = Redelivery.class)))}),
-        @ApiResponse(responseCode = "400", description = "an error occurred"),
+        @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
@@ -69,7 +70,7 @@ public class RedeliveryController {
     @Operation(summary = "create redelivery", description = "Creates a Redelivery for the given criteria.", method = "POST", operationId = "saveRedelivery")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful create"),
-        @ApiResponse(responseCode = "400", description = "an error occurred"),
+        @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the redelivery depot was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
@@ -83,7 +84,7 @@ public class RedeliveryController {
     @Operation(summary = "update redelivery", description = "Updates an existing Redelivery.", method = "POST", operationId = "updateRedelivery")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful update"),
-        @ApiResponse(responseCode = "400", description = "an error occurred"),
+        @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the redelivery was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),

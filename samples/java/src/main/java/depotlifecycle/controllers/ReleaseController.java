@@ -1,5 +1,6 @@
 package depotlifecycle.controllers;
 
+import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.Release;
 import depotlifecycle.repositories.ReleaseRepository;
 import io.micronaut.http.HttpRequest;
@@ -40,7 +41,7 @@ public class ReleaseController {
     @Operation(summary = "search for a release", description = "Finds Releases for the given the criteria.", operationId = "indexRelease")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful search", content = {@Content(array = @ArraySchema(schema = @Schema(implementation = Release.class)))}),
-        @ApiResponse(responseCode = "400", description = "an error occurred"),
+        @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
@@ -69,7 +70,7 @@ public class ReleaseController {
     @Operation(summary = "create release", description = "Creates a Release for the given criteria.", method = "POST", operationId = "saveRelease")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful create"),
-        @ApiResponse(responseCode = "400", description = "an error occurred"),
+        @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the release depot was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
@@ -83,7 +84,7 @@ public class ReleaseController {
     @Operation(summary = "update release", description = "Updates an existing Release.", method = "POST", operationId = "updateRelease")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful update"),
-        @ApiResponse(responseCode = "400", description = "an error occurred"),
+        @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the release was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
