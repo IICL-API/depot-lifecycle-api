@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "gate")
 @Validated
-@Controller("gate")
+@Controller("/api/v2/gate")
 @RequiredArgsConstructor
 public class GateController {
     @Get(uri = "/{unitNumber}", produces = MediaType.APPLICATION_JSON)

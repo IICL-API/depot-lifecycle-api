@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "estimate")
 @Validated
-@Controller("estimate")
+@Controller("/api/v2/estimate")
 @RequiredArgsConstructor
 public class EstimateController {
     private final EstimateRepository estimateRepository;

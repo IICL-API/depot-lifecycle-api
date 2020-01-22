@@ -31,7 +31,7 @@ import java.util.Optional;
 
 @Tag(name = "release")
 @Validated
-@Controller("release")
+@Controller("/api/v2/release")
 @RequiredArgsConstructor
 public class ReleaseController {
     private final ReleaseRepository releaseRepository;

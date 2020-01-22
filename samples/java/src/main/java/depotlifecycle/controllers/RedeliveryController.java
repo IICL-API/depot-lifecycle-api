@@ -31,7 +31,7 @@ import java.util.Optional;
 
 @Tag(name = "redelivery")
 @Validated
-@Controller("redelivery")
+@Controller("/api/v2/redelivery")
 @RequiredArgsConstructor
 public class RedeliveryController {
     private final RedeliveryRepository redeliveryRepository;

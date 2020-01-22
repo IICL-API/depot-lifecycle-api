@@ -34,7 +34,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "workOrder")
 @Validated
-@Controller("workOrder")
+@Controller("/api/v2/workOrder")
 @RequiredArgsConstructor
 public class WorkOrderController {
     private final EstimateRepository estimateRepository;
