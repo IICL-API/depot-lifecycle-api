@@ -29,11 +29,7 @@ import java.util.List;
 @Schema(description = "An approval of a damage estimate signifying a depot may repair a shipping container", requiredProperties = {"workOrderNumber", "depot", "owner", "type", "approvalDate", "lineItems"})
 @EqualsAndHashCode(of = {"workOrderNumber"})
 @ToString(of = {"workOrderNumber"})
-public class RepairSummary {
-    @Schema(description = "The estimate number that initiated this approval", example = "DEHAMCE1856373", minLength = 1, maxLength = 16, required = false)
-    @Column
-    String estimateNumber;
-
+public class WorkOrder {
     @Id
     @Schema(description = "the identifier for this work order", example = "WHAMG46019", minLength = 1, maxLength = 16, required = true)
     @Column(nullable = false, unique = true, length = 16)
@@ -61,7 +57,7 @@ public class RepairSummary {
     @Column(nullable = false)
     ZonedDateTime approvalDate;
 
-    @Schema(description = "the total approved for repair", required = false, type = "number", format = "double", example = "175.00")
+    @Schema(description = "the total amount approved for repair", required = false, type = "number", format = "double", example = "175.00")
     @Column
     BigDecimal approvalTotal;
 
@@ -81,5 +77,5 @@ public class RepairSummary {
 
     @Schema(description = "units associated to this work order", required = true, minLength = 1, maxLength = 200)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-    List<RepairUnitSummary> lineItems = new ArrayList<>();
+    List<WorkOrderUnit> lineItems = new ArrayList<>();
 }

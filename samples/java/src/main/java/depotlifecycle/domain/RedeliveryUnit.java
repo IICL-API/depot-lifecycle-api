@@ -55,7 +55,7 @@ public class RedeliveryUnit {
     @ManyToOne(fetch = FetchType.EAGER)
     Party lastOnHireLocation;
 
-    @Schema(description = "Describes the state of the shipping container for this redelivery: \n\n`TIED` - Shipping Container is assigned to this redelivery and ready to turn in.\n\n`REMOVED` - Shipping Container was attached to this redelivery, but is no longer valid for redelivery.\n\n`LOT` - Shipping Container has turned into the storage location of this redelivery.", allowableValues = {"REMOVED", "TIED", "TIN"}, example = "TIED")
+    @Schema(description = "Describes the state of the shipping container for this redelivery: \n\n`TIED` - shipping container is assigned to this redelivery and ready to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery, but is no longer valid for redelivery.\n\n`LOT` - shipping container has turned into the storage location of this redelivery.", allowableValues = {"REMOVED", "TIED", "TIN"}, example = "TIED")
     @Column(nullable = false, length = 7)
     String status;
 

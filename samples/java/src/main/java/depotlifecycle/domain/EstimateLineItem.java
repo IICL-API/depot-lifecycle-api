@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Represents an estimation of costs to repair or upgrade a single instance of damage for a Shipping Container.", requiredProperties = {"line", "repair", "damage", "material", "component", "hours", "materialCost", "laborRate", "party"})
+@Schema(description = "Represents an estimation of costs to repair or upgrade a single instance of damage for a shipping container.", requiredProperties = {"line", "repair", "damage", "material", "component", "hours", "materialCost", "laborRate", "party"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected

@@ -32,7 +32,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"estimateNumber", "depot_id", "revision"})})
-@Schema(description = "Represents an estimation of costs to repair or upgrade a Shipping Container.", requiredProperties = {"estimateNumber", "unitNumber", "condition", "estimateTime", "depot", "currency", "total", "exchangeRate", "revision", "lineItems"})
+@Schema(description = "Represents an estimation of costs to repair or upgrade a shipping container.", requiredProperties = {"estimateNumber", "unitNumber", "condition", "estimateTime", "depot", "currency", "total", "exchangeRate", "revision", "lineItems"})
 @EqualsAndHashCode(of = {"estimateNumber", "depot", "revision"})
 @ToString(of = {"estimateNumber", "depot", "revision"})
 @Introspected
@@ -73,11 +73,11 @@ public class Estimate {
     @JoinColumn(name = "depot_id", nullable = false)
     Party depot;
 
-    @Schema(description = "the Shipping Container's owner", required = false)
+    @Schema(description = "the shipping container's owner", required = false)
     @ManyToOne(fetch = FetchType.EAGER)
     Party owner;
 
-    @Schema(description = "the lessee of the Shipping Container to whom customer line items should apply.", required = false)
+    @Schema(description = "the lessee of the shipping container to whom customer line items should apply.", required = false)
     @ManyToOne(fetch = FetchType.EAGER)
     Party customer;
 

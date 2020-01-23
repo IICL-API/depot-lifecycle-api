@@ -5,7 +5,7 @@ import depotlifecycle.domain.EstimateAllocation;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.Estimate;
 import depotlifecycle.domain.EstimateCustomerApproval;
-import depotlifecycle.domain.RepairSummary;
+import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.EstimateRepository;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -63,7 +63,7 @@ public class EstimateController {
     @Operation(summary = "create an estimate revision", description = "Create a damage estimate or a revision to an existing estimate that documents the type of damage and the cost of the repairs.", method = "POST", operationId = "saveEstimate")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successfully created and accepted the estimate revision", content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}),
-        @ApiResponse(responseCode = "201", description = "successfully created the estimate revision, accepted it, and created a repair authorization for the estimate", content = {@Content(schema = @Schema(implementation = RepairSummary.class))}),
+        @ApiResponse(responseCode = "201", description = "successfully created the estimate revision, accepted it, and created a repair authorization for the estimate", content = {@Content(schema = @Schema(implementation = WorkOrder.class))}),
         @ApiResponse(responseCode = "202", description = "estimate accepted for processing, but not created due to manual processing requirement", content = {@Content(schema = @Schema(implementation = PendingResponse.class))}),
         @ApiResponse(responseCode = "400", description = "an invalid request was provided", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "creating an estimate is disallowed by security"),
@@ -96,7 +96,7 @@ public class EstimateController {
     @Operation(summary = "customer approve an estimate", description = "Instead of sending in a full estimate revision, this endpoint can be used to approve an estimate without revising it.", method = "PUT", operationId = "customerApproveEstimate")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successfully approved the estimate revision", content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}),
-        @ApiResponse(responseCode = "201", description = "successfully received the customer approval and issued a repair authorization for the estimate", content = {@Content(schema = @Schema(implementation = RepairSummary.class))}),
+        @ApiResponse(responseCode = "201", description = "successfully received the customer approval and issued a repair authorization for the estimate", content = {@Content(schema = @Schema(implementation = WorkOrder.class))}),
         @ApiResponse(responseCode = "202", description = "customer approval accepted for processing, but not created due to manual processing requirement", content = {@Content(schema = @Schema(implementation = PendingResponse.class))}),
         @ApiResponse(responseCode = "400", description = "an error occurred trying to customer approve the estimate", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "customer approval is disallowed by security"),

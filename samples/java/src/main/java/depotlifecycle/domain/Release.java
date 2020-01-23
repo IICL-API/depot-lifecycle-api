@@ -36,7 +36,7 @@ public class Release {
     @Column(nullable = false, unique = true, length = 16)
     String releaseNumber;
 
-    @Schema(description = "Describes the intended purpose of the release: \n\n`SALE` - Shipping Containers are being sold\n\n`BOOK` - Shipping Containers are being leased to a customer\n\n`REPO` - Shipping Containers are being relocated by the owner to another storage location", allowableValues = {"SALE", "BOOK", "REPO"}, required = true)
+    @Schema(description = "Describes the intended purpose of the release: \n\n`SALE` - shipping containers are being sold\n\n`BOOK` - shipping containers are being leased to a customer\n\n`REPO` - shipping containers are being relocated by the owner to another storage location", allowableValues = {"SALE", "BOOK", "REPO"}, required = true)
     @Column(nullable = false, length = 4)
     String type;
 

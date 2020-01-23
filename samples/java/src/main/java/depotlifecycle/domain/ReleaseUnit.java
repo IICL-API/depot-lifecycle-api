@@ -45,7 +45,7 @@ public class ReleaseUnit {
     @Column(length = 500)
     String comments;
 
-    @Schema(description = "Describes the state of the shipping container for this release: \n\n`TIED` - Shipping Container is assigned to this release and ready to lease out.\n\n`REMOVED` - Shipping Container was attached to this release, but is no longer valid for release.\n\n`LOT` - Shipping Container has left the storage location.", allowableValues = {"REMOVED", "TIED", "LOT"}, example = "TIED")
+    @Schema(description = "Describes the state of the shipping container for this release: \n\n`TIED` - shipping container is assigned to this release and ready to lease out.\n\n`REMOVED` - shipping container was attached to this release, but is no longer valid for release.\n\n`LOT` - shipping container has left the storage location.", allowableValues = {"REMOVED", "TIED", "LOT"}, example = "TIED")
     @Column(nullable = false, length = 7)
     String status;
 }
