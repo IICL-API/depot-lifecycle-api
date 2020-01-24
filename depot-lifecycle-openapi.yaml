@@ -1455,6 +1455,120 @@ components:
           example: 1
       description: Represents an estimation of costs to repair or upgrade a single
         instance of damage for a shipping container.
+    PreliminaryDecision:
+      required:
+      - recommendation
+      type: object
+      properties:
+        recommendation:
+          maxLength: 11
+          required:
+          - "true"
+          type: string
+          description: a speculative repair decision code to indicate if a box will
+            be repaired, sold, held for repair, could not determine a decision, requires
+            a survey before proceeding, etc
+          example: SELL
+        reason:
+          maxLength: 255
+          required:
+          - "false"
+          type: string
+          description: in the event a decision could not be determined, or a prerequisite
+            exists, a more descriptive message than the code provided by the `recommendation`
+            field
+        difference:
+          required:
+          - "false"
+          type: number
+          description: A positive or negative amount showing how close the repair
+            estimate was to a decision change
+          format: double
+      description: an expected sell/fix decision to indicate the likely estimate owner
+        approval action
+    EstimateAllocation:
+      required:
+      - ctl
+      - customerTotal
+      - depot
+      - estimateNumber
+      - insuranceTotal
+      - ownerTotal
+      - revision
+      - total
+      type: object
+      properties:
+        estimateNumber:
+          maxLength: 16
+          minLength: 1
+          required:
+          - "true"
+          type: string
+          description: The estimate number this allocation applies to
+          example: DEHAMCE1856373
+        revision:
+          required:
+          - "true"
+          type: integer
+          description: the revision number of the estimate this allocation applies
+            to
+          format: int32
+          example: 0
+        depot:
+          $ref: '#/components/schemas/Party'
+        total:
+          minimum: 0.0
+          required:
+          - "true"
+          type: number
+          description: the total for the estimate
+          format: double
+          example: 544.95
+        ownerTotal:
+          minimum: 0.0
+          required:
+          - "true"
+          type: number
+          description: the total of the owner portion for the estimate
+          format: double
+          example: 0.00
+        customerTotal:
+          minimum: 0.0
+          required:
+          - "true"
+          type: number
+          description: the total of the customer portion for the estimate
+          format: double
+          example: 422.96
+        insuranceTotal:
+          minimum: 0.0
+          required:
+          - "true"
+          type: number
+          description: the total of the insurance portion for the estimate
+          format: double
+          example: 121.99
+        ctl:
+          required:
+          - "true"
+          type: boolean
+          description: indicates if the estimate causes the unit to be a constructive
+            total lost
+          example: false
+        comments:
+          maxLength: 500
+          required:
+          - "false"
+          type: string
+          description: comments pertaining to the estimate creation
+          example: 'Base Currency is: EUR; Based on estimate, user damages total:
+            0.00; Calculated DV (base): 1151.84; Coverage amount: 121.99; Damage exceeds
+            DPP Coverage.; Damages exceed coverage amount. User pays excess.; Total
+            paid by DPP Coverage: 121.99; Total owed by user: 422.96;'
+        preliminaryDecision:
+          $ref: '#/components/schemas/PreliminaryDecision'
+      description: Indicates the allocated estimate totals, including any comments
+        on the allocation and if the box is considered a constructive loss.
     Estimate:
       required:
       - condition
@@ -1655,122 +1769,10 @@ components:
             damages being repaired by this estimate
           items:
             $ref: '#/components/schemas/EstimateLineItem'
+        allocation:
+          $ref: '#/components/schemas/EstimateAllocation'
       description: Represents an estimation of costs to repair or upgrade a shipping
         container.
-    PreliminaryDecision:
-      required:
-      - recommendation
-      type: object
-      properties:
-        recommendation:
-          maxLength: 11
-          required:
-          - "true"
-          type: string
-          description: a speculative repair decision code to indicate if a box will
-            be repaired, sold, held for repair, could not determine a decision, requires
-            a survey before proceeding, etc
-          example: SELL
-        reason:
-          maxLength: 255
-          required:
-          - "false"
-          type: string
-          description: in the event a decision could not be determined, or a prerequisite
-            exists, a more descriptive message than the code provided by the `recommendation`
-            field
-        difference:
-          required:
-          - "false"
-          type: number
-          description: A positive or negative amount showing how close the repair
-            estimate was to a decision change
-          format: double
-      description: an expected sell/fix decision to indicate the likely estimate owner
-        approval action
-    EstimateAllocation:
-      required:
-      - ctl
-      - customerTotal
-      - depot
-      - estimateNumber
-      - insuranceTotal
-      - ownerTotal
-      - revision
-      - total
-      type: object
-      properties:
-        estimateNumber:
-          maxLength: 16
-          minLength: 1
-          required:
-          - "true"
-          type: string
-          description: The estimate number this allocation applies to
-          example: DEHAMCE1856373
-        revision:
-          required:
-          - "true"
-          type: integer
-          description: the revision number of the estimate this allocation applies
-            to
-          format: int32
-          example: 0
-        depot:
-          $ref: '#/components/schemas/Party'
-        total:
-          minimum: 0.0
-          required:
-          - "true"
-          type: number
-          description: the total for the estimate
-          format: double
-          example: 544.95
-        ownerTotal:
-          minimum: 0.0
-          required:
-          - "true"
-          type: number
-          description: the total of the owner portion for the estimate
-          format: double
-          example: 0.00
-        customerTotal:
-          minimum: 0.0
-          required:
-          - "true"
-          type: number
-          description: the total of the customer portion for the estimate
-          format: double
-          example: 422.96
-        insuranceTotal:
-          minimum: 0.0
-          required:
-          - "true"
-          type: number
-          description: the total of the insurance portion for the estimate
-          format: double
-          example: 121.99
-        ctl:
-          required:
-          - "true"
-          type: boolean
-          description: indicates if the estimate causes the unit to be a constructive
-            total lost
-          example: false
-        comments:
-          maxLength: 500
-          required:
-          - "false"
-          type: string
-          description: comments pertaining to the estimate creation
-          example: 'Base Currency is: EUR; Based on estimate, user damages total:
-            0.00; Calculated DV (base): 1151.84; Coverage amount: 121.99; Damage exceeds
-            DPP Coverage.; Damages exceed coverage amount. User pays excess.; Total
-            paid by DPP Coverage: 121.99; Total owed by user: 422.96;'
-        preliminaryDecision:
-          $ref: '#/components/schemas/PreliminaryDecision'
-      description: Indicates the allocated estimate totals, including any comments
-        on the allocation and if the box is considered a constructive loss.
     WorkOrderUnit:
       required:
       - effectiveInspectionCriteria

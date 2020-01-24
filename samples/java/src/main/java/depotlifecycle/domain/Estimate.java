@@ -20,6 +20,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.math.BigDecimal;
@@ -112,4 +113,8 @@ public class Estimate {
     @Schema(description = "detailed damage descriptions that when combined represent the damages being repaired by this estimate", required = true, minLength = 1)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimateLineItem> lineItems = new ArrayList<>();
+
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @Schema(description = "the amount break downs by party for this estimate")
+    EstimateAllocation allocation;
 }
