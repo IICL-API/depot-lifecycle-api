@@ -505,7 +505,7 @@ paths:
           description: this feature is not supported by this server
         503:
           description: API is temporarily paused, and not accepting any activity
-  /workOrder/{workOrderNumber}:
+  /workOrderUnit/{workOrderNumber}:
     parameters: 
       - name: workOrderNumber
         in: path
@@ -520,7 +520,7 @@ paths:
       summary: "marks a shipping container repaired"
       description: |
         For the given work order, attempt to mark it repair complete.
-      operationId: updateWorkOrder
+      operationId: updateWorkOrderUnit
       requestBody: 
         description: Repair Complete object to repair complete a repair      
         content: 
