@@ -41,7 +41,7 @@ info:
     \ eyJhbGciOiJIUzI1NiJ9...\n\n Content-Type: application/json; charset=utf-8\n\n\
     \ ```\n\n \n\n \n\n ## 5. Accessing a protected resource\n\n Use the authorization\
     \ header to supply the JWT for authentication to a protected resource.\n\n ```\n\
-    \n GET /api/v3/gate/CONU1234561 HTTP/1.1\n\n Host: www.example.com\n\n Authorization:\
+    \n GET /api/v2/gate/CONU1234561 HTTP/1.1\n\n Host: www.example.com\n\n Authorization:\
     \ Bearer eyJhbGciOiJIUzI1NiJ9...\n\n ```\n\n"
   contact:
     email: api-edi@trtn.com
@@ -985,6 +985,34 @@ components:
             type: string
       description: describes the type of insurance coverage a given shipping container
         has for a damage repair
+    MachineryInfo:
+      type: object
+      properties:
+        manufacturer:
+          maxLength: 50
+          required:
+          - "false"
+          type: string
+          description: The cooling machinery manufacturer
+          nullable: true
+          example: Carrier Transicold
+        modelName:
+          maxLength: 50
+          required:
+          - "false"
+          type: string
+          description: The machinery model name
+          nullable: true
+          example: ThinLine
+        modelNumber:
+          maxLength: 50
+          required:
+          - "false"
+          type: string
+          description: The machinery model number
+          nullable: true
+          example: 69NT40-541-301
+      description: details the cooling machinery attached to a shipping container
     RedeliveryUnit:
       required:
       - manufactureDate
@@ -1038,6 +1066,20 @@ components:
           description: comments pertaining to this unit for the intended recipient
             of this message
           example: Unit requires reefer testing before repair!
+        lastCargo:
+          maxLength: 255
+          type: string
+          description: the last cargo this shipping container carried
+          example: Aroset PS 5191
+        tankGrade:
+          maxLength: 255
+          type: string
+          description: "if this is a tank, then this describes the type of liquids\
+            \ it can container: \n\n`F` - Food\n\n`C` - Chemical "
+          example: C
+          enum:
+          - F
+          - C
       description: information for a specific unit on a redelivery
     RedeliveryDetail:
       required:
@@ -1068,6 +1110,8 @@ components:
           example: 22G1
         insuranceCoverage:
           $ref: '#/components/schemas/InsuranceCoverage'
+        machineryInfo:
+          $ref: '#/components/schemas/MachineryInfo'
         inspectionCriteria:
           maxLength: 10
           required:

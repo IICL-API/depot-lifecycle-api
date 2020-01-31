@@ -62,4 +62,12 @@ public class RedeliveryUnit {
     @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 500, example = "Unit requires reefer testing before repair!")
     @Column(length = 500)
     String comments;
+
+    @Schema(description = "the last cargo this shipping container carried", maxLength = 255, example = "Aroset PS 5191")
+    @Column(length = 255)
+    String lastCargo;
+
+    @Schema(description = "if this is a tank, then this describes the type of liquids it can contain: \n\n`F` - Food\n\n`C` - Chemical ", maxLength = 255, example = "C", allowableValues = {"F", "C"})
+    @Column(length = 1)
+    String tankGrade;
 }
