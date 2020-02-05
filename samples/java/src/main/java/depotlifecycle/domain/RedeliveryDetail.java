@@ -58,10 +58,6 @@ public class RedeliveryDetail {
     @Schema(description = "the insurance coverage for damage repairs")
     InsuranceCoverage insuranceCoverage;
 
-    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-    @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information")
-    MachineryInfo machineryInfo;
-
     @Schema(description = "the grade / category of the unit as it was when it last left a depot", required = true, example = "IICL", maxLength = 10)
     @Column(nullable = false, length = 10)
     String inspectionCriteria;

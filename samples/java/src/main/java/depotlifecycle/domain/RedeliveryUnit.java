@@ -11,6 +11,7 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -18,6 +19,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Data
@@ -70,4 +72,8 @@ public class RedeliveryUnit {
     @Schema(description = "if this is a tank, then this describes the type of liquids it can contain: \n\n`F` - Food\n\n`C` - Chemical ", maxLength = 255, example = "C", allowableValues = {"F", "C"})
     @Column(length = 1)
     String tankGrade;
+
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information")
+    MachineryInfo machineryInfo;
 }

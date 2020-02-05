@@ -11,6 +11,7 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 @Tag(name = "release")
 @Validated
@@ -80,7 +80,7 @@ public class ReleaseController {
         releaseRepository.save(release);
     }
 
-    @Post(uri = "/{releaseNumber}", produces = MediaType.APPLICATION_JSON)
+    @Put(uri = "/{releaseNumber}", produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "update release", description = "Updates an existing Release.", method = "POST", operationId = "updateRelease")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful update"),

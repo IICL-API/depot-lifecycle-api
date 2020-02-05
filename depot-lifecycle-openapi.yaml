@@ -178,7 +178,7 @@ paths:
         503:
           description: API is temporarily paused, and not accepting any activity
   /api/v2/redelivery/{redeliveryNumber}:
-    post:
+    put:
       tags:
       - redelivery
       summary: update redelivery
@@ -816,7 +816,7 @@ paths:
         503:
           description: API is temporarily paused, and not accepting any activity
   /api/v2/release/{releaseNumber}:
-    post:
+    put:
       tags:
       - release
       summary: update release
@@ -1075,11 +1075,13 @@ components:
           maxLength: 255
           type: string
           description: "if this is a tank, then this describes the type of liquids\
-            \ it can container: \n\n`F` - Food\n\n`C` - Chemical "
+            \ it can contain: \n\n`F` - Food\n\n`C` - Chemical "
           example: C
           enum:
           - F
           - C
+        machineryInfo:
+          $ref: '#/components/schemas/MachineryInfo'
       description: information for a specific unit on a redelivery
     RedeliveryDetail:
       required:
@@ -1110,8 +1112,6 @@ components:
           example: 22G1
         insuranceCoverage:
           $ref: '#/components/schemas/InsuranceCoverage'
-        machineryInfo:
-          $ref: '#/components/schemas/MachineryInfo'
         inspectionCriteria:
           maxLength: 10
           required:
