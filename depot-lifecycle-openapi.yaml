@@ -351,39 +351,6 @@ paths:
           description: this feature is not supported by this server
         503:
           description: API is temporarily paused, and not accepting any activity
-    patch:
-      tags:
-      - estimate
-      summary: update estimate totals
-      description: When the creation of the estimate is delayed due to a 202, after
-        the manual processing is complete, this method is called to perform the update
-        of the totals
-      operationId: updateTotals
-      parameters: []
-      requestBody:
-        description: total breakdowns to finish creating an estimate
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EstimateAllocation'
-        required: true
-      responses:
-        200:
-          description: successfully received estimate totals
-        400:
-          description: an error occurred trying to update totals
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: estimate total update is disallowed by security
-        404:
-          description: the estimate was not found
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
   /api/v2/estimate/{estimateNumber}:
     get:
       tags:
@@ -506,6 +473,56 @@ paths:
           description: customer approval is disallowed by security
         404:
           description: the estimate or depot was not found
+        501:
+          description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
+    patch:
+      tags:
+      - estimate
+      summary: update estimate totals
+      description: When the creation of the estimate is delayed due to a 202, after
+        the manual processing is complete, this method is called to perform the update
+        of the totals
+      operationId: updateTotals
+      parameters:
+      - name: estimateNumber
+        in: path
+        description: the estimate number
+        required: true
+        schema:
+          maxLength: 16
+          type: object
+          example: DEHAMCE1856373
+      - name: depot
+        in: query
+        description: the identifier of the depot
+        required: true
+        schema:
+          maxLength: 9
+          pattern: ^[A-Z0-9]{9}$
+          type: object
+          example: DEHAMCMRA
+      requestBody:
+        description: total breakdowns to finish creating an estimate
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateAllocation'
+        required: true
+      responses:
+        200:
+          description: successfully received estimate totals
+        400:
+          description: an error occurred trying to update totals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: estimate total update is disallowed by security
+        404:
+          description: the estimate was not found
         501:
           description: this feature is not supported by this server
         503:

@@ -50,7 +50,7 @@ public class GateController {
     }
 
     @Get(uri = "/{unitNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "fetch the current gate status", description = "For the given unit number, if the shipping container is currently gated in or gated out, fetch the current interchange information - damage status, the time of the gate, etc.", operationId = "showGate")
+    @Operation(summary = "fetch the current gate status", description = "For the given unit number, if the shipping container is currently gated in or gated out, fetch the current interchange information - damage status, the time of the gate, etc.", method = "GET", operationId = "showGate")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successfully found current gate status", content = {@Content(schema = @Schema(implementation = GateStatus.class))}),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),

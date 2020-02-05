@@ -38,7 +38,7 @@ public class ReleaseController {
     private final ReleaseRepository releaseRepository;
 
     @Get(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "search for a release", description = "Finds Releases for the given the criteria.", operationId = "indexRelease")
+    @Operation(summary = "search for a release", description = "Finds Releases for the given the criteria.", method = "GET", operationId = "indexRelease")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful search", content = {@Content(array = @ArraySchema(schema = @Schema(implementation = Release.class)))}),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -81,7 +81,7 @@ public class ReleaseController {
     }
 
     @Put(uri = "/{releaseNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "update release", description = "Updates an existing Release.", method = "POST", operationId = "updateRelease")
+    @Operation(summary = "update release", description = "Updates an existing Release.", method = "PUT", operationId = "updateRelease")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful update"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
