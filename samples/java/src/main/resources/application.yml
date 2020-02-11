@@ -1,0 +1,48 @@
+micronaut:
+  application:
+    name: depotlifecycle
+  server:
+      port: 8086
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+      redoc:
+        paths: classpath:META-INF/swagger/views/redoc
+        mapping: /redoc/**
+      rapidoc:
+        paths: classpath:META-INF/swagger/views/rapidoc
+        mapping: /rapidoc/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
+jackson:
+  bean-introspection-module: true
+  serialization:
+    indentOutput: true
+    writeDatesAsTimestamps: false
+    writeDatesWithZoneId: false
+  deserialization:
+#    useBigIntegerForInts: true
+#    failOnUnknownProperties: false
+datasources:
+  default:
+    url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+    schema-generate: CREATE_DROP
+    dialect: H2
+jpa:
+  default:
+    packages-to-scan:
+      - 'depotlifecycle.domain'
+      - 'depotlifecycle.repositories'
+    properties:
+      hibernate:
+        bytecode:
+          provider: none
+        hbm2ddl:
+          auto: update
+        show_sql: true

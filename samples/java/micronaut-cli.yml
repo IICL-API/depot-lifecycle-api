@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: depotlifecycle
+---
+testFramework: junit
+sourceLanguage: java
