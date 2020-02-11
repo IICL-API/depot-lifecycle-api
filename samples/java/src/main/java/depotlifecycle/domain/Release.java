@@ -8,9 +8,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -52,9 +55,10 @@ public class Release {
     @Column(nullable = false)
     ZonedDateTime approvalDate;
 
-    @Schema(description = "comments pertaining to this release for the intended recipient of this message", maxLength = 500, example = "an example release level comment")
-    @Column(length = 500)
-    String comments;
+    @Schema(description = "comments pertaining to this release for the intended recipient of this message", maxLength = 500, example = "[an example release level comment]")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @ElementCollection
+    List<String> comments;
 
     @Schema(description = "The location for this release", required = true)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
@@ -67,6 +71,10 @@ public class Release {
     @Schema(description = "The intended recipient for this message representing a release", required = true)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party recipient;
+
+    @Schema(description = "indicates if an on-hire survey is required for units associated to this release")
+    @Column
+    Boolean onHireSurveyRequired;
 
     @Schema(description = "groups of like-criteria units", required = true, minLength = 1)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)

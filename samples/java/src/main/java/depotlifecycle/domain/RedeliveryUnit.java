@@ -8,11 +8,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -57,13 +61,14 @@ public class RedeliveryUnit {
     @ManyToOne(fetch = FetchType.EAGER)
     Party lastOnHireLocation;
 
-    @Schema(description = "Describes the state of the shipping container for this redelivery: \n\n`TIED` - shipping container is assigned to this redelivery and ready to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery, but is no longer valid for redelivery.\n\n`LOT` - shipping container has turned into the storage location of this redelivery.", allowableValues = {"REMOVED", "TIED", "TIN"}, example = "TIED")
+    @Schema(description = "Describes the state of the shipping container for this redelivery: \n\n`TIED` - shipping container is assigned to this redelivery and ready to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery, but is no longer valid for redelivery.\n\n`TIN` - shipping container has turned into the storage location of this redelivery.", allowableValues = {"REMOVED", "TIED", "TIN"}, example = "TIED")
     @Column(nullable = false, length = 7)
     String status;
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 500, example = "Unit requires reefer testing before repair!")
-    @Column(length = 500)
-    String comments;
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 500)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @ElementCollection
+    List<String> comments;
 
     @Schema(description = "the last cargo this shipping container carried", maxLength = 255, example = "Aroset PS 5191")
     @Column(length = 255)

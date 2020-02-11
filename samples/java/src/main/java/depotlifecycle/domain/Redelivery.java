@@ -8,9 +8,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -48,9 +51,10 @@ public class Redelivery {
     @Column(nullable = false)
     ZonedDateTime approvalDate;
 
-    @Schema(description = "comments pertaining to this redelivery for the intended recipient of this message", maxLength = 500, example = "an example redelivery level comment")
-    @Column(length = 500)
-    String comments;
+    @Schema(description = "comments pertaining to this redelivery for the intended recipient of this message", maxLength = 500, example = "[an example redelivery level comment]")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @ElementCollection
+    List<String> comments;
 
     @Schema(description = "The location for this redelivery", required = true)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)

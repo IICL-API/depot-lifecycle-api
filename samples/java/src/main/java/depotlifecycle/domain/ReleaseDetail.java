@@ -28,7 +28,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "unit criteria that groups similar units on a release", requiredProperties = {"customer", "contract", "equipment", "grade", "quantity"})
+@Schema(description = "groups similar units on a release", requiredProperties = {"customer", "contract", "equipment", "grade", "quantity"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
@@ -62,9 +62,13 @@ public class ReleaseDetail {
     @Column(length = 2)
     String upgradeType;
 
-    @Schema(description = "the specific units for this release if defined, if not, assumed blanket")
+    @Schema(description = "the specific units for this release if defined, if not, assumed blanket (any unit matching criteria can be tied up to the quantity limit of this detail)")
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<ReleaseUnit> units = new ArrayList<>();
+
+    @Schema(description = "additional criteria beyond the required properties of this detail to further restrict units.  i.e. <= 2003 manufacture year. ")
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+    List<ReleaseDetailCriteria> criteria = new ArrayList<>();
 
     @Schema(description = "the number of shipping containers assigned to this detail", required = true, example = "1", minimum = "0")
     @Column(nullable = false)

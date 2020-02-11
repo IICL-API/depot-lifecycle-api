@@ -779,7 +779,7 @@ paths:
         schema:
           maxLength: 16
           type: object
-          example: AHAMG000000
+          example: RHAMG000000
       responses:
         200:
           description: successful search
@@ -847,7 +847,7 @@ paths:
         schema:
           maxLength: 16
           type: object
-          example: AHAMG000000
+          example: RHAMG000000
       requestBody:
         description: Data to use to update the given Release
         content:
@@ -1070,7 +1070,7 @@ components:
           description: "Describes the state of the shipping container for this redelivery:\
             \ \n\n`TIED` - shipping container is assigned to this redelivery and ready\
             \ to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery,\
-            \ but is no longer valid for redelivery.\n\n`LOT` - shipping container\
+            \ but is no longer valid for redelivery.\n\n`TIN` - shipping container\
             \ has turned into the storage location of this redelivery."
           example: TIED
           enum:
@@ -1079,10 +1079,11 @@ components:
           - TIN
         comments:
           maxLength: 500
-          type: string
+          type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
-          example: Unit requires reefer testing before repair!
+          items:
+            type: string
         lastCargo:
           maxLength: 255
           type: string
@@ -1193,7 +1194,8 @@ components:
         units:
           type: array
           description: the specific units for this redelivery if defined, if not,
-            assumed blanket
+            assumed blanket (any unit matching criteria can be tied up to the quantity
+            limit of this detail)
           items:
             $ref: '#/components/schemas/RedeliveryUnit'
         quantity:
@@ -1238,10 +1240,12 @@ components:
           format: date-time
         comments:
           maxLength: 500
-          type: string
+          type: array
           description: comments pertaining to this redelivery for the intended recipient
             of this message
-          example: an example redelivery level comment
+          example: '[an example redelivery level comment]'
+          items:
+            type: string
         depot:
           $ref: '#/components/schemas/Party'
         recipient:
@@ -1752,7 +1756,6 @@ components:
             `AU` - Ancillary Upgrade
 
             `AR` - Ancillary Repair
-          default: R
           enum:
           - R
           - RI
@@ -1763,6 +1766,7 @@ components:
           - AS
           - AU
           - AR
+          default: R
         upgradeType:
           maxLength: 2
           required:
@@ -1892,11 +1896,11 @@ components:
 
             `REPAIRED` - shipping container is considered repaired
           example: TIED
-          default: TIED
           enum:
           - TIED
           - REMOVED
           - REPAIRED
+          default: TIED
       description: information for a specific unit on a work order
     WorkOrder:
       required:
@@ -2251,9 +2255,12 @@ components:
           example: CONU1234561
         comments:
           maxLength: 500
-          type: string
-          description: comments pertaining only to this unit for the intended recipient
+          type: array
+          description: comments pertaining to this unit for the intended recipient
             of this message
+          example: '[Unit requires reefer testing before repair!]'
+          items:
+            type: string
         status:
           type: string
           description: "Describes the state of the shipping container for this release:\
@@ -2267,6 +2274,43 @@ components:
           - TIED
           - LOT
       description: information for a specific unit on a release
+    ReleaseDetailCriteria:
+      required:
+      - fieldDescription
+      - fieldId
+      - fieldName
+      - fieldValue
+      type: object
+      properties:
+        fieldName:
+          maxLength: 50
+          required:
+          - "true"
+          type: string
+          description: a legible field name
+          example: Minimum Tonnage
+        fieldId:
+          maxLength: 30
+          required:
+          - "true"
+          type: string
+          description: an abbreviated form of the field name
+          example: tonnageMin
+        fieldDescription:
+          maxLength: 255
+          required:
+          - "true"
+          type: string
+          description: an explanation of what the field value is
+          example: minimum tonnage rating of the unit (inclusive)
+        fieldValue:
+          maxLength: 100
+          required:
+          - "true"
+          type: string
+          description: the value of the field
+          example: "30"
+      description: represents unit criteria to restrict units on a given detail
     ReleaseDetail:
       required:
       - contract
@@ -2354,9 +2398,16 @@ components:
         units:
           type: array
           description: the specific units for this release if defined, if not, assumed
-            blanket
+            blanket (any unit matching criteria can be tied up to the quantity limit
+            of this detail)
           items:
             $ref: '#/components/schemas/ReleaseUnit'
+        criteria:
+          type: array
+          description: 'additional criteria beyond the required properties of this
+            detail to further restrict units.  i.e. <= 2003 manufacture year. '
+          items:
+            $ref: '#/components/schemas/ReleaseDetailCriteria'
         quantity:
           minimum: 0
           required:
@@ -2365,7 +2416,7 @@ components:
           description: the number of shipping containers assigned to this detail
           format: int32
           example: 1
-      description: unit criteria that groups similar units on a release
+      description: groups similar units on a release
     Release:
       required:
       - approvalDate
@@ -2413,16 +2464,22 @@ components:
           format: date-time
         comments:
           maxLength: 500
-          type: string
+          type: array
           description: comments pertaining to this release for the intended recipient
             of this message
-          example: an example release level comment
+          example: '[an example release level comment]'
+          items:
+            type: string
         depot:
           $ref: '#/components/schemas/Party'
         owner:
           $ref: '#/components/schemas/Party'
         recipient:
           $ref: '#/components/schemas/Party'
+        onHireSurveyRequired:
+          type: boolean
+          description: indicates if an on-hire survey is required for units associated
+            to this release
         details:
           minLength: 1
           required:

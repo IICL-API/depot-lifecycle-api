@@ -46,7 +46,7 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String releaseNumber) {
+    public HttpResponse index(@Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber) {
         List<Release> releases = new ArrayList<>();
         if (releaseNumber != null) {
             Optional<Release> release = releaseRepository.findById(releaseNumber);
@@ -90,7 +90,7 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String releaseNumber,
+    public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
                        @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
         if (!releaseRepository.existsById(releaseNumber)) {
             throw new IllegalArgumentException("Release does not exist.");

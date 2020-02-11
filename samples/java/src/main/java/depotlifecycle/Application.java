@@ -109,7 +109,7 @@ public class Application {
         redelivery.setRedeliveryNumber("AHAMG33141");
         redelivery.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
         redelivery.setExpirationDate(getLocal(LocalDateTime.now().plusMonths(4)));
-        redelivery.setComments("an example redelivery level comment");
+        redelivery.setComments(Arrays.asList("an example redelivery level comment"));
         redelivery.setDepot(depot1);
         redelivery.setRecipient(depot1);
 
@@ -146,14 +146,14 @@ public class Application {
         unit1.setManufactureDate(LocalDate.of(2012, 1, 1));
         unit1.setLastOnHireDate(LocalDate.of(2012, 2, 1));
         unit1.setLastOnHireLocation(depot2);
-        unit1.setComments("Example unit comment #1.");
+        unit1.setComments(Arrays.asList("Example unit comment #1."));
         unit1.setStatus("TIED");
 
         RedeliveryUnit unit2 = new RedeliveryUnit();
         unit2.setRedeliveryDetail(insuranceDetail);
         unit2.setUnitNumber("CONU1234526");
         unit2.setManufactureDate(LocalDate.of(2012, 1, 1));
-        unit2.setComments("Example unit comment #2.");
+        unit2.setComments(Arrays.asList("Example unit comment #2."));
         unit2.setStatus("TIED");
 
         redelivery.getDetails().add(insuranceDetail);

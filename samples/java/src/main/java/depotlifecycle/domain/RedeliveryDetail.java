@@ -70,7 +70,7 @@ public class RedeliveryDetail {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party billingParty;
 
-    @Schema(description = "the specific units for this redelivery if defined, if not, assumed blanket")
+    @Schema(description = "the specific units for this redelivery if defined, if not, assumed blanket (any unit matching criteria can be tied up to the quantity limit of this detail)")
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<RedeliveryUnit> units = new ArrayList<>();
 
