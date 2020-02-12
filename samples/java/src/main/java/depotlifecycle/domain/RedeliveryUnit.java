@@ -74,7 +74,7 @@ public class RedeliveryUnit {
     @Column(length = 255)
     String lastCargo;
 
-    @Schema(description = "if this is a tank, then this describes the type of liquids it can contain: \n\n`F` - Food\n\n`C` - Chemical ", maxLength = 255, example = "C", allowableValues = {"F", "C"})
+    @Schema(description = "if this is a tank, then this describes the type of liquids it can contain: \n\n`F` - Food\n\n`C` - Chemical ", maxLength = 1, example = "C", allowableValues = {"F", "C"})
     @Column(length = 1)
     String tankGrade;
 
