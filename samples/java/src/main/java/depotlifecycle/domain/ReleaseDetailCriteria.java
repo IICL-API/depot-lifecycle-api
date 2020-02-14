@@ -51,7 +51,7 @@ public class ReleaseDetailCriteria {
     @Column(nullable = false, length = 255)
     String fieldDescription;
 
-    @Schema(description = "the value of the field", required = true, example = "30", maxLength = 100)
-    @Column(nullable = false, length = 100)
+    @Schema(description = "the value of the field", required = true, example = "30", maxLength = 500)
+    @Column(nullable = false, length = 500)
     String fieldValue;
 }
