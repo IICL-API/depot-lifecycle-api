@@ -1,7 +1,10 @@
 package depotlifecycle.controllers;
 
 import depotlifecycle.ErrorResponse;
+import depotlifecycle.domain.Party;
 import depotlifecycle.domain.Redelivery;
+import depotlifecycle.domain.RedeliveryDetail;
+import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -28,6 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +41,7 @@ import java.util.Optional;
 @Controller("/api/v2/redelivery")
 @RequiredArgsConstructor
 public class RedeliveryController {
+    private final PartyRepository partyRepository;
     private final RedeliveryRepository redeliveryRepository;
 
     @Get(produces = MediaType.APPLICATION_JSON)
@@ -79,6 +84,18 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public void create(@RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
+        List<Party> parties = new ArrayList<>();
+        for (RedeliveryDetail detail : redelivery.getDetails()) {
+            if (detail.getCustomer() != null) {
+                parties.add(detail.getCustomer());
+            }
+        }
+
+        if (redelivery.getDepot() != null) {
+            parties.add(redelivery.getDepot());
+        }
+
+        partyRepository.saveAll(parties);
         redeliveryRepository.save(redelivery);
     }
 
