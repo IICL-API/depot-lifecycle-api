@@ -17,6 +17,21 @@ micronaut:
       swagger-ui:
         paths: classpath:META-INF/swagger/views/swagger-ui
         mapping: /swagger-ui/**
+  security:
+    enabled: true
+    endpoints:
+      login:
+        enabled: true
+        path: /api/login
+      oauth:
+        enabled: true
+    token:
+      jwt:
+        enabled: true
+        signatures:
+          secret:
+            generator:
+              secret: pleaseChangeThisSecretForANewOne
 jackson:
   bean-introspection-module: true
   serialization:

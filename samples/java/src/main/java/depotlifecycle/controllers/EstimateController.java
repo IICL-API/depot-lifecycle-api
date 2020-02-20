@@ -19,6 +19,7 @@ import io.micronaut.http.annotation.Patch;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
+import io.micronaut.security.annotation.Secured;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 
 @Tag(name = "estimate")
 @Validated
+@Secured("isAuthenticated()")
 @Controller("/api/v2/estimate")
 @RequiredArgsConstructor
 public class EstimateController {

@@ -8,6 +8,7 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Put;
+import io.micronaut.security.annotation.Secured;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,6 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "workOrder")
 @Validated
+@Secured("isAuthenticated()")
 @Controller("/api/v2/workOrderUnit")
 public class WorkOrderUnitController {
     @Put(uri = "/{workOrderNumber}", produces = MediaType.APPLICATION_JSON)

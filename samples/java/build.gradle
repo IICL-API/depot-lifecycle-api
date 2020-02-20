@@ -59,6 +59,9 @@ dependencies {
     //open api 
     annotationProcessor "io.micronaut.configuration:micronaut-openapi:1.3.3"
     compile "io.swagger.core.v3:swagger-annotations"
+
+    //security
+    implementation "io.micronaut:micronaut-security-jwt"
 }
 
 test.classpath += configurations.developmentOnly
@@ -88,4 +91,10 @@ hibernate {
 }
 
 run.classpath += configurations.developmentOnly
-run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005')
+
+if (hasProperty("debug")) {
+    run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005')
+}
+else {
+    run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+}
