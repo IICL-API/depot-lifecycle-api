@@ -93,7 +93,7 @@ hibernate {
 run.classpath += configurations.developmentOnly
 
 if (hasProperty("debug")) {
-    run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005')
+    run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006')
 }
 else {
     run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
