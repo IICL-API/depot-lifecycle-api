@@ -41,10 +41,6 @@ public class RedeliveryUnit {
     @JsonIgnore
     Long id;
 
-    @ManyToOne(optional = false)
-    @JsonIgnore
-    RedeliveryDetail redeliveryDetail;
-
     @Schema(description = "the current remark of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, example = "CONU1234561", maxLength = 11)
     @Column(nullable = false, length = 11)
     String unitNumber;

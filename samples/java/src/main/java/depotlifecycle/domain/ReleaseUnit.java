@@ -17,9 +17,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -36,10 +34,6 @@ public class ReleaseUnit {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
     Long id;
-
-    @ManyToOne(optional = false)
-    @JsonIgnore
-    ReleaseDetail releaseDetail;
 
     @Schema(description = "the current remark of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, example = "CONU1234561", maxLength = 11)
     @Column(nullable = false, length = 11)

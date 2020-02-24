@@ -114,7 +114,6 @@ public class Application {
         redelivery.setRecipient(depot1);
 
         RedeliveryDetail noInsuranceDetail = new RedeliveryDetail();
-        noInsuranceDetail.setRedelivery(redelivery);
         noInsuranceDetail.setCustomer(customer);
         noInsuranceDetail.setContract("EXCUST01-100000");
         noInsuranceDetail.setEquipment("22G1");
@@ -131,7 +130,6 @@ public class Application {
         coverage.setInclusions(Arrays.asList("Inclusion #1", "Inclusion #2"));
 
         RedeliveryDetail insuranceDetail = new RedeliveryDetail();
-        insuranceDetail.setRedelivery(redelivery);
         insuranceDetail.setCustomer(customer);
         insuranceDetail.setContract("EXCUST01-100000");
         insuranceDetail.setEquipment("22G2");
@@ -141,7 +139,6 @@ public class Application {
         insuranceDetail.setQuantity(1);
 
         RedeliveryUnit unit1 = new RedeliveryUnit();
-        unit1.setRedeliveryDetail(noInsuranceDetail);
         unit1.setUnitNumber("CONU1234561");
         unit1.setManufactureDate(LocalDate.of(2012, 1, 1));
         unit1.setLastOnHireDate(LocalDate.of(2012, 2, 1));
@@ -150,7 +147,6 @@ public class Application {
         unit1.setStatus("TIED");
 
         RedeliveryUnit unit2 = new RedeliveryUnit();
-        unit2.setRedeliveryDetail(insuranceDetail);
         unit2.setUnitNumber("CONU1234526");
         unit2.setManufactureDate(LocalDate.of(2012, 1, 1));
         unit2.setComments(Arrays.asList("Example unit comment #2."));

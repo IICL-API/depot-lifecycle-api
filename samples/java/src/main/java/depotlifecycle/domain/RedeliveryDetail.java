@@ -38,10 +38,6 @@ public class RedeliveryDetail {
     @JsonIgnore
     Long id;
 
-    @ManyToOne(optional = false)
-    @JsonIgnore
-    Redelivery redelivery;
-
     @Schema(description = "The customer for the contract on this detail.", required = true)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party customer;

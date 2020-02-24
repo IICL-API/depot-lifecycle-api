@@ -18,7 +18,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +36,6 @@ public class ReleaseDetail {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
     Long id;
-
-    @ManyToOne(optional = false)
-    @JsonIgnore
-    Release release;
 
     @Schema(description = "The customer for the contract on this detail.", required = true)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)

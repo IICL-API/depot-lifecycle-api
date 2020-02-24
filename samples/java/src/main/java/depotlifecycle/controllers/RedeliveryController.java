@@ -1,9 +1,9 @@
 package depotlifecycle.controllers;
 
 import depotlifecycle.ErrorResponse;
-import depotlifecycle.domain.Party;
 import depotlifecycle.domain.Redelivery;
 import depotlifecycle.domain.RedeliveryDetail;
+import depotlifecycle.domain.RedeliveryUnit;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import io.micronaut.http.HttpRequest;
@@ -31,7 +31,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,18 +83,12 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public void create(@RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
-        List<Party> parties = new ArrayList<>();
-        for (RedeliveryDetail detail : redelivery.getDetails()) {
-            if (detail.getCustomer() != null) {
-                parties.add(detail.getCustomer());
-            }
+        if (redeliveryRepository.existsById(redelivery.getRedeliveryNumber())) {
+            throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
 
-        if (redelivery.getDepot() != null) {
-            parties.add(redelivery.getDepot());
-        }
+        saveParties(redelivery);
 
-        partyRepository.saveAll(parties);
         redeliveryRepository.save(redelivery);
     }
 
@@ -114,7 +107,35 @@ public class RedeliveryController {
         if (!redeliveryRepository.existsById(redeliveryNumber)) {
             throw new IllegalArgumentException("Redelivery does not exist.");
         }
+
+        saveParties(redelivery);
+
         redeliveryRepository.update(redelivery);
+    }
+
+    private void saveParties(Redelivery redelivery) {
+        for (RedeliveryDetail detail : redelivery.getDetails()) {
+            if (detail.getCustomer() != null) {
+                detail.setCustomer(partyRepository.saveOrUpdate(detail.getCustomer()));
+            }
+            if (detail.getBillingParty() != null) {
+                detail.setBillingParty(partyRepository.saveOrUpdate(detail.getBillingParty()));
+            }
+
+            for (RedeliveryUnit unit : detail.getUnits()) {
+                if (unit.getLastOnHireLocation() != null) {
+                    unit.setLastOnHireLocation(partyRepository.saveOrUpdate(unit.getLastOnHireLocation()));
+                }
+            }
+        }
+
+        if (redelivery.getDepot() != null) {
+            redelivery.setDepot(partyRepository.saveOrUpdate(redelivery.getDepot()));
+        }
+
+        if (redelivery.getRecipient() != null) {
+            redelivery.setRecipient(partyRepository.saveOrUpdate(redelivery.getRecipient()));
+        }
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
@@ -123,5 +144,14 @@ public class RedeliveryController {
 
         return HttpResponse.<JsonError>notFound()
             .body(error);
+    }
+
+    @Error
+    public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+        ErrorResponse error = new ErrorResponse();
+        error.setCode("ERR000");
+        error.setMessage(ex.getMessage());
+
+        return HttpResponse.badRequest().body(error);
     }
 }
