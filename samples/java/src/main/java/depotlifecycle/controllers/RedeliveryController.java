@@ -29,6 +29,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,7 @@ import java.util.Optional;
 @Controller("/api/v2/redelivery")
 @RequiredArgsConstructor
 public class RedeliveryController {
+    private static final Logger LOG = LoggerFactory.getLogger(RedeliveryController.class);
     private final PartyRepository partyRepository;
     private final RedeliveryRepository redeliveryRepository;
 
@@ -53,6 +56,8 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse index(@Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber) {
+        LOG.info("Received Redelivery Search");
+
         List<Redelivery> redeliveries = new ArrayList<>();
         if (redeliveryNumber != null) {
             Optional<Redelivery> redelivery = redeliveryRepository.findById(redeliveryNumber);
@@ -65,9 +70,11 @@ public class RedeliveryController {
         }
 
         if (redeliveries.isEmpty()) {
+            LOG.info("\tRelease Search - 404 - Not Found");
             return HttpResponse.notFound();
         }
         else {
+            LOG.info("\tRelease Search - 200 - Found Releases");
             return HttpResponse.ok(redeliveries);
         }
     }
@@ -83,6 +90,7 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public void create(@RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
+        LOG.info("Received Redelivery Create");
         if (redeliveryRepository.existsById(redelivery.getRedeliveryNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
@@ -104,6 +112,7 @@ public class RedeliveryController {
     })
     public void update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
                        @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
+        LOG.info("Received Redelivery Update");
         if (!redeliveryRepository.existsById(redeliveryNumber)) {
             throw new IllegalArgumentException("Redelivery does not exist.");
         }
@@ -140,6 +149,7 @@ public class RedeliveryController {
 
     @Error(status = HttpStatus.NOT_FOUND)
     public HttpResponse notFound(HttpRequest request) {
+        LOG.info("\tError - 404 - Not Found");
         JsonError error = new JsonError("Not Found");
 
         return HttpResponse.<JsonError>notFound()
@@ -148,6 +158,7 @@ public class RedeliveryController {
 
     @Error
     public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+        LOG.info("\tError - 400 - Bad Request", ex);
         ErrorResponse error = new ErrorResponse();
         error.setCode("ERR000");
         error.setMessage(ex.getMessage());

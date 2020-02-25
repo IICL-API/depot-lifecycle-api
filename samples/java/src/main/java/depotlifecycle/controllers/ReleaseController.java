@@ -28,6 +28,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,7 @@ import java.util.Optional;
 @Controller("/api/v2/release")
 @RequiredArgsConstructor
 public class ReleaseController {
+    private static final Logger LOG = LoggerFactory.getLogger(ReleaseController.class);
     private final PartyRepository partyRepository;
     private final ReleaseRepository releaseRepository;
 
@@ -52,6 +55,7 @@ public class ReleaseController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse index(@Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber) {
+        LOG.info("Received Release Search");
         List<Release> releases = new ArrayList<>();
         if (releaseNumber != null) {
             Optional<Release> release = releaseRepository.findById(releaseNumber);
@@ -64,9 +68,11 @@ public class ReleaseController {
         }
 
         if (releases.isEmpty()) {
+            LOG.info("\tRelease Search - 404 - Not Found");
             return HttpResponse.notFound();
         }
         else {
+            LOG.info("\tRelease Search - 200 - Found Releases");
             return HttpResponse.ok(releases);
         }
     }
@@ -82,6 +88,7 @@ public class ReleaseController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public void create(@RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
+        LOG.info("Received Release Create");
         if (releaseRepository.existsById(release.getReleaseNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
@@ -119,6 +126,7 @@ public class ReleaseController {
     })
     public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
                        @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
+        LOG.info("Received Release Update");
         if (!releaseRepository.existsById(releaseNumber)) {
             throw new IllegalArgumentException("Release does not exist.");
         }
@@ -130,6 +138,7 @@ public class ReleaseController {
 
     @Error(status = HttpStatus.NOT_FOUND)
     public HttpResponse notFound(HttpRequest request) {
+        LOG.info("\tError - 404 - Not Found");
         JsonError error = new JsonError("Not Found");
 
         return HttpResponse.<JsonError>notFound()
@@ -138,6 +147,7 @@ public class ReleaseController {
 
     @Error
     public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+        LOG.info("\tError - 400 - Bad Request", ex);
         ErrorResponse error = new ErrorResponse();
         error.setCode("ERR000");
         error.setMessage(ex.getMessage());
