@@ -2,6 +2,8 @@ package depotlifecycle.controllers;
 
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.Release;
+import depotlifecycle.domain.ReleaseDetail;
+import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.ReleaseRepository;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -37,6 +39,7 @@ import java.util.Optional;
 @Controller("/api/v2/release")
 @RequiredArgsConstructor
 public class ReleaseController {
+    private final PartyRepository partyRepository;
     private final ReleaseRepository releaseRepository;
 
     @Get(produces = MediaType.APPLICATION_JSON)
@@ -79,7 +82,29 @@ public class ReleaseController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public void create(@RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
+        if (releaseRepository.existsById(release.getReleaseNumber())) {
+            throw new IllegalArgumentException("Redelivery already exists; please update instead.");
+        }
+
+        saveParties(release);
+
         releaseRepository.save(release);
+    }
+
+    private void saveParties(Release release) {
+        for (ReleaseDetail detail : release.getDetails()) {
+            if (detail.getCustomer() != null) {
+                detail.setCustomer(partyRepository.saveOrUpdate(detail.getCustomer()));
+            }
+        }
+
+        if (release.getDepot() != null) {
+            release.setDepot(partyRepository.saveOrUpdate(release.getDepot()));
+        }
+
+        if (release.getRecipient() != null) {
+            release.setRecipient(partyRepository.saveOrUpdate(release.getRecipient()));
+        }
     }
 
     @Put(uri = "/{releaseNumber}", produces = MediaType.APPLICATION_JSON)
@@ -97,6 +122,9 @@ public class ReleaseController {
         if (!releaseRepository.existsById(releaseNumber)) {
             throw new IllegalArgumentException("Release does not exist.");
         }
+
+        saveParties(release);
+
         releaseRepository.update(release);
     }
 
@@ -106,5 +134,14 @@ public class ReleaseController {
 
         return HttpResponse.<JsonError>notFound()
             .body(error);
+    }
+
+    @Error
+    public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+        ErrorResponse error = new ErrorResponse();
+        error.setCode("ERR000");
+        error.setMessage(ex.getMessage());
+
+        return HttpResponse.badRequest().body(error);
     }
 }

@@ -5,8 +5,12 @@ import depotlifecycle.domain.Party;
 import depotlifecycle.domain.Redelivery;
 import depotlifecycle.domain.RedeliveryDetail;
 import depotlifecycle.domain.RedeliveryUnit;
+import depotlifecycle.domain.Release;
+import depotlifecycle.domain.ReleaseDetail;
+import depotlifecycle.domain.ReleaseUnit;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
+import depotlifecycle.repositories.ReleaseRepository;
 import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
@@ -67,6 +71,7 @@ public class Application {
     private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
     private final RedeliveryRepository redeliveryRepository;
+    private final ReleaseRepository releaseRepository;
     private final PartyRepository partyRepository;
 
     public static void main(String[] args) {
@@ -103,8 +108,64 @@ public class Application {
         customer.setUserName("Jane Doe");
         customer.setCode("EXCUST");
         customer.setName("Example Customer");
-        partyRepository.saveAll(Arrays.asList(depot1, depot2, customer));
 
+        Party owner = new Party();
+        owner.setCompanyId("USSFOTRIB");
+        owner.setUserCode("JD");
+        owner.setUserName("Jane Doe");
+        owner.setCode("TRTN");
+        owner.setName("Triton International Limited");
+
+        partyRepository.saveAll(Arrays.asList(depot1, depot2, customer, owner));
+
+        buildRedeliveries(depot1, depot2, customer);
+        buildReleases(depot1, depot2, customer, owner);
+    }
+
+    private void buildReleases(Party depot1, Party depot2, Party customer, Party owner) {
+        Release release = new Release();
+        release.setReleaseNumber("RHAMG134512");
+        release.setType("BOOK");
+        release.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
+        release.setExpirationDate(getLocal(LocalDateTime.now().plusMonths(4)));
+        release.setComments(Arrays.asList("an example release level comment"));
+        release.setDepot(depot1);
+        release.setOwner(owner);
+        release.setRecipient(depot1);
+
+        ReleaseDetail blanketDetail = new ReleaseDetail();
+        blanketDetail.setCustomer(customer);
+        blanketDetail.setContract("EXCUST01-100000");
+        blanketDetail.setEquipment("22G1");
+        blanketDetail.setGrade("IICL");
+        blanketDetail.setQuantity(1);
+
+        ReleaseDetail unitDetail = new ReleaseDetail();
+        unitDetail.setCustomer(customer);
+        unitDetail.setContract("EXCUST01-100000");
+        unitDetail.setEquipment("42G1");
+        unitDetail.setGrade("IICL");
+        unitDetail.setQuantity(1);
+
+        ReleaseUnit unit1 = new ReleaseUnit();
+        unit1.setUnitNumber("CONU1234561");
+        unit1.setComments(Arrays.asList("Example unit comment #1."));
+        unit1.setStatus("TIED");
+
+        ReleaseUnit unit2 = new ReleaseUnit();
+        unit2.setUnitNumber("CONU1234526");
+        unit2.setComments(Arrays.asList("Example unit comment #2."));
+        unit2.setStatus("TIED");
+
+        release.getDetails().add(blanketDetail);
+        release.getDetails().add(unitDetail);
+        unitDetail.getUnits().add(unit1);
+        unitDetail.getUnits().add(unit2);
+
+        releaseRepository.save(release);
+    }
+
+    private void buildRedeliveries(Party depot1, Party depot2, Party customer) {
         Redelivery redelivery = new Redelivery();
         redelivery.setRedeliveryNumber("AHAMG33141");
         redelivery.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
