@@ -1090,7 +1090,7 @@ components:
           description: the last cargo this shipping container carried
           example: Aroset PS 5191
         tankGrade:
-          maxLength: 255
+          maxLength: 1
           type: string
           description: "if this is a tank, then this describes the type of liquids\
             \ it can contain: \n\n`F` - Food\n\n`C` - Chemical "
@@ -1756,6 +1756,7 @@ components:
             `AU` - Ancillary Upgrade
 
             `AR` - Ancillary Repair
+          default: R
           enum:
           - R
           - RI
@@ -1766,7 +1767,6 @@ components:
           - AS
           - AU
           - AR
-          default: R
         upgradeType:
           maxLength: 2
           required:
@@ -1896,11 +1896,11 @@ components:
 
             `REPAIRED` - shipping container is considered repaired
           example: TIED
+          default: TIED
           enum:
           - TIED
           - REMOVED
           - REPAIRED
-          default: TIED
       description: information for a specific unit on a work order
     WorkOrder:
       required:
@@ -2304,7 +2304,7 @@ components:
           description: an explanation of what the field value is
           example: minimum tonnage rating of the unit (inclusive)
         fieldValue:
-          maxLength: 100
+          maxLength: 500
           required:
           - "true"
           type: string
