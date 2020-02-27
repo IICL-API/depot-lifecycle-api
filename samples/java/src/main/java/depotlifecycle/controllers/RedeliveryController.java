@@ -1,5 +1,6 @@
 package depotlifecycle.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.Redelivery;
 import depotlifecycle.domain.RedeliveryDetail;
@@ -16,6 +17,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
+import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,6 +47,7 @@ public class RedeliveryController {
     private static final Logger LOG = LoggerFactory.getLogger(RedeliveryController.class);
     private final PartyRepository partyRepository;
     private final RedeliveryRepository redeliveryRepository;
+    private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a redelivery", description = "Finds Redeliveries for the given the criteria.", method = "GET", operationId = "indexRedelivery")
@@ -57,6 +60,7 @@ public class RedeliveryController {
     })
     public HttpResponse index(@Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber) {
         LOG.info("Received Redelivery Search");
+        Optional.of(redeliveryNumber).ifPresent(LOG::info);
 
         List<Redelivery> redeliveries = new ArrayList<>();
         if (redeliveryNumber != null) {
@@ -91,6 +95,8 @@ public class RedeliveryController {
     })
     public void create(@RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
         LOG.info("Received Redelivery Create");
+        objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
         if (redeliveryRepository.existsById(redelivery.getRedeliveryNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
@@ -113,6 +119,8 @@ public class RedeliveryController {
     public void update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
                        @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
         LOG.info("Received Redelivery Update");
+        objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
         if (!redeliveryRepository.existsById(redeliveryNumber)) {
             throw new IllegalArgumentException("Redelivery does not exist.");
         }

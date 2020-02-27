@@ -1,5 +1,6 @@
 package depotlifecycle.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.Release;
 import depotlifecycle.domain.ReleaseDetail;
@@ -15,6 +16,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
+import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,6 +46,7 @@ public class ReleaseController {
     private static final Logger LOG = LoggerFactory.getLogger(ReleaseController.class);
     private final PartyRepository partyRepository;
     private final ReleaseRepository releaseRepository;
+    private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a release", description = "Finds Releases for the given the criteria.", method = "GET", operationId = "indexRelease")
@@ -56,6 +59,8 @@ public class ReleaseController {
     })
     public HttpResponse index(@Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber) {
         LOG.info("Received Release Search");
+        Optional.of(releaseNumber).ifPresent(LOG::info);
+
         List<Release> releases = new ArrayList<>();
         if (releaseNumber != null) {
             Optional<Release> release = releaseRepository.findById(releaseNumber);
@@ -89,6 +94,8 @@ public class ReleaseController {
     })
     public void create(@RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
         LOG.info("Received Release Create");
+        objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
         if (releaseRepository.existsById(release.getReleaseNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
@@ -127,6 +134,8 @@ public class ReleaseController {
     public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
                        @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
         LOG.info("Received Release Update");
+        objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
         if (!releaseRepository.existsById(releaseNumber)) {
             throw new IllegalArgumentException("Release does not exist.");
         }
