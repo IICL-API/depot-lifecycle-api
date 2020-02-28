@@ -95,7 +95,7 @@ public class Estimate {
     BigDecimal exchangeRate;
 
     @Schema(description = "lessee approval information for this estimate", required = false)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     EstimateCustomerApproval customerApproval;
 
     @Schema(defaultValue = "R", description = "delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision\n\n`R` - Primary (Unknown Estimation Standard)\n\n`RI` - Primary (IICL)\n\n`RC` - Primary (CWCA)\n\n`SC` - Secondary (CWCA)\n\n`SU` - Secondary Upgrade\n\n`AS` - Sell Upgrade\n\n`AU` - Ancillary Upgrade\n\n`AR` - Ancillary Repair", allowableValues = {"R", "RI", "RC", "RC", "SC", "SU", "AS", "AU", "AR"}, required = false, maxLength = 2)
