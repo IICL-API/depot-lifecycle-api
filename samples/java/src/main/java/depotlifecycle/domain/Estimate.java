@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @JsonView
@@ -117,4 +118,16 @@ public class Estimate {
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @Schema(description = "the amount break downs by party for this estimate")
     EstimateAllocation allocation;
+
+    @JsonIgnore
+    public BigDecimal getPartyTotal(String party) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (EstimateLineItem lineItem : lineItems) {
+            if(!Objects.isNull(lineItem.party) && lineItem.party.equalsIgnoreCase(party)) {
+                total = total.add(lineItem.getTotal());
+            }
+        }
+
+        return total;
+    }
 }

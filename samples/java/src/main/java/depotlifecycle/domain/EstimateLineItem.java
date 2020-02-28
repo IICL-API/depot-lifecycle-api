@@ -16,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Data
 @JsonView
@@ -99,4 +100,23 @@ public class EstimateLineItem {
     @Schema(description = "the number of damages", required = false, type = "number", format = "int32", example = "1", minimum = "0")
     @Column
     Integer quantity;
+
+    @JsonIgnore
+    public BigDecimal getTotal() {
+        if(Objects.isNull(hours) || Objects.isNull(materialCost) || Objects.isNull(laborRate)) {
+            return null;
+        }
+
+        //For demo purposes assume 2 digit currency precision
+        int currencyPrecision = 2;
+
+        BigDecimal roundedHours = hours.setScale(currencyPrecision, BigDecimal.ROUND_HALF_EVEN);
+        BigDecimal roundedRate = laborRate.setScale(currencyPrecision, BigDecimal.ROUND_HALF_EVEN);
+        BigDecimal roundedMaterial = materialCost.setScale(currencyPrecision, BigDecimal.ROUND_HALF_EVEN);
+
+        BigDecimal roundedLaborCost = roundedRate.multiply(roundedHours).setScale(currencyPrecision, BigDecimal.ROUND_HALF_EVEN);
+
+        //Assume no taxes for demo purposes.
+        return roundedLaborCost.add(roundedMaterial);
+    }
 }

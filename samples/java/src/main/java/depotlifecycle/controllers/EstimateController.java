@@ -6,6 +6,7 @@ import depotlifecycle.domain.EstimateAllocation;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.Estimate;
 import depotlifecycle.domain.EstimateCustomerApproval;
+import depotlifecycle.domain.PreliminaryDecision;
 import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.EstimateRepository;
 import depotlifecycle.repositories.PartyRepository;
@@ -81,13 +82,34 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void create(@RequestBody(description = "Estimate object to create a new estimate revision", required = true, content = {@Content(schema = @Schema(implementation = Estimate.class))}) Estimate estimate) {
+    public EstimateAllocation create(@RequestBody(description = "Estimate object to create a new estimate revision", required = true, content = {@Content(schema = @Schema(implementation = Estimate.class))}) Estimate estimate) {
         LOG.info("Received Estimate Create");
         objectToJsonNodeConverter.convert(estimate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         saveParties(estimate);
 
         estimateRepository.save(estimate);
+
+        //Generate an example allocation for the purposes of this demo
+        EstimateAllocation allocation = new EstimateAllocation();
+        allocation.setEstimateNumber(estimate.getEstimateNumber());
+        allocation.setDepot(estimate.getDepot());
+        allocation.setRevision(estimate.getRevision());
+        allocation.setTotal(estimate.getTotal());
+        allocation.setOwnerTotal(estimate.getPartyTotal("O"));
+        allocation.setInsuranceTotal(estimate.getPartyTotal("I"));
+        allocation.setCustomerTotal(estimate.getPartyTotal("U"));
+        allocation.setCtl(false); //assume not a CTL for demo purposes
+        allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
+
+        PreliminaryDecision preliminaryDecision = new PreliminaryDecision();
+        preliminaryDecision.setRecommendation("FIX");
+        allocation.setPreliminaryDecision(preliminaryDecision);
+
+        LOG.info("Responding with example Estimate Allocation");
+        objectToJsonNodeConverter.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
+        return allocation;
     }
 
     private void saveParties(Estimate estimate) {
