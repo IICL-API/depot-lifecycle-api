@@ -1,12 +1,15 @@
 package depotlifecycle.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.EstimateAllocation;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.Estimate;
 import depotlifecycle.domain.EstimateCustomerApproval;
+import depotlifecycle.domain.PreliminaryDecision;
 import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.EstimateRepository;
+import depotlifecycle.repositories.PartyRepository;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpResponseFactory;
@@ -19,6 +22,7 @@ import io.micronaut.http.annotation.Patch;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
+import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +36,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Tag(name = "estimate")
 @Validated
@@ -39,7 +45,10 @@ import lombok.RequiredArgsConstructor;
 @Controller("/api/v2/estimate")
 @RequiredArgsConstructor
 public class EstimateController {
+    private static final Logger LOG = LoggerFactory.getLogger(EstimateController.class);
+    private final PartyRepository partyRepository;
     private final EstimateRepository estimateRepository;
+    private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for estimate(s)", description = "Given search criteria, return estimates that match that criteria.  This interface is *limited* to a maximum of 10 estimates.", operationId = "indexEstimate")
@@ -73,8 +82,59 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse create(@RequestBody(description = "Estimate object to create a new estimate revision", required = true, content = {@Content(schema = @Schema(implementation = Estimate.class))}) Estimate estimate) {
-        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
+    public EstimateAllocation create(@RequestBody(description = "Estimate object to create a new estimate revision", required = true, content = {@Content(schema = @Schema(implementation = Estimate.class))}) Estimate estimate) {
+        LOG.info("Received Estimate Create");
+        objectToJsonNodeConverter.convert(estimate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
+        saveParties(estimate);
+
+        estimateRepository.save(estimate);
+
+        //Generate an example allocation for the purposes of this demo
+        EstimateAllocation allocation = new EstimateAllocation();
+        allocation.setEstimateNumber(estimate.getEstimateNumber());
+        allocation.setDepot(estimate.getDepot());
+        allocation.setRevision(estimate.getRevision());
+        allocation.setTotal(estimate.getTotal());
+        allocation.setOwnerTotal(estimate.getPartyTotal("O"));
+        allocation.setInsuranceTotal(estimate.getPartyTotal("I"));
+        allocation.setCustomerTotal(estimate.getPartyTotal("U"));
+        allocation.setCtl(false); //assume not a CTL for demo purposes
+        allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
+
+        PreliminaryDecision preliminaryDecision = new PreliminaryDecision();
+        preliminaryDecision.setRecommendation("FIX");
+        allocation.setPreliminaryDecision(preliminaryDecision);
+
+        LOG.info("Responding with example Estimate Allocation");
+        objectToJsonNodeConverter.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
+        return allocation;
+    }
+
+    private void saveParties(Estimate estimate) {
+        if (estimate.getDepot() != null) {
+            estimate.setDepot(partyRepository.saveOrUpdate(estimate.getDepot()));
+        }
+
+        if (estimate.getRequester() != null) {
+            estimate.setRequester(partyRepository.saveOrUpdate(estimate.getRequester()));
+        }
+
+        if (estimate.getOwner() != null) {
+            estimate.setOwner(partyRepository.saveOrUpdate(estimate.getOwner()));
+        }
+
+        if (estimate.getCustomer() != null) {
+            estimate.setCustomer(partyRepository.saveOrUpdate(estimate.getCustomer()));
+        }
+
+        if(estimate.getAllocation() != null) {
+            EstimateAllocation allocation = estimate.getAllocation();
+            if (allocation.getDepot() != null) {
+                allocation.setDepot(partyRepository.saveOrUpdate(allocation.getDepot()));
+            }
+        }
     }
 
     @Get(uri = "/{estimateNumber}", produces = MediaType.APPLICATION_JSON)
@@ -123,16 +183,26 @@ public class EstimateController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse allocate(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
-                                 @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                  @RequestBody(description = "total breakdowns to finish creating an estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}) EstimateAllocation allocation) {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
     public HttpResponse notFound(HttpRequest request) {
+        LOG.info("\tError - 404 - Not Found");
         JsonError error = new JsonError("Not Found");
 
         return HttpResponse.<JsonError>notFound()
             .body(error);
+    }
+
+    @Error
+    public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+        LOG.info("\tError - 400 - Bad Request", ex);
+        ErrorResponse error = new ErrorResponse();
+        error.setCode("ERR000");
+        error.setMessage(ex.getMessage());
+
+        return HttpResponse.badRequest().body(error);
     }
 }

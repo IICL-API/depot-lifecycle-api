@@ -60,4 +60,4 @@ jpa:
           provider: none
         hbm2ddl:
           auto: update
-        show_sql: true
+        show_sql: false
