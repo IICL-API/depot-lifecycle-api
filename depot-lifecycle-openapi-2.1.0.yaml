@@ -494,15 +494,6 @@ paths:
           maxLength: 16
           type: object
           example: DEHAMCE1856373
-      - name: depot
-        in: query
-        description: the identifier of the depot
-        required: true
-        schema:
-          maxLength: 9
-          pattern: ^[A-Z0-9]{9}$
-          type: object
-          example: DEHAMCMRA
       requestBody:
         description: total breakdowns to finish creating an estimate
         content:
