@@ -8,6 +8,7 @@ import depotlifecycle.domain.Estimate;
 import depotlifecycle.domain.EstimateCustomerApproval;
 import depotlifecycle.domain.PreliminaryDecision;
 import depotlifecycle.domain.WorkOrder;
+import depotlifecycle.repositories.EstimateAllocationRepository;
 import depotlifecycle.repositories.EstimateRepository;
 import depotlifecycle.repositories.PartyRepository;
 import io.micronaut.http.HttpRequest;
@@ -39,6 +40,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 @Tag(name = "estimate")
 @Validated
 @Secured("isAuthenticated()")
@@ -48,6 +51,7 @@ public class EstimateController {
     private static final Logger LOG = LoggerFactory.getLogger(EstimateController.class);
     private final PartyRepository partyRepository;
     private final EstimateRepository estimateRepository;
+    private final EstimateAllocationRepository estimateAllocationRepository;
     private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
 
     @Get(produces = MediaType.APPLICATION_JSON)
@@ -182,9 +186,22 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse allocate(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
+    public void allocate(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
                                  @RequestBody(description = "total breakdowns to finish creating an estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}) EstimateAllocation allocation) {
-        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
+        LOG.info("Received Estimate Totals Allocation");
+        objectToJsonNodeConverter.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
+        if (Objects.isNull(estimateNumber) || !estimateRepository.existsByEstimateNumber(estimateNumber)) {
+            throw new IllegalArgumentException("Estimate does not exist to allocate.");
+        }
+
+        if (allocation.getDepot() != null) {
+            allocation.setDepot(partyRepository.saveOrUpdate(allocation.getDepot()));
+        }
+
+        estimateAllocationRepository.save(allocation);
+
+        LOG.info("Responding with OK");
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
