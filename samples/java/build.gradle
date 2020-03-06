@@ -30,8 +30,8 @@ configurations {
 
 dependencies {
     //Lombok annotations must come before micronaut definitions
-    compileOnly 'org.projectlombok:lombok:1.16.20'
-    annotationProcessor "org.projectlombok:lombok:1.16.20"
+    compileOnly 'org.projectlombok:lombok:1.18.4'
+    annotationProcessor "org.projectlombok:lombok:1.18.4"
 
     annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
     annotationProcessor "io.micronaut:micronaut-inject-java"
