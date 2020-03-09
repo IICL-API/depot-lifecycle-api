@@ -47,7 +47,7 @@ public class GateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse create(@RequestBody(description = "gate object to create a new gate in or gate out record", required = true, content = {@Content(schema = @Schema(implementation = GateCreateRequest.class))}) GateCreateRequest gateCreateRequest) {
+    public HttpResponse<HttpStatus> create(@RequestBody(description = "gate object to create a new gate in or gate out record", required = true, content = {@Content(schema = @Schema(implementation = GateCreateRequest.class))}) GateCreateRequest gateCreateRequest) {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -61,7 +61,7 @@ public class GateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse get(@Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561", maxLength = 11)) String unitNumber) {
+    public HttpResponse<HttpStatus> get(@Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561", maxLength = 11)) String unitNumber) {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -76,7 +76,7 @@ public class GateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse update(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number for the gate record", in = ParameterIn.PATH, required = true, schema = @Schema(example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
+    public HttpResponse<HttpStatus> update(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number for the gate record", in = ParameterIn.PATH, required = true, schema = @Schema(example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
                                @Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
                                @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                @RequestBody(description = "gate object to update an existing record", required = true, content = {@Content(schema = @Schema(implementation = GateUpdateRequest.class))}) GateUpdateRequest gateUpdateRequest) {
@@ -84,7 +84,7 @@ public class GateController {
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
-    public HttpResponse notFound(HttpRequest request) {
+    public HttpResponse<JsonError> notFound(HttpRequest request) {
         JsonError error = new JsonError("Not Found");
 
         return HttpResponse.<JsonError>notFound()

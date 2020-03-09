@@ -35,7 +35,7 @@ public class WorkOrderUnitController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse update(@Parameter(name = "workOrderNumber", description = "the work order number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "WHAMG30001", maxLength = 16)) String workOrderNumber,
+    public HttpResponse<HttpStatus> update(@Parameter(name = "workOrderNumber", description = "the work order number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "WHAMG30001", maxLength = 16)) String workOrderNumber,
                                @RequestBody(description = "Necessary information to mark a shipping container repair complete", required = true, content = {@Content(schema = @Schema(implementation = RepairComplete.class))}) RepairComplete repairComplete) {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }

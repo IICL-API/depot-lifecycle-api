@@ -6,6 +6,7 @@ import depotlifecycle.domain.RepairComplete;
 import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.WorkOrderRepository;
+import depotlifecycle.services.AuthenticationProviderUserPassword;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -17,6 +18,7 @@ import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,6 +43,7 @@ public class WorkOrderController {
     private final PartyRepository partyRepository;
     private final WorkOrderRepository workOrderRepository;
     private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final SecurityService securityService;
 
     @Post(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "authorizes a repair", description = "Submits a work order to repair a shipping container to the given inspection criteria.", method = "POST", operationId = "saveWorkOrder")
@@ -55,7 +58,8 @@ public class WorkOrderController {
     public void create(@RequestBody(description = "repair authorization object", required = true, content = {@Content(schema = @Schema(implementation = WorkOrder.class))}) WorkOrder workOrder) {
         LOG.info("Received Work Order Create");
         objectToJsonNodeConverter.convert(workOrder, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
-        if (workOrderRepository.existsById(workOrder.getWorkOrderNumber())) {
+
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && workOrderRepository.existsById(workOrder.getWorkOrderNumber())) {
             throw new IllegalArgumentException("Work Order already exists; please update instead.");
         }
 
@@ -92,7 +96,8 @@ public class WorkOrderController {
                                @RequestBody(description = "the updated work order record", required = true, content = {@Content(schema = @Schema(implementation = RepairComplete.class))}) WorkOrder workOrder) {
         LOG.info("Received Work Order Update");
         objectToJsonNodeConverter.convert(workOrder, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
-        if (!workOrderRepository.existsById(workOrderNumber)) {
+
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && !workOrderRepository.existsById(workOrderNumber)) {
             LOG.info("Work Order DNE -> Forcing Create Workflow");
             create(workOrder);
             return;

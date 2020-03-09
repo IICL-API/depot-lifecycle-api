@@ -6,6 +6,7 @@ import depotlifecycle.domain.Release;
 import depotlifecycle.domain.ReleaseDetail;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.ReleaseRepository;
+import depotlifecycle.services.AuthenticationProviderUserPassword;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -18,6 +19,7 @@ import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -47,6 +49,7 @@ public class ReleaseController {
     private final PartyRepository partyRepository;
     private final ReleaseRepository releaseRepository;
     private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a release", description = "Finds Releases for the given the criteria.", method = "GET", operationId = "indexRelease")
@@ -96,7 +99,7 @@ public class ReleaseController {
         LOG.info("Received Release Create");
         objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (releaseRepository.existsById(release.getReleaseNumber())) {
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && releaseRepository.existsById(release.getReleaseNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
 
@@ -136,7 +139,7 @@ public class ReleaseController {
         LOG.info("Received Release Update");
         objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (!releaseRepository.existsById(releaseNumber)) {
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && !releaseRepository.existsById(releaseNumber)) {
             throw new IllegalArgumentException("Release does not exist.");
         }
 
@@ -146,7 +149,7 @@ public class ReleaseController {
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
-    public HttpResponse notFound(HttpRequest request) {
+    public HttpResponse<JsonError> notFound(HttpRequest request) {
         LOG.info("\tError - 404 - Not Found");
         JsonError error = new JsonError("Not Found");
 
@@ -155,12 +158,12 @@ public class ReleaseController {
     }
 
     @Error
-    public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+    public HttpResponse<ErrorResponse> onSavedFailed(HttpRequest request, Throwable ex) {
         LOG.info("\tError - 400 - Bad Request", ex);
         ErrorResponse error = new ErrorResponse();
         error.setCode("ERR000");
         error.setMessage(ex.getMessage());
 
-        return HttpResponse.badRequest().body(error);
+        return HttpResponse.<ErrorResponse>badRequest().body(error);
     }
 }

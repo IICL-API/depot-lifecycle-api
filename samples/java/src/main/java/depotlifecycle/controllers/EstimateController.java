@@ -11,6 +11,7 @@ import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.EstimateAllocationRepository;
 import depotlifecycle.repositories.EstimateRepository;
 import depotlifecycle.repositories.PartyRepository;
+import depotlifecycle.services.AuthenticationProviderUserPassword;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpResponseFactory;
@@ -25,6 +26,7 @@ import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -53,6 +55,7 @@ public class EstimateController {
     private final EstimateRepository estimateRepository;
     private final EstimateAllocationRepository estimateAllocationRepository;
     private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for estimate(s)", description = "Given search criteria, return estimates that match that criteria.  This interface is *limited* to a maximum of 10 estimates.", operationId = "indexEstimate")
@@ -64,7 +67,7 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
+    public HttpResponse<HttpStatus> index(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
                               @Parameter(name = "unitNumber", description = "the unit number of the shipping container at the time of estimate creation", in = ParameterIn.QUERY, required = false, schema = @Schema(maxLength = 11, pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561")) String unitNumber,
                               @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = false, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                               @Parameter(name = "lessee", description = "the identifier of the lessee", in = ParameterIn.QUERY, required = false, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "SGSINONEA", maxLength = 9)) String lessee,
@@ -151,7 +154,7 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse get(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
+    public HttpResponse<HttpStatus> get(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
                             @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                             @Parameter(name = "revision", description = "the revision number to show for the estimate; when not specified the current revision will be returned.", in = ParameterIn.QUERY, required = false, schema = @Schema(required = false, type = "integer", format = "int32", example = "0")) Integer revision
     ) {
@@ -170,7 +173,7 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse update(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
+    public HttpResponse<HttpStatus> update(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
                                @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                @RequestBody(description = "customer approval object to update an existing estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateCustomerApproval.class))}) EstimateCustomerApproval customerApproval) {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
@@ -191,8 +194,10 @@ public class EstimateController {
         LOG.info("Received Estimate Totals Allocation");
         objectToJsonNodeConverter.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (Objects.isNull(estimateNumber) || !estimateRepository.existsByEstimateNumber(estimateNumber)) {
-            throw new IllegalArgumentException("Estimate does not exist to allocate.");
+        if(securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
+            if (Objects.isNull(estimateNumber) || !estimateRepository.existsByEstimateNumber(estimateNumber)) {
+                throw new IllegalArgumentException("Estimate does not exist to allocate.");
+            }
         }
 
         if (allocation.getDepot() != null) {
@@ -205,7 +210,7 @@ public class EstimateController {
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
-    public HttpResponse notFound(HttpRequest request) {
+    public HttpResponse<JsonError> notFound(HttpRequest request) {
         LOG.info("\tError - 404 - Not Found");
         JsonError error = new JsonError("Not Found");
 
@@ -214,12 +219,12 @@ public class EstimateController {
     }
 
     @Error
-    public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+    public HttpResponse<ErrorResponse> onSavedFailed(HttpRequest request, Throwable ex) {
         LOG.info("\tError - 400 - Bad Request", ex);
         ErrorResponse error = new ErrorResponse();
         error.setCode("ERR000");
         error.setMessage(ex.getMessage());
 
-        return HttpResponse.badRequest().body(error);
+        return HttpResponse.<ErrorResponse>badRequest().body(error);
     }
 }

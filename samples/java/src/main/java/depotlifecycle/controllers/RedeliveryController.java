@@ -7,6 +7,7 @@ import depotlifecycle.domain.RedeliveryDetail;
 import depotlifecycle.domain.RedeliveryUnit;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
+import depotlifecycle.services.AuthenticationProviderUserPassword;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -19,6 +20,7 @@ import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,6 +50,7 @@ public class RedeliveryController {
     private final PartyRepository partyRepository;
     private final RedeliveryRepository redeliveryRepository;
     private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a redelivery", description = "Finds Redeliveries for the given the criteria.", method = "GET", operationId = "indexRedelivery")
@@ -97,7 +100,7 @@ public class RedeliveryController {
         LOG.info("Received Redelivery Create");
         objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (redeliveryRepository.existsById(redelivery.getRedeliveryNumber())) {
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && redeliveryRepository.existsById(redelivery.getRedeliveryNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
 
@@ -121,7 +124,7 @@ public class RedeliveryController {
         LOG.info("Received Redelivery Update");
         objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (!redeliveryRepository.existsById(redeliveryNumber)) {
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && !redeliveryRepository.existsById(redeliveryNumber)) {
             throw new IllegalArgumentException("Redelivery does not exist.");
         }
 
@@ -156,7 +159,7 @@ public class RedeliveryController {
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
-    public HttpResponse notFound(HttpRequest request) {
+    public HttpResponse<JsonError> notFound(HttpRequest request) {
         LOG.info("\tError - 404 - Not Found");
         JsonError error = new JsonError("Not Found");
 
@@ -165,12 +168,12 @@ public class RedeliveryController {
     }
 
     @Error
-    public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+    public HttpResponse<ErrorResponse> onSavedFailed(HttpRequest request, Throwable ex) {
         LOG.info("\tError - 400 - Bad Request", ex);
         ErrorResponse error = new ErrorResponse();
         error.setCode("ERR000");
         error.setMessage(ex.getMessage());
 
-        return HttpResponse.badRequest().body(error);
+        return HttpResponse.<ErrorResponse>badRequest().body(error);
     }
 }
