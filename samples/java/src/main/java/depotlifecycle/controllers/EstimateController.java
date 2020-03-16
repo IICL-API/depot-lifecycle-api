@@ -17,6 +17,7 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpResponseFactory;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
@@ -90,7 +91,7 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public EstimateAllocation create(@RequestBody(description = "Estimate object to create a new estimate revision", required = true, content = {@Content(schema = @Schema(implementation = Estimate.class))}) Estimate estimate) {
+    public HttpResponse<EstimateAllocation> create(@Body @RequestBody(description = "Estimate object to create a new estimate revision", required = true, content = {@Content(schema = @Schema(implementation = Estimate.class))}) Estimate estimate) {
         LOG.info("Received Estimate Create");
         objectToJsonNodeConverter.convert(estimate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
@@ -117,7 +118,7 @@ public class EstimateController {
         LOG.info("Responding with example Estimate Allocation");
         objectToJsonNodeConverter.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        return allocation;
+        return HttpResponse.ok(allocation);
     }
 
     private void saveParties(Estimate estimate) {
@@ -175,8 +176,8 @@ public class EstimateController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse<HttpStatus> update(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
-                               @QueryValue("depot") @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
-                               @RequestBody(description = "customer approval object to update an existing estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateCustomerApproval.class))}) EstimateCustomerApproval customerApproval) {
+                                           @QueryValue("depot") @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
+                                           @Body @RequestBody(description = "customer approval object to update an existing estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateCustomerApproval.class))}) EstimateCustomerApproval customerApproval) {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -190,8 +191,8 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void allocate(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
-                                 @RequestBody(description = "total breakdowns to finish creating an estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}) EstimateAllocation allocation) {
+    public HttpResponse<HttpStatus> allocate(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
+                         @Body @RequestBody(description = "total breakdowns to finish creating an estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}) EstimateAllocation allocation) {
         LOG.info("Received Estimate Totals Allocation");
         objectToJsonNodeConverter.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
@@ -208,6 +209,7 @@ public class EstimateController {
         estimateAllocationRepository.save(allocation);
 
         LOG.info("Responding with OK");
+        return HttpResponse.ok();
     }
 
     @Error(status = HttpStatus.NOT_FOUND)

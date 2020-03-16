@@ -2,7 +2,6 @@ package depotlifecycle.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
-import depotlifecycle.domain.RepairComplete;
 import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.WorkOrderRepository;
@@ -11,6 +10,7 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Post;
@@ -55,7 +55,7 @@ public class WorkOrderController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void create(@RequestBody(description = "repair authorization object", required = true, content = {@Content(schema = @Schema(implementation = WorkOrder.class))}) WorkOrder workOrder) {
+    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "repair authorization object", required = true, content = {@Content(schema = @Schema(implementation = WorkOrder.class))}) WorkOrder workOrder) {
         LOG.info("Received Work Order Create");
         objectToJsonNodeConverter.convert(workOrder, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
@@ -66,6 +66,8 @@ public class WorkOrderController {
         saveParties(workOrder);
 
         workOrderRepository.save(workOrder);
+
+        return HttpResponse.ok();
     }
 
     private void saveParties(WorkOrder workOrder) {
@@ -92,20 +94,24 @@ public class WorkOrderController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void update(@Parameter(name = "workOrderNumber", description = "the work order number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "WHAMG30001", maxLength = 16)) String workOrderNumber,
-                               @RequestBody(description = "the updated work order record", required = true, content = {@Content(schema = @Schema(implementation = RepairComplete.class))}) WorkOrder workOrder) {
+    public HttpResponse<HttpStatus> update(@Parameter(name = "workOrderNumber", description = "the work order number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "WHAMG30001", maxLength = 16)) String workOrderNumber,
+                                           @Body @RequestBody(description = "the updated work order record", required = true, content = {@Content(schema = @Schema(implementation = WorkOrder.class))}) WorkOrder workOrder) {
         LOG.info("Received Work Order Update");
         objectToJsonNodeConverter.convert(workOrder, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && !workOrderRepository.existsById(workOrderNumber)) {
+        if(!workOrderRepository.existsById(workOrderNumber)) {
+            if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
+                throw new IllegalArgumentException("Work Order does not exist.");
+            }
+
             LOG.info("Work Order DNE -> Forcing Create Workflow");
-            create(workOrder);
-            return;
+            return create(workOrder);
         }
 
         saveParties(workOrder);
 
         workOrderRepository.update(workOrder);
+        return HttpResponse.ok();
     }
 
     @Error(status = HttpStatus.NOT_FOUND)

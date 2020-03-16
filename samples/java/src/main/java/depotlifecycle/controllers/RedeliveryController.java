@@ -12,6 +12,7 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
@@ -97,7 +98,7 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void create(@RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
+    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
         LOG.info("Received Redelivery Create");
         objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
@@ -108,6 +109,7 @@ public class RedeliveryController {
         saveParties(redelivery);
 
         redeliveryRepository.save(redelivery);
+        return HttpResponse.ok();
     }
 
     @Put(uri = "/{redeliveryNumber}", produces = MediaType.APPLICATION_JSON)
@@ -120,18 +122,24 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
-                       @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
+    public HttpResponse<HttpStatus> update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
+                       @Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
         LOG.info("Received Redelivery Update");
         objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && !redeliveryRepository.existsById(redeliveryNumber)) {
-            throw new IllegalArgumentException("Redelivery does not exist.");
+        if(!redeliveryRepository.existsById(redeliveryNumber)) {
+            if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
+                throw new IllegalArgumentException("Redelivery does not exist.");
+            }
+
+            LOG.info("Redelivery DNE -> Forcing Create Workflow");
+            return create(redelivery);
         }
 
         saveParties(redelivery);
 
         redeliveryRepository.update(redelivery);
+        return HttpResponse.ok();
     }
 
     private void saveParties(Redelivery redelivery) {

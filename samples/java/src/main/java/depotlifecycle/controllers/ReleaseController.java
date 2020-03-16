@@ -11,6 +11,7 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
@@ -96,7 +97,7 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void create(@RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
+    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
         LOG.info("Received Release Create");
         objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
@@ -107,6 +108,7 @@ public class ReleaseController {
         saveParties(release);
 
         releaseRepository.save(release);
+        return HttpResponse.ok();
     }
 
     private void saveParties(Release release) {
@@ -135,18 +137,24 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
-                       @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
+    public HttpResponse<HttpStatus> update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
+                       @Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
         LOG.info("Received Release Update");
         objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && !releaseRepository.existsById(releaseNumber)) {
-            throw new IllegalArgumentException("Release does not exist.");
+        if(!releaseRepository.existsById(releaseNumber)) {
+            if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
+                throw new IllegalArgumentException("Release does not exist.");
+            }
+
+            LOG.info("Release DNE -> Forcing Create Workflow");
+            return create(release);
         }
 
         saveParties(release);
 
         releaseRepository.update(release);
+        return HttpResponse.ok();
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
