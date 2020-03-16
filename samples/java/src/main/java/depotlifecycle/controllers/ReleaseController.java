@@ -16,6 +16,7 @@ import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
@@ -60,7 +61,7 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber) {
+    public HttpResponse index(@QueryValue("releaseNumber") @Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber) {
         LOG.info("Received Release Search");
         Optional.of(releaseNumber).ifPresent(LOG::info);
 

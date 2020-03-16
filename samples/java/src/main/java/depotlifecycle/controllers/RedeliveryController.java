@@ -17,6 +17,7 @@ import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
@@ -61,7 +62,7 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber) {
+    public HttpResponse index(@QueryValue("redeliveryNumber") @Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber) {
         LOG.info("Received Redelivery Search");
         Optional.of(redeliveryNumber).ifPresent(LOG::info);
 
