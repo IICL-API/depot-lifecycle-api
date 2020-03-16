@@ -22,7 +22,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -33,7 +32,7 @@ import java.util.Objects;
 @JsonView
 @NoArgsConstructor
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"estimateNumber", "depot_id", "revision"})})
+@Table
 @Schema(description = "Represents an estimation of costs to repair or upgrade a shipping container.", requiredProperties = {"estimateNumber", "unitNumber", "condition", "estimateTime", "depot", "currency", "total", "exchangeRate", "revision", "lineItems"})
 @EqualsAndHashCode(of = {"estimateNumber", "depot", "revision"})
 @ToString(of = {"estimateNumber", "depot", "revision"})
