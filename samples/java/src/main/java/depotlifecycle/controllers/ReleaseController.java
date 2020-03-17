@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.Release;
 import depotlifecycle.domain.ReleaseDetail;
+import depotlifecycle.domain.ReleaseDetailCriteria;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.ReleaseRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
@@ -115,6 +116,10 @@ public class ReleaseController {
         for (ReleaseDetail detail : release.getDetails()) {
             if (detail.getCustomer() != null) {
                 detail.setCustomer(partyRepository.saveOrUpdate(detail.getCustomer()));
+            }
+
+            for (ReleaseDetailCriteria criteria : detail.getCriteria()) {
+                criteria.setReleaseDetail(detail);
             }
         }
 
