@@ -59,7 +59,7 @@ public class WorkOrderController {
         LOG.info("Received Work Order Create");
         objectToJsonNodeConverter.convert(workOrder, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && workOrderRepository.existsById(workOrder.getWorkOrderNumber())) {
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && workOrderRepository.existsByWorkOrderNumber(workOrder.getWorkOrderNumber())) {
             throw new IllegalArgumentException("Work Order already exists; please update instead.");
         }
 
@@ -72,15 +72,15 @@ public class WorkOrderController {
 
     private void saveParties(WorkOrder workOrder) {
         if (workOrder.getDepot() != null) {
-            workOrder.setDepot(partyRepository.saveOrUpdate(workOrder.getDepot()));
+            workOrder.setDepot(partyRepository.save(workOrder.getDepot()));
         }
 
         if (workOrder.getOwner() != null) {
-            workOrder.setOwner(partyRepository.saveOrUpdate(workOrder.getOwner()));
+            workOrder.setOwner(partyRepository.save(workOrder.getOwner()));
         }
 
         if (workOrder.getBillingParty() != null) {
-            workOrder.setBillingParty(partyRepository.saveOrUpdate(workOrder.getBillingParty()));
+            workOrder.setBillingParty(partyRepository.save(workOrder.getBillingParty()));
         }
     }
 
@@ -99,7 +99,7 @@ public class WorkOrderController {
         LOG.info("Received Work Order Update");
         objectToJsonNodeConverter.convert(workOrder, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if(!workOrderRepository.existsById(workOrderNumber)) {
+        if(!workOrderRepository.existsByWorkOrderNumber(workOrderNumber)) {
             if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
                 throw new IllegalArgumentException("Work Order does not exist.");
             }

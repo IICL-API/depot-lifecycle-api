@@ -123,25 +123,25 @@ public class EstimateController {
 
     private void saveParties(Estimate estimate) {
         if (estimate.getDepot() != null) {
-            estimate.setDepot(partyRepository.saveOrUpdate(estimate.getDepot()));
+            estimate.setDepot(partyRepository.save(estimate.getDepot()));
         }
 
         if (estimate.getRequester() != null) {
-            estimate.setRequester(partyRepository.saveOrUpdate(estimate.getRequester()));
+            estimate.setRequester(partyRepository.save(estimate.getRequester()));
         }
 
         if (estimate.getOwner() != null) {
-            estimate.setOwner(partyRepository.saveOrUpdate(estimate.getOwner()));
+            estimate.setOwner(partyRepository.save(estimate.getOwner()));
         }
 
         if (estimate.getCustomer() != null) {
-            estimate.setCustomer(partyRepository.saveOrUpdate(estimate.getCustomer()));
+            estimate.setCustomer(partyRepository.save(estimate.getCustomer()));
         }
 
         if(estimate.getAllocation() != null) {
             EstimateAllocation allocation = estimate.getAllocation();
             if (allocation.getDepot() != null) {
-                allocation.setDepot(partyRepository.saveOrUpdate(allocation.getDepot()));
+                allocation.setDepot(partyRepository.save(allocation.getDepot()));
             }
         }
     }
@@ -203,7 +203,7 @@ public class EstimateController {
         }
 
         if (allocation.getDepot() != null) {
-            allocation.setDepot(partyRepository.saveOrUpdate(allocation.getDepot()));
+            allocation.setDepot(partyRepository.save(allocation.getDepot()));
         }
 
         estimateAllocationRepository.save(allocation);

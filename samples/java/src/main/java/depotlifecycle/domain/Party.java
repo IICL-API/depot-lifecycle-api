@@ -1,5 +1,6 @@
 package depotlifecycle.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,6 +11,8 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -23,10 +26,13 @@ import javax.persistence.Table;
 @ToString(of = {"companyId"})
 @Introspected
 public class Party {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
+    Long id;
 
     @Schema(description = "the identifier for this party, often referred to as an EDI Address", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9, required = true)
-    @Column(nullable = false, unique = true, length = 9)
-    @Id
+    @Column(nullable = false, length = 9)
     String companyId;
 
     @Schema(description = "the user identifier at this company that concerns this message", example = "JDOE", maxLength = 16)

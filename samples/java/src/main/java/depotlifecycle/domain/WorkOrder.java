@@ -1,6 +1,7 @@
 package depotlifecycle.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -12,6 +13,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -31,8 +34,12 @@ import java.util.List;
 @ToString(of = {"workOrderNumber"})
 public class WorkOrder {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
+    Long id;
+
     @Schema(description = "the identifier for this work order", example = "WHAMG46019", minLength = 1, maxLength = 16, required = true)
-    @Column(nullable = false, unique = true, length = 16)
+    @Column(nullable = false, length = 16)
     String workOrderNumber;
 
     @Schema(required = true, description = "the storage location where the shipping container is being repaired")

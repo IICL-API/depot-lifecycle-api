@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Tag(name = "release")
@@ -69,7 +70,7 @@ public class ReleaseController {
 
         List<Release> releases = new ArrayList<>();
         if (releaseNumber != null) {
-            Optional<Release> release = releaseRepository.findById(releaseNumber);
+            Optional<Release> release = releaseRepository.findByReleaseNumber(releaseNumber);
             release.ifPresent(releases::add);
         }
         else {
@@ -102,7 +103,7 @@ public class ReleaseController {
         LOG.info("Received Release Create");
         objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && releaseRepository.existsById(release.getReleaseNumber())) {
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && releaseRepository.existsByReleaseNumber(release.getReleaseNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
 
@@ -115,20 +116,26 @@ public class ReleaseController {
     private void saveParties(Release release) {
         for (ReleaseDetail detail : release.getDetails()) {
             if (detail.getCustomer() != null) {
-                detail.setCustomer(partyRepository.saveOrUpdate(detail.getCustomer()));
+                detail.setCustomer(partyRepository.save(detail.getCustomer()));
             }
 
-            for (ReleaseDetailCriteria criteria : detail.getCriteria()) {
-                criteria.setReleaseDetail(detail);
+            if(!Objects.isNull(detail.getCriteria())) {
+                for (ReleaseDetailCriteria criteria : detail.getCriteria()) {
+                    criteria.setReleaseDetail(detail);
+                }
             }
+        }
+
+        if (release.getOwner() != null) {
+            release.setOwner(partyRepository.save(release.getOwner()));
         }
 
         if (release.getDepot() != null) {
-            release.setDepot(partyRepository.saveOrUpdate(release.getDepot()));
+            release.setDepot(partyRepository.save(release.getDepot()));
         }
 
         if (release.getRecipient() != null) {
-            release.setRecipient(partyRepository.saveOrUpdate(release.getRecipient()));
+            release.setRecipient(partyRepository.save(release.getRecipient()));
         }
     }
 
@@ -147,7 +154,7 @@ public class ReleaseController {
         LOG.info("Received Release Update");
         objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if(!releaseRepository.existsById(releaseNumber)) {
+        if(!releaseRepository.existsByReleaseNumber(releaseNumber)) {
             if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
                 throw new IllegalArgumentException("Release does not exist.");
             }

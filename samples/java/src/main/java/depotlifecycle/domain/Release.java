@@ -1,6 +1,7 @@
 package depotlifecycle.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +17,8 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -35,8 +38,12 @@ import java.util.List;
 @Introspected
 public class Release {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
+    Long id;
+
     @Schema(description = "the identifier for this release, also referred to as the advice number or release number", example = "AHAMG33141", maxLength = 16, required = true)
-    @Column(nullable = false, unique = true, length = 16)
+    @Column(nullable = false, length = 16)
     String releaseNumber;
 
     @Schema(description = "Describes the intended purpose of the release: \n\n`SALE` - shipping containers are being sold\n\n`BOOK` - shipping containers are being leased to a customer\n\n`REPO` - shipping containers are being relocated by the owner to another storage location", allowableValues = {"SALE", "BOOK", "REPO"}, required = true)

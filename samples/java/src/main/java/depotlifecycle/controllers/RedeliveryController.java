@@ -69,7 +69,7 @@ public class RedeliveryController {
 
         List<Redelivery> redeliveries = new ArrayList<>();
         if (redeliveryNumber != null) {
-            Optional<Redelivery> redelivery = redeliveryRepository.findById(redeliveryNumber);
+            Optional<Redelivery> redelivery = redeliveryRepository.findByRedeliveryNumber(redeliveryNumber);
             redelivery.ifPresent(redeliveries::add);
         }
         else {
@@ -102,7 +102,7 @@ public class RedeliveryController {
         LOG.info("Received Redelivery Create");
         objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && redeliveryRepository.existsById(redelivery.getRedeliveryNumber())) {
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && redeliveryRepository.existsByRedeliveryNumber(redelivery.getRedeliveryNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
 
@@ -127,7 +127,7 @@ public class RedeliveryController {
         LOG.info("Received Redelivery Update");
         objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if(!redeliveryRepository.existsById(redeliveryNumber)) {
+        if(!redeliveryRepository.existsByRedeliveryNumber(redeliveryNumber)) {
             if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
                 throw new IllegalArgumentException("Redelivery does not exist.");
             }
@@ -145,25 +145,25 @@ public class RedeliveryController {
     private void saveParties(Redelivery redelivery) {
         for (RedeliveryDetail detail : redelivery.getDetails()) {
             if (detail.getCustomer() != null) {
-                detail.setCustomer(partyRepository.saveOrUpdate(detail.getCustomer()));
+                detail.setCustomer(partyRepository.save(detail.getCustomer()));
             }
             if (detail.getBillingParty() != null) {
-                detail.setBillingParty(partyRepository.saveOrUpdate(detail.getBillingParty()));
+                detail.setBillingParty(partyRepository.save(detail.getBillingParty()));
             }
 
             for (RedeliveryUnit unit : detail.getUnits()) {
                 if (unit.getLastOnHireLocation() != null) {
-                    unit.setLastOnHireLocation(partyRepository.saveOrUpdate(unit.getLastOnHireLocation()));
+                    unit.setLastOnHireLocation(partyRepository.save(unit.getLastOnHireLocation()));
                 }
             }
         }
 
         if (redelivery.getDepot() != null) {
-            redelivery.setDepot(partyRepository.saveOrUpdate(redelivery.getDepot()));
+            redelivery.setDepot(partyRepository.save(redelivery.getDepot()));
         }
 
         if (redelivery.getRecipient() != null) {
-            redelivery.setRecipient(partyRepository.saveOrUpdate(redelivery.getRecipient()));
+            redelivery.setRecipient(partyRepository.save(redelivery.getRecipient()));
         }
     }
 
