@@ -7,18 +7,22 @@ import depotlifecycle.domain.RedeliveryDetail;
 import depotlifecycle.domain.RedeliveryUnit;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
+import depotlifecycle.services.AuthenticationProviderUserPassword;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,6 +52,7 @@ public class RedeliveryController {
     private final PartyRepository partyRepository;
     private final RedeliveryRepository redeliveryRepository;
     private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a redelivery", description = "Finds Redeliveries for the given the criteria.", method = "GET", operationId = "indexRedelivery")
@@ -58,13 +63,13 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber) {
+    public HttpResponse index(@QueryValue("redeliveryNumber") @Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber) {
         LOG.info("Received Redelivery Search");
         Optional.of(redeliveryNumber).ifPresent(LOG::info);
 
         List<Redelivery> redeliveries = new ArrayList<>();
         if (redeliveryNumber != null) {
-            Optional<Redelivery> redelivery = redeliveryRepository.findById(redeliveryNumber);
+            Optional<Redelivery> redelivery = redeliveryRepository.findByRedeliveryNumber(redeliveryNumber);
             redelivery.ifPresent(redeliveries::add);
         }
         else {
@@ -93,17 +98,18 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void create(@RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
+    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
         LOG.info("Received Redelivery Create");
         objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (redeliveryRepository.existsById(redelivery.getRedeliveryNumber())) {
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && redeliveryRepository.existsByRedeliveryNumber(redelivery.getRedeliveryNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
 
         saveParties(redelivery);
 
         redeliveryRepository.save(redelivery);
+        return HttpResponse.ok();
     }
 
     @Put(uri = "/{redeliveryNumber}", produces = MediaType.APPLICATION_JSON)
@@ -116,47 +122,53 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
-                       @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
+    public HttpResponse<HttpStatus> update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
+                       @Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
         LOG.info("Received Redelivery Update");
         objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (!redeliveryRepository.existsById(redeliveryNumber)) {
-            throw new IllegalArgumentException("Redelivery does not exist.");
+        if(!redeliveryRepository.existsByRedeliveryNumber(redeliveryNumber)) {
+            if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
+                throw new IllegalArgumentException("Redelivery does not exist.");
+            }
+
+            LOG.info("Redelivery DNE -> Forcing Create Workflow");
+            return create(redelivery);
         }
 
         saveParties(redelivery);
 
         redeliveryRepository.update(redelivery);
+        return HttpResponse.ok();
     }
 
     private void saveParties(Redelivery redelivery) {
         for (RedeliveryDetail detail : redelivery.getDetails()) {
             if (detail.getCustomer() != null) {
-                detail.setCustomer(partyRepository.saveOrUpdate(detail.getCustomer()));
+                detail.setCustomer(partyRepository.save(detail.getCustomer()));
             }
             if (detail.getBillingParty() != null) {
-                detail.setBillingParty(partyRepository.saveOrUpdate(detail.getBillingParty()));
+                detail.setBillingParty(partyRepository.save(detail.getBillingParty()));
             }
 
             for (RedeliveryUnit unit : detail.getUnits()) {
                 if (unit.getLastOnHireLocation() != null) {
-                    unit.setLastOnHireLocation(partyRepository.saveOrUpdate(unit.getLastOnHireLocation()));
+                    unit.setLastOnHireLocation(partyRepository.save(unit.getLastOnHireLocation()));
                 }
             }
         }
 
         if (redelivery.getDepot() != null) {
-            redelivery.setDepot(partyRepository.saveOrUpdate(redelivery.getDepot()));
+            redelivery.setDepot(partyRepository.save(redelivery.getDepot()));
         }
 
         if (redelivery.getRecipient() != null) {
-            redelivery.setRecipient(partyRepository.saveOrUpdate(redelivery.getRecipient()));
+            redelivery.setRecipient(partyRepository.save(redelivery.getRecipient()));
         }
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
-    public HttpResponse notFound(HttpRequest request) {
+    public HttpResponse<JsonError> notFound(HttpRequest request) {
         LOG.info("\tError - 404 - Not Found");
         JsonError error = new JsonError("Not Found");
 
@@ -165,12 +177,12 @@ public class RedeliveryController {
     }
 
     @Error
-    public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+    public HttpResponse<ErrorResponse> onSavedFailed(HttpRequest request, Throwable ex) {
         LOG.info("\tError - 400 - Bad Request", ex);
         ErrorResponse error = new ErrorResponse();
         error.setCode("ERR000");
         error.setMessage(ex.getMessage());
 
-        return HttpResponse.badRequest().body(error);
+        return HttpResponse.<ErrorResponse>badRequest().body(error);
     }
 }

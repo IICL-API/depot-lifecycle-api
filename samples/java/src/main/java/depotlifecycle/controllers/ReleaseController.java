@@ -4,20 +4,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.Release;
 import depotlifecycle.domain.ReleaseDetail;
+import depotlifecycle.domain.ReleaseDetailCriteria;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.ReleaseRepository;
+import depotlifecycle.services.AuthenticationProviderUserPassword;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Tag(name = "release")
@@ -47,6 +53,7 @@ public class ReleaseController {
     private final PartyRepository partyRepository;
     private final ReleaseRepository releaseRepository;
     private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a release", description = "Finds Releases for the given the criteria.", method = "GET", operationId = "indexRelease")
@@ -57,13 +64,13 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber) {
+    public HttpResponse index(@QueryValue("releaseNumber") @Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber) {
         LOG.info("Received Release Search");
         Optional.of(releaseNumber).ifPresent(LOG::info);
 
         List<Release> releases = new ArrayList<>();
         if (releaseNumber != null) {
-            Optional<Release> release = releaseRepository.findById(releaseNumber);
+            Optional<Release> release = releaseRepository.findByReleaseNumber(releaseNumber);
             release.ifPresent(releases::add);
         }
         else {
@@ -92,32 +99,43 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void create(@RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
+    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
         LOG.info("Received Release Create");
         objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (releaseRepository.existsById(release.getReleaseNumber())) {
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && releaseRepository.existsByReleaseNumber(release.getReleaseNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
         }
 
         saveParties(release);
 
         releaseRepository.save(release);
+        return HttpResponse.ok();
     }
 
     private void saveParties(Release release) {
         for (ReleaseDetail detail : release.getDetails()) {
             if (detail.getCustomer() != null) {
-                detail.setCustomer(partyRepository.saveOrUpdate(detail.getCustomer()));
+                detail.setCustomer(partyRepository.save(detail.getCustomer()));
+            }
+
+            if(!Objects.isNull(detail.getCriteria())) {
+                for (ReleaseDetailCriteria criteria : detail.getCriteria()) {
+                    criteria.setReleaseDetail(detail);
+                }
             }
         }
 
+        if (release.getOwner() != null) {
+            release.setOwner(partyRepository.save(release.getOwner()));
+        }
+
         if (release.getDepot() != null) {
-            release.setDepot(partyRepository.saveOrUpdate(release.getDepot()));
+            release.setDepot(partyRepository.save(release.getDepot()));
         }
 
         if (release.getRecipient() != null) {
-            release.setRecipient(partyRepository.saveOrUpdate(release.getRecipient()));
+            release.setRecipient(partyRepository.save(release.getRecipient()));
         }
     }
 
@@ -131,22 +149,28 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public void update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
-                       @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
+    public HttpResponse<HttpStatus> update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
+                       @Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release) {
         LOG.info("Received Release Update");
         objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if (!releaseRepository.existsById(releaseNumber)) {
-            throw new IllegalArgumentException("Release does not exist.");
+        if(!releaseRepository.existsByReleaseNumber(releaseNumber)) {
+            if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
+                throw new IllegalArgumentException("Release does not exist.");
+            }
+
+            LOG.info("Release DNE -> Forcing Create Workflow");
+            return create(release);
         }
 
         saveParties(release);
 
         releaseRepository.update(release);
+        return HttpResponse.ok();
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
-    public HttpResponse notFound(HttpRequest request) {
+    public HttpResponse<JsonError> notFound(HttpRequest request) {
         LOG.info("\tError - 404 - Not Found");
         JsonError error = new JsonError("Not Found");
 
@@ -155,12 +179,12 @@ public class ReleaseController {
     }
 
     @Error
-    public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+    public HttpResponse<ErrorResponse> onSavedFailed(HttpRequest request, Throwable ex) {
         LOG.info("\tError - 400 - Bad Request", ex);
         ErrorResponse error = new ErrorResponse();
         error.setCode("ERR000");
         error.setMessage(ex.getMessage());
 
-        return HttpResponse.badRequest().body(error);
+        return HttpResponse.<ErrorResponse>badRequest().body(error);
     }
 }

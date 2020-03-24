@@ -1,6 +1,7 @@
 package depotlifecycle.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +17,8 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -35,8 +38,12 @@ import java.util.List;
 @Introspected
 public class Redelivery {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
+    Long id;
+
     @Schema(description = "the identifier for this redelivery, also referred to as the advice number or redelivery number", example = "AHAMG33141", maxLength = 16, required = true)
-    @Column(nullable = false, unique = true, length = 16)
+    @Column(nullable = false, length = 16)
     String redeliveryNumber;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2020-07-21T17:32:28Z"

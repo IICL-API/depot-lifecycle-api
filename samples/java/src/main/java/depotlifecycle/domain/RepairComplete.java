@@ -17,14 +17,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import java.time.ZonedDateTime;
 
 @Data
 @JsonView
 @NoArgsConstructor
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"workOrderNumber", "unitNumber"})})
+@Table
 @Schema(description = "Necessary information to mark a specific unit under a work order repaired", requiredProperties = {"workOrderNumber", "depot", "completionDate", "unitNumber"})
 @EqualsAndHashCode(of = {"workOrderNumber", "unitNumber"})
 @ToString(of = {"workOrderNumber", "unitNumber"})
@@ -35,7 +34,7 @@ public class RepairComplete {
     Long id;
 
     @Schema(description = "the identifier of the work order to repair complete", example = "WHAMG46019", minLength = 1, maxLength = 16, required = true)
-    @Column(nullable = false, unique = true, length = 16)
+    @Column(nullable = false, length = 16)
     String workOrderNumber;
 
     @Schema(required = true, description = "the storage location where the shipping container is being repaired")

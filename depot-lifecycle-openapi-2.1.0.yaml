@@ -576,7 +576,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RepairComplete'
+              $ref: '#/components/schemas/WorkOrder'
         required: true
       responses:
         200:
@@ -1747,7 +1747,6 @@ components:
             `AU` - Ancillary Upgrade
 
             `AR` - Ancillary Repair
-          default: R
           enum:
           - R
           - RI
@@ -1758,6 +1757,7 @@ components:
           - AS
           - AU
           - AR
+          default: R
         upgradeType:
           maxLength: 2
           required:
@@ -1887,11 +1887,11 @@ components:
 
             `REPAIRED` - shipping container is considered repaired
           example: TIED
-          default: TIED
           enum:
           - TIED
           - REMOVED
           - REPAIRED
+          default: TIED
       description: information for a specific unit on a work order
     WorkOrder:
       required:
@@ -1949,6 +1949,8 @@ components:
           description: the currency of the approval total
           example: EUR
         expirationDate:
+          required:
+          - "false"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this repair must be completed by
