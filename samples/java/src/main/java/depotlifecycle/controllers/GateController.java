@@ -1,11 +1,18 @@
 package depotlifecycle.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.GateResponse;
 import depotlifecycle.GateStatus;
 import depotlifecycle.PendingResponse;
+import depotlifecycle.domain.EstimateAllocation;
 import depotlifecycle.domain.GateCreateRequest;
 import depotlifecycle.domain.GateUpdateRequest;
+import depotlifecycle.domain.PreliminaryDecision;
+import depotlifecycle.repositories.GateCreateRequestRepository;
+import depotlifecycle.repositories.GateUpdateRequestRepository;
+import depotlifecycle.repositories.PartyRepository;
+import depotlifecycle.services.AuthenticationProviderUserPassword;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpResponseFactory;
@@ -18,7 +25,9 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
+import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,6 +39,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
 
 @Tag(name = "gate")
 @Validated
@@ -37,6 +51,13 @@ import lombok.RequiredArgsConstructor;
 @Controller("/api/v2/gate")
 @RequiredArgsConstructor
 public class GateController {
+    private static final Logger LOG = LoggerFactory.getLogger(GateController.class);
+    private final PartyRepository partyRepository;
+    private final GateCreateRequestRepository gateCreateRequestRepository;
+    private final GateUpdateRequestRepository gateUpdateRequestRepository;
+    private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final SecurityService securityService;
+
     @Post(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "create a gate record", description = "Creates either a gate-in or gate-out record for the given shipping container against the provided advice and depot data.", method = "POST", operationId = "saveGate")
     @ApiResponses(value = {
@@ -48,8 +69,34 @@ public class GateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "gate object to create a new gate in or gate out record", required = true, content = {@Content(schema = @Schema(implementation = GateCreateRequest.class))}) GateCreateRequest gateCreateRequest) {
-        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
+    public HttpResponse<Object> create(@Body @RequestBody(description = "gate object to create a new gate in or gate out record", required = true, content = {@Content(schema = @Schema(implementation = GateCreateRequest.class))}) GateCreateRequest gateCreateRequest) {
+        LOG.info("Received Gate Create");
+        objectToJsonNodeConverter.convert(gateCreateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(gateCreateRequest.getAdviceNumber(), gateCreateRequest.getUnitNumber(), gateCreateRequest.getType())) {
+            throw new IllegalArgumentException("Gate already exists; please update instead.");
+        }
+
+        if (gateCreateRequest.getDepot() != null) {
+            gateCreateRequest.setDepot(partyRepository.save(gateCreateRequest.getDepot()));
+        }
+
+        gateCreateRequest = gateCreateRequestRepository.save(gateCreateRequest);
+
+        //Generate an example gate for the purposes of this demo
+        GateResponse gate = new GateResponse();
+        gate.setAdviceNumber(gateCreateRequest.getAdviceNumber());
+        gate.setCustomerReference("EXAMPLE01");
+        gate.setTransactionReference(gateCreateRequest.getId().toString());
+        //No insurance coverage in example
+        gate.setCurrentExchangeRate(BigDecimal.ONE);
+        gate.setComments(Arrays.asList("Example Comment #1", "Example Comment #2"));
+        gate.setCurrentInspectionCriteria("IICL");
+
+        LOG.info("Responding with example Gate Response");
+        objectToJsonNodeConverter.convert(gate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
+        return HttpResponse.ok(gate);
     }
 
     @Get(uri = "/{unitNumber}", produces = MediaType.APPLICATION_JSON)
@@ -77,11 +124,37 @@ public class GateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> update(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number for the gate record", in = ParameterIn.PATH, required = true, schema = @Schema(example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
+    public HttpResponse<Object> update(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number for the gate record", in = ParameterIn.PATH, required = true, schema = @Schema(example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
                                @Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
                                @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                @Body @RequestBody(description = "gate object to update an existing record", required = true, content = {@Content(schema = @Schema(implementation = GateUpdateRequest.class))}) GateUpdateRequest gateUpdateRequest) {
-        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
+        LOG.info("Received Gate Update");
+        objectToJsonNodeConverter.convert(gateUpdateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
+        if(!gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, gateUpdateRequest.getType())) {
+            if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
+                throw new IllegalArgumentException("Gate does not exist.");
+            }
+
+            LOG.info("Gate DNE -> Writing to Gate Update");
+        }
+
+        gateUpdateRequest = gateUpdateRequestRepository.save(gateUpdateRequest);
+
+        //Generate an example gate for the purposes of this demo
+        GateResponse gate = new GateResponse();
+        gate.setAdviceNumber(adviceNumber);
+        gate.setCustomerReference("EXAMPLE01");
+        gate.setTransactionReference(gateUpdateRequest.getId().toString());
+        //No insurance coverage in example
+        gate.setCurrentExchangeRate(BigDecimal.ONE);
+        gate.setComments(Arrays.asList("Example Comment #1", "Example Comment #2"));
+        gate.setCurrentInspectionCriteria("IICL");
+
+        LOG.info("Responding with example Gate Response");
+        objectToJsonNodeConverter.convert(gate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
+        return HttpResponse.ok(gate);
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
@@ -90,5 +163,15 @@ public class GateController {
 
         return HttpResponse.<JsonError>notFound()
             .body(error);
+    }
+
+    @Error
+    public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+        LOG.info("\tError - 400 - Bad Request", ex);
+        ErrorResponse error = new ErrorResponse();
+        error.setCode("ERR000");
+        error.setMessage(ex.getMessage());
+
+        return HttpResponse.badRequest().body(error);
     }
 }
