@@ -16,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 @Data
@@ -110,11 +111,11 @@ public class EstimateLineItem {
         //For demo purposes assume 2 digit currency precision
         int currencyPrecision = 2;
 
-        BigDecimal roundedHours = hours.setScale(currencyPrecision, BigDecimal.ROUND_HALF_EVEN);
-        BigDecimal roundedRate = laborRate.setScale(currencyPrecision, BigDecimal.ROUND_HALF_EVEN);
-        BigDecimal roundedMaterial = materialCost.setScale(currencyPrecision, BigDecimal.ROUND_HALF_EVEN);
+        BigDecimal roundedHours = hours.setScale(currencyPrecision, RoundingMode.HALF_EVEN);
+        BigDecimal roundedRate = laborRate.setScale(currencyPrecision, RoundingMode.HALF_EVEN);
+        BigDecimal roundedMaterial = materialCost.setScale(currencyPrecision, RoundingMode.HALF_EVEN);
 
-        BigDecimal roundedLaborCost = roundedRate.multiply(roundedHours).setScale(currencyPrecision, BigDecimal.ROUND_HALF_EVEN);
+        BigDecimal roundedLaborCost = roundedRate.multiply(roundedHours).setScale(currencyPrecision, RoundingMode.HALF_EVEN);
 
         //Assume no taxes for demo purposes.
         return roundedLaborCost.add(roundedMaterial);
