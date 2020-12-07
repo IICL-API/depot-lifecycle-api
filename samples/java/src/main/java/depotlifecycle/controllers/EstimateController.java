@@ -205,17 +205,17 @@ public class EstimateController {
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
             if(depotParty.isEmpty()) {
                 LOG.info("Party DNE -> Returning NOT FOUND");
-                return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_FOUND);
+                return HttpResponse.notFound();
             }
 
             if(!estimateRepository.existsByEstimateNumberAndDepot(estimateNumber, depotParty.get())) {
                 LOG.info("Estimate DNE -> Returning NOT FOUND");
-                return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_FOUND);
+                return HttpResponse.notFound();
             }
 
             if(estimateCancelRequestRepository.existsByEstimateNumberAndDepot(estimateNumber, depotParty.get())) {
                 LOG.info("Estimate Already Deleted -> Returning NOT FOUND");
-                return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_FOUND);
+                return HttpResponse.notFound();
             }
         }
         else if(depotParty.isEmpty()) {
@@ -229,7 +229,7 @@ public class EstimateController {
         cancelRequest.setDepot(depotParty.get());
         estimateCancelRequestRepository.save(cancelRequest);
 
-        return HttpResponseFactory.INSTANCE.status(HttpStatus.OK);
+        return HttpResponse.ok();
     }
 
     @Patch(uri = "/{estimateNumber}", produces = MediaType.APPLICATION_JSON)
