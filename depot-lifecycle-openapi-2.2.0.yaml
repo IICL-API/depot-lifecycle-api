@@ -830,13 +830,6 @@ paths:
           pattern: ^[A-Z0-9]{9}$
           type: object
           example: DEHAMCMRA
-      requestBody:
-        description: gate object to delete an existing record
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GateDeleteRequest'
-        required: true
       responses:
         200:
           description: successfully delete the gate record
@@ -1846,6 +1839,7 @@ components:
             `AU` - Ancillary Upgrade
 
             `AR` - Ancillary Repair
+          default: R
           enum:
           - R
           - RI
@@ -1856,7 +1850,6 @@ components:
           - AS
           - AU
           - AR
-          default: R
         upgradeType:
           maxLength: 2
           required:
@@ -1986,11 +1979,11 @@ components:
 
             `REPAIRED` - shipping container is considered repaired
           example: TIED
+          default: TIED
           enum:
           - TIED
           - REMOVED
           - REPAIRED
-          default: TIED
       description: information for a specific unit on a work order
     WorkOrder:
       required:
@@ -2331,32 +2324,6 @@ components:
           - OUT
       description: Data required to update a gate in or gate out record. Any data
         not provided will result in no update.
-    GateDeleteRequest:
-      type: object
-      properties:
-        activityTime:
-          required:
-          - "false"
-          type: string
-          description: "the date and time of the gate activity in local time; i.e.\
-            \ `2019-04-10T19:37:04Z` \n\n( notation as defined by [RFC 3339, section\
-            \ 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )"
-          format: date-time
-        type:
-          maxLength: 3
-          type: string
-          description: |-
-            gate type indicator
-
-            `IN` - Gate In
-
-            `OUT` - Gate Out
-          nullable: true
-          example: IN
-          enum:
-          - IN
-          - OUT
-      description: Data required to delete a gate in or gate out record.
     ReleaseUnit:
       required:
       - status

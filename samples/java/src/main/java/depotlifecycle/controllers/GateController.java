@@ -8,6 +8,7 @@ import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.GateCreateRequest;
 import depotlifecycle.domain.GateUpdateRequest;
 import depotlifecycle.domain.GateDeleteRequest;
+import depotlifecycle.domain.Party;
 import depotlifecycle.domain.PreliminaryDecision;
 import depotlifecycle.repositories.GateCreateRequestRepository;
 import depotlifecycle.repositories.GateUpdateRequestRepository;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Tag(name = "gate")
 @Validated
@@ -172,35 +174,38 @@ public class GateController {
     })
     public HttpResponse<HttpStatus> delete(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number for the gate record", in = ParameterIn.PATH, required = true, schema = @Schema(example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
                                        @Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
-                                       @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
-                                       @Body @RequestBody(description = "gate object to delete an existing record", required = true, content = {@Content(schema = @Schema(implementation = GateDeleteRequest.class))}) GateDeleteRequest gateDeleteRequest) {
-        LOG.info("Received Gate Delete");
-        objectToJsonNodeConverter.convert(gateDeleteRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+                                       @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot) {
+        LOG.info("Received Gate Delete for {}, {}, {}", depot, adviceNumber, unitNumber);
 
-        if(!gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, gateDeleteRequest.getType())) {
-            if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
-                throw new IllegalArgumentException("Gate does not exist.");
+        Optional<Party> depotParty = partyRepository.findByCompanyId(depot);
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
+            if(depotParty.isEmpty()) {
+                return HttpResponse.notFound();
             }
 
-            LOG.info("Gate DNE -> Writing to Gate Delete");
-        }
-
-        if(!gateDeleteRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, gateDeleteRequest.getType(), gateDeleteRequest.getActivityTime())) {
-            if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
-                throw new IllegalArgumentException("Gate does not exist.");
+            if(!gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, "IN") ||
+               !gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, "OUT")) {
+                return HttpResponse.notFound();
             }
 
-            LOG.info("Gate DNE -> Writing to Gate Delete");
+            if(!gateDeleteRequestRepository.existsByDepotAndAdviceNumberAndUnitNumber(depotParty.get(), adviceNumber, unitNumber)) {
+                return HttpResponse.notFound();
+            }
+        }
+        else {
+            depotParty = Optional.of(new Party());
+            depotParty.get().setCompanyId(depot);
+            depotParty = Optional.of(partyRepository.save(depotParty.get()));
         }
 
-        if (gateDeleteRequest.getDepot() != null) {
-            gateDeleteRequest.setDepot(partyRepository.save(gateDeleteRequest.getDepot()));
-        }
-
+        GateDeleteRequest gateDeleteRequest = new GateDeleteRequest();
+        gateDeleteRequest.setDepot(depotParty.get());
+        gateDeleteRequest.setAdviceNumber(adviceNumber);
+        gateDeleteRequest.setUnitNumber(unitNumber);
         gateDeleteRequestRepository.save(gateDeleteRequest);
 
         LOG.info("Gate Deleted, responding with OK");
-        return HttpResponse.ok(HttpStatus.OK);
+        return HttpResponse.ok();
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
