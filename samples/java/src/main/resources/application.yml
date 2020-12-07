@@ -20,6 +20,23 @@ micronaut:
         mapping: /swagger-ui/**
   security:
     enabled: true
+    intercept-url-map:
+      - pattern: /swagger/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
+      - pattern: /redoc/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
+      - pattern: /rapidoc/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
+      - pattern: /swagger-ui/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
     endpoints:
       login:
         enabled: true
