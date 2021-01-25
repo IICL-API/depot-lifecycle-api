@@ -697,7 +697,7 @@ paths:
       parameters:
       - name: unitNumber
         in: path
-        description: the current remark of the shipping container
+        description: the current unit number of the shipping container
         required: true
         schema:
           maxLength: 11
@@ -745,7 +745,7 @@ paths:
           example: AHAMG000000
       - name: unitNumber
         in: path
-        description: the current remark of the shipping container
+        description: the current unit number of the shipping container
         required: true
         schema:
           maxLength: 11
@@ -805,7 +805,8 @@ paths:
       parameters:
       - name: adviceNumber
         in: path
-        description: the redelivery or release advice number for the gate record
+        description: the redelivery or release advice number to identify which gate
+          record to delete
         required: true
         schema:
           maxLength: 16
@@ -814,7 +815,7 @@ paths:
           example: AHAMG000000
       - name: unitNumber
         in: path
-        description: the current remark of the shipping container
+        description: the current unit number of the shipping container
         required: true
         schema:
           maxLength: 11
@@ -1126,7 +1127,7 @@ components:
           required:
           - "true"
           type: string
-          description: the current remark of the shipping container
+          description: the current unit number of the shipping container
           example: CONU1234561
         manufactureDate:
           required:
@@ -2336,7 +2337,7 @@ components:
           required:
           - "true"
           type: string
-          description: the current remark of the shipping container
+          description: the current unit number of the shipping container
           example: CONU1234561
         comments:
           maxLength: 500

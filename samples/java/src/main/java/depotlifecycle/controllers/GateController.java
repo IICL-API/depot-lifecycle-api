@@ -113,7 +113,7 @@ public class GateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> get(@Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561", maxLength = 11)) String unitNumber) {
+    public HttpResponse<HttpStatus> get(@Parameter(name = "unitNumber", description = "the current unit number of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561", maxLength = 11)) String unitNumber) {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -129,7 +129,7 @@ public class GateController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse<Object> update(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number for the gate record", in = ParameterIn.PATH, required = true, schema = @Schema(example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
-                               @Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
+                               @Parameter(name = "unitNumber", description = "the current unit number of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
                                @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                @Body @RequestBody(description = "gate object to update an existing record", required = true, content = {@Content(schema = @Schema(implementation = GateUpdateRequest.class))}) GateUpdateRequest gateUpdateRequest) {
         LOG.info("Received Gate Update");
@@ -171,8 +171,8 @@ public class GateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> delete(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number for the gate record", in = ParameterIn.PATH, required = true, schema = @Schema(example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
-                                       @Parameter(name = "unitNumber", description = "the current remark of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
+    public HttpResponse<HttpStatus> delete(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number to identify which gate record to delete", in = ParameterIn.PATH, required = true, schema = @Schema(example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
+                                       @Parameter(name = "unitNumber", description = "the current unit number of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
                                        @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot) {
         LOG.info("Received Gate Delete for {}, {}, {}", depot, adviceNumber, unitNumber);
 
