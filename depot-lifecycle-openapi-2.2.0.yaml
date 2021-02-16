@@ -48,7 +48,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 2.1.0
+  version: 2.2.0
 externalDocs:
   description: Find out more about this api
   url: https://github.com/TritonInternationalLimited/depot-lifecycle-api
@@ -477,6 +477,47 @@ paths:
           description: this feature is not supported by this server
         503:
           description: API is temporarily paused, and not accepting any activity
+    delete:
+      tags:
+      - estimate
+      summary: cancels an estimate
+      description: Cancels an estimate (deletes it and all revisions from the system)
+      operationId: deleteEstimate
+      parameters:
+      - name: estimateNumber
+        in: path
+        description: the estimate number
+        required: true
+        schema:
+          maxLength: 16
+          type: object
+          example: DEHAMCE1856373
+      - name: depot
+        in: query
+        description: the identifier of the depot
+        required: true
+        schema:
+          maxLength: 9
+          pattern: ^[A-Z0-9]{9}$
+          type: object
+          example: DEHAMCMRA
+      responses:
+        200:
+          description: successfully cancelled the estimate
+        400:
+          description: an error occurred trying to cancel the estimate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: cancel estimate is disallowed by security
+        404:
+          description: the estimate or depot was not found
+        501:
+          description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
     patch:
       tags:
       - estimate
@@ -656,7 +697,7 @@ paths:
       parameters:
       - name: unitNumber
         in: path
-        description: the current remark of the shipping container
+        description: the current unit number of the shipping container
         required: true
         schema:
           maxLength: 11
@@ -704,7 +745,7 @@ paths:
           example: AHAMG000000
       - name: unitNumber
         in: path
-        description: the current remark of the shipping container
+        description: the current unit number of the shipping container
         required: true
         schema:
           maxLength: 11
@@ -749,6 +790,58 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         403:
           description: update a gate record is disallowed by security
+        404:
+          description: the shipping container or depot could not be found
+        501:
+          description: this feature is not supported by this server
+        503:
+          description: API is temporarily paused, and not accepting any activity
+    delete:
+      tags:
+      - gate
+      summary: delete a gate record
+      description: Delete a gate record
+      operationId: deleteGate
+      parameters:
+      - name: adviceNumber
+        in: path
+        description: the redelivery or release advice number to identify which gate
+          record to delete
+        required: true
+        schema:
+          maxLength: 16
+          minLength: 1
+          type: object
+          example: AHAMG000000
+      - name: unitNumber
+        in: path
+        description: the current unit number of the shipping container
+        required: true
+        schema:
+          maxLength: 11
+          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
+          type: object
+          example: CONU1234561
+      - name: depot
+        in: path
+        description: the identifier of the depot
+        required: true
+        schema:
+          maxLength: 9
+          pattern: ^[A-Z0-9]{9}$
+          type: object
+          example: DEHAMCMRA
+      responses:
+        200:
+          description: successfully delete the gate record
+        400:
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: delete a gate record is disallowed by security
         404:
           description: the shipping container or depot could not be found
         501:
@@ -1034,7 +1127,7 @@ components:
           required:
           - "true"
           type: string
-          description: the current remark of the shipping container
+          description: the current unit number of the shipping container
           example: CONU1234561
         manufactureDate:
           required:
@@ -1747,6 +1840,7 @@ components:
             `AU` - Ancillary Upgrade
 
             `AR` - Ancillary Repair
+          default: R
           enum:
           - R
           - RI
@@ -1757,7 +1851,6 @@ components:
           - AS
           - AU
           - AR
-          default: R
         upgradeType:
           maxLength: 2
           required:
@@ -1887,11 +1980,11 @@ components:
 
             `REPAIRED` - shipping container is considered repaired
           example: TIED
+          default: TIED
           enum:
           - TIED
           - REMOVED
           - REPAIRED
-          default: TIED
       description: information for a specific unit on a work order
     WorkOrder:
       required:
@@ -2244,7 +2337,7 @@ components:
           required:
           - "true"
           type: string
-          description: the current remark of the shipping container
+          description: the current unit number of the shipping container
           example: CONU1234561
         comments:
           maxLength: 500

@@ -8,6 +8,8 @@ import io.micronaut.security.authentication.AuthenticationResponse;
 import io.micronaut.security.authentication.UserDetails;
 import io.reactivex.Flowable;
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
@@ -15,10 +17,12 @@ import java.util.Optional;
 
 @Singleton
 public class AuthenticationProviderUserPassword implements AuthenticationProvider {
-    public static Optional VALIDATE_USER_NAME = Optional.of("validate");
+    public static Optional<String> VALIDATE_USER_NAME = Optional.of("validate");
+    private static final Logger LOG = LoggerFactory.getLogger(AuthenticationProviderUserPassword.class);
 
     @Override
     public Publisher<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
+        LOG.info("Received Authentication Request");
         if (authenticationRequest.getIdentity().equals("fail")) {
             //if the user wants to test what a fail authentication responds
             return Flowable.just(new AuthenticationFailed(AuthenticationFailureReason.USER_NOT_FOUND));

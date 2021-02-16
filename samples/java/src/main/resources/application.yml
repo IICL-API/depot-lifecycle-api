@@ -2,7 +2,6 @@ micronaut:
   application:
     name: depotlifecycle
   server:
-      host: 0.0.0.0
       port: 8086
   router:
     static-resources:
@@ -20,6 +19,23 @@ micronaut:
         mapping: /swagger-ui/**
   security:
     enabled: true
+    intercept-url-map:
+      - pattern: /swagger/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
+      - pattern: /redoc/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
+      - pattern: /rapidoc/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
+      - pattern: /swagger-ui/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
     endpoints:
       login:
         enabled: true

@@ -5,10 +5,13 @@ import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.EstimateAllocation;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.Estimate;
+import depotlifecycle.domain.EstimateCancelRequest;
 import depotlifecycle.domain.EstimateCustomerApproval;
+import depotlifecycle.domain.Party;
 import depotlifecycle.domain.PreliminaryDecision;
 import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.EstimateAllocationRepository;
+import depotlifecycle.repositories.EstimateCancelRequestRepository;
 import depotlifecycle.repositories.EstimateRepository;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
@@ -19,6 +22,7 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Patch;
@@ -45,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Tag(name = "estimate")
 @Validated
@@ -55,6 +60,7 @@ public class EstimateController {
     private static final Logger LOG = LoggerFactory.getLogger(EstimateController.class);
     private final PartyRepository partyRepository;
     private final EstimateRepository estimateRepository;
+    private final EstimateCancelRequestRepository estimateCancelRequestRepository;
     private final EstimateAllocationRepository estimateAllocationRepository;
     private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
     private final SecurityService securityService;
@@ -181,6 +187,51 @@ public class EstimateController {
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }
 
+    @Delete(uri = "/{estimateNumber}", produces = MediaType.APPLICATION_JSON)
+    @Operation(summary = "cancels an estimate", description = "Cancels an estimate (deletes it and all revisions from the system)", method = "DELETE", operationId = "deleteEstimate")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "successfully cancelled the estimate"),
+        @ApiResponse(responseCode = "400", description = "an error occurred trying to cancel the estimate", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "cancel estimate is disallowed by security"),
+        @ApiResponse(responseCode = "404", description = "the estimate or depot was not found"),
+        @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
+        @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
+    })
+    public HttpResponse<HttpStatus> delete(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
+                                           @QueryValue("depot") @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot) {
+        LOG.info("Received Estimate Cancel for {} @ {}", estimateNumber, depot);
+
+        Optional<Party> depotParty = partyRepository.findByCompanyId(depot);
+        if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
+            if(depotParty.isEmpty()) {
+                LOG.info("Party DNE -> Returning NOT FOUND");
+                return HttpResponse.notFound();
+            }
+
+            if(!estimateRepository.existsByEstimateNumberAndDepot(estimateNumber, depotParty.get())) {
+                LOG.info("Estimate DNE -> Returning NOT FOUND");
+                return HttpResponse.notFound();
+            }
+
+            if(estimateCancelRequestRepository.existsByEstimateNumberAndDepot(estimateNumber, depotParty.get())) {
+                LOG.info("Estimate Already Deleted -> Returning NOT FOUND");
+                return HttpResponse.notFound();
+            }
+        }
+        else if(depotParty.isEmpty()) {
+            depotParty = Optional.of(new Party());
+            depotParty.get().setCompanyId(depot);
+            depotParty = Optional.of(partyRepository.save(depotParty.get()));
+        }
+
+        EstimateCancelRequest cancelRequest = new EstimateCancelRequest();
+        cancelRequest.setEstimateNumber(estimateNumber);
+        cancelRequest.setDepot(depotParty.get());
+        estimateCancelRequestRepository.save(cancelRequest);
+
+        return HttpResponse.ok();
+    }
+
     @Patch(uri = "/{estimateNumber}", produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "update estimate totals", description = "When the creation of the estimate is delayed due to a 202, after the manual processing is complete, this method is called to perform the update of the totals", method = "PATCH", operationId = "updateTotals")
     @ApiResponses(value = {
@@ -197,7 +248,7 @@ public class EstimateController {
         objectToJsonNodeConverter.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         if(securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
-            if (Objects.isNull(estimateNumber) || !estimateRepository.existsByEstimateNumber(estimateNumber)) {
+            if (Objects.isNull(estimateNumber) || !estimateRepository.existsByEstimateNumberAndDepot(estimateNumber, allocation.getDepot())) {
                 throw new IllegalArgumentException("Estimate does not exist to allocate.");
             }
         }
