@@ -691,8 +691,8 @@ paths:
       - gate
       summary: fetch the current gate status
       description: For the given unit number, if the shipping container is currently
-        gated in or gated out, fetch the current interchange information - damage
-        status, the time of the gate, etc.
+        gated in or gated out, fetch the current interchange information - status,
+        the time of the gate, etc.
       operationId: showGate
       parameters:
       - name: unitNumber
@@ -1840,7 +1840,6 @@ components:
             `AU` - Ancillary Upgrade
 
             `AR` - Ancillary Repair
-          default: R
           enum:
           - R
           - RI
@@ -1851,6 +1850,7 @@ components:
           - AS
           - AU
           - AR
+          default: R
         upgradeType:
           maxLength: 2
           required:
@@ -1980,11 +1980,11 @@ components:
 
             `REPAIRED` - shipping container is considered repaired
           example: TIED
-          default: TIED
           enum:
           - TIED
           - REMOVED
           - REPAIRED
+          default: TIED
       description: information for a specific unit on a work order
     WorkOrder:
       required:
@@ -2191,15 +2191,18 @@ components:
           - "true"
           type: string
           description: |-
-            an indicator of the shipping container's damage status
+            an indicator of the shipping container's status
 
             `A` - Non-damaged
 
             `D` - Damaged
+
+            `S` - Sold
           example: D
           enum:
           - A
           - D
+          - S
         activityTime:
           required:
           - "true"
@@ -2246,15 +2249,18 @@ components:
           - "true"
           type: string
           description: |-
-            the current damage indicator status
+            the current status
 
             `A` - Non-damaged
 
             `D` - Damaged
+
+            `S` - Sold
           example: D
           enum:
           - A
           - D
+          - S
         activityTime:
           required:
           - "true"
@@ -2291,16 +2297,19 @@ components:
           - "false"
           type: string
           description: |-
-            a new indicator of the shipping container's damage status
+            a new indicator of the shipping container's status
 
             `A` - Non-damaged
 
             `D` - Damaged
+
+            `S` - Sold
           nullable: true
           example: D
           enum:
           - A
           - D
+          - S
         activityTime:
           required:
           - "false"

@@ -26,7 +26,7 @@ public class GateStatus {
     @Schema(required = true, description = "the storage location for the given advice number")
     Party depot;
 
-    @Schema(required = true, allowableValues = {"A", "D"}, example = "D", maxLength = 1, description = "the current damage indicator status\n\n`A` - Non-damaged\n\n`D` - Damaged")
+    @Schema(required = true, allowableValues = {"A", "D", "S"}, example = "D", maxLength = 1, description = "the current status\n\n`A` - Non-damaged\n\n`D` - Damaged\n\n`S` - Sold")
     String status;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2017-07-21T17:32:28Z"
