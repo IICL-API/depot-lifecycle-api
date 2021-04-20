@@ -33,7 +33,7 @@ public class GateUpdateRequest {
     @JsonIgnore
     Long id;
 
-    @Schema(required = false, allowableValues = {"A", "D"}, example = "D", maxLength = 1, description = "a new indicator of the shipping container's damage status\n\n`A` - Non-damaged\n\n`D` - Damaged")
+    @Schema(required = false, allowableValues = {"A", "D", "S"}, example = "D", maxLength = 1, description = "a new indicator of the shipping container's status\n\n`A` - Non-damaged\n\n`D` - Damaged\n\n`S` - Sold")
     @Column(nullable = true, length = 1)
     String status;
 
