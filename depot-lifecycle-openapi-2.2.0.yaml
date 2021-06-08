@@ -60,9 +60,9 @@ info:
   version: 2.2.0
 externalDocs:
   description: Find out more about this api
-  url: https://github.com/TritonInternationalLimited/depot-lifecycle-api
+  url: https://github.com/IICL-API/depot-lifecycle-api
 servers:
-- url: https://testapi.trtn.com/triton
+- url: https://api.example.com/examplecontextpath
 security:
 - JWT: []
 tags:
@@ -1852,7 +1852,6 @@ components:
           enum:
           - R
           - RI
-          - RC
           - RC
           - SC
           - SU
