@@ -53,7 +53,7 @@ info:
     \n GET /api/v2/gate/CONU1234561 HTTP/1.1\n\n Host: www.example.com\n\n Authorization:\
     \ Bearer eyJhbGciOiJIUzI1NiJ9...\n\n ```\n\n"
   contact:
-    email: api-edi@trtn.com
+    email: techncial@iicl.org
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -1849,16 +1849,17 @@ components:
             `AU` - Ancillary Upgrade
 
             `AR` - Ancillary Repair
+          default: R
           enum:
           - R
           - RI
+          - RC
           - RC
           - SC
           - SU
           - AS
           - AU
           - AR
-          default: R
         upgradeType:
           maxLength: 2
           required:
@@ -1988,11 +1989,11 @@ components:
 
             `REPAIRED` - shipping container is considered repaired
           example: TIED
+          default: TIED
           enum:
           - TIED
           - REMOVED
           - REPAIRED
-          default: TIED
       description: information for a specific unit on a work order
     WorkOrder:
       required:
