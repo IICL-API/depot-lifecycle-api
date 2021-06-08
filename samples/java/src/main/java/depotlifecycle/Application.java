@@ -46,7 +46,7 @@ import java.util.Arrays;
         license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html"),
         contact = @Contact(email = "api-edi@trtn.com")
     ),
-    externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/TritonInternationalLimited/depot-lifecycle-api"),
+    externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/IICL-API/depot-lifecycle-api"),
     tags = {
         @Tag(name = "redelivery", description = "*turn in approval for shipping containers*"),
         @Tag(name = "release", description = "*lease out approval for shipping containers*"),
@@ -55,7 +55,7 @@ import java.util.Arrays;
         @Tag(name = "workOrder", description = "*manage damage estimates that are approved for repair*")
     },
     servers = {
-        @Server(url = "https://testapi.trtn.com/triton")
+        @Server(url = "https://api.example.com/examplecontextpath")
     },
     security = {
         @SecurityRequirement(name = "JWT")
@@ -110,11 +110,11 @@ public class Application {
         customer.setName("Example Customer");
 
         Party owner = new Party();
-        owner.setCompanyId("USSFOTRIB");
+        owner.setCompanyId("USSFOEXAM");
         owner.setUserCode("JD");
         owner.setUserName("Jane Doe");
-        owner.setCode("TRTN");
-        owner.setName("Triton International Limited");
+        owner.setCode("EXAM");
+        owner.setName("Example Lessor Name");
 
         partyRepository.saveAll(Arrays.asList(depot1, depot2, customer, owner));
 
