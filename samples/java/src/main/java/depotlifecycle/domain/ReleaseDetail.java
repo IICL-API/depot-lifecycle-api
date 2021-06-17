@@ -85,7 +85,7 @@ public class ReleaseDetail {
     @Column
     Integer desiredTemperature;
 
-    @Schema(description = "if the equipment has fresh air ventilation, the rate of the fresh air ventilation", example = "90 CBM", maxLength = 32)
-    @Column(length = 32)
+    @Schema(description = "if the equipment has fresh air ventilation, the rate of the fresh air ventilation", example = "90 CBM", maxLength = 10)
+    @Column(length = 10)
     String ventilation;
 }

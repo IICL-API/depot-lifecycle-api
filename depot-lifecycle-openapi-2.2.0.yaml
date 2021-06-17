@@ -2554,7 +2554,7 @@ components:
           format: int32
           example: -23
         ventilation:
-          maxLength: 32
+          maxLength: 10
           type: string
           description: if the equipment has fresh air ventilation, the rate of the
             fresh air ventilation
