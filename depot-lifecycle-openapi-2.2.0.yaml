@@ -1125,6 +1125,7 @@ components:
       description: details the cooling machinery attached to a shipping container
     RedeliveryUnit:
       required:
+      - billingParty
       - manufactureDate
       - status
       - unitNumber
@@ -1171,10 +1172,11 @@ components:
           - TIED
           - TIN
         comments:
-          maxLength: 500
+          maxLength: 512
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
+          example: '[an example unit level comment]'
           items:
             type: string
         lastCargo:
@@ -1191,12 +1193,13 @@ components:
           enum:
           - F
           - C
+        billingParty:
+          $ref: '#/components/schemas/Party'
         machineryInfo:
           $ref: '#/components/schemas/MachineryInfo'
       description: information for a specific unit on a redelivery
     RedeliveryDetail:
       required:
-      - billingParty
       - contract
       - customer
       - equipment
@@ -1282,8 +1285,6 @@ components:
           - CH
           - TE
           - FT
-        billingParty:
-          $ref: '#/components/schemas/Party'
         units:
           type: array
           description: the specific units for this redelivery if defined, if not,
@@ -1299,12 +1300,21 @@ components:
           description: the number of shipping containers assigned to this detail
           format: int32
           example: 1
+        comments:
+          maxLength: 512
+          type: array
+          description: comments pertaining to this detail for the intended recipient
+            of this message
+          example: '[an example detail comment]'
+          items:
+            type: string
       description: unit criteria that groups similar units on a redelivery
     Redelivery:
       required:
       - approvalDate
       - depot
       - details
+      - owner
       - recipient
       - redeliveryNumber
       type: object
@@ -1332,7 +1342,7 @@ components:
             ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
           format: date-time
         comments:
-          maxLength: 500
+          maxLength: 512
           type: array
           description: comments pertaining to this redelivery for the intended recipient
             of this message
@@ -1340,6 +1350,8 @@ components:
           items:
             type: string
         depot:
+          $ref: '#/components/schemas/Party'
+        owner:
           $ref: '#/components/schemas/Party'
         recipient:
           $ref: '#/components/schemas/Party'
@@ -1849,7 +1861,6 @@ components:
             `AU` - Ancillary Upgrade
 
             `AR` - Ancillary Repair
-          default: R
           enum:
           - R
           - RI
@@ -1860,6 +1871,7 @@ components:
           - AS
           - AU
           - AR
+          default: R
         upgradeType:
           maxLength: 2
           required:
@@ -1989,11 +2001,11 @@ components:
 
             `REPAIRED` - shipping container is considered repaired
           example: TIED
-          default: TIED
           enum:
           - TIED
           - REMOVED
           - REPAIRED
+          default: TIED
       description: information for a specific unit on a work order
     WorkOrder:
       required:
@@ -2358,11 +2370,11 @@ components:
           description: the current unit number of the shipping container
           example: CONU1234561
         comments:
-          maxLength: 500
+          maxLength: 512
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
-          example: '[Unit requires reefer testing before repair!]'
+          example: '[An example unit level comment.]'
           items:
             type: string
         status:
@@ -2377,6 +2389,10 @@ components:
           - REMOVED
           - TIED
           - LOT
+        carbCompliant:
+          type: boolean
+          description: specific to Genset equipment, indicator for California Air
+            Resources Board compliance
       description: information for a specific unit on a release
     ReleaseDetailCriteria:
       required:
@@ -2512,6 +2528,14 @@ components:
             detail to further restrict units.  i.e. <= 2003 manufacture year. '
           items:
             $ref: '#/components/schemas/ReleaseDetailCriteria'
+        comments:
+          maxLength: 512
+          type: array
+          description: comments pertaining to this detail for the intended recipient
+            of this message
+          example: '[an example release detail comment]'
+          items:
+            type: string
         quantity:
           minimum: 0
           required:
@@ -2520,6 +2544,21 @@ components:
           description: the number of shipping containers assigned to this detail
           format: int32
           example: 1
+        preTripInspectionRequired:
+          type: boolean
+          description: indicator if mechanical equipment must be tested prior to lease
+            out
+        desiredTemperature:
+          type: integer
+          description: the reefer setpoint / desired temperature
+          format: int32
+          example: -23
+        ventilation:
+          maxLength: 32
+          type: string
+          description: if the equipment has fresh air ventilation, the rate of the
+            fresh air ventilation
+          example: 90 CBM
       description: groups similar units on a release
     Release:
       required:
@@ -2567,7 +2606,7 @@ components:
             ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
           format: date-time
         comments:
-          maxLength: 500
+          maxLength: 512
           type: array
           description: comments pertaining to this release for the intended recipient
             of this message

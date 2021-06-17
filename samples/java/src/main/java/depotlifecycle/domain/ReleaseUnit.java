@@ -39,7 +39,7 @@ public class ReleaseUnit {
     @Column(nullable = false, length = 11)
     String unitNumber;
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 500, example = "[Unit requires reefer testing before repair!]")
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 512, example = "[An example unit level comment.]")
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
     List<String> comments;
@@ -47,4 +47,8 @@ public class ReleaseUnit {
     @Schema(description = "Describes the state of the shipping container for this release: \n\n`TIED` - shipping container is assigned to this release and ready to lease out.\n\n`REMOVED` - shipping container was attached to this release, but is no longer valid for release.\n\n`LOT` - shipping container has left the storage location.", allowableValues = {"REMOVED", "TIED", "LOT"}, example = "TIED")
     @Column(nullable = false, length = 7)
     String status;
+
+    @Schema(description = "specific to Genset equipment, indicator for California Air Resources Board compliance")
+    @Column
+    Boolean carbCompliant;
 }

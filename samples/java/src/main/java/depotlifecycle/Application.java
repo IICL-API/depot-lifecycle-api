@@ -118,7 +118,7 @@ public class Application {
 
         partyRepository.saveAll(Arrays.asList(depot1, depot2, customer, owner));
 
-        buildRedeliveries(depot1, depot2, customer);
+        buildRedeliveries(depot1, depot2, customer, owner);
         buildReleases(depot1, depot2, customer, owner);
     }
 
@@ -165,7 +165,7 @@ public class Application {
         releaseRepository.save(release);
     }
 
-    private void buildRedeliveries(Party depot1, Party depot2, Party customer) {
+    private void buildRedeliveries(Party depot1, Party depot2, Party customer, Party owner) {
         Redelivery redelivery = new Redelivery();
         redelivery.setRedeliveryNumber("AHAMG33141");
         redelivery.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
@@ -173,13 +173,13 @@ public class Application {
         redelivery.setComments(Arrays.asList("an example redelivery level comment"));
         redelivery.setDepot(depot1);
         redelivery.setRecipient(depot1);
+        redelivery.setOwner(owner);
 
         RedeliveryDetail noInsuranceDetail = new RedeliveryDetail();
         noInsuranceDetail.setCustomer(customer);
         noInsuranceDetail.setContract("EXCUST01-100000");
         noInsuranceDetail.setEquipment("22G1");
         noInsuranceDetail.setInspectionCriteria("IICL");
-        noInsuranceDetail.setBillingParty(depot1);
         noInsuranceDetail.setQuantity(1);
 
         InsuranceCoverage coverage = new InsuranceCoverage();
@@ -195,7 +195,6 @@ public class Application {
         insuranceDetail.setContract("EXCUST01-100000");
         insuranceDetail.setEquipment("22G2");
         insuranceDetail.setInspectionCriteria("IICL");
-        insuranceDetail.setBillingParty(depot1);
         insuranceDetail.setInsuranceCoverage(coverage);
         insuranceDetail.setQuantity(1);
 
@@ -205,12 +204,14 @@ public class Application {
         unit1.setLastOnHireDate(LocalDate.of(2012, 2, 1));
         unit1.setLastOnHireLocation(depot2);
         unit1.setComments(Arrays.asList("Example unit comment #1."));
+        unit1.setBillingParty(depot1);
         unit1.setStatus("TIED");
 
         RedeliveryUnit unit2 = new RedeliveryUnit();
         unit2.setUnitNumber("CONU1234526");
         unit2.setManufactureDate(LocalDate.of(2012, 1, 1));
         unit2.setComments(Arrays.asList("Example unit comment #2."));
+        unit2.setBillingParty(depot1);
         unit2.setStatus("TIED");
 
         redelivery.getDetails().add(insuranceDetail);

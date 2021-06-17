@@ -32,7 +32,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "An approval to deliver units to a storage location.", requiredProperties = {"redeliveryNumber", "approvalDate", "depot", "recipient", "details"})
+@Schema(description = "An approval to deliver units to a storage location.", requiredProperties = {"redeliveryNumber", "approvalDate", "depot", "recipient", "owner", "details"})
 @EqualsAndHashCode(of = {"redeliveryNumber"})
 @ToString(of = {"redeliveryNumber"})
 @Introspected
@@ -58,7 +58,7 @@ public class Redelivery {
     @Column(nullable = false)
     ZonedDateTime approvalDate;
 
-    @Schema(description = "comments pertaining to this redelivery for the intended recipient of this message", maxLength = 500, example = "[an example redelivery level comment]")
+    @Schema(description = "comments pertaining to this redelivery for the intended recipient of this message", maxLength = 512, example = "[an example redelivery level comment]")
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
     List<String> comments;
@@ -66,6 +66,10 @@ public class Redelivery {
     @Schema(description = "The location for this redelivery", required = true)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party depot;
+
+    @Schema(description = "the shipping container's owner", required = true)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    Party owner;
 
     @Schema(description = "The intended recipient for this message representing a redelivery", required = true)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)

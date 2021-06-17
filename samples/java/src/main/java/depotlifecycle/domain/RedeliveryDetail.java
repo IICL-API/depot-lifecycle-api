@@ -8,9 +8,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -28,7 +31,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "unit criteria that groups similar units on a redelivery", requiredProperties = {"customer", "contract", "equipment", "inspectionCriteria", "billingParty", "quantity"})
+@Schema(description = "unit criteria that groups similar units on a redelivery", requiredProperties = {"customer", "contract", "equipment", "inspectionCriteria", "quantity"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
@@ -62,10 +65,6 @@ public class RedeliveryDetail {
     @Column(length = 2)
     String upgradeType;
 
-    @Schema(description = "The party that will handle any repair billing for units associated with this detail.", required = true)
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    Party billingParty;
-
     @Schema(description = "the specific units for this redelivery if defined, if not, assumed blanket (any unit matching criteria can be tied up to the quantity limit of this detail)")
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<RedeliveryUnit> units = new ArrayList<>();
@@ -73,4 +72,9 @@ public class RedeliveryDetail {
     @Schema(description = "the number of shipping containers assigned to this detail", required = true, example = "1", minimum = "0")
     @Column(nullable = false)
     Integer quantity;
+
+    @Schema(description = "comments pertaining to this detail for the intended recipient of this message", maxLength = 512, example = "[an example detail comment]")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @ElementCollection
+    List<String> comments;
 }

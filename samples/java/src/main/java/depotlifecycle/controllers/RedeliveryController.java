@@ -147,13 +147,13 @@ public class RedeliveryController {
             if (detail.getCustomer() != null) {
                 detail.setCustomer(partyRepository.save(detail.getCustomer()));
             }
-            if (detail.getBillingParty() != null) {
-                detail.setBillingParty(partyRepository.save(detail.getBillingParty()));
-            }
 
             for (RedeliveryUnit unit : detail.getUnits()) {
                 if (unit.getLastOnHireLocation() != null) {
                     unit.setLastOnHireLocation(partyRepository.save(unit.getLastOnHireLocation()));
+                }
+                if (unit.getBillingParty() != null) {
+                    unit.setBillingParty(partyRepository.save(unit.getBillingParty()));
                 }
             }
         }
