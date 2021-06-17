@@ -31,7 +31,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "information for a specific unit on a redelivery", requiredProperties = {"unitNumber", "manufactureDate", "status"})
+@Schema(description = "information for a specific unit on a redelivery", requiredProperties = {"unitNumber", "manufactureDate", "status", "billingParty"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
@@ -61,7 +61,7 @@ public class RedeliveryUnit {
     @Column(nullable = false, length = 7)
     String status;
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 500)
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 512, example = "[an example unit level comment]")
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
     List<String> comments;
@@ -73,6 +73,10 @@ public class RedeliveryUnit {
     @Schema(description = "if this is a tank, then this describes the type of liquids it can contain: \n\n`F` - Food\n\n`C` - Chemical ", maxLength = 1, example = "C", allowableValues = {"F", "C"})
     @Column(length = 1)
     String tankGrade;
+
+    @Schema(description = "The party that will handle any repair (estimate & work order) billing for units associated with this detail.", required = true)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    Party billingParty;
 
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information")

@@ -8,9 +8,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -65,7 +68,24 @@ public class ReleaseDetail {
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     List<ReleaseDetailCriteria> criteria = new ArrayList<>();
 
+    @Schema(description = "comments pertaining to this detail for the intended recipient of this message", maxLength = 512, example = "[an example release detail comment]")
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @ElementCollection
+    List<String> comments;
+
     @Schema(description = "the number of shipping containers assigned to this detail", required = true, example = "1", minimum = "0")
     @Column(nullable = false)
     Integer quantity;
+
+    @Schema(description = "indicator if mechanical equipment must be tested prior to lease out")
+    @Column
+    Boolean preTripInspectionRequired;
+
+    @Schema(example = "-23", description = "the reefer setpoint / desired temperature")
+    @Column
+    Integer desiredTemperature;
+
+    @Schema(description = "if the equipment has fresh air ventilation, the rate of the fresh air ventilation", example = "90 CBM", maxLength = 32)
+    @Column(length = 32)
+    String ventilation;
 }

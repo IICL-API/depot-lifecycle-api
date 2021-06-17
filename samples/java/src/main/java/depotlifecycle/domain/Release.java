@@ -62,7 +62,7 @@ public class Release {
     @Column(nullable = false)
     ZonedDateTime approvalDate;
 
-    @Schema(description = "comments pertaining to this release for the intended recipient of this message", maxLength = 500, example = "[an example release level comment]")
+    @Schema(description = "comments pertaining to this release for the intended recipient of this message", maxLength = 512, example = "[an example release level comment]")
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
     List<String> comments;
