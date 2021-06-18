@@ -8,6 +8,7 @@ import depotlifecycle.domain.RedeliveryUnit;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
+import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -39,8 +40,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Tag(name = "redelivery")
 @Validated
@@ -98,9 +102,10 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
+    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, HttpHeaders headers) {
         LOG.info("Received Redelivery Create");
         objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v)->m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && redeliveryRepository.existsByRedeliveryNumber(redelivery.getRedeliveryNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
@@ -123,9 +128,10 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse<HttpStatus> update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
-                       @Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery) {
+                       @Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, HttpHeaders headers) {
         LOG.info("Received Redelivery Update");
         objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v)->m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
 
         if(!redeliveryRepository.existsByRedeliveryNumber(redeliveryNumber)) {
             if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
@@ -133,7 +139,7 @@ public class RedeliveryController {
             }
 
             LOG.info("Redelivery DNE -> Forcing Create Workflow");
-            return create(redelivery);
+            return create(redelivery, headers);
         }
 
         saveParties(redelivery);
