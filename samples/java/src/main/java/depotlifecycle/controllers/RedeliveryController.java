@@ -158,6 +158,10 @@ public class RedeliveryController {
             }
         }
 
+        if (redelivery.getOwner() != null) {
+            redelivery.setOwner(partyRepository.save(redelivery.getOwner()));
+        }
+
         if (redelivery.getDepot() != null) {
             redelivery.setDepot(partyRepository.save(redelivery.getDepot()));
         }
