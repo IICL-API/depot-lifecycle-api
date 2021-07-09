@@ -15,32 +15,23 @@ info:
     \n \n\n # Expectations\n\n Not all parties are required or expected to implement\
     \ every feature.  Any feature not implemented should return a http status code\
     \ of `501`.\n\n \n\n # Depreciation\n\n If this API were to be discontinued, a\
-    \ minimum of 6 months time would pass before it's removal.\n\n # Facility Codes\n\
-    \nDepot or facility identifiers, henceforth referred to as `EDI Address`, `Company\
-    \ Id`, or `Party Id` in this document, are maintained by The Bureau International\
-    \ des Containers (BIC) and officially known as the BIC Facility Code. The code\
-    \ is an official child code of the UNLOCODE and used to identify container facilities\
-    \ where container-related operations take place; for example, repair, storage,\
-    \ on or off-hire, stuffing or de-stuffing.\n\nThese codes are accessible via an\
-    \ API or website.  For full details, request a new code and to obtain API access\
-    \ please refer to [https://www.bic-code.org/bic-facility-codes/](https://www.bic-code.org/bic-facility-codes/).\
-    \ \n\n # Security \n\n [JSON Web Token, or JWT,](https://jwt.io/) is used for\
-    \ stateless authentication to secure all endpoints of this API.  Since all requests\
-    \ are sent using https, tokens are not encrypted.  Tokens follow the [RFC 6750\
-    \ Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\n## 1. Example\
-    \ JWT Token\n\n \n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\": [\n\n\
-    \ \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"j.doe@example.com\"\
-    ,\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
-    ,\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
-    \n\n }\n\n ```\n\n \n\n \n\n An access_token is provided for authentication to\
-    \ API endpoints and a refresh_token is provided to generate a new access_token\
-    \ when one expires.\n\n \n\n \n\n ## 2. Obtaining an access token\n\n Issuing\
-    \ a POST request to `/api/login` with a username and password payload will cause\
-    \ a JWT token to be issued in the response.\n\n ```\n\n POST /api/login HTTP/1.1\n\
-    \n Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\n \n\n\
-    \ \n\n {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n }\n\
-    \n ```\n\n \n\n \n\n ## 3. Refreshing an expired token\n\n Tokens expire after\
-    \ 1 hour.  Issuing a POST request to `/oauth/access_token` with the refresh_token\
+    \ minimum of 6 months time would pass before it's removal.\n\n # Security \n\n\
+    \ [JSON Web Token, or JWT,](https://jwt.io/) is used for stateless authentication\
+    \ to secure all endpoints of this API.  Since all requests are sent using https,\
+    \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
+    \ format.\n\n## 1. Example JWT Token\n\n \n\n ```\n\n {\n\n \"username\": \"jdoe\"\
+    ,\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\
+    \n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\"\
+    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
+    :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n \n\n \n\n An access_token is provided\
+    \ for authentication to API endpoints and a refresh_token is provided to generate\
+    \ a new access_token when one expires.\n\n \n\n \n\n ## 2. Obtaining an access\
+    \ token\n\n Issuing a POST request to `/api/login` with a username and password\
+    \ payload will cause a JWT token to be issued in the response.\n\n ```\n\n POST\
+    \ /api/login HTTP/1.1\n\n Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\
+    \n \n\n \n\n {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\
+    \n }\n\n ```\n\n \n\n \n\n ## 3. Refreshing an expired token\n\n Tokens expire\
+    \ after 1 hour.  Issuing a POST request to `/oauth/access_token` with the refresh_token\
     \ from the JWT token previously issued and a grant_type of refresh_token will\
     \ reissue the JWT.\n\n ```\n\n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\
     \n Content-Type: application/x-www-form-urlencoded\n\n \n\n \n\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
