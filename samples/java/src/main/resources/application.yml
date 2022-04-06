@@ -70,9 +70,6 @@ datasources:
     dialect: H2
 jpa:
   default:
-    packages-to-scan:
-      - 'depotlifecycle.domain'
-      - 'depotlifecycle.repositories'
     properties:
       hibernate:
         bytecode:
