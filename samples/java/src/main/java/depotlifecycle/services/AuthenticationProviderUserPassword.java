@@ -1,5 +1,7 @@
 package depotlifecycle.services;
 
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpRequest;
 import io.micronaut.security.authentication.AuthenticationFailed;
 import io.micronaut.security.authentication.AuthenticationFailureReason;
 import io.micronaut.security.authentication.AuthenticationProvider;
@@ -21,7 +23,7 @@ public class AuthenticationProviderUserPassword implements AuthenticationProvide
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticationProviderUserPassword.class);
 
     @Override
-    public Publisher<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
+    public Publisher<AuthenticationResponse> authenticate(@Nullable HttpRequest<?> httpRequest, AuthenticationRequest<?, ?> authenticationRequest) {
         LOG.info("Received Authentication Request");
         if (authenticationRequest.getIdentity().equals("fail")) {
             //if the user wants to test what a fail authentication responds

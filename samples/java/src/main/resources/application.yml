@@ -19,6 +19,7 @@ micronaut:
         mapping: /swagger-ui/**
   security:
     enabled: true
+    authentication: bearer
     intercept-url-map:
       - pattern: /swagger/**
         httpMethod: GET
