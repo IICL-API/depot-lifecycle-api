@@ -79,8 +79,9 @@ docker {
     url = isCIBuild ? "tcp://127.0.0.1:2375" : "unix:///var/run/docker.sock"
 }
 
-tasks.named("dockerfile") {
-    baseImage = "azul/zulu-openjdk-alpine:17.0.2"
+
+tasks.withType(io.micronaut.gradle.docker.MicronautDockerfile) {
+    baseImage = baseDockerImage
     exposedPorts = [8086]
     targetWorkingDirectory = "/app"
     runCommand("mkdir -p /app && addgroup -g 1000 depotlifecycle && adduser -u 1000 -G depotlifecycle -h /app -D depotlifecycle")
