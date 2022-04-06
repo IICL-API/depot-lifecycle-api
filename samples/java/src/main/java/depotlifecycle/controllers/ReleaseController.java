@@ -8,6 +8,7 @@ import depotlifecycle.domain.ReleaseDetailCriteria;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.ReleaseRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
+import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -21,7 +22,6 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.hateoas.JsonError;
-import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
@@ -55,7 +55,7 @@ public class ReleaseController {
     private static final Logger LOG = LoggerFactory.getLogger(ReleaseController.class);
     private final PartyRepository partyRepository;
     private final ReleaseRepository releaseRepository;
-    private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final ConversionService<?> conversionService;
     private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)
@@ -104,7 +104,7 @@ public class ReleaseController {
     })
     public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, HttpHeaders headers) {
         LOG.info("Received Release Create");
-        objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
         Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v)->m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && releaseRepository.existsByReleaseNumber(release.getReleaseNumber())) {
@@ -156,7 +156,7 @@ public class ReleaseController {
     public HttpResponse<HttpStatus> update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
                        @Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, HttpHeaders headers) {
         LOG.info("Received Release Update");
-        objectToJsonNodeConverter.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
         Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v)->m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
 
         if(!releaseRepository.existsByReleaseNumber(releaseNumber)) {

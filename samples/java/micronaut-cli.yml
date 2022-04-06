@@ -3,4 +3,4 @@ defaultPackage: depotlifecycle
 testFramework: spock
 sourceLanguage: java
 buildTool: gradle
-features: [app-name, data, data-jpa, gradle, h2, hibernate-jpa, http-client, java, java-application, jdbc-hikari, logback, lombok, netty-server, openapi, readme, security-annotations, security-jwt, shade, spock, yaml]
+features: [annotation-api, app-name, data, data-jpa, gradle, h2, hibernate-jpa, http-client, jackson-databind, java, java-application, jdbc-hikari, logback, lombok, micronaut-build, netty-server, openapi, reactor, reactor-http-client, readme, security-annotations, security-jwt, shade, spock, yaml]

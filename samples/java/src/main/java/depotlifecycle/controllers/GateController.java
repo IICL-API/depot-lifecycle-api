@@ -14,6 +14,7 @@ import depotlifecycle.repositories.GateDeleteRequestRepository;
 import depotlifecycle.repositories.GateUpdateRequestRepository;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
+import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpResponseFactory;
@@ -27,7 +28,6 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
-import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
@@ -59,7 +59,7 @@ public class GateController {
     private final GateCreateRequestRepository gateCreateRequestRepository;
     private final GateUpdateRequestRepository gateUpdateRequestRepository;
     private final GateDeleteRequestRepository gateDeleteRequestRepository;
-    private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final ConversionService<?> conversionService;
     private final SecurityService securityService;
 
     @Post(produces = MediaType.APPLICATION_JSON)
@@ -75,7 +75,7 @@ public class GateController {
     })
     public HttpResponse<Object> create(@Body @RequestBody(description = "gate object to create a new gate in or gate out record", required = true, content = {@Content(schema = @Schema(implementation = GateCreateRequest.class))}) GateCreateRequest gateCreateRequest) {
         LOG.info("Received Gate Create");
-        objectToJsonNodeConverter.convert(gateCreateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(gateCreateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(gateCreateRequest.getAdviceNumber(), gateCreateRequest.getUnitNumber(), gateCreateRequest.getType())) {
             throw new IllegalArgumentException("Gate already exists; please update instead.");
@@ -98,7 +98,7 @@ public class GateController {
         gate.setCurrentInspectionCriteria("IICL");
 
         LOG.info("Responding with example Gate Response");
-        objectToJsonNodeConverter.convert(gate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(gate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         return HttpResponse.ok(gate);
     }
@@ -133,7 +133,7 @@ public class GateController {
                                @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                @Body @RequestBody(description = "gate object to update an existing record", required = true, content = {@Content(schema = @Schema(implementation = GateUpdateRequest.class))}) GateUpdateRequest gateUpdateRequest) {
         LOG.info("Received Gate Update");
-        objectToJsonNodeConverter.convert(gateUpdateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(gateUpdateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         if(!gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, gateUpdateRequest.getType())) {
             if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
@@ -156,7 +156,7 @@ public class GateController {
         gate.setCurrentInspectionCriteria("IICL");
 
         LOG.info("Responding with example Gate Response");
-        objectToJsonNodeConverter.convert(gate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(gate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         return HttpResponse.ok(gate);
     }

@@ -2,7 +2,7 @@ package depotlifecycle.repositories;
 
 import depotlifecycle.domain.Release;
 import depotlifecycle.domain.Release;
-import edu.umd.cs.findbugs.annotations.NonNull;
+import io.micronaut.core.annotation.NonNull;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.repository.CrudRepository;
 

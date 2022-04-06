@@ -3,6 +3,7 @@ package depotlifecycle.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -31,6 +32,7 @@ import java.util.List;
 @Table
 @Schema(description = "An approval of a damage estimate signifying a depot may repair a shipping container", requiredProperties = {"workOrderNumber", "depot", "owner", "type", "approvalDate", "lineItems"})
 @EqualsAndHashCode(of = {"workOrderNumber"})
+@Introspected
 @ToString(of = {"workOrderNumber"})
 public class WorkOrder {
     @Id

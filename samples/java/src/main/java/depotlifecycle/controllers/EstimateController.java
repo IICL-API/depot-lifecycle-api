@@ -15,6 +15,7 @@ import depotlifecycle.repositories.EstimateCancelRequestRepository;
 import depotlifecycle.repositories.EstimateRepository;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
+import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpResponseFactory;
@@ -30,7 +31,6 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.hateoas.JsonError;
-import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
@@ -62,7 +62,7 @@ public class EstimateController {
     private final EstimateRepository estimateRepository;
     private final EstimateCancelRequestRepository estimateCancelRequestRepository;
     private final EstimateAllocationRepository estimateAllocationRepository;
-    private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final ConversionService<?> conversionService;
     private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)
@@ -99,7 +99,7 @@ public class EstimateController {
     })
     public HttpResponse<EstimateAllocation> create(@Body @RequestBody(description = "Estimate object to create a new estimate revision", required = true, content = {@Content(schema = @Schema(implementation = Estimate.class))}) Estimate estimate) {
         LOG.info("Received Estimate Create");
-        objectToJsonNodeConverter.convert(estimate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(estimate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         saveParties(estimate);
 
@@ -122,7 +122,7 @@ public class EstimateController {
         allocation.setPreliminaryDecision(preliminaryDecision);
 
         LOG.info("Responding with example Estimate Allocation");
-        objectToJsonNodeConverter.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         return HttpResponse.ok(allocation);
     }
@@ -245,7 +245,7 @@ public class EstimateController {
     public HttpResponse<HttpStatus> allocate(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
                          @Body @RequestBody(description = "total breakdowns to finish creating an estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}) EstimateAllocation allocation) {
         LOG.info("Received Estimate Totals Allocation");
-        objectToJsonNodeConverter.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         if(securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
             if (Objects.isNull(estimateNumber) || !estimateRepository.existsByEstimateNumberAndDepot(estimateNumber, allocation.getDepot())) {

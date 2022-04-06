@@ -52,6 +52,7 @@ micronaut:
               secret: pleaseChangeThisSecretForANewOne
 jackson:
   bean-introspection-module: true
+  always-serialize-errors-as-list: false
   serialization:
     indentOutput: true
     writeDatesAsTimestamps: false
@@ -61,7 +62,7 @@ jackson:
 #    failOnUnknownProperties: false
 datasources:
   default:
-    url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:devDb;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
     driverClassName: org.h2.Driver
     username: sa
     password: ''

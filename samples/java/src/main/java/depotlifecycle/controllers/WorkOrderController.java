@@ -6,6 +6,7 @@ import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.WorkOrderRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
+import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -16,7 +17,6 @@ import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
-import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
@@ -42,7 +42,7 @@ public class WorkOrderController {
     private static final Logger LOG = LoggerFactory.getLogger(WorkOrderController.class);
     private final PartyRepository partyRepository;
     private final WorkOrderRepository workOrderRepository;
-    private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final ConversionService<?> conversionService;
     private final SecurityService securityService;
 
     @Post(produces = MediaType.APPLICATION_JSON)
@@ -57,7 +57,7 @@ public class WorkOrderController {
     })
     public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "repair authorization object", required = true, content = {@Content(schema = @Schema(implementation = WorkOrder.class))}) WorkOrder workOrder) {
         LOG.info("Received Work Order Create");
-        objectToJsonNodeConverter.convert(workOrder, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(workOrder, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && workOrderRepository.existsByWorkOrderNumber(workOrder.getWorkOrderNumber())) {
             throw new IllegalArgumentException("Work Order already exists; please update instead.");
@@ -97,7 +97,7 @@ public class WorkOrderController {
     public HttpResponse<HttpStatus> update(@Parameter(name = "workOrderNumber", description = "the work order number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "WHAMG30001", maxLength = 16)) String workOrderNumber,
                                            @Body @RequestBody(description = "the updated work order record", required = true, content = {@Content(schema = @Schema(implementation = WorkOrder.class))}) WorkOrder workOrder) {
         LOG.info("Received Work Order Update");
-        objectToJsonNodeConverter.convert(workOrder, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(workOrder, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         if(!workOrderRepository.existsByWorkOrderNumber(workOrderNumber)) {
             if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {

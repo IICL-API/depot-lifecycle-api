@@ -3,13 +3,15 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "org.hibernate:hibernate-gradle-plugin:5.4.31.Final"
+        classpath "org.hibernate:hibernate-gradle-plugin:5.5.9.Final"
     }
 }
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "7.0.0"
-    id("io.micronaut.application") version "1.5.4"
+    id "groovy"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "io.micronaut.application" version "3.3.2"
+    id "io.micronaut.docker" version "3.3.2"
 }
 
 apply plugin: 'org.hibernate.orm'
@@ -21,27 +23,24 @@ repositories {
     mavenCentral()
 }
 
-micronaut {
-    runtime("netty")
-    testRuntime("spock2")
-    processing {
-        incremental(true)
-        annotations("depotlifecycle.*")
-    }
-}
-
 dependencies {
     annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("io.micronaut:micronaut-http-validation")
     annotationProcessor("io.micronaut.data:micronaut-data-processor")
     annotationProcessor("io.micronaut.openapi:micronaut-openapi")
     annotationProcessor("io.micronaut.security:micronaut-security-annotations")
+    annotationProcessor("io.micronaut:micronaut-http-validation")
     implementation("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut:micronaut-jackson-databind")
     implementation("io.micronaut:micronaut-runtime")
     implementation("io.micronaut.data:micronaut-data-hibernate-jpa")
+    implementation("io.micronaut.reactor:micronaut-reactor")
+    implementation("io.micronaut.reactor:micronaut-reactor-http-client")
     implementation("io.micronaut.security:micronaut-security-jwt")
     implementation("io.micronaut.sql:micronaut-hibernate-jpa")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
     implementation("io.swagger.core.v3:swagger-annotations")
+    implementation("jakarta.annotation:jakarta.annotation-api")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.h2database:h2")
@@ -57,12 +56,35 @@ java {
     targetCompatibility = JavaVersion.toVersion("11")
 }
 
+graalvmNative.toolchainDetection = false
+micronaut {
+    runtime("netty")
+    testRuntime("spock2")
+    processing {
+        incremental(true)
+        annotations("depotlifecycle.*")
+    }
+}
+
 hibernate {
     enhance {
         enableLazyInitialization= true
         enableDirtyTracking = true
         enableAssociationManagement = true
     }
+}
+
+boolean isCIBuild = System.getenv('CI') != null
+docker {
+    url = isCIBuild ? "tcp://127.0.0.1:2375" : "unix:///var/run/docker.sock"
+}
+
+tasks.named("dockerfile") {
+    baseImage = "azul/zulu-openjdk-alpine:17.0.2"
+    exposedPorts = [8086]
+    targetWorkingDirectory = "/app"
+    runCommand("mkdir -p /app && addgroup -g 1000 depotlifecycle && adduser -u 1000 -G depotlifecycle -h /app -D depotlifecycle")
+    user( "depotlifecycle:depotlifecycle")
 }
 
 if (hasProperty("debug")) {
