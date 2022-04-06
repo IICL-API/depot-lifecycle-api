@@ -3,6 +3,10 @@ micronaut:
     name: depotlifecycle
   server:
       port: 8086
+  endpoints:
+    health:
+      enabled: true
+      details-visible: ANONYMOUS
   router:
     static-resources:
       swagger:
