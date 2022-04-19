@@ -71,6 +71,7 @@ public class ReleaseDetail {
     @Schema(description = "comments pertaining to this detail for the intended recipient of this message", maxLength = 512, example = "[an example release detail comment]")
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
+    @Column(length = 512)
     List<String> comments;
 
     @Schema(description = "the number of shipping containers assigned to this detail", required = true, example = "1", minimum = "0")

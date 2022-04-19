@@ -65,6 +65,7 @@ public class Release {
     @Schema(description = "comments pertaining to this release for the intended recipient of this message", maxLength = 512, example = "[an example release level comment]")
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
+    @Column(length = 512)
     List<String> comments;
 
     @Schema(description = "The location for this release", required = true)

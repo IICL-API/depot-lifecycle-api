@@ -12,12 +12,14 @@ import lombok.ToString;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.List;
@@ -51,17 +53,23 @@ public class InsuranceCoverage {
     Boolean allOrNothing;
 
     @Schema(description = "any contractual reason why the coverage may not apply")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @Lob
     @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> exceptions;
 
     @Schema(description = "reasons insurance coverage would be excluded from a repair")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @Lob
     @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> exclusions;
 
     @Schema(description = "reasons insurance coverage would include a repair")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @Lob
     @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> inclusions;
 }

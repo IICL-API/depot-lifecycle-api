@@ -64,6 +64,7 @@ public class RedeliveryUnit {
     @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 512, example = "[an example unit level comment]")
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
+    @Column(length = 512)
     List<String> comments;
 
     @Schema(description = "the last cargo this shipping container carried", maxLength = 255, example = "Aroset PS 5191")
