@@ -23,6 +23,8 @@ import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -46,7 +48,12 @@ public class WorkOrderController {
     private final SecurityService securityService;
 
     @Post(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "authorizes a repair", description = "Submits a work order to repair a shipping container to the given inspection criteria.", method = "POST", operationId = "saveWorkOrder")
+    @Operation(summary = "authorizes a repair",
+        description = "Submits a work order to repair a shipping container to the given inspection criteria.",
+        method = "POST",
+        operationId = "saveWorkOrder",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successfully approved repair", content = {@Content(schema = @Schema(implementation = WorkOrder.class))}),
         @ApiResponse(responseCode = "400", description = "an error occurred trying to create the work order", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),

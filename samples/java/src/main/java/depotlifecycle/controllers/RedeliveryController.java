@@ -28,6 +28,8 @@ import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -58,7 +60,12 @@ public class RedeliveryController {
     private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "search for a redelivery", description = "Finds Redeliveries for the given the criteria.", method = "GET", operationId = "indexRedelivery")
+    @Operation(summary = "search for a redelivery",
+        description = "Finds Redeliveries for the given the criteria.",
+        method = "GET",
+        operationId = "indexRedelivery",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "reporting", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful search", content = {@Content(array = @ArraySchema(schema = @Schema(implementation = Redelivery.class)))}),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -92,7 +99,12 @@ public class RedeliveryController {
     }
 
     @Post(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "create redelivery", description = "Creates a Redelivery for the given criteria.", method = "POST", operationId = "saveRedelivery")
+    @Operation(summary = "create redelivery",
+        description = "Creates a Redelivery for the given criteria.",
+        method = "POST",
+        operationId = "saveRedelivery",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful create"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -117,7 +129,12 @@ public class RedeliveryController {
     }
 
     @Put(uri = "/{redeliveryNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "update redelivery", description = "Updates an existing Redelivery.", method = "PUT", operationId = "updateRedelivery")
+    @Operation(summary = "update redelivery",
+        description = "Updates an existing Redelivery.",
+        method = "PUT",
+        operationId = "updateRedelivery",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful update"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),

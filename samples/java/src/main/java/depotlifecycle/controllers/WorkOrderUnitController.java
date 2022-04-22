@@ -14,6 +14,8 @@ import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -27,7 +29,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Controller("/api/v2/workOrderUnit")
 public class WorkOrderUnitController {
     @Put(uri = "/{workOrderNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "marks a shipping container repaired", description = "For the given work order, attempt to mark it repair complete.", method = "PUT", operationId = "updateWorkOrderUnit")
+    @Operation(summary = "marks a shipping container repaired",
+        description = "For the given work order, attempt to mark it repair complete.",
+        method = "PUT",
+        operationId = "updateWorkOrderUnit",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successfully repair completed the workOrder"),
         @ApiResponse(responseCode = "400", description = "an error occurred trying to repair complete the work order", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),

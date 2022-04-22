@@ -28,6 +28,8 @@ import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -59,7 +61,12 @@ public class ReleaseController {
     private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "search for a release", description = "Finds Releases for the given the criteria.", method = "GET", operationId = "indexRelease")
+    @Operation(summary = "search for a release",
+        description = "Finds Releases for the given the criteria.",
+        method = "GET",
+        operationId = "indexRelease",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "reporting", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful search", content = {@Content(array = @ArraySchema(schema = @Schema(implementation = Release.class)))}),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -93,7 +100,12 @@ public class ReleaseController {
     }
 
     @Post(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "create release", description = "Creates a Release for the given criteria.", method = "POST", operationId = "saveRelease")
+    @Operation(summary = "create release",
+        description = "Creates a Release for the given criteria.",
+        method = "POST",
+        operationId = "saveRelease",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful create"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -144,7 +156,11 @@ public class ReleaseController {
     }
 
     @Put(uri = "/{releaseNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "update release", description = "Updates an existing Release.", method = "PUT", operationId = "updateRelease")
+    @Operation(summary = "update release",
+        description = "Updates an existing Release.",
+        method = "PUT",
+        operationId = "updateRelease",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) }))
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful update"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
