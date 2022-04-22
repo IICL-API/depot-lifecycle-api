@@ -59,7 +59,7 @@ import java.util.Arrays;
             " 2. PUT - update a gate record \n" +
             " 3. POST - create an estimate revision \n" +
             " 4. PUT - marks a shipping container repaired \n\n" +
-            " These APIs allow the Depot to report the initial gate in movement, issue gate data corrections (i.e. the damage status or activity date), participate in the estimate process, notify when a shipping container is repaired, and create a gate out for leaving the depot.\n\n" +
+            " These APIs allow the Depot to report the initial gate in movement, issue gate data corrections (i.e. the damage status or activity date), participate in the estimate process (i.e. creation, surveys, and customer approval), notify when a shipping container is repaired, and create a gate out for leaving the depot.\n\n" +
             "\n\n\n" +
             " # Depreciation\n\n" +
             " If this API version were to be discontinued, a minimum of 6 months time would pass before it's removal.\n" +
