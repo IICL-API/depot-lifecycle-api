@@ -22,8 +22,6 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -189,58 +187,10 @@ import java.util.Arrays;
         @Tag(name = "release", description = "*lease out approval for shipping containers*"),
         @Tag(name = "gate", description = "*manage gate ins and gate outs of shipping containers*"),
         @Tag(name = "estimate", description = "*a damage or upgrade estimate for a shipping container after turn in*"),
-        @Tag(name = "workOrder", description = "*manage damage estimates that are approved for repair*"),
-        @Tag(name = "ErrorResponse_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/ErrorResponse\"/>", extensions = @Extension( properties = {
-            @ExtensionProperty(name = "displayName", value = "Error Response Model", parseValue = true)
-        })),
-        @Tag(name = "PendingResponse_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/PendingResponse\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Pending Response Model", parseValue = true)
-        })),
-        @Tag(name = "Estimate_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/Estimate\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Estimate Model", parseValue = true)
-        })),
-        @Tag(name = "EstimateAllocation_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/EstimateAllocation\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Estimate Allocation Model", parseValue = true)
-        })),
-        @Tag(name = "EstimateCustomerApproval_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/EstimateCustomerApproval\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Estimate Customer Approval Model", parseValue = true)
-        })),
-        @Tag(name = "EstimateLineItem_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/EstimateLineItem\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Estimate Line Item Model", parseValue = true)
-        })),
-        @Tag(name = "GateCreateRequest_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/GateCreateRequest\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Gate Create Request Model", parseValue = true)
-        })),
-        @Tag(name = "GateResponse_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/GateResponse\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Gate Response Model", parseValue = true)
-        })),
-        @Tag(name = "GateStatus_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/GateStatus\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Gate Status Model", parseValue = true)
-        })),
-        @Tag(name = "GateUpdateRequest_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/GateUpdateRequest\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Gate Update Request Model", parseValue = true)
-        })),
-        @Tag(name = "InsuranceCoverage_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/InsuranceCoverage\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Insurance Coverage Model", parseValue = true)
-        })),
-        @Tag(name = "Party_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/Party\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Party Model", parseValue = true)
-        })),
-        @Tag(name = "PreliminaryDecision_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/PreliminaryDecision\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Preliminary Decision Model", parseValue = true)
-        })),
-        @Tag(name = "WorkOrder_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/WorkOrder\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "WorkOrder Model", parseValue = true)
-        })),
-        @Tag(name = "WorkOrderUnit_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/WorkOrderUnit\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Work Order Unit Model", parseValue = true)
-        })),
-        @Tag(name = "RepairComplete_model", description = "<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\"/>", extensions = @Extension(properties = {
-            @ExtensionProperty(name = "displayName", value = "Repair Complete Model", parseValue = true)
-        }))
+        @Tag(name = "workOrder", description = "*manage damage estimates that are approved for repair*")
     },
     extensions = {
-        @Extension(name = "", properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Production Models\", \"tags\": [ \"ErrorResponse_model\", \"PendingResponse_model\", \"Estimate_model\", \"EstimateAllocation_model\",\"EstimateCustomerApproval_model\",\"EstimateLineItem_model\",\"GateCreateRequest_model\",\"GateResponse_model\",\"GateStatus_model\",\"GateUpdateRequest_model\",\"InsuranceCoverage_model\",\"Party_model\",\"PreliminaryDecision_model\",\"WorkOrder_model\", \"WorkOrderUnit_model\", \"RepairComplete_model\" ] }]", parseValue = true)})
+        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }]", parseValue = true)})
     },
     servers = {
         @Server(url = "https://api.example.com/examplecontextpath")
