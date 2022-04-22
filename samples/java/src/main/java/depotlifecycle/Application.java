@@ -16,8 +16,8 @@ import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
@@ -189,6 +189,9 @@ import java.util.Arrays;
         @Tag(name = "gate", description = "*manage gate ins and gate outs of shipping containers*"),
         @Tag(name = "estimate", description = "*a damage or upgrade estimate for a shipping container after turn in*"),
         @Tag(name = "workOrder", description = "*manage damage estimates that are approved for repair*")
+    },
+    extensions = {
+        @Extension(name = "", properties = { @ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }]", parseValue = true) })
     },
     servers = {
         @Server(url = "https://api.example.com/examplecontextpath")
