@@ -15,31 +15,40 @@ info:
     \ in the GitHub repository.  The *yaml* specification file can be found [here](depot-lifecycle-openapi.yaml).\
     \  \n\n\n\n # Implementation Expectations\n\n Not all parties are required or\
     \ expected to implement every feature. Any feature not implemented should return\
-    \ a http status code of `501`.  \n\n\n\n # Depreciation\n\n If this API version\
-    \ were to be discontinued, a minimum of 6 months time would pass before it's removal.\n\
-    \n\n\n # Security & Authentication\n\n To ensure secure communication, all endpoints\
-    \ of this API should use the https protocol instead of http.  Authentication methods\
-    \ will differ between systems, but two popular methods are JSON Web Tokens and\
-    \ Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n\
-    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
-    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
-    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\
-    \ \n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"\
-    roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\"\
-    :\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"\
-    eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n\n\n\n\n An access_token is provided\
-    \ for authentication to API endpoints and a refresh_token is provided to generate\
-    \ a new access_token when one expires.\n\n\n\n\n\n ### 2. Obtaining an access\
-    \ token\n\n Issuing a POST request to `/api/login` with a username and password\
-    \ payload will cause a JWT token to be issued in the response.\n\n ```\n\n POST\
-    \ /api/login HTTP/1.1\n\n Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\
-    \n\n\n\n\n {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n\
-    \ }\n\n ```\n\n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created\
-    \ by invoking the login endpoint expire after a determined period.  Issuing a\
-    \ POST request to `/oauth/access_token` with: the refresh_token from the JWT token\
-    \ previously issued and a grant_type of refresh_token will reissue a new JWT token.\n\
-    \n ```\n\n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
+    \ a http status code of `501`.  \n\n\n\n # APIs to Implement\n\n While anyone\
+    \ is free to implement all or a selected set of the APIs listed here, the typical\
+    \ use case would be for Depot to Lessor communication.  For the Depot, they would\
+    \ call the Lessor's system using the following APIs:  \n 1. POST - create a gate\
+    \ record \n 2. PUT - update a gate record \n 3. POST - create an estimate revision\
+    \ \n 4. PUT - marks a shipping container repaired \n\n These APIs allow the Depot\
+    \ to report the initial gate in movement, issue gate data corrections (i.e. the\
+    \ damage status or activity date), participate in the estimate process, notify\
+    \ when a shipping container is repaired, and create a gate out for leaving the\
+    \ depot.\n\n\n\n\n # Depreciation\n\n If this API version were to be discontinued,\
+    \ a minimum of 6 months time would pass before it's removal.\n\n\n\n # Security\
+    \ & Authentication\n\n To ensure secure communication, all endpoints of this API\
+    \ should use the https protocol instead of http.  Authentication methods will\
+    \ differ between systems, but two popular methods are JSON Web Tokens and Static\
+    \ Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n [JSON Web\
+    \ Token, or JWT](https://jwt.io/), is used for stateless authentication.  Since\
+    \ all requests are sent using https, tokens are not encrypted.  Tokens follow\
+    \ the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format. \n\n\
+    ### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
+    : [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"\
+    j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    ,\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    \n\n }\n\n ```\n\n\n\n\n\n An access_token is provided for authentication to API\
+    \ endpoints and a refresh_token is provided to generate a new access_token when\
+    \ one expires.\n\n\n\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
+    \ request to `/api/login` with a username and password payload will cause a JWT\
+    \ token to be issued in the response.\n\n ```\n\n POST /api/login HTTP/1.1\n\n\
+    \ Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\n\n\n\n\n\
+    \ {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n }\n\n ```\n\
+    \n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created by invoking the\
+    \ login endpoint expire after a determined period.  Issuing a POST request to\
+    \ `/oauth/access_token` with: the refresh_token from the JWT token previously\
+    \ issued and a grant_type of refresh_token will reissue a new JWT token.\n\n ```\n\
+    \n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
     \ application/x-www-form-urlencoded\n\n\n\n\n\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
     \n ```\n\n\n\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked\
     \ if it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n\n\
@@ -83,161 +92,13 @@ tags:
 - name: workOrder
   description: '*manage damage estimates that are approved for repair*'
 paths:
-  /api/v2/workOrderUnit/{workOrderNumber}:
-    put:
-      tags:
-      - workOrder
-      summary: marks a shipping container repaired
-      description: For the given work order, attempt to mark it repair complete.
-      operationId: updateWorkOrderUnit
-      parameters:
-      - name: workOrderNumber
-        in: path
-        description: the work order number
-        required: true
-        schema:
-          maxLength: 16
-          type: object
-          example: WHAMG30001
-      requestBody:
-        description: Necessary information to mark a shipping container repair complete
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RepairComplete'
-        required: true
-      responses:
-        200:
-          description: successfully repair completed the workOrder
-        400:
-          description: an error occurred trying to repair complete the work order
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: repair completion is not allowed by security
-        404:
-          description: shipping container, depot, or work order could not be found
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
-  /api/v2/redelivery:
-    get:
-      tags:
-      - redelivery
-      summary: search for a redelivery
-      description: Finds Redeliveries for the given the criteria.
-      operationId: indexRedelivery
-      parameters:
-      - name: redeliveryNumber
-        in: query
-        description: the redelivery number to filter to
-        required: false
-        schema:
-          maxLength: 16
-          type: object
-          example: AHAMG000000
-      responses:
-        200:
-          description: successful search
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Redelivery'
-        400:
-          description: an error occurred
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: security disallows access
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
-    post:
-      tags:
-      - redelivery
-      summary: create redelivery
-      description: Creates a Redelivery for the given criteria.
-      operationId: saveRedelivery
-      parameters: []
-      requestBody:
-        description: Data to use to update the given Redelivery
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Redelivery'
-        required: true
-      responses:
-        200:
-          description: successful create
-        400:
-          description: an error occurred
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: security disallows access
-        404:
-          description: the redelivery depot was not found
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
-  /api/v2/redelivery/{redeliveryNumber}:
-    put:
-      tags:
-      - redelivery
-      summary: update redelivery
-      description: Updates an existing Redelivery.
-      operationId: updateRedelivery
-      parameters:
-      - name: redeliveryNumber
-        in: path
-        description: the redelivery number that needs updated
-        required: true
-        schema:
-          maxLength: 16
-          type: object
-          example: AHAMG000000
-      requestBody:
-        description: Data to use to update the given Redelivery
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Redelivery'
-        required: true
-      responses:
-        200:
-          description: successful update
-        400:
-          description: an error occurred
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: security disallows access
-        404:
-          description: the redelivery was not found
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
   /api/v2/estimate:
     get:
       tags:
       - estimate
       summary: search for estimate(s)
-      description: Given search criteria, return estimates that match that criteria.  This
-        interface is *limited* to a maximum of 10 estimates.
+      description: "Given search criteria, return estimates that match that criteria.\
+        \  This interface is *limited* to a maximum of 10 estimates."
       operationId: indexEstimate
       parameters:
       - name: estimateNumber
@@ -255,7 +116,7 @@ paths:
         required: false
         schema:
           maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
           type: object
           example: CONU1234561
       - name: depot
@@ -264,7 +125,7 @@ paths:
         required: false
         schema:
           maxLength: 9
-          pattern: ^[A-Z0-9]{9}$
+          pattern: "^[A-Z0-9]{9}$"
           type: object
           example: DEHAMCMRA
       - name: lessee
@@ -273,7 +134,7 @@ paths:
         required: false
         schema:
           maxLength: 9
-          pattern: ^[A-Z0-9]{9}$
+          pattern: "^[A-Z0-9]{9}$"
           type: object
           example: SGSINONEA
       - name: revision
@@ -293,7 +154,7 @@ paths:
           type: object
           example: 22G1
       responses:
-        200:
+        "200":
           description: successful found at least one estimate
           content:
             application/json:
@@ -301,20 +162,21 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Estimate'
-        400:
+        "400":
           description: invalid estimate search object was provided
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        403:
+        "403":
           description: searching for estimates is disallowed by security
-        404:
+        "404":
           description: no estimates were found
-        501:
+        "501":
           description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: reporting
     post:
       tags:
       - estimate
@@ -331,48 +193,49 @@ paths:
               $ref: '#/components/schemas/Estimate'
         required: true
       responses:
-        200:
+        "200":
           description: successfully created and accepted the estimate revision
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EstimateAllocation'
-        201:
-          description: successfully created the estimate revision, accepted it, and
-            created a repair authorization for the estimate
+        "201":
+          description: "successfully created the estimate revision, accepted it, and\
+            \ created a repair authorization for the estimate"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/WorkOrder'
-        202:
-          description: estimate accepted for processing, but not created due to manual
-            processing requirement
+        "202":
+          description: "estimate accepted for processing, but not created due to manual\
+            \ processing requirement"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PendingResponse'
-        400:
+        "400":
           description: an invalid request was provided
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        403:
+        "403":
           description: creating an estimate is disallowed by security
-        404:
+        "404":
           description: the shipping container or depot could not be found
-        501:
+        "501":
           description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
   /api/v2/estimate/{estimateNumber}:
     get:
       tags:
       - estimate
       summary: fetch an estimate revision
-      description: Finds an estimate by the given estimate number and depot, returning
-        the revision specified.  If revision is not specified, the current estimate
-        revision is returned.
+      description: "Finds an estimate by the given estimate number and depot, returning\
+        \ the revision specified.  If revision is not specified, the current estimate\
+        \ revision is returned."
       operationId: showEstimate
       parameters:
       - name: estimateNumber
@@ -389,7 +252,7 @@ paths:
         required: true
         schema:
           maxLength: 9
-          pattern: ^[A-Z0-9]{9}$
+          pattern: "^[A-Z0-9]{9}$"
           type: object
           example: DEHAMCMRA
       - name: revision
@@ -404,32 +267,35 @@ paths:
           format: int32
           example: 0
       responses:
-        200:
+        "200":
           description: successfully found the estimate
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Estimate'
-        400:
+        "400":
           description: invalid request was supplied
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        403:
+        "403":
           description: fetching estimate is disallowed by security
-        404:
+        "404":
           description: estimate not found
-        501:
+        "501":
           description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: reporting
     put:
       tags:
       - estimate
       summary: customer approve an estimate
-      description: Instead of sending in a full estimate revision, this endpoint can
-        be used to approve an estimate without revising it.
+      description: "Instead of sending in a full estimate revision, this endpoint\
+        \ can be used to approve an estimate without revising it.  This endpoint would\
+        \ typically be implemented by a lessee.  A depot would use the send revision\
+        \ to report approvals."
       operationId: customerApproveEstimate
       parameters:
       - name: estimateNumber
@@ -446,7 +312,7 @@ paths:
         required: true
         schema:
           maxLength: 9
-          pattern: ^[A-Z0-9]{9}$
+          pattern: "^[A-Z0-9]{9}$"
           type: object
           example: DEHAMCMRA
       requestBody:
@@ -457,40 +323,41 @@ paths:
               $ref: '#/components/schemas/EstimateCustomerApproval'
         required: true
       responses:
-        200:
+        "200":
           description: successfully approved the estimate revision
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EstimateAllocation'
-        201:
+        "201":
           description: successfully received the customer approval and issued a repair
             authorization for the estimate
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/WorkOrder'
-        202:
-          description: customer approval accepted for processing, but not created
-            due to manual processing requirement
+        "202":
+          description: "customer approval accepted for processing, but not created\
+            \ due to manual processing requirement"
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PendingResponse'
-        400:
+        "400":
           description: an error occurred trying to customer approve the estimate
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        403:
+        "403":
           description: customer approval is disallowed by security
-        404:
+        "404":
           description: the estimate or depot was not found
-        501:
+        "501":
           description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
     delete:
       tags:
       - estimate
@@ -512,33 +379,35 @@ paths:
         required: true
         schema:
           maxLength: 9
-          pattern: ^[A-Z0-9]{9}$
+          pattern: "^[A-Z0-9]{9}$"
           type: object
           example: DEHAMCMRA
       responses:
-        200:
+        "200":
           description: successfully cancelled the estimate
-        400:
+        "400":
           description: an error occurred trying to cancel the estimate
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        403:
+        "403":
           description: cancel estimate is disallowed by security
-        404:
+        "404":
           description: the estimate or depot was not found
-        501:
+        "501":
           description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
     patch:
       tags:
       - estimate
       summary: update estimate totals
-      description: When the creation of the estimate is delayed due to a 202, after
-        the manual processing is complete, this method is called to perform the update
-        of the totals
+      description: "When the creation of the estimate is delayed due to a 202, after\
+        \ the manual processing is complete, this method is called to perform the\
+        \ update of the totals.  It is often implemented by a depot so that the lessor\
+        \ can report updates."
       operationId: updateTotals
       parameters:
       - name: estimateNumber
@@ -557,22 +426,492 @@ paths:
               $ref: '#/components/schemas/EstimateAllocation'
         required: true
       responses:
-        200:
+        "200":
           description: successfully received estimate totals
-        400:
+        "400":
           description: an error occurred trying to update totals
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        403:
+        "403":
           description: estimate total update is disallowed by security
-        404:
+        "404":
           description: the estimate was not found
-        501:
+        "501":
           description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
+  /api/v2/gate:
+    post:
+      tags:
+      - gate
+      summary: create a gate record
+      description: Creates either a gate-in or gate-out record for the given shipping
+        container against the provided advice and depot data.
+      operationId: saveGate
+      parameters: []
+      requestBody:
+        description: gate object to create a new gate in or gate out record
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GateCreateRequest'
+        required: true
+      responses:
+        "200":
+          description: successfully created a gate in or gate out record for the shipping
+            container
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateResponse'
+        "202":
+          description: "gate accepted for processing, but not created due to manual\
+            \ processing requirement"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingResponse'
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: create a gate record is disallowed by security configuration
+        "404":
+          description: the shipping container or depot could not be found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
+  /api/v2/gate/{depot}/{adviceNumber}/{unitNumber}:
+    put:
+      tags:
+      - gate
+      summary: update a gate record
+      description: Correct the initial damage indicator status or activity time from
+        when the gate record was created.  Some depot operators refer to this as a
+        `status` update.
+      operationId: updateGate
+      parameters:
+      - name: adviceNumber
+        in: path
+        description: the redelivery or release advice number for the gate record
+        required: true
+        schema:
+          maxLength: 16
+          minLength: 1
+          type: object
+          example: AHAMG000000
+      - name: unitNumber
+        in: path
+        description: the current unit number of the shipping container
+        required: true
+        schema:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          type: object
+          example: CONU1234561
+      - name: depot
+        in: path
+        description: the identifier of the depot
+        required: true
+        schema:
+          maxLength: 9
+          pattern: "^[A-Z0-9]{9}$"
+          type: object
+          example: DEHAMCMRA
+      requestBody:
+        description: gate object to update an existing record
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GateUpdateRequest'
+        required: true
+      responses:
+        "200":
+          description: successfully update the gate record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateResponse'
+        "202":
+          description: "gate update accepted for processing, but not created due to\
+            \ manual processing requirement"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingResponse'
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: update a gate record is disallowed by security
+        "404":
+          description: the shipping container or depot could not be found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
+    delete:
+      tags:
+      - gate
+      summary: delete a gate record
+      description: Delete a gate record.
+      operationId: deleteGate
+      parameters:
+      - name: adviceNumber
+        in: path
+        description: the redelivery or release advice number to identify which gate
+          record to delete
+        required: true
+        schema:
+          maxLength: 16
+          minLength: 1
+          type: object
+          example: AHAMG000000
+      - name: unitNumber
+        in: path
+        description: the current unit number of the shipping container
+        required: true
+        schema:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          type: object
+          example: CONU1234561
+      - name: depot
+        in: path
+        description: the identifier of the depot
+        required: true
+        schema:
+          maxLength: 9
+          pattern: "^[A-Z0-9]{9}$"
+          type: object
+          example: DEHAMCMRA
+      responses:
+        "200":
+          description: successfully delete the gate record
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: delete a gate record is disallowed by security
+        "404":
+          description: the shipping container or depot could not be found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
+  /api/v2/gate/{unitNumber}:
+    get:
+      tags:
+      - gate
+      summary: fetch the current gate status
+      description: "For the given unit number, if the shipping container is currently\
+        \ gated in or gated out, fetch the current interchange information - status,\
+        \ the time of the gate, etc.  This is a reporting only function.  To correct\
+        \ a gate status, use the update a gate record endpoint."
+      operationId: showGate
+      parameters:
+      - name: unitNumber
+        in: path
+        description: the current unit number of the shipping container
+        required: true
+        schema:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          type: object
+          example: CONU1234561
+      responses:
+        "200":
+          description: successfully found current gate status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GateStatus'
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: fetching a gate record is disallowed by security
+        "404":
+          description: the shipping container was not found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: reporting
+  /api/v2/redelivery:
+    get:
+      tags:
+      - redelivery
+      summary: search for a redelivery
+      description: Finds Redeliveries for the given the criteria.
+      operationId: indexRedelivery
+      parameters:
+      - name: redeliveryNumber
+        in: query
+        description: the redelivery number to filter to
+        required: false
+        schema:
+          maxLength: 16
+          type: object
+          example: AHAMG000000
+      - name: unitNumber
+        in: query
+        description: the unit number of the shipping container
+        required: false
+        schema:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          type: object
+          example: CONU1234561
+      responses:
+        "200":
+          description: successful search
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Redelivery'
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: security disallows access
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: reporting
+    post:
+      tags:
+      - redelivery
+      summary: create redelivery
+      description: Creates a Redelivery for the given criteria.
+      operationId: saveRedelivery
+      parameters: []
+      requestBody:
+        description: Data to use to update the given Redelivery
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Redelivery'
+              - properties:
+                  headers:
+                    type: array
+                    items:
+                      type: object
+        required: true
+      responses:
+        "200":
+          description: successful create
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: security disallows access
+        "404":
+          description: the redelivery depot was not found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
+  /api/v2/redelivery/{redeliveryNumber}:
+    put:
+      tags:
+      - redelivery
+      summary: update redelivery
+      description: Updates an existing Redelivery.
+      operationId: updateRedelivery
+      parameters:
+      - name: redeliveryNumber
+        in: path
+        description: the redelivery number that needs updated
+        required: true
+        schema:
+          maxLength: 16
+          type: object
+          example: AHAMG000000
+      requestBody:
+        description: Data to use to update the given Redelivery
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Redelivery'
+              - properties:
+                  headers:
+                    type: array
+                    items:
+                      type: object
+        required: true
+      responses:
+        "200":
+          description: successful update
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: security disallows access
+        "404":
+          description: the redelivery was not found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
+  /api/v2/release:
+    get:
+      tags:
+      - release
+      summary: search for a release
+      description: Finds Releases for the given the criteria.
+      operationId: indexRelease
+      parameters:
+      - name: releaseNumber
+        in: query
+        description: the release number to filter to
+        required: false
+        schema:
+          maxLength: 16
+          type: object
+          example: RHAMG000000
+      responses:
+        "200":
+          description: successful search
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Release'
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: security disallows access
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: reporting
+    post:
+      tags:
+      - release
+      summary: create release
+      description: Creates a Release for the given criteria.
+      operationId: saveRelease
+      parameters: []
+      requestBody:
+        description: Data to use to update the given Release
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Release'
+              - properties:
+                  headers:
+                    type: array
+                    items:
+                      type: object
+        required: true
+      responses:
+        "200":
+          description: successful create
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: security disallows access
+        "404":
+          description: the release depot was not found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
+  /api/v2/release/{releaseNumber}:
+    put:
+      tags:
+      - release
+      summary: update release
+      description: Updates an existing Release.
+      operationId: updateRelease
+      parameters:
+      - name: releaseNumber
+        in: path
+        description: name that need to be updated
+        required: true
+        schema:
+          maxLength: 16
+          type: object
+          example: RHAMG000000
+      requestBody:
+        description: Data to use to update the given Release
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Release'
+              - properties:
+                  headers:
+                    type: array
+                    items:
+                      type: object
+        required: true
+      responses:
+        "200":
+          description: successful update
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: security disallows access
+        "404":
+          description: the release was not found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
   /api/v2/workOrder:
     post:
       tags:
@@ -590,26 +929,27 @@ paths:
               $ref: '#/components/schemas/WorkOrder'
         required: true
       responses:
-        200:
+        "200":
           description: successfully approved repair
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/WorkOrder'
-        400:
+        "400":
           description: an error occurred trying to create the work order
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        403:
+        "403":
           description: repair authorization is not allowed by security
-        404:
+        "404":
           description: the shipping container or depot could not be found
-        501:
+        "501":
           description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
   /api/v2/workOrder/{workOrderNumber}:
     put:
       tags:
@@ -634,342 +974,67 @@ paths:
               $ref: '#/components/schemas/WorkOrder'
         required: true
       responses:
-        200:
+        "200":
           description: successfully update the workOrder
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/WorkOrder'
-        400:
+        "400":
           description: an error occurred trying to update the work order
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        403:
+        "403":
           description: work order updates are not allowed by security
-        404:
-          description: shipping container, depot, or work order could not be found
-        501:
+        "404":
+          description: "shipping container, depot, or work order could not be found"
+        "501":
           description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
-  /api/v2/gate:
-    post:
-      tags:
-      - gate
-      summary: create a gate record
-      description: Creates either a gate-in or gate-out record for the given shipping
-        container against the provided advice and depot data.
-      operationId: saveGate
-      parameters: []
-      requestBody:
-        description: gate object to create a new gate in or gate out record
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GateCreateRequest'
-        required: true
-      responses:
-        200:
-          description: successfully created a gate in or gate out record for the shipping
-            container
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GateResponse'
-        202:
-          description: gate accepted for processing, but not created due to manual
-            processing requirement
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PendingResponse'
-        400:
-          description: an error occurred
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: create a gate record is disallowed by security configuration
-        404:
-          description: the shipping container or depot could not be found
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
-  /api/v2/gate/{unitNumber}:
-    get:
-      tags:
-      - gate
-      summary: fetch the current gate status
-      description: For the given unit number, if the shipping container is currently
-        gated in or gated out, fetch the current interchange information - status,
-        the time of the gate, etc.
-      operationId: showGate
-      parameters:
-      - name: unitNumber
-        in: path
-        description: the current unit number of the shipping container
-        required: true
-        schema:
-          maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
-          type: object
-          example: CONU1234561
-      responses:
-        200:
-          description: successfully found current gate status
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GateStatus'
-        400:
-          description: an error occurred
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: fetching a gate record is disallowed by security
-        404:
-          description: the shipping container was not found
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
-  /api/v2/gate/{depot}/{adviceNumber}/{unitNumber}:
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+  /api/v2/workOrderUnit/{workOrderNumber}:
     put:
       tags:
-      - gate
-      summary: update a gate record
-      description: Correct the initial damage indicator status or activity time from
-        when the gate record was created.
-      operationId: updateGate
+      - workOrder
+      summary: marks a shipping container repaired
+      description: "For the given work order, attempt to mark it repair complete."
+      operationId: updateWorkOrderUnit
       parameters:
-      - name: adviceNumber
+      - name: workOrderNumber
         in: path
-        description: the redelivery or release advice number for the gate record
+        description: the work order number
         required: true
         schema:
           maxLength: 16
-          minLength: 1
           type: object
-          example: AHAMG000000
-      - name: unitNumber
-        in: path
-        description: the current unit number of the shipping container
-        required: true
-        schema:
-          maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
-          type: object
-          example: CONU1234561
-      - name: depot
-        in: path
-        description: the identifier of the depot
-        required: true
-        schema:
-          maxLength: 9
-          pattern: ^[A-Z0-9]{9}$
-          type: object
-          example: DEHAMCMRA
+          example: WHAMG30001
       requestBody:
-        description: gate object to update an existing record
+        description: Necessary information to mark a shipping container repair complete
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GateUpdateRequest'
+              $ref: '#/components/schemas/RepairComplete'
         required: true
       responses:
-        200:
-          description: successfully update the gate record
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GateResponse'
-        202:
-          description: gate update accepted for processing, but not created due to
-            manual processing requirement
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PendingResponse'
-        400:
-          description: an error occurred
+        "200":
+          description: successfully repair completed the workOrder
+        "400":
+          description: an error occurred trying to repair complete the work order
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: update a gate record is disallowed by security
-        404:
-          description: the shipping container or depot could not be found
-        501:
+        "403":
+          description: repair completion is not allowed by security
+        "404":
+          description: "shipping container, depot, or work order could not be found"
+        "501":
           description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
-    delete:
-      tags:
-      - gate
-      summary: delete a gate record
-      description: Delete a gate record
-      operationId: deleteGate
-      parameters:
-      - name: adviceNumber
-        in: path
-        description: the redelivery or release advice number to identify which gate
-          record to delete
-        required: true
-        schema:
-          maxLength: 16
-          minLength: 1
-          type: object
-          example: AHAMG000000
-      - name: unitNumber
-        in: path
-        description: the current unit number of the shipping container
-        required: true
-        schema:
-          maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
-          type: object
-          example: CONU1234561
-      - name: depot
-        in: path
-        description: the identifier of the depot
-        required: true
-        schema:
-          maxLength: 9
-          pattern: ^[A-Z0-9]{9}$
-          type: object
-          example: DEHAMCMRA
-      responses:
-        200:
-          description: successfully delete the gate record
-        400:
-          description: an error occurred
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: delete a gate record is disallowed by security
-        404:
-          description: the shipping container or depot could not be found
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
-  /api/v2/release:
-    get:
-      tags:
-      - release
-      summary: search for a release
-      description: Finds Releases for the given the criteria.
-      operationId: indexRelease
-      parameters:
-      - name: releaseNumber
-        in: query
-        description: the release number to filter to
-        required: false
-        schema:
-          maxLength: 16
-          type: object
-          example: RHAMG000000
-      responses:
-        200:
-          description: successful search
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Release'
-        400:
-          description: an error occurred
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: security disallows access
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
-    post:
-      tags:
-      - release
-      summary: create release
-      description: Creates a Release for the given criteria.
-      operationId: saveRelease
-      parameters: []
-      requestBody:
-        description: Data to use to update the given Release
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Release'
-        required: true
-      responses:
-        200:
-          description: successful create
-        400:
-          description: an error occurred
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: security disallows access
-        404:
-          description: the release depot was not found
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
-  /api/v2/release/{releaseNumber}:
-    put:
-      tags:
-      - release
-      summary: update release
-      description: Updates an existing Release.
-      operationId: updateRelease
-      parameters:
-      - name: releaseNumber
-        in: path
-        description: name that need to be updated
-        required: true
-        schema:
-          maxLength: 16
-          type: object
-          example: RHAMG000000
-      requestBody:
-        description: Data to use to update the given Release
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Release'
-        required: true
-      responses:
-        200:
-          description: successful update
-        400:
-          description: an error occurred
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        403:
-          description: security disallows access
-        404:
-          description: the release was not found
-        501:
-          description: this feature is not supported by this server
-        503:
-          description: API is temporarily paused, and not accepting any activity
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
 components:
   schemas:
     ErrorResponse:
@@ -977,7 +1042,7 @@ components:
       properties:
         code:
           maxLength: 6
-          pattern: ^[A-Z0-9]{3}[0-9]{3}$
+          pattern: "^[A-Z0-9]{3}[0-9]{3}$"
           required:
           - "false"
           type: string
@@ -995,257 +1060,153 @@ components:
         `400` http status codes are used when a request is invalid or the basic requirements are not met
 
         `405` http status codes are used for business validations
-    Party:
+    Estimate:
       required:
-      - companyId
-      type: object
-      properties:
-        companyId:
-          maxLength: 9
-          pattern: ^[A-Z0-9]{9}$
-          required:
-          - "true"
-          type: string
-          description: the identifier for this party, often referred to as an EDI
-            Address
-          example: DEHAMCMRA
-        userCode:
-          maxLength: 16
-          type: string
-          description: the user identifier at this company that concerns this message
-          example: JDOE
-        userName:
-          maxLength: 70
-          type: string
-          description: the full name for the user identified by `userCode`
-          example: John Doe
-        name:
-          maxLength: 150
-          type: string
-          description: the name of this company
-          example: CMR Container Maintenance Rep.
-        code:
-          maxLength: 10
-          type: string
-          description: the internal system code for this company, will be system specific
-            to the system delivering or receiving this message
-          example: HAMG
-      description: represents a company (or location) involving shipping containers
-    RepairComplete:
-      required:
-      - completionDate
+      - condition
+      - currency
       - depot
+      - estimateNumber
+      - estimateTime
+      - lineItems
+      - total
       - unitNumber
-      - workOrderNumber
       type: object
       properties:
-        workOrderNumber:
+        estimateNumber:
           maxLength: 16
           minLength: 1
           required:
           - "true"
           type: string
-          description: the identifier of the work order to repair complete
-          example: WHAMG46019
+          description: The identifier for this estimate
+          example: DEHAMCE1856373
+        unitNumber:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          required:
+          - "true"
+          type: string
+          description: The current unit number of the shipping container.
+          example: CONU1234561
+        condition:
+          maxLength: 1
+          required:
+          - "true"
+          type: string
+          description: |-
+            an indicator on the status of the estimate and where it is in the revision process
+
+            `D` - Damaged, Initial Estimate
+
+            `E` - Customer Surveyed, No Approval
+
+            `F` - Customer Approved Estimate, No Survey
+
+            `G` - Customer Approved Estimate, Surveyed
+
+            `L` - Owner Surveyed, No Approval
+          enum:
+          - D
+          - E
+          - F
+          - G
+          - L
+        estimateTime:
+          required:
+          - "true"
+          type: string
+          description: "the date and time of the estimate revision activity in local\
+            \ time; i.e. `2020-07-21T17:32:28Z` \n\n( notation as defined by [RFC\
+            \ 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6)\
+            \ )"
+          format: date-time
+        comments:
+          maxLength: 500
+          type: string
+          description: the comments concerning this estimate
+        requester:
+          allOf:
+          - $ref: '#/components/schemas/Party'
+          - nullable: true
         depot:
           $ref: '#/components/schemas/Party'
-        completionDate:
-          type: string
-          description: |-
-            the date and time in the depot local time zone (i.e. `2018-04-10T19:37:04Z`) that this work order was repaired.
-
-            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date-time
-        unitNumber:
-          maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
-          required:
-          - "true"
-          type: string
-          description: the unit number of the shipping container at the time of repair
-            approval
-          example: CONU1234561
-      description: Necessary information to mark a specific unit under a work order
-        repaired
-    InsuranceCoverage:
-      type: object
-      properties:
-        amountCovered:
-          type: number
-          description: the total amount allowable to by covered by insurance
-          format: double
-        amountCurrency:
-          pattern: ^[A-Z]{3}$
-          type: string
-          description: The currency for the insurance coverage amount
-          example: EUR
-        allOrNothing:
-          type: boolean
-          description: indicates if the amount of damage exceeds the insurance coverage,
-            whether the lessee if fully responsible for the damage
-        exceptions:
-          type: array
-          description: any contractual reason why the coverage may not apply
-          items:
-            type: string
-        exclusions:
-          type: array
-          description: reasons insurance coverage would be excluded from a repair
-          items:
-            type: string
-        inclusions:
-          type: array
-          description: reasons insurance coverage would include a repair
-          items:
-            type: string
-      description: describes the type of insurance coverage a given shipping container
-        has for a damage repair
-    MachineryInfo:
-      type: object
-      properties:
-        manufacturer:
-          maxLength: 50
-          required:
-          - "false"
-          type: string
-          description: The cooling machinery manufacturer
-          nullable: true
-          example: Carrier Transicold
-        modelName:
-          maxLength: 50
-          required:
-          - "false"
-          type: string
-          description: The machinery model name
-          nullable: true
-          example: ThinLine
-        modelNumber:
-          maxLength: 50
-          required:
-          - "false"
-          type: string
-          description: The machinery model number
-          nullable: true
-          example: 69NT40-541-301
-      description: details the cooling machinery attached to a shipping container
-    RedeliveryUnit:
-      required:
-      - billingParty
-      - manufactureDate
-      - status
-      - unitNumber
-      type: object
-      properties:
-        unitNumber:
-          maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
-          required:
-          - "true"
-          type: string
-          description: the current unit number of the shipping container
-          example: CONU1234561
-        manufactureDate:
-          required:
-          - "true"
-          type: string
-          description: |-
-            date and month this unit was manufactured
-
-            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date
-          example: 2001-07-21T00:00:00.000+0000
-        lastOnHireDate:
-          type: string
-          description: |-
-            the date this unit was on hired to the customer for this unit's detail
-
-            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date
-          example: 2001-07-21T00:00:00.000+0000
-        lastOnHireLocation:
-          $ref: '#/components/schemas/Party'
-        status:
-          type: string
-          description: "Describes the state of the shipping container for this redelivery:\
-            \ \n\n`TIED` - shipping container is assigned to this redelivery and ready\
-            \ to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery,\
-            \ but is no longer valid for redelivery.\n\n`TIN` - shipping container\
-            \ has turned into the storage location of this redelivery."
-          example: TIED
-          enum:
-          - REMOVED
-          - TIED
-          - TIN
-        comments:
-          maxLength: 512
-          type: array
-          description: comments pertaining to this unit for the intended recipient
-            of this message
-          example: '[an example unit level comment]'
-          items:
-            type: string
-        lastCargo:
-          maxLength: 255
-          type: string
-          description: the last cargo this shipping container carried
-          example: Aroset PS 5191
-        tankGrade:
-          maxLength: 1
-          type: string
-          description: "if this is a tank, then this describes the type of liquids\
-            \ it can contain: \n\n`F` - Food\n\n`C` - Chemical "
-          example: C
-          enum:
-          - F
-          - C
-        billingParty:
-          $ref: '#/components/schemas/Party'
-        machineryInfo:
-          $ref: '#/components/schemas/MachineryInfo'
-      description: information for a specific unit on a redelivery
-    RedeliveryDetail:
-      required:
-      - contract
-      - customer
-      - equipment
-      - inspectionCriteria
-      - quantity
-      type: object
-      properties:
+        owner:
+          allOf:
+          - $ref: '#/components/schemas/Party'
+          - nullable: true
         customer:
-          $ref: '#/components/schemas/Party'
-        contract:
-          maxLength: 16
+          allOf:
+          - $ref: '#/components/schemas/Party'
+          - nullable: true
+        currency:
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
           required:
           - "true"
           type: string
-          description: the contract code for the given shipping containers
-          example: CNCX05-100000
-        equipment:
-          maxLength: 10
+          description: the currency of amounts entered on this estimate
+          example: EUR
+        total:
           required:
           - "true"
-          type: string
-          description: the equipment type ISO code or an internal code if one does
-            not exist for the given shipping containers
-          example: 22G1
-        insuranceCoverage:
-          $ref: '#/components/schemas/InsuranceCoverage'
-        inspectionCriteria:
-          maxLength: 10
+          type: number
+          description: the sum of billed line items for this estimate
+          format: double
+          example: 544.95
+        exchangeRate:
           required:
-          - "true"
+          - "false"
+          type: number
+          description: the exchange rate to convert billed currency to the local currency
+            of this estimate
+          format: double
+          nullable: true
+          readOnly: true
+          example: 0.8133
+        customerApproval:
+          allOf:
+          - $ref: '#/components/schemas/EstimateCustomerApproval'
+          - nullable: true
+        type:
+          maxLength: 2
+          required:
+          - "false"
           type: string
-          description: the grade / category of the unit as it was when it last left
-            a depot
-          example: IICL
+          description: |-
+            delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision
+
+            `R` - Primary (Unknown Estimation Standard)
+
+            `RI` - Primary (IICL)
+
+            `RC` - Primary (CWCA)
+
+            `SC` - Secondary (CWCA)
+
+            `SU` - Secondary Upgrade
+
+            `AS` - Sell Upgrade
+
+            `AU` - Ancillary Upgrade
+
+            `AR` - Ancillary Repair
+          default: R
+          enum:
+          - R
+          - RI
+          - RC
+          - SC
+          - SU
+          - AS
+          - AU
+          - AR
         upgradeType:
           maxLength: 2
           required:
           - "false"
           type: string
           description: |-
-            an indicator for the upgrades applied to units on this detail.
+            the type of secondary upgrade this estimate represents.
 
             `FG` - Food grade
 
@@ -1290,85 +1251,114 @@ components:
           - CH
           - TE
           - FT
-        units:
-          type: array
-          description: the specific units for this redelivery if defined, if not,
-            assumed blanket (any unit matching criteria can be tied up to the quantity
-            limit of this detail)
-          items:
-            $ref: '#/components/schemas/RedeliveryUnit'
-        quantity:
-          minimum: 0
+        revision:
           required:
-          - "true"
+          - "false"
           type: integer
-          description: the number of shipping containers assigned to this detail
+          description: the revision number of the estimate
           format: int32
-          example: 1
-        comments:
-          maxLength: 512
-          type: array
-          description: comments pertaining to this detail for the intended recipient
-            of this message
-          example: '[an example detail comment]'
-          items:
-            type: string
-      description: unit criteria that groups similar units on a redelivery
-    Redelivery:
-      required:
-      - approvalDate
-      - depot
-      - details
-      - owner
-      - recipient
-      - redeliveryNumber
-      type: object
-      properties:
-        redeliveryNumber:
-          maxLength: 16
-          required:
-          - "true"
-          type: string
-          description: the identifier for this redelivery, also referred to as the
-            advice number or redelivery number
-          example: AHAMG33141
-        expirationDate:
-          type: string
-          description: |-
-            the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this redelivery is considered no longer valid
-
-            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date-time
-        approvalDate:
-          type: string
-          description: |-
-            the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this redelivery is considered approved
-
-            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date-time
-        comments:
-          maxLength: 512
-          type: array
-          description: comments pertaining to this redelivery for the intended recipient
-            of this message
-          example: '[an example redelivery level comment]'
-          items:
-            type: string
-        depot:
-          $ref: '#/components/schemas/Party'
-        owner:
-          $ref: '#/components/schemas/Party'
-        recipient:
-          $ref: '#/components/schemas/Party'
-        details:
+          nullable: true
+          example: 0
+        lineItems:
           minLength: 1
           required:
           - "true"
           type: array
-          description: groups of like-criteria units
+          description: detailed damage descriptions that when combined represent the
+            damages being repaired by this estimate
           items:
-            $ref: '#/components/schemas/RedeliveryDetail'
-      description: An approval to deliver units to a storage location.
+            $ref: '#/components/schemas/EstimateLineItem'
+        allocation:
+          allOf:
+          - $ref: '#/components/schemas/EstimateAllocation'
+          - nullable: true
+      description: Represents an estimation of costs to repair or upgrade a shipping
+        container.
+    EstimateAllocation:
+      required:
+      - ctl
+      - customerTotal
+      - depot
+      - estimateNumber
+      - insuranceTotal
+      - ownerTotal
+      - revision
+      - total
+      type: object
+      properties:
+        estimateNumber:
+          maxLength: 16
+          minLength: 1
+          required:
+          - "true"
+          type: string
+          description: The estimate number this allocation applies to
+          example: DEHAMCE1856373
+        revision:
+          required:
+          - "true"
+          type: integer
+          description: the revision number of the estimate this allocation applies
+            to
+          format: int32
+          example: 0
+        depot:
+          $ref: '#/components/schemas/Party'
+        total:
+          minimum: 0.0
+          required:
+          - "true"
+          type: number
+          description: the total for the estimate
+          format: double
+          example: 544.95
+        ownerTotal:
+          minimum: 0.0
+          required:
+          - "true"
+          type: number
+          description: the total of the owner portion for the estimate
+          format: double
+          example: 0.00
+        customerTotal:
+          minimum: 0.0
+          required:
+          - "true"
+          type: number
+          description: the total of the customer portion for the estimate
+          format: double
+          example: 422.96
+        insuranceTotal:
+          minimum: 0.0
+          required:
+          - "true"
+          type: number
+          description: the total of the insurance portion for the estimate
+          format: double
+          example: 121.99
+        ctl:
+          required:
+          - "true"
+          type: boolean
+          description: indicates if the estimate causes the unit to be a constructive
+            total lost
+          example: false
+        comments:
+          maxLength: 500
+          required:
+          - "false"
+          type: string
+          description: comments pertaining to the estimate creation
+          example: "Base Currency is: EUR; Based on estimate, user damages total:\
+            \ 0.00; Calculated DV (base): 1151.84; Coverage amount: 121.99; Damage\
+            \ exceeds DPP Coverage.; Damages exceed coverage amount. User pays excess.;\
+            \ Total paid by DPP Coverage: 121.99; Total owed by user: 422.96;"
+        preliminaryDecision:
+          allOf:
+          - $ref: '#/components/schemas/PreliminaryDecision'
+          - nullable: true
+      description: "Indicates the allocated estimate totals, including any comments\
+        \ on the allocation and if the box is considered a constructive loss."
     EstimateCustomerApproval:
       required:
       - approvalDateTime
@@ -1429,7 +1419,7 @@ components:
           format: int32
         repair:
           maxLength: 2
-          pattern: ^[A-Z0-9]{2}$
+          pattern: "^[A-Z0-9]{2}$"
           required:
           - "true"
           type: string
@@ -1440,7 +1430,7 @@ components:
           example: IT
         damage:
           maxLength: 2
-          pattern: ^[A-Z0-9]{2}$
+          pattern: "^[A-Z0-9]{2}$"
           required:
           - "true"
           type: string
@@ -1451,7 +1441,7 @@ components:
           example: CK
         material:
           maxLength: 2
-          pattern: ^[A-Z0-9]{2}$
+          pattern: "^[A-Z0-9]{2}$"
           required:
           - "true"
           type: string
@@ -1462,7 +1452,7 @@ components:
           example: MU
         component:
           maxLength: 3
-          pattern: ^[A-Z0-9]{3}$
+          pattern: "^[A-Z0-9]{3}$"
           required:
           - "true"
           type: string
@@ -1473,7 +1463,7 @@ components:
           example: CMA
         location:
           maxLength: 4
-          pattern: ^[A-Z0-9]{4}$
+          pattern: "^[A-Z0-9]{4}$"
           required:
           - "false"
           type: string
@@ -1617,7 +1607,7 @@ components:
           example: B
           enum:
           - B
-          - N
+          - "N"
           - L
           - M
         quantity:
@@ -1630,490 +1620,73 @@ components:
           example: 1
       description: Represents an estimation of costs to repair or upgrade a single
         instance of damage for a shipping container.
-    PreliminaryDecision:
+    GateCreateRequest:
       required:
-      - recommendation
-      type: object
-      properties:
-        recommendation:
-          maxLength: 11
-          required:
-          - "true"
-          type: string
-          description: a speculative repair decision code to indicate if a box will
-            be repaired, sold, held for repair, could not determine a decision, requires
-            a survey before proceeding, etc
-          example: SELL
-        reason:
-          maxLength: 255
-          required:
-          - "false"
-          type: string
-          description: in the event a decision could not be determined, or a prerequisite
-            exists, a more descriptive message than the code provided by the `recommendation`
-            field
-        difference:
-          required:
-          - "false"
-          type: number
-          description: A positive or negative amount showing how close the repair
-            estimate was to a decision change
-          format: double
-      description: an expected sell/fix decision to indicate the likely estimate owner
-        approval action
-    EstimateAllocation:
-      required:
-      - ctl
-      - customerTotal
+      - activityTime
+      - adviceNumber
       - depot
-      - estimateNumber
-      - insuranceTotal
-      - ownerTotal
-      - revision
-      - total
-      type: object
-      properties:
-        estimateNumber:
-          maxLength: 16
-          minLength: 1
-          required:
-          - "true"
-          type: string
-          description: The estimate number this allocation applies to
-          example: DEHAMCE1856373
-        revision:
-          required:
-          - "true"
-          type: integer
-          description: the revision number of the estimate this allocation applies
-            to
-          format: int32
-          example: 0
-        depot:
-          $ref: '#/components/schemas/Party'
-        total:
-          minimum: 0.0
-          required:
-          - "true"
-          type: number
-          description: the total for the estimate
-          format: double
-          example: 544.95
-        ownerTotal:
-          minimum: 0.0
-          required:
-          - "true"
-          type: number
-          description: the total of the owner portion for the estimate
-          format: double
-          example: 0.00
-        customerTotal:
-          minimum: 0.0
-          required:
-          - "true"
-          type: number
-          description: the total of the customer portion for the estimate
-          format: double
-          example: 422.96
-        insuranceTotal:
-          minimum: 0.0
-          required:
-          - "true"
-          type: number
-          description: the total of the insurance portion for the estimate
-          format: double
-          example: 121.99
-        ctl:
-          required:
-          - "true"
-          type: boolean
-          description: indicates if the estimate causes the unit to be a constructive
-            total lost
-          example: false
-        comments:
-          maxLength: 500
-          required:
-          - "false"
-          type: string
-          description: comments pertaining to the estimate creation
-          example: 'Base Currency is: EUR; Based on estimate, user damages total:
-            0.00; Calculated DV (base): 1151.84; Coverage amount: 121.99; Damage exceeds
-            DPP Coverage.; Damages exceed coverage amount. User pays excess.; Total
-            paid by DPP Coverage: 121.99; Total owed by user: 422.96;'
-        preliminaryDecision:
-          $ref: '#/components/schemas/PreliminaryDecision'
-      description: Indicates the allocated estimate totals, including any comments
-        on the allocation and if the box is considered a constructive loss.
-    Estimate:
-      required:
-      - condition
-      - currency
-      - depot
-      - estimateNumber
-      - estimateTime
-      - exchangeRate
-      - lineItems
-      - revision
-      - total
+      - status
+      - type
       - unitNumber
       type: object
       properties:
-        estimateNumber:
+        adviceNumber:
           maxLength: 16
-          minLength: 1
           required:
           - "true"
           type: string
-          description: The identifier for this estimate
-          example: DEHAMCE1856373
+          description: the redelivery or release advice number for the gate record
+          example: AHAMG000000
+        depot:
+          $ref: '#/components/schemas/Party'
         unitNumber:
           maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
           required:
           - "true"
           type: string
-          description: The current unit number of the shipping container.
+          description: the unit number of the shipping container
           example: CONU1234561
-        condition:
+        status:
           maxLength: 1
           required:
           - "true"
           type: string
           description: |-
-            an indicator on the status of the estimate and where it is in the revision process
+            an indicator of the shipping container's status
 
-            `D` - Damaged, Initial Estimate
+            `A` - Non-damaged
 
-            `E` - Customer Surveyed, No Approval
+            `D` - Damaged
 
-            `F` - Customer Approved Estimate, No Survey
-
-            `G` - Customer Approved Estimate, Surveyed
-
-            `L` - Owner Surveyed, No Approval
+            `S` - Sold
+          example: D
           enum:
+          - A
           - D
-          - E
-          - F
-          - G
-          - L
-        estimateTime:
+          - S
+        activityTime:
           required:
           - "true"
           type: string
-          description: "the date and time of the estimate revision activity in local\
-            \ time; i.e. `2020-07-21T17:32:28Z` \n\n( notation as defined by [RFC\
-            \ 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6)\
-            \ )"
+          description: "the date and time of the gate activity in local time; i.e.\
+            \ `2019-04-10T19:37:04Z` \n\n( notation as defined by [RFC 3339, section\
+            \ 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )"
           format: date-time
-        comments:
-          maxLength: 500
-          type: string
-          description: the comments concerning this estimate
-        requester:
-          $ref: '#/components/schemas/Party'
-        depot:
-          $ref: '#/components/schemas/Party'
-        owner:
-          $ref: '#/components/schemas/Party'
-        customer:
-          $ref: '#/components/schemas/Party'
-        currency:
-          maxLength: 3
-          pattern: ^[A-Z]{3}$
-          required:
-          - "true"
-          type: string
-          description: the currency of amounts entered on this estimate
-          example: EUR
-        total:
-          required:
-          - "true"
-          type: number
-          description: the sum of billed line items for this estimate
-          format: double
-          example: 544.95
-        exchangeRate:
-          required:
-          - "false"
-          type: number
-          description: the exchange rate to convert billed currency to the local currency
-            of this estimate
-          format: double
-          example: 0.8133
-        customerApproval:
-          $ref: '#/components/schemas/EstimateCustomerApproval'
         type:
-          maxLength: 2
-          required:
-          - "false"
-          type: string
-          description: |-
-            delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision
-
-            `R` - Primary (Unknown Estimation Standard)
-
-            `RI` - Primary (IICL)
-
-            `RC` - Primary (CWCA)
-
-            `SC` - Secondary (CWCA)
-
-            `SU` - Secondary Upgrade
-
-            `AS` - Sell Upgrade
-
-            `AU` - Ancillary Upgrade
-
-            `AR` - Ancillary Repair
-          enum:
-          - R
-          - RI
-          - RC
-          - RC
-          - SC
-          - SU
-          - AS
-          - AU
-          - AR
-          default: R
-        upgradeType:
-          maxLength: 2
-          required:
-          - "false"
-          type: string
-          description: |-
-            the type of secondary upgrade this estimate represents.
-
-            `FG` - Food grade
-
-            `ML` - Malt
-
-            `DB` - Dairy Board
-
-            `EV` - Evian
-
-            `WH` - Whiskey
-
-            `SU` - Sugar
-
-            `CF` - Coffee
-
-            `TB` - Tobacco
-
-            `MC` - Milk cartons
-
-            `MP` - Milk powder
-
-            `AM` - Ammunition
-
-            `CH` - Cotton/Hay
-
-            `TE` - Tea
-
-            `FT` - Flexitank
-          example: AM
-          enum:
-          - FG
-          - ML
-          - DB
-          - EV
-          - WH
-          - SU
-          - CF
-          - TB
-          - MC
-          - MP
-          - AM
-          - CH
-          - TE
-          - FT
-        revision:
-          required:
-          - "true"
-          type: integer
-          description: the revision number of the estimate
-          format: int32
-          example: 0
-        lineItems:
-          minLength: 1
-          required:
-          - "true"
-          type: array
-          description: detailed damage descriptions that when combined represent the
-            damages being repaired by this estimate
-          items:
-            $ref: '#/components/schemas/EstimateLineItem'
-        allocation:
-          $ref: '#/components/schemas/EstimateAllocation'
-      description: Represents an estimation of costs to repair or upgrade a shipping
-        container.
-    WorkOrderUnit:
-      required:
-      - effectiveInspectionCriteria
-      - status
-      - unitNumber
-      type: object
-      properties:
-        estimateNumber:
-          maxLength: 16
-          minLength: 1
-          required:
-          - "false"
-          type: string
-          description: The estimate number that initiated this unit on this work order
-          example: DEHAMCE1856373
-        unitNumber:
-          maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
-          required:
-          - "true"
-          type: string
-          description: the unit number of the shipping container at the time of repair
-            approval
-          example: CONU1234561
-        effectiveInspectionCriteria:
-          maxLength: 10
-          required:
-          - "true"
-          type: string
-          description: repair the shipping container to this grade or category standard
-          example: CWCA-1
-        remark:
-          maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
-          required:
-          - "false"
-          type: string
-          description: the unit number to remark the shipping container on repair
-        releaseNumber:
-          maxLength: 16
-          required:
-          - "false"
-          type: string
-          description: the Release approved for gate out after repair
-        status:
-          maxLength: 8
-          required:
-          - "true"
-          type: string
-          description: |-
-            an indicator of the unit state on this work order
-
-            `TIED` - shipping container is considered under repair on this work order
-
-            `REMOVED` - shipping container is removed from this work order
-
-            `REPAIRED` - shipping container is considered repaired
-          example: TIED
-          enum:
-          - TIED
-          - REMOVED
-          - REPAIRED
-          default: TIED
-      description: information for a specific unit on a work order
-    WorkOrder:
-      required:
-      - approvalDate
-      - depot
-      - lineItems
-      - owner
-      - type
-      - workOrderNumber
-      type: object
-      properties:
-        workOrderNumber:
-          maxLength: 16
-          minLength: 1
-          required:
-          - "true"
-          type: string
-          description: the identifier for this work order
-          example: WHAMG46019
-        depot:
-          $ref: '#/components/schemas/Party'
-        owner:
-          $ref: '#/components/schemas/Party'
-        billingParty:
-          $ref: '#/components/schemas/Party'
-        type:
-          maxLength: 11
-          required:
-          - "true"
-          type: string
-          description: the type of repair approved
-          example: SELLCWCA
-        approvalDate:
-          required:
-          - "true"
-          type: string
-          description: |-
-            the date and time in the depot local time zone (i.e. `2017-05-10T19:37:04Z`) that this work order is authorized for repair
-
-            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date-time
-        approvalTotal:
-          required:
-          - "false"
-          type: number
-          description: the total amount approved for repair
-          format: double
-          example: 175.00
-        approvalCurrency:
           maxLength: 3
-          pattern: ^[A-Z]{3}$
-          required:
-          - "false"
-          type: string
-          description: the currency of the approval total
-          example: EUR
-        expirationDate:
-          required:
-          - "false"
           type: string
           description: |-
-            the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this repair must be completed by
+            gate type indicator
 
-            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date-time
-        comments:
-          maxLength: 500
-          required:
-          - "false"
-          type: string
-          description: comments pertaining to this repair for the intended recipient
-            of this message
-          example: CWCA repairs for unit TCKU3456654 total 175.00 EUR per DEHAMCE1856373.1
-        lineItems:
-          maxLength: 200
-          minLength: 1
-          required:
-          - "true"
-          type: array
-          description: units associated to this work order
-          items:
-            $ref: '#/components/schemas/WorkOrderUnit'
-      description: An approval of a damage estimate signifying a depot may repair
-        a shipping container
-    PendingResponse:
-      type: object
-      properties:
-        code:
-          maxLength: 6
-          pattern: ^[A-Z0-9]{3}[0-9]{3}$
-          required:
-          - "false"
-          type: string
-          description: indicator code for this response
-          example: TRI365
-        message:
-          required:
-          - "false"
-          type: string
-          description: a descriptive reason why the activity was not immediately created
-          example: Info TRI365 - Estimate accepted, but requires manual DV calculation
-            to process.
-      description: used inform why an activity could not be immediately processed
+            `IN` - Gate In
+
+            `OUT` - Gate Out
+          example: IN
+          enum:
+          - IN
+          - OUT
+      description: data required to create a gate in or gate out record
     GateResponse:
       required:
       - adviceNumber
@@ -2122,7 +1695,7 @@ components:
       properties:
         code:
           maxLength: 6
-          pattern: ^[A-Z0-9]{3}[0-9]{3}$
+          pattern: "^[A-Z0-9]{3}[0-9]{3}$"
           required:
           - "false"
           type: string
@@ -2170,11 +1743,9 @@ components:
         comments:
           required:
           - "false"
-          type: array
+          type: string
           description: comments pertaining to this gate record
-          example: '[''ALL CLEANING MUST BE CODED TO "O" FOR OWNER.'']'
-          items:
-            type: string
+          example: "['ALL CLEANING MUST BE CODED TO \"O\" FOR OWNER.']"
         currentInspectionCriteria:
           maxLength: 10
           required:
@@ -2184,73 +1755,6 @@ components:
           example: IICL
       description: A confirmation that a gate completed successfully and the necessary
         information to perform a damage estimate if required.
-    GateCreateRequest:
-      required:
-      - activityTime
-      - adviceNumber
-      - depot
-      - status
-      - type
-      - unitNumber
-      type: object
-      properties:
-        adviceNumber:
-          maxLength: 16
-          required:
-          - "true"
-          type: string
-          description: the redelivery or release advice number for the gate record
-          example: AHAMG000000
-        depot:
-          $ref: '#/components/schemas/Party'
-        unitNumber:
-          maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
-          required:
-          - "true"
-          type: string
-          description: the unit number of the shipping container
-          example: CONU1234561
-        status:
-          maxLength: 1
-          required:
-          - "true"
-          type: string
-          description: |-
-            an indicator of the shipping container's status
-
-            `A` - Non-damaged
-
-            `D` - Damaged
-
-            `S` - Sold
-          example: D
-          enum:
-          - A
-          - D
-          - S
-        activityTime:
-          required:
-          - "true"
-          type: string
-          description: "the date and time of the gate activity in local time; i.e.\
-            \ `2019-04-10T19:37:04Z` \n\n( notation as defined by [RFC 3339, section\
-            \ 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )"
-          format: date-time
-        type:
-          maxLength: 3
-          type: string
-          description: |-
-            gate type indicator
-
-            `IN` - Gate In
-
-            `OUT` - Gate Out
-          example: IN
-          enum:
-          - IN
-          - OUT
-      description: data required to create a gate in or gate out record
     GateStatus:
       required:
       - activityTime
@@ -2360,82 +1864,472 @@ components:
           - OUT
       description: Data required to update a gate in or gate out record. Any data
         not provided will result in no update.
-    ReleaseUnit:
+    InsuranceCoverage:
+      type: object
+      properties:
+        amountCovered:
+          type: number
+          description: the total amount allowable to by covered by insurance
+          format: double
+        amountCurrency:
+          pattern: "^[A-Z]{3}$"
+          type: string
+          description: The currency for the insurance coverage amount
+          example: EUR
+        allOrNothing:
+          type: boolean
+          description: "indicates if the amount of damage exceeds the insurance coverage,\
+            \ whether the lessee if fully responsible for the damage"
+        exceptions:
+          type: array
+          description: any contractual reason why the coverage may not apply
+          items:
+            type: string
+        exclusions:
+          type: array
+          description: reasons insurance coverage would be excluded from a repair
+          items:
+            type: string
+        inclusions:
+          type: array
+          description: reasons insurance coverage would include a repair
+          items:
+            type: string
+      description: describes the type of insurance coverage a given shipping container
+        has for a damage repair
+    MachineryInfo:
+      type: object
+      properties:
+        manufacturer:
+          maxLength: 50
+          required:
+          - "false"
+          type: string
+          description: The cooling machinery manufacturer
+          nullable: true
+          example: Carrier Transicold
+        modelName:
+          maxLength: 50
+          required:
+          - "false"
+          type: string
+          description: The machinery model name
+          nullable: true
+          example: ThinLine
+        modelNumber:
+          maxLength: 50
+          required:
+          - "false"
+          type: string
+          description: The machinery model number
+          nullable: true
+          example: 69NT40-541-301
+      description: details the cooling machinery attached to a shipping container
+    Party:
       required:
+      - companyId
+      type: object
+      properties:
+        companyId:
+          maxLength: 9
+          pattern: "^[A-Z0-9]{9}$"
+          required:
+          - "true"
+          type: string
+          description: "the identifier for this party, often referred to as an EDI\
+            \ Address"
+          example: DEHAMCMRA
+        userCode:
+          maxLength: 16
+          type: string
+          description: the user identifier at this company that concerns this message
+          example: JDOE
+        userName:
+          maxLength: 70
+          type: string
+          description: the full name for the user identified by `userCode`
+          example: John Doe
+        name:
+          maxLength: 150
+          type: string
+          description: the name of this company
+          example: CMR Container Maintenance Rep.
+        code:
+          maxLength: 10
+          type: string
+          description: "the internal system code for this company, will be system\
+            \ specific to the system delivering or receiving this message"
+          example: HAMG
+      description: represents a company (or location) involving shipping containers
+    PendingResponse:
+      type: object
+      properties:
+        code:
+          maxLength: 6
+          pattern: "^[A-Z0-9]{3}[0-9]{3}$"
+          required:
+          - "false"
+          type: string
+          description: indicator code for this response
+          example: TRI365
+        message:
+          required:
+          - "false"
+          type: string
+          description: a descriptive reason why the activity was not immediately created
+          example: "Info TRI365 - Estimate accepted, but requires manual DV calculation\
+            \ to process."
+      description: used inform why an activity could not be immediately processed
+    PreliminaryDecision:
+      required:
+      - recommendation
+      type: object
+      properties:
+        recommendation:
+          maxLength: 11
+          required:
+          - "true"
+          type: string
+          description: "a speculative repair decision code to indicate if a box will\
+            \ be repaired, sold, held for repair, could not determine a decision,\
+            \ requires a survey before proceeding, etc"
+          example: SELL
+        reason:
+          maxLength: 255
+          required:
+          - "false"
+          type: string
+          description: "in the event a decision could not be determined, or a prerequisite\
+            \ exists, a more descriptive message than the code provided by the `recommendation`\
+            \ field"
+        difference:
+          required:
+          - "false"
+          type: number
+          description: A positive or negative amount showing how close the repair
+            estimate was to a decision change
+          format: double
+      description: an expected sell/fix decision to indicate the likely estimate owner
+        approval action
+    Redelivery:
+      required:
+      - approvalDate
+      - depot
+      - details
+      - owner
+      - recipient
+      - redeliveryNumber
+      type: object
+      properties:
+        redeliveryNumber:
+          maxLength: 16
+          required:
+          - "true"
+          type: string
+          description: "the identifier for this redelivery, also referred to as the\
+            \ advice number or redelivery number"
+          example: AHAMG33141
+        expirationDate:
+          type: string
+          description: |-
+            the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this redelivery is considered no longer valid
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+        approvalDate:
+          type: string
+          description: |-
+            the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this redelivery is considered approved
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+        comments:
+          maxLength: 512
+          type: array
+          description: comments pertaining to this redelivery for the intended recipient
+            of this message
+          example: "[an example redelivery level comment]"
+          items:
+            type: string
+        depot:
+          $ref: '#/components/schemas/Party'
+        owner:
+          $ref: '#/components/schemas/Party'
+        recipient:
+          $ref: '#/components/schemas/Party'
+        details:
+          minLength: 1
+          required:
+          - "true"
+          type: array
+          description: groups of like-criteria units
+          items:
+            $ref: '#/components/schemas/RedeliveryDetail'
+      description: An approval to deliver units to a storage location.
+    RedeliveryDetail:
+      required:
+      - contract
+      - customer
+      - equipment
+      - inspectionCriteria
+      - quantity
+      type: object
+      properties:
+        customer:
+          $ref: '#/components/schemas/Party'
+        contract:
+          maxLength: 16
+          required:
+          - "true"
+          type: string
+          description: the contract code for the given shipping containers
+          example: CNCX05-100000
+        equipment:
+          maxLength: 10
+          required:
+          - "true"
+          type: string
+          description: the equipment type ISO code or an internal code if one does
+            not exist for the given shipping containers
+          example: 22G1
+        insuranceCoverage:
+          allOf:
+          - $ref: '#/components/schemas/InsuranceCoverage'
+          - nullable: true
+        inspectionCriteria:
+          maxLength: 10
+          required:
+          - "true"
+          type: string
+          description: the grade / category of the unit as it was when it last left
+            a depot
+          example: IICL
+        upgradeType:
+          maxLength: 2
+          required:
+          - "false"
+          type: string
+          description: |-
+            an indicator for the upgrades applied to units on this detail.
+
+            `FG` - Food grade
+
+            `ML` - Malt
+
+            `DB` - Dairy Board
+
+            `EV` - Evian
+
+            `WH` - Whiskey
+
+            `SU` - Sugar
+
+            `CF` - Coffee
+
+            `TB` - Tobacco
+
+            `MC` - Milk cartons
+
+            `MP` - Milk powder
+
+            `AM` - Ammunition
+
+            `CH` - Cotton/Hay
+
+            `TE` - Tea
+
+            `FT` - Flexitank
+          example: AM
+          enum:
+          - FG
+          - ML
+          - DB
+          - EV
+          - WH
+          - SU
+          - CF
+          - TB
+          - MC
+          - MP
+          - AM
+          - CH
+          - TE
+          - FT
+        units:
+          type: array
+          description: "the specific units for this redelivery if defined, if not,\
+            \ assumed blanket (any unit matching criteria can be tied up to the quantity\
+            \ limit of this detail)"
+          items:
+            $ref: '#/components/schemas/RedeliveryUnit'
+        quantity:
+          minimum: 0
+          required:
+          - "true"
+          type: integer
+          description: the number of shipping containers assigned to this detail
+          format: int32
+          example: 1
+        comments:
+          maxLength: 512
+          type: array
+          description: comments pertaining to this detail for the intended recipient
+            of this message
+          example: "[an example detail comment]"
+          items:
+            type: string
+      description: unit criteria that groups similar units on a redelivery
+    RedeliveryUnit:
+      required:
+      - billingParty
+      - manufactureDate
       - status
       - unitNumber
       type: object
       properties:
         unitNumber:
           maxLength: 11
-          pattern: ^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
           required:
           - "true"
           type: string
           description: the current unit number of the shipping container
           example: CONU1234561
+        manufactureDate:
+          required:
+          - "true"
+          type: string
+          description: |-
+            date and month this unit was manufactured
+
+            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date
+          example: 2001-07-21
+        lastOnHireDate:
+          type: string
+          description: |-
+            the date this unit was on hired to the customer for this unit's detail
+
+            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date
+          example: 2001-07-21
+        lastOnHireLocation:
+          allOf:
+          - $ref: '#/components/schemas/Party'
+          - nullable: true
+        status:
+          type: string
+          description: "Describes the state of the shipping container for this redelivery:\
+            \ \n\n`TIED` - shipping container is assigned to this redelivery and ready\
+            \ to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery,\
+            \ but is no longer valid for redelivery.\n\n`TIN` - shipping container\
+            \ has turned into the storage location of this redelivery."
+          example: TIED
+          enum:
+          - REMOVED
+          - TIED
+          - TIN
         comments:
           maxLength: 512
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
-          example: '[An example unit level comment.]'
+          example: "[an example unit level comment]"
           items:
             type: string
-        status:
+        lastCargo:
+          maxLength: 255
           type: string
-          description: "Describes the state of the shipping container for this release:\
-            \ \n\n`TIED` - shipping container is assigned to this release and ready\
-            \ to lease out.\n\n`REMOVED` - shipping container was attached to this\
-            \ release, but is no longer valid for release.\n\n`LOT` - shipping container\
-            \ has left the storage location."
-          example: TIED
+          description: the last cargo this shipping container carried
+          example: Aroset PS 5191
+        tankGrade:
+          maxLength: 1
+          type: string
+          description: "if this is a tank, then this describes the type of liquids\
+            \ it can contain: \n\n`F` - Food\n\n`C` - Chemical "
+          example: C
           enum:
-          - REMOVED
-          - TIED
-          - LOT
-        carbCompliant:
-          type: boolean
-          description: specific to Genset equipment, indicator for California Air
-            Resources Board compliance
-      description: information for a specific unit on a release
-    ReleaseDetailCriteria:
+          - F
+          - C
+        billingParty:
+          $ref: '#/components/schemas/Party'
+        machineryInfo:
+          allOf:
+          - $ref: '#/components/schemas/MachineryInfo'
+          - nullable: true
+      description: information for a specific unit on a redelivery
+    Release:
       required:
-      - fieldDescription
-      - fieldId
-      - fieldName
-      - fieldValue
+      - approvalDate
+      - depot
+      - details
+      - owner
+      - recipient
+      - releaseNumber
+      - type
       type: object
       properties:
-        fieldName:
-          maxLength: 50
+        releaseNumber:
+          maxLength: 16
           required:
           - "true"
           type: string
-          description: a legible field name
-          example: Minimum Tonnage
-        fieldId:
-          maxLength: 30
+          description: "the identifier for this release, also referred to as the advice\
+            \ number or release number"
+          example: AHAMG33141
+        type:
           required:
           - "true"
           type: string
-          description: an abbreviated form of the field name
-          example: tonnageMin
-        fieldDescription:
-          maxLength: 255
+          description: "Describes the intended purpose of the release: \n\n`SALE`\
+            \ - shipping containers are being sold\n\n`BOOK` - shipping containers\
+            \ are being leased to a customer\n\n`REPO` - shipping containers are being\
+            \ relocated by the owner to another storage location"
+          enum:
+          - SALE
+          - BOOK
+          - REPO
+        expirationDate:
+          type: string
+          description: |-
+            the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this release is considered no longer valid
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+        approvalDate:
+          type: string
+          description: |-
+            the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+        comments:
+          maxLength: 512
+          type: array
+          description: comments pertaining to this release for the intended recipient
+            of this message
+          example: "[an example release level comment]"
+          items:
+            type: string
+        depot:
+          $ref: '#/components/schemas/Party'
+        owner:
+          $ref: '#/components/schemas/Party'
+        recipient:
+          $ref: '#/components/schemas/Party'
+        onHireSurveyRequired:
+          type: boolean
+          description: indicates if an on-hire survey is required for units associated
+            to this release
+        details:
+          minLength: 1
           required:
           - "true"
-          type: string
-          description: an explanation of what the field value is
-          example: minimum tonnage rating of the unit (inclusive)
-        fieldValue:
-          maxLength: 500
-          required:
-          - "true"
-          type: string
-          description: the value of the field
-          example: "30"
-      description: represents unit criteria to restrict units on a given detail
+          type: array
+          description: groups of like-criteria units
+          items:
+            $ref: '#/components/schemas/ReleaseDetail'
+      description: An approval to remove shipping containers from a storage location.
     ReleaseDetail:
       required:
       - contract
@@ -2522,9 +2416,9 @@ components:
           - FT
         units:
           type: array
-          description: the specific units for this release if defined, if not, assumed
-            blanket (any unit matching criteria can be tied up to the quantity limit
-            of this detail)
+          description: "the specific units for this release if defined, if not, assumed\
+            \ blanket (any unit matching criteria can be tied up to the quantity limit\
+            \ of this detail)"
           items:
             $ref: '#/components/schemas/ReleaseUnit'
         criteria:
@@ -2538,7 +2432,7 @@ components:
           type: array
           description: comments pertaining to this detail for the intended recipient
             of this message
-          example: '[an example release detail comment]'
+          example: "[an example release detail comment]"
           items:
             type: string
         quantity:
@@ -2561,79 +2455,278 @@ components:
         ventilation:
           maxLength: 10
           type: string
-          description: if the equipment has fresh air ventilation, the rate of the
-            fresh air ventilation
+          description: "if the equipment has fresh air ventilation, the rate of the\
+            \ fresh air ventilation"
           example: 90 CBM
       description: groups similar units on a release
-    Release:
+    ReleaseDetailCriteria:
       required:
-      - approvalDate
-      - depot
-      - details
-      - owner
-      - recipient
-      - releaseNumber
-      - type
+      - fieldDescription
+      - fieldId
+      - fieldName
+      - fieldValue
       type: object
       properties:
-        releaseNumber:
-          maxLength: 16
+        fieldName:
+          maxLength: 50
           required:
           - "true"
           type: string
-          description: the identifier for this release, also referred to as the advice
-            number or release number
-          example: AHAMG33141
-        type:
+          description: a legible field name
+          example: Minimum Tonnage
+        fieldId:
+          maxLength: 30
           required:
           - "true"
           type: string
-          description: "Describes the intended purpose of the release: \n\n`SALE`\
-            \ - shipping containers are being sold\n\n`BOOK` - shipping containers\
-            \ are being leased to a customer\n\n`REPO` - shipping containers are being\
-            \ relocated by the owner to another storage location"
-          enum:
-          - SALE
-          - BOOK
-          - REPO
-        expirationDate:
+          description: an abbreviated form of the field name
+          example: tonnageMin
+        fieldDescription:
+          maxLength: 255
+          required:
+          - "true"
           type: string
-          description: |-
-            the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this release is considered no longer valid
-
-            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date-time
-        approvalDate:
+          description: an explanation of what the field value is
+          example: minimum tonnage rating of the unit (inclusive)
+        fieldValue:
+          maxLength: 500
+          required:
+          - "true"
           type: string
-          description: |-
-            the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved
-
-            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date-time
+          description: the value of the field
+          example: "30"
+      description: represents unit criteria to restrict units on a given detail
+    ReleaseUnit:
+      required:
+      - status
+      - unitNumber
+      type: object
+      properties:
+        unitNumber:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          required:
+          - "true"
+          type: string
+          description: the current unit number of the shipping container
+          example: CONU1234561
         comments:
           maxLength: 512
           type: array
-          description: comments pertaining to this release for the intended recipient
+          description: comments pertaining to this unit for the intended recipient
             of this message
-          example: '[an example release level comment]'
+          example: "[An example unit level comment.]"
           items:
             type: string
+        status:
+          type: string
+          description: "Describes the state of the shipping container for this release:\
+            \ \n\n`TIED` - shipping container is assigned to this release and ready\
+            \ to lease out.\n\n`REMOVED` - shipping container was attached to this\
+            \ release, but is no longer valid for release.\n\n`LOT` - shipping container\
+            \ has left the storage location."
+          example: TIED
+          enum:
+          - REMOVED
+          - TIED
+          - LOT
+        carbCompliant:
+          type: boolean
+          description: "specific to Genset equipment, indicator for California Air\
+            \ Resources Board compliance"
+      description: information for a specific unit on a release
+    RepairComplete:
+      required:
+      - completionDate
+      - depot
+      - unitNumber
+      - workOrderNumber
+      type: object
+      properties:
+        workOrderNumber:
+          maxLength: 16
+          minLength: 1
+          required:
+          - "true"
+          type: string
+          description: the identifier of the work order to repair complete
+          example: WHAMG46019
+        depot:
+          $ref: '#/components/schemas/Party'
+        completionDate:
+          type: string
+          description: |-
+            the date and time in the depot local time zone (i.e. `2018-04-10T19:37:04Z`) that this work order was repaired.
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+        unitNumber:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          required:
+          - "true"
+          type: string
+          description: the unit number of the shipping container at the time of repair
+            approval
+          example: CONU1234561
+      description: Necessary information to mark a specific unit under a work order
+        repaired
+    WorkOrder:
+      required:
+      - approvalDate
+      - depot
+      - lineItems
+      - owner
+      - type
+      - workOrderNumber
+      type: object
+      properties:
+        workOrderNumber:
+          maxLength: 16
+          minLength: 1
+          required:
+          - "true"
+          type: string
+          description: the identifier for this work order
+          example: WHAMG46019
         depot:
           $ref: '#/components/schemas/Party'
         owner:
           $ref: '#/components/schemas/Party'
-        recipient:
-          $ref: '#/components/schemas/Party'
-        onHireSurveyRequired:
-          type: boolean
-          description: indicates if an on-hire survey is required for units associated
-            to this release
-        details:
+        billingParty:
+          allOf:
+          - $ref: '#/components/schemas/Party'
+          - nullable: true
+        type:
+          maxLength: 11
+          required:
+          - "true"
+          type: string
+          description: the type of repair approved
+          example: SELLCWCA
+        approvalDate:
+          required:
+          - "true"
+          type: string
+          description: |-
+            the date and time in the depot local time zone (i.e. `2017-05-10T19:37:04Z`) that this work order is authorized for repair
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+        approvalTotal:
+          required:
+          - "false"
+          type: number
+          description: the total amount approved for repair
+          format: double
+          example: 175.00
+        approvalCurrency:
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          required:
+          - "false"
+          type: string
+          description: the currency of the approval total
+          example: EUR
+        expirationDate:
+          required:
+          - "false"
+          type: string
+          description: |-
+            the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this repair must be completed by
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+        comments:
+          maxLength: 500
+          required:
+          - "false"
+          type: string
+          description: comments pertaining to this repair for the intended recipient
+            of this message
+          example: CWCA repairs for unit TCKU3456654 total 175.00 EUR per DEHAMCE1856373.1
+        lineItems:
+          maxLength: 200
           minLength: 1
           required:
           - "true"
           type: array
-          description: groups of like-criteria units
+          description: units associated to this work order
           items:
-            $ref: '#/components/schemas/ReleaseDetail'
-      description: An approval to remove shipping containers from a storage location.
+            $ref: '#/components/schemas/WorkOrderUnit'
+      description: An approval of a damage estimate signifying a depot may repair
+        a shipping container
+    WorkOrderUnit:
+      required:
+      - effectiveInspectionCriteria
+      - status
+      - unitNumber
+      type: object
+      properties:
+        estimateNumber:
+          maxLength: 16
+          minLength: 1
+          required:
+          - "false"
+          type: string
+          description: The estimate number that initiated this unit on this work order
+          example: DEHAMCE1856373
+        unitNumber:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          required:
+          - "true"
+          type: string
+          description: the unit number of the shipping container at the time of repair
+            approval
+          example: CONU1234561
+        effectiveInspectionCriteria:
+          maxLength: 10
+          required:
+          - "true"
+          type: string
+          description: repair the shipping container to this grade or category standard
+          example: CWCA-1
+        remark:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          required:
+          - "false"
+          type: string
+          description: the unit number to remark the shipping container on repair
+        releaseNumber:
+          maxLength: 16
+          required:
+          - "false"
+          type: string
+          description: the Release approved for gate out after repair
+        status:
+          maxLength: 8
+          required:
+          - "true"
+          type: string
+          description: |-
+            an indicator of the unit state on this work order
+
+            `TIED` - shipping container is considered under repair on this work order
+
+            `REMOVED` - shipping container is removed from this work order
+
+            `REPAIRED` - shipping container is considered repaired
+          example: TIED
+          default: TIED
+          enum:
+          - TIED
+          - REMOVED
+          - REPAIRED
+      description: information for a specific unit on a work order
+x-tagGroups:
+- name: "API: Under Development (Beta)"
+  tags:
+  - redelivery
+  - release
+- name: "API: Production Ready"
+  tags:
+  - gate
+  - estimate
+  - workOrder

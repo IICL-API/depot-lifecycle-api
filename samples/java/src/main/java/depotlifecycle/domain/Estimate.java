@@ -33,7 +33,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Represents an estimation of costs to repair or upgrade a shipping container.", requiredProperties = {"estimateNumber", "unitNumber", "condition", "estimateTime", "depot", "currency", "total", "exchangeRate", "revision", "lineItems"})
+@Schema(description = "Represents an estimation of costs to repair or upgrade a shipping container.", requiredProperties = {"estimateNumber", "unitNumber", "condition", "estimateTime", "depot", "currency", "total", "lineItems"})
 @EqualsAndHashCode(of = {"estimateNumber", "depot", "revision"})
 @ToString(of = {"estimateNumber", "depot", "revision"})
 @Introspected
@@ -90,8 +90,8 @@ public class Estimate {
     @Column(nullable = false)
     BigDecimal total;
 
-    @Schema(description = "the exchange rate to convert billed currency to the local currency of this estimate", required = false, type = "number", format = "double", example = "0.8133")
-    @Column(nullable = false)
+    @Schema(description = "the exchange rate to convert billed currency to the local currency of this estimate", required = false, type = "number", format = "double", example = "0.8133", accessMode = Schema.AccessMode.READ_ONLY )
+    @Column(nullable = true)
     BigDecimal exchangeRate;
 
     @Schema(description = "lessee approval information for this estimate", required = false)
@@ -106,8 +106,8 @@ public class Estimate {
     @Column(length = 2)
     String upgradeType;
 
-    @Schema(description = "the revision number of the estimate", type = "integer", format = "int32", example = "0", required = true)
-    @Column(nullable = false)
+    @Schema(description = "the revision number of the estimate", type = "integer", format = "int32", example = "0", required = false)
+    @Column(nullable = true)
     Integer revision;
 
     @Schema(description = "detailed damage descriptions that when combined represent the damages being repaired by this estimate", required = true, minLength = 1)

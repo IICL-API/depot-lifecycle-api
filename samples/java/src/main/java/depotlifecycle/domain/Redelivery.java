@@ -61,6 +61,7 @@ public class Redelivery {
     @Schema(description = "comments pertaining to this redelivery for the intended recipient of this message", maxLength = 512, example = "[an example redelivery level comment]")
     @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
+    @Column(length = 512)
     List<String> comments;
 
     @Schema(description = "The location for this redelivery", required = true)

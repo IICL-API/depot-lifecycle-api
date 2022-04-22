@@ -14,6 +14,7 @@ import depotlifecycle.repositories.GateDeleteRequestRepository;
 import depotlifecycle.repositories.GateUpdateRequestRepository;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
+import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpResponseFactory;
@@ -27,13 +28,14 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.hateoas.JsonError;
-import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -59,11 +61,16 @@ public class GateController {
     private final GateCreateRequestRepository gateCreateRequestRepository;
     private final GateUpdateRequestRepository gateUpdateRequestRepository;
     private final GateDeleteRequestRepository gateDeleteRequestRepository;
-    private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final ConversionService<?> conversionService;
     private final SecurityService securityService;
 
     @Post(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "create a gate record", description = "Creates either a gate-in or gate-out record for the given shipping container against the provided advice and depot data.", method = "POST", operationId = "saveGate")
+    @Operation(summary = "create a gate record",
+        description = "Creates either a gate-in or gate-out record for the given shipping container against the provided advice and depot data.",
+        method = "POST",
+        operationId = "saveGate",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successfully created a gate in or gate out record for the shipping container", content = {@Content(schema = @Schema(implementation = GateResponse.class))}),
         @ApiResponse(responseCode = "202", description = "gate accepted for processing, but not created due to manual processing requirement", content = {@Content(schema = @Schema(implementation = PendingResponse.class))}),
@@ -75,7 +82,7 @@ public class GateController {
     })
     public HttpResponse<Object> create(@Body @RequestBody(description = "gate object to create a new gate in or gate out record", required = true, content = {@Content(schema = @Schema(implementation = GateCreateRequest.class))}) GateCreateRequest gateCreateRequest) {
         LOG.info("Received Gate Create");
-        objectToJsonNodeConverter.convert(gateCreateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(gateCreateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(gateCreateRequest.getAdviceNumber(), gateCreateRequest.getUnitNumber(), gateCreateRequest.getType())) {
             throw new IllegalArgumentException("Gate already exists; please update instead.");
@@ -98,13 +105,18 @@ public class GateController {
         gate.setCurrentInspectionCriteria("IICL");
 
         LOG.info("Responding with example Gate Response");
-        objectToJsonNodeConverter.convert(gate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(gate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         return HttpResponse.ok(gate);
     }
 
     @Get(uri = "/{unitNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "fetch the current gate status", description = "For the given unit number, if the shipping container is currently gated in or gated out, fetch the current interchange information - status, the time of the gate, etc.", method = "GET", operationId = "showGate")
+    @Operation(summary = "fetch the current gate status",
+        description = "For the given unit number, if the shipping container is currently gated in or gated out, fetch the current interchange information - status, the time of the gate, etc.  This is a reporting only function.  To correct a gate status, use the update a gate record endpoint.",
+        method = "GET",
+        operationId = "showGate",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "reporting", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successfully found current gate status", content = {@Content(schema = @Schema(implementation = GateStatus.class))}),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -118,7 +130,12 @@ public class GateController {
     }
 
     @Put(uri = "/{depot}/{adviceNumber}/{unitNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "update a gate record", description = "Correct the initial damage indicator status or activity time from when the gate record was created.", method = "PUT", operationId = "updateGate")
+    @Operation(summary = "update a gate record",
+        description = "Correct the initial damage indicator status or activity time from when the gate record was created.  Some depot operators refer to this as a `status` update.",
+        method = "PUT",
+        operationId = "updateGate",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successfully update the gate record", content = {@Content(schema = @Schema(implementation = GateResponse.class))}),
         @ApiResponse(responseCode = "202", description = "gate update accepted for processing, but not created due to manual processing requirement", content = {@Content(schema = @Schema(implementation = PendingResponse.class))}),
@@ -133,7 +150,7 @@ public class GateController {
                                @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                @Body @RequestBody(description = "gate object to update an existing record", required = true, content = {@Content(schema = @Schema(implementation = GateUpdateRequest.class))}) GateUpdateRequest gateUpdateRequest) {
         LOG.info("Received Gate Update");
-        objectToJsonNodeConverter.convert(gateUpdateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(gateUpdateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         if(!gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, gateUpdateRequest.getType())) {
             if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
@@ -156,13 +173,18 @@ public class GateController {
         gate.setCurrentInspectionCriteria("IICL");
 
         LOG.info("Responding with example Gate Response");
-        objectToJsonNodeConverter.convert(gate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        conversionService.convert(gate, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         return HttpResponse.ok(gate);
     }
 
     @Delete(uri = "/{depot}/{adviceNumber}/{unitNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "delete a gate record", description = "Delete a gate record", method = "DELETE", operationId = "deleteGate")
+    @Operation(summary = "delete a gate record",
+        description = "Delete a gate record.",
+        method = "DELETE",
+        operationId = "deleteGate",
+        extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successfully delete the gate record"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),

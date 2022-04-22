@@ -8,9 +8,11 @@ import depotlifecycle.domain.RedeliveryUnit;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
+import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpResponseFactory;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
@@ -21,13 +23,14 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.hateoas.JsonError;
-import io.micronaut.jackson.convert.ObjectToJsonNodeConverter;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,12 +42,9 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Tag(name = "redelivery")
 @Validated
@@ -55,11 +55,16 @@ public class RedeliveryController {
     private static final Logger LOG = LoggerFactory.getLogger(RedeliveryController.class);
     private final PartyRepository partyRepository;
     private final RedeliveryRepository redeliveryRepository;
-    private final ObjectToJsonNodeConverter objectToJsonNodeConverter;
+    private final ConversionService conversionService;
     private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "search for a redelivery", description = "Finds Redeliveries for the given the criteria.", method = "GET", operationId = "indexRedelivery")
+    @Operation(summary = "search for a redelivery",
+        description = "Finds Redeliveries for the given the criteria.",
+        method = "GET",
+        operationId = "indexRedelivery",
+        extensions = @Extension(properties = {@ExtensionProperty(name = "iicl-purpose", value = "reporting", parseValue = true)})
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful search", content = {@Content(array = @ArraySchema(schema = @Schema(implementation = Redelivery.class)))}),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -67,33 +72,22 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@QueryValue("redeliveryNumber") @Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber) {
+    public HttpResponse<HttpStatus> index(@QueryValue("redeliveryNumber") @Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
+                                          @QueryValue("unitNumber") @Parameter(name = "unitNumber", description = "the unit number of the shipping container", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber) {
         LOG.info("Received Redelivery Search");
         Optional.of(redeliveryNumber).ifPresent(LOG::info);
+        Optional.of(unitNumber).ifPresent(LOG::info);
 
-        List<Redelivery> redeliveries = new ArrayList<>();
-        if (redeliveryNumber != null) {
-            Optional<Redelivery> redelivery = redeliveryRepository.findByRedeliveryNumber(redeliveryNumber);
-            redelivery.ifPresent(redeliveries::add);
-        }
-        else {
-            for (Redelivery redelivery : redeliveryRepository.findAll()) {
-                redeliveries.add(redelivery);
-            }
-        }
-
-        if (redeliveries.isEmpty()) {
-            LOG.info("\tRelease Search - 404 - Not Found");
-            return HttpResponse.notFound();
-        }
-        else {
-            LOG.info("\tRelease Search - 200 - Found Releases");
-            return HttpResponse.ok(redeliveries);
-        }
+        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }
 
     @Post(produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "create redelivery", description = "Creates a Redelivery for the given criteria.", method = "POST", operationId = "saveRedelivery")
+    @Operation(summary = "create redelivery",
+        description = "Creates a Redelivery for the given criteria.",
+        method = "POST",
+        operationId = "saveRedelivery",
+        extensions = @Extension(properties = {@ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true)})
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful create"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -104,8 +98,8 @@ public class RedeliveryController {
     })
     public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, HttpHeaders headers) {
         LOG.info("Received Redelivery Create");
-        objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
-        Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v)->m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
+        conversionService.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v) -> m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME) && redeliveryRepository.existsByRedeliveryNumber(redelivery.getRedeliveryNumber())) {
             throw new IllegalArgumentException("Redelivery already exists; please update instead.");
@@ -118,7 +112,12 @@ public class RedeliveryController {
     }
 
     @Put(uri = "/{redeliveryNumber}", produces = MediaType.APPLICATION_JSON)
-    @Operation(summary = "update redelivery", description = "Updates an existing Redelivery.", method = "PUT", operationId = "updateRedelivery")
+    @Operation(summary = "update redelivery",
+        description = "Updates an existing Redelivery.",
+        method = "PUT",
+        operationId = "updateRedelivery",
+        extensions = @Extension(properties = {@ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true)})
+    )
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "successful update"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
@@ -128,12 +127,12 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse<HttpStatus> update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
-                       @Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, HttpHeaders headers) {
+                                           @Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, HttpHeaders headers) {
         LOG.info("Received Redelivery Update");
-        objectToJsonNodeConverter.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
-        Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v)->m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
+        conversionService.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+        Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v) -> m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
 
-        if(!redeliveryRepository.existsByRedeliveryNumber(redeliveryNumber)) {
+        if (!redeliveryRepository.existsByRedeliveryNumber(redeliveryNumber)) {
             if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
                 throw new IllegalArgumentException("Redelivery does not exist.");
             }

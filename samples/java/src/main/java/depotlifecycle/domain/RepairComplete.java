@@ -3,6 +3,7 @@ package depotlifecycle.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,6 +27,7 @@ import java.time.ZonedDateTime;
 @Table
 @Schema(description = "Necessary information to mark a specific unit under a work order repaired", requiredProperties = {"workOrderNumber", "depot", "completionDate", "unitNumber"})
 @EqualsAndHashCode(of = {"workOrderNumber", "unitNumber"})
+@Introspected
 @ToString(of = {"workOrderNumber", "unitNumber"})
 public class RepairComplete {
     @Id

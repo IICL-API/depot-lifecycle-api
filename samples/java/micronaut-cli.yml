@@ -1,5 +1,6 @@
-profile: service
+applicationType: default
 defaultPackage: depotlifecycle
----
-testFramework: junit
+testFramework: spock
 sourceLanguage: java
+buildTool: gradle
+features: [annotation-api, app-name, data, data-jpa, gradle, h2, hibernate-jpa, http-client, jackson-databind, java, java-application, jdbc-hikari, logback, lombok, micronaut-build, netty-server, openapi, reactor, reactor-http-client, readme, security-annotations, security-jwt, shade, spock, yaml]

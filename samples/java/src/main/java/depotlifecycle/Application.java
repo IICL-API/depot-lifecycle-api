@@ -16,21 +16,20 @@ import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,6 +52,14 @@ import java.util.Arrays;
             "\n\n\n" +
             " # Implementation Expectations\n\n" +
             " Not all parties are required or expected to implement every feature. Any feature not implemented should return a http status code of `501`.  \n" +
+            "\n\n\n" +
+            " # APIs to Implement\n\n" +
+            " While anyone is free to implement all or a selected set of the APIs listed here, the typical use case would be for Depot to Lessor communication.  For the Depot, they would call the Lessor's system using the following APIs:  \n" +
+            " 1. POST - create a gate record \n" +
+            " 2. PUT - update a gate record \n" +
+            " 3. POST - create an estimate revision \n" +
+            " 4. PUT - marks a shipping container repaired \n\n" +
+            " These APIs allow the Depot to report the initial gate in movement, issue gate data corrections (i.e. the damage status or activity date), participate in the estimate process, notify when a shipping container is repaired, and create a gate out for leaving the depot.\n\n" +
             "\n\n\n" +
             " # Depreciation\n\n" +
             " If this API version were to be discontinued, a minimum of 6 months time would pass before it's removal.\n" +
@@ -189,6 +196,9 @@ import java.util.Arrays;
         @Tag(name = "gate", description = "*manage gate ins and gate outs of shipping containers*"),
         @Tag(name = "estimate", description = "*a damage or upgrade estimate for a shipping container after turn in*"),
         @Tag(name = "workOrder", description = "*manage damage estimates that are approved for repair*")
+    },
+    extensions = {
+        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }]", parseValue = true)})
     },
     servers = {
         @Server(url = "https://api.example.com/examplecontextpath")

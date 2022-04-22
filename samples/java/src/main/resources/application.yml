@@ -3,6 +3,10 @@ micronaut:
     name: depotlifecycle
   server:
       port: 8086
+  endpoints:
+    health:
+      enabled: true
+      details-visible: ANONYMOUS
   router:
     static-resources:
       swagger:
@@ -19,6 +23,7 @@ micronaut:
         mapping: /swagger-ui/**
   security:
     enabled: true
+    authentication: bearer
     intercept-url-map:
       - pattern: /swagger/**
         httpMethod: GET
@@ -51,6 +56,7 @@ micronaut:
               secret: pleaseChangeThisSecretForANewOne
 jackson:
   bean-introspection-module: true
+  always-serialize-errors-as-list: false
   serialization:
     indentOutput: true
     writeDatesAsTimestamps: false
@@ -60,7 +66,7 @@ jackson:
 #    failOnUnknownProperties: false
 datasources:
   default:
-    url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:devDb;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
     driverClassName: org.h2.Driver
     username: sa
     password: ''
@@ -68,9 +74,6 @@ datasources:
     dialect: H2
 jpa:
   default:
-    packages-to-scan:
-      - 'depotlifecycle.domain'
-      - 'depotlifecycle.repositories'
     properties:
       hibernate:
         bytecode:
