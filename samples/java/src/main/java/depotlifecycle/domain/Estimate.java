@@ -33,7 +33,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Represents an estimation of costs to repair or upgrade a shipping container.", requiredProperties = {"estimateNumber", "unitNumber", "condition", "estimateTime", "depot", "currency", "total", "exchangeRate", "revision", "lineItems"})
+@Schema(description = "Represents an estimation of costs to repair or upgrade a shipping container.", requiredProperties = {"estimateNumber", "unitNumber", "condition", "estimateTime", "depot", "currency", "total", "lineItems"})
 @EqualsAndHashCode(of = {"estimateNumber", "depot", "revision"})
 @ToString(of = {"estimateNumber", "depot", "revision"})
 @Introspected
@@ -90,7 +90,7 @@ public class Estimate {
     @Column(nullable = false)
     BigDecimal total;
 
-    @Schema(description = "the exchange rate to convert billed currency to the local currency of this estimate", required = false, type = "number", format = "double", example = "0.8133")
+    @Schema(description = "the exchange rate to convert billed currency to the local currency of this estimate", required = false, type = "number", format = "double", example = "0.8133", accessMode = Schema.AccessMode.READ_ONLY )
     @Column(nullable = true)
     BigDecimal exchangeRate;
 

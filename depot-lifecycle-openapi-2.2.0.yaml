@@ -1067,9 +1067,7 @@ components:
       - depot
       - estimateNumber
       - estimateTime
-      - exchangeRate
       - lineItems
-      - revision
       - total
       - unitNumber
       type: object
@@ -1163,6 +1161,7 @@ components:
             of this estimate
           format: double
           nullable: true
+          readOnly: true
           example: 0.8133
         customerApproval:
           allOf:
