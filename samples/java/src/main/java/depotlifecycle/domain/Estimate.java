@@ -114,8 +114,9 @@ public class Estimate {
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimateLineItem> lineItems = new ArrayList<>();
 
+    // https://github.com/swagger-api/swagger-ui/issues/5418 prevents the read only access from correctly working so explicitly mention this in the description
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-    @Schema(description = "the amount break downs by party for this estimate")
+    @Schema(description = "the amount break downs by party for this estimate; typically only defined for a response and not included in requests", accessMode = Schema.AccessMode.READ_ONLY)
     EstimateAllocation allocation;
 
     @JsonIgnore
