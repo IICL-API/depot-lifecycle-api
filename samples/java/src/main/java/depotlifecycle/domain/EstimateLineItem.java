@@ -86,7 +86,7 @@ public class EstimateLineItem {
     @Column(nullable = false)
     BigDecimal laborRate;
 
-    @Schema(description = "The party that is responsible for the cost of this repair\n\n `O` - Owner\n\n `U` - Customer\n\n `I` - Insurance\n\n `W` - Warranty\n\n `S` - Special\n\n `D` - Deleted\n\n", required = true, allowableValues = {"O", "U", "I", "W", "S", "D"}, maxLength = 1)
+    @Schema(description = "The party that is responsible for the cost of this repair\n\n `O` - Owner\n\n `U` - Customer\n\n `I` - Insurance\n\n `W` - Warranty\n\n `S` - Special\n\n `D` - Depot\n\n `X` - Deleted\n\n `T` - Third Party\n\n", required = true, allowableValues = {"O", "U", "I", "W", "S", "D", "X", "T"}, maxLength = 1)
     @Column(nullable = false, length = 1)
     String party;
 
