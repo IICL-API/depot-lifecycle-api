@@ -1574,7 +1574,11 @@ components:
 
              `S` - Special
 
-             `D` - Deleted
+             `D` - Depot
+
+             `X` - Deleted
+
+             `T` - Third Party
 
           enum:
           - O
@@ -1583,6 +1587,8 @@ components:
           - W
           - S
           - D
+          - X
+          - T
         comments:
           maxLength: 256
           required:
