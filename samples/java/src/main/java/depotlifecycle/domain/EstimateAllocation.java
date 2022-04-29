@@ -27,7 +27,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Indicates the allocated estimate totals, including any comments on the allocation and if the box is considered a constructive loss.", requiredProperties = {"estimateNumber", "revision", "depot", "total", "ownerTotal", "customerTotal", "insuranceTotal", "ctl"})
+@Schema(description = "Indicates the allocated estimate totals, including any comments on the allocation and if the box is considered a constructive loss.", requiredProperties = {"estimateNumber", "revision", "depot", "total", "ownerTotal", "customerTotal", "insuranceTotal", "ctl"}, accessMode = Schema.AccessMode.READ_ONLY)
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
