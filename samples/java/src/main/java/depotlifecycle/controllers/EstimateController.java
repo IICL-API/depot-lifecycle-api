@@ -273,7 +273,7 @@ public class EstimateController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse<HttpStatus> allocate(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
-                                             @Body @RequestBody(description = "total breakdowns to finish creating an estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateAllocation.class))}) EstimateAllocation allocation) {
+                                             @Body @RequestBody(description = "total breakdowns to finish creating an estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateAllocation.class, accessMode = Schema.AccessMode.AUTO))}) EstimateAllocation allocation) {
         LOG.info("Received Estimate Totals Allocation");
         conversionService.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
