@@ -45,8 +45,8 @@ public class ReleaseUnit {
     @Column(length = 512)
     List<String> comments;
 
-    @Schema(description = "Describes the state of the shipping container for this release: \n\n`TIED` - shipping container is assigned to this release and ready to lease out.\n\n`REMOVED` - shipping container was attached to this release, but is no longer valid for release.\n\n`LOT` - shipping container has left the storage location.", allowableValues = {"REMOVED", "TIED", "LOT"}, example = "TIED")
-    @Column(nullable = false, length = 7)
+    @Schema(description = "Describes the state of the shipping container for this release: \n\n`TIED` - shipping container is assigned to this release and ready to lease out.\n\n`REMOVED` - shipping container was attached to this release, but is no longer valid for release.\n\n`LOT` - shipping container has left the storage location.\n\n`CANDIDATE` - this container is eligible for this release but not currently assigned.", allowableValues = {"REMOVED", "TIED", "LOT", "CANDIDATE"}, example = "TIED")
+    @Column(nullable = false, length = 9)
     String status;
 
     @Schema(description = "specific to Genset equipment, indicator for California Air Resources Board compliance")
