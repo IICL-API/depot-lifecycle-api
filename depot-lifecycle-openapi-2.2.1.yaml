@@ -71,7 +71,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 2.2.0
+  version: 2.2.1
 externalDocs:
   description: Find out more about this api
   url: https://github.com/IICL-API/depot-lifecycle-api
@@ -1618,15 +1618,57 @@ components:
           - L
           - M
         quantity:
-          minimum: 0
+          minimum: 1
           required:
           - "false"
           type: number
           description: the number of damages
           format: int32
           example: 1
+        parts:
+          required:
+          - "false"
+          type: array
+          description: "An optional, detailed part list used to repair this line item"
+          items:
+            $ref: '#/components/schemas/EstimateLineItemPart'
       description: Represents an estimation of costs to repair or upgrade a single
         instance of damage for a shipping container.
+    EstimateLineItemPart:
+      required:
+      - number
+      - price
+      - quantity
+      type: object
+      properties:
+        description:
+          maxLength: 500
+          type: string
+          description: a description for this part
+          example: Paint A
+        number:
+          maxLength: 50
+          required:
+          - "true"
+          type: string
+          description: ID number used to signify what part is being used
+          example: "108106"
+        quantity:
+          minimum: 1
+          required:
+          - "true"
+          type: number
+          description: the number of parts used
+          format: int32
+          example: 1
+        price:
+          required:
+          - "true"
+          type: number
+          description: the price per part
+          format: double
+          example: 2.88
+      description: Represents a part used for the repair of a line item.
     GateCreateRequest:
       required:
       - activityTime
