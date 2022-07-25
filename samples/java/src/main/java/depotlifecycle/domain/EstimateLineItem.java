@@ -111,6 +111,10 @@ public class EstimateLineItem {
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimateLineItemPart> parts = new ArrayList<>();
 
+    @Schema(description = "An optional photo list showing the damage of this line item", required = false)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL})
+    List<EstimateLineItemPhoto> photos = new ArrayList<>();
+
     @JsonIgnore
     public BigDecimal getTotal() {
         if(Objects.isNull(hours) || Objects.isNull(materialCost) || Objects.isNull(laborRate)) {

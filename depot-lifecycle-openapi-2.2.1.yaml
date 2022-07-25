@@ -1268,6 +1268,13 @@ components:
             damages being repaired by this estimate
           items:
             $ref: '#/components/schemas/EstimateLineItem'
+        photos:
+          required:
+          - "false"
+          type: array
+          description: An optional photo list for the shipping container damages.
+          items:
+            $ref: '#/components/schemas/EstimatePhoto'
         allocation:
           allOf:
           - $ref: '#/components/schemas/EstimateAllocation'
@@ -1632,6 +1639,13 @@ components:
           description: "An optional, detailed part list used to repair this line item"
           items:
             $ref: '#/components/schemas/EstimateLineItemPart'
+        photos:
+          required:
+          - "false"
+          type: array
+          description: An optional photo list showing the damage of this line item
+          items:
+            $ref: '#/components/schemas/EstimateLineItemPhoto'
       description: Represents an estimation of costs to repair or upgrade a single
         instance of damage for a shipping container.
     EstimateLineItemPart:
@@ -1669,6 +1683,70 @@ components:
           format: double
           example: 2.88
       description: Represents a part used for the repair of a line item.
+    EstimateLineItemPhoto:
+      required:
+      - status
+      - url
+      type: object
+      properties:
+        url:
+          required:
+          - "true"
+          type: string
+          description: "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986)\
+            \ that is a photo for this line item."
+          example: https://www.example.com/photo.png
+        status:
+          maxLength: 8
+          required:
+          - "true"
+          type: string
+          description: "indicator of when this photo applies\n\n`REPAIRED` - Photo\
+            \ is after repair \n\n`BEFORE` - Photo is before repair"
+          example: BEFORE
+          enum:
+          - REPAIRED
+          - BEFORE
+      description: Links to a photo for a single instance of damage for a shipping
+        container.
+    EstimatePhoto:
+      required:
+      - status
+      - url
+      type: object
+      properties:
+        url:
+          required:
+          - "true"
+          type: string
+          description: "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986)\
+            \ that is a photo for this estimate."
+          example: https://www.example.com/photo.png
+        status:
+          maxLength: 8
+          required:
+          - "true"
+          type: string
+          description: "indicator of when this photo applies\n\n`REPAIRED` - Photo\
+            \ is after repair \n\n`BEFORE` - Photo is before repair"
+          example: BEFORE
+          enum:
+          - REPAIRED
+          - BEFORE
+      description: Links to a photo for a damage estimate.
+    GateCreatePhoto:
+      required:
+      - url
+      type: object
+      properties:
+        url:
+          required:
+          - "true"
+          type: string
+          description: "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986)\
+            \ that is a photo of the shipping container."
+          example: https://www.example.com/photo.png
+      description: Links to a photo for a shipping container at the time of gate creation.
     GateCreateRequest:
       required:
       - activityTime
@@ -1735,6 +1813,13 @@ components:
           enum:
           - IN
           - OUT
+        photos:
+          required:
+          - "false"
+          type: array
+          description: An optional photo list of the shipping container at gate creation
+          items:
+            $ref: '#/components/schemas/GateCreatePhoto'
       description: data required to create a gate in or gate out record
     GateResponse:
       required:
@@ -1867,6 +1952,19 @@ components:
           description: the last reported grade or category standard this unit
           example: IICL
       description: the current gate status of a given shipping container
+    GateUpdatePhoto:
+      required:
+      - url
+      type: object
+      properties:
+        url:
+          required:
+          - "true"
+          type: string
+          description: "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986)\
+            \ that is a photo of the shipping container."
+          example: https://www.example.com/photo.png
+      description: Links to a photo for a shipping container at the time of gate update.
     GateUpdateRequest:
       type: object
       properties:
@@ -1911,6 +2009,13 @@ components:
           enum:
           - IN
           - OUT
+        photos:
+          required:
+          - "false"
+          type: array
+          description: An optional photo list of the shipping container at gate update
+          items:
+            $ref: '#/components/schemas/GateUpdatePhoto'
       description: Data required to update a gate in or gate out record. Any data
         not provided will result in no update.
     InsuranceCoverage:
