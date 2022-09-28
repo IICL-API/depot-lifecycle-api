@@ -317,12 +317,12 @@ public class Application {
         redelivery.setDepot(depot1);
         redelivery.setRecipient(depot1);
         redelivery.setOwner(owner);
+        redelivery.setQuantity(2);
 
         RedeliveryDetail noInsuranceDetail = new RedeliveryDetail();
         noInsuranceDetail.setCustomer(customer);
         noInsuranceDetail.setContract("EXCUST01-100000");
         noInsuranceDetail.setEquipment("22G1");
-        noInsuranceDetail.setInspectionCriteria("IICL");
         noInsuranceDetail.setQuantity(1);
 
         InsuranceCoverage coverage = new InsuranceCoverage();
@@ -337,7 +337,7 @@ public class Application {
         insuranceDetail.setCustomer(customer);
         insuranceDetail.setContract("EXCUST01-100000");
         insuranceDetail.setEquipment("22G2");
-        insuranceDetail.setInspectionCriteria("IICL");
+        insuranceDetail.setGrade("IICL");
         insuranceDetail.setInsuranceCoverage(coverage);
         insuranceDetail.setQuantity(1);
 
@@ -348,6 +348,7 @@ public class Application {
         unit1.setLastOnHireLocation(depot2);
         unit1.setComments(Arrays.asList("Example unit comment #1."));
         unit1.setBillingParty(depot1);
+        unit1.setInspectionCriteria("IICL");
         unit1.setStatus("TIED");
 
         RedeliveryUnit unit2 = new RedeliveryUnit();
@@ -355,6 +356,7 @@ public class Application {
         unit2.setManufactureDate(LocalDate.of(2012, 1, 1));
         unit2.setComments(Arrays.asList("Example unit comment #2."));
         unit2.setBillingParty(depot1);
+        unit2.setInspectionCriteria("CWCA");
         unit2.setStatus("TIED");
 
         redelivery.getDetails().add(insuranceDetail);

@@ -76,6 +76,10 @@ public class Redelivery {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party recipient;
 
+    @Schema(description = "the number of shipping containers assigned to this redelivery.", required = true, minimum = "1", example = "1")
+    @Column(nullable = false)
+    Integer quantity;
+
     @Schema(description = "groups of like-criteria units", required = true, minLength = 1)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<RedeliveryDetail> details = new ArrayList<>();

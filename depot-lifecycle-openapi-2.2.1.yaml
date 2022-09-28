@@ -2171,6 +2171,7 @@ components:
       - depot
       - details
       - owner
+      - quantity
       - recipient
       - redeliveryNumber
       type: object
@@ -2211,6 +2212,14 @@ components:
           $ref: '#/components/schemas/Party'
         recipient:
           $ref: '#/components/schemas/Party'
+        quantity:
+          minimum: 1
+          required:
+          - "true"
+          type: integer
+          description: the number of shipping containers assigned to this redelivery.
+          format: int32
+          example: 1
         details:
           minLength: 1
           required:
@@ -2250,13 +2259,14 @@ components:
           allOf:
           - $ref: '#/components/schemas/InsuranceCoverage'
           - nullable: true
-        inspectionCriteria:
+        grade:
           maxLength: 10
           required:
-          - "true"
+          - "false"
           type: string
           description: the grade / category of the unit as it was when it last left
             a depot
+          nullable: true
           example: IICL
         upgradeType:
           maxLength: 2
@@ -2407,6 +2417,15 @@ components:
           - C
         billingParty:
           $ref: '#/components/schemas/Party'
+        inspectionCriteria:
+          maxLength: 10
+          required:
+          - "false"
+          type: string
+          description: "If the unit is damaged on turn in, the grade / category that\
+            \ the shipping container should be estimated"
+          nullable: true
+          example: IICL
         machineryInfo:
           allOf:
           - $ref: '#/components/schemas/MachineryInfo'
