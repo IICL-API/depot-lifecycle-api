@@ -275,6 +275,7 @@ public class Application {
         release.setDepot(depot1);
         release.setOwner(owner);
         release.setRecipient(depot1);
+        release.setQuantity(1);
 
         ReleaseDetail blanketDetail = new ReleaseDetail();
         blanketDetail.setCustomer(customer);
@@ -299,6 +300,7 @@ public class Application {
         unit2.setUnitNumber("CONU1234526");
         unit2.setComments(Arrays.asList("Example unit comment #2."));
         unit2.setStatus("TIED");
+        unit2.setManufactureDate(LocalDate.of(2012, 1, 1));
 
         release.getDetails().add(blanketDetail);
         release.getDetails().add(unitDetail);

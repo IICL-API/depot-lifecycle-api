@@ -2437,6 +2437,7 @@ components:
       - depot
       - details
       - owner
+      - quantity
       - recipient
       - releaseNumber
       - type
@@ -2494,6 +2495,14 @@ components:
           type: boolean
           description: indicates if an on-hire survey is required for units associated
             to this release
+        quantity:
+          minimum: 1
+          required:
+          - "true"
+          type: integer
+          description: the number of shipping containers assigned to this release.
+          format: int32
+          example: 1
         details:
           minLength: 1
           required:
@@ -2709,6 +2718,17 @@ components:
           type: boolean
           description: "specific to Genset equipment, indicator for California Air\
             \ Resources Board compliance"
+        manufactureDate:
+          required:
+          - "false"
+          type: string
+          description: |-
+            date and month this unit was manufactured
+
+            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date
+          nullable: true
+          example: 2001-07-21
       description: information for a specific unit on a release
     RepairComplete:
       required:

@@ -84,6 +84,10 @@ public class Release {
     @Column
     Boolean onHireSurveyRequired;
 
+    @Schema(description = "the number of shipping containers assigned to this release.", required = true, minimum = "1", example = "1")
+    @Column(nullable = false)
+    Integer quantity;
+
     @Schema(description = "groups of like-criteria units", required = true, minLength = 1)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<ReleaseDetail> details = new ArrayList<>();

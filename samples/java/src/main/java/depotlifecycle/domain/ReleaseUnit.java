@@ -18,6 +18,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -52,4 +53,8 @@ public class ReleaseUnit {
     @Schema(description = "specific to Genset equipment, indicator for California Air Resources Board compliance")
     @Column
     Boolean carbCompliant;
+
+    @Schema(description = "date and month this unit was manufactured\n\n( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2001-07-21", type = "string", format = "date", required = false)
+    @Column(nullable = true)
+    LocalDate manufactureDate;
 }
