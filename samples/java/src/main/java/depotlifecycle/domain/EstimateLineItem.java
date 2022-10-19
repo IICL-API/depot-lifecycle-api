@@ -9,14 +9,19 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -98,9 +103,17 @@ public class EstimateLineItem {
     @Column(length = 1)
     String taxRule;
 
-    @Schema(description = "the number of damages", required = false, type = "number", format = "int32", example = "1", minimum = "0")
+    @Schema(description = "the number of damages", required = false, type = "number", format = "int32", example = "1", minimum = "1")
     @Column
     Integer quantity;
+
+    @Schema(description = "An optional, detailed part list used to repair this line item", required = false)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    List<EstimateLineItemPart> parts = new ArrayList<>();
+
+    @Schema(description = "An optional photo list showing the damage of this line item", required = false)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL})
+    List<EstimateLineItemPhoto> photos = new ArrayList<>();
 
     @JsonIgnore
     public BigDecimal getTotal() {

@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,8 +18,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @JsonView
@@ -60,4 +64,8 @@ public class GateCreateRequest {
     @Schema(description = "gate type indicator\n\n`IN` - Gate In\n\n`OUT` - Gate Out", maxLength = 3, example = "IN", allowableValues = {"IN", "OUT"})
     @Column(nullable = false, length = 3)
     String type;
+
+    @Schema(description = "An optional photo list of the shipping container at gate creation", required = false)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL})
+    List<GateCreatePhoto> photos = new ArrayList<>();
 }
