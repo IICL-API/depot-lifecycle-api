@@ -2303,6 +2303,7 @@ components:
             `TE` - Tea
 
             `FT` - Flexitank
+          nullable: true
           example: AM
           enum:
           - FG
