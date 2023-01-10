@@ -64,7 +64,7 @@ import java.util.Arrays;
             " # Deprecation\n\n" +
             " If this API version were to be discontinued, a minimum of 6 months time would pass before it's removal.\n" +
             "\n\n\n" +
-            " # Release Notes\n\n" +
+            " # Change Log\n\n" +
             " * 2.2.2\n\n" +
             "    - Estimate Line Items are optional.\n\n" +
             "    - Error Responses optionally support multiple messages via a details field.\n\n" +

@@ -26,7 +26,7 @@ info:
     \ surveys, and customer approval), notify when a shipping container is repaired,\
     \ and create a gate out for leaving the depot.\n\n\n\n\n # Deprecation\n\n If\
     \ this API version were to be discontinued, a minimum of 6 months time would pass\
-    \ before it's removal.\n\n\n\n # Release Notes\n\n * 2.2.2\n\n    - Estimate Line\
+    \ before it's removal.\n\n\n\n # Change Log\n\n * 2.2.2\n\n    - Estimate Line\
     \ Items are optional.\n\n    - Error Responses optionally support multiple messages\
     \ via a details field.\n\n    - Various improvements for BETA APIs.\n\n\n\n\n\
     \ # Security & Authentication\n\n To ensure secure communication, all endpoints\
