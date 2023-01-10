@@ -50,17 +50,17 @@ public class Release {
     @Column(nullable = false, length = 4)
     String type;
 
+    //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2019-07-21T17:32:28Z"
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
+    @Schema(description = "the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved / effective\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Column(nullable = false)
+    ZonedDateTime approvalDate;
+
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2020-07-21T17:32:28Z"
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
     @Schema(description = "the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this release is considered no longer valid\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
     @Column
     ZonedDateTime expirationDate;
-
-    //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2019-07-21T17:32:28Z"
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
-    @Column(nullable = false)
-    ZonedDateTime approvalDate;
 
     @Schema(description = "comments pertaining to this release for the intended recipient of this message", maxLength = 512, example = "[an example release level comment]")
     @LazyCollection(LazyCollectionOption.FALSE)
@@ -84,7 +84,7 @@ public class Release {
     @Column
     Boolean onHireSurveyRequired;
 
-    @Schema(description = "the number of shipping containers assigned to this release.", required = true, minimum = "1", example = "1")
+    @Schema(description = "the number of shipping containers assigned to this release.", required = true, minimum = "0", example = "1")
     @Column(nullable = false)
     Integer quantity;
 
