@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @JsonView
@@ -19,4 +21,7 @@ public class ErrorResponse {
 
     @Schema(description = "a descriptive error message", required = false, example = "Info TRI521 - Unit has been gated-in but is not off-hired")
     String message;
+
+    @Schema(description = "details for the descriptive error message", implementation = String.class, example = "['Customer may turn in unit, but will continued to be billed.', 'Contact support for further assistance.']", required = false)
+    List<String> details;
 }
