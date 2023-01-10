@@ -28,17 +28,18 @@ info:
     \ this API version were to be discontinued, a minimum of 6 months time would pass\
     \ before it's removal.\n\n\n\n # Release Notes\n\n * 2.2.2\n\n    - Estimate Line\
     \ Items are optional.\n\n    - Error Responses optionally support multiple messages\
-    \ via a details field.\n\n\n\n\n # Security & Authentication\n\n To ensure secure\
-    \ communication, all endpoints of this API should use the https protocol instead\
-    \ of http.  Authentication methods will differ between systems, but two popular\
-    \ methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n\
-    \n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/), is used for\
-    \ stateless authentication.  Since all requests are sent using https, tokens are\
-    \ not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
-    \ format. \n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\"\
-    ,\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\
-    \n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
+    \ via a details field.\n\n    - Various improvements for BETA APIs.\n\n\n\n\n\
+    \ # Security & Authentication\n\n To ensure secure communication, all endpoints\
+    \ of this API should use the https protocol instead of http.  Authentication methods\
+    \ will differ between systems, but two popular methods are JSON Web Tokens and\
+    \ Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n\
+    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
+    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\
+    \ \n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"\
+    roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\"\
+    :\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"\
+    eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
     :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n\n\n\n\n An access_token is provided\
     \ for authentication to API endpoints and a refresh_token is provided to generate\
     \ a new access_token when one expires.\n\n\n\n\n\n ### 2. Obtaining an access\
