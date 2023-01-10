@@ -96,7 +96,7 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, HttpHeaders headers) {
+    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Redelivery Create");
         conversionService.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
         Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v) -> m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
@@ -127,7 +127,7 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse<HttpStatus> update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
-                                           @Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, HttpHeaders headers) {
+                                           @Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Redelivery Update");
         conversionService.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
         Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v) -> m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
