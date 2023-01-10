@@ -12,6 +12,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -19,6 +20,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -73,9 +75,10 @@ public class RedeliveryDetail {
     @Column(nullable = false)
     Integer quantity;
 
-    @Schema(description = "comments pertaining to this detail for the intended recipient of this message", maxLength = 512, example = "[an example detail comment]")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example detail level comment.']")
+    @Lob
     @ElementCollection
-    @Column(length = 512)
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 }

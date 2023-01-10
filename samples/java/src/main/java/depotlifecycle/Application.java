@@ -40,7 +40,7 @@ import java.util.Arrays;
 @OpenAPIDefinition(
     info = @Info(
         title = "Depot Life Cycle",
-        version = "2.2.1",
+        version = "2.2.2",
         description = "# Purpose\n\n" +
             " A depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to facilitate real time communication between systems instead of traditional EDI files.\n" +
             "\n\n\n" +
@@ -61,8 +61,14 @@ import java.util.Arrays;
             " 4. PUT - marks a shipping container repaired \n\n" +
             " These APIs allow the Depot to report the initial gate in movement, issue gate data corrections (i.e. the damage status or activity date), participate in the estimate process (i.e. creation, surveys, and customer approval), notify when a shipping container is repaired, and create a gate out for leaving the depot.\n\n" +
             "\n\n\n" +
-            " # Depreciation\n\n" +
+            " # Deprecation\n\n" +
             " If this API version were to be discontinued, a minimum of 6 months time would pass before it's removal.\n" +
+            "\n\n\n" +
+            " # Release Notes\n\n" +
+            " * 2.2.2\n\n" +
+            "    - Estimate Line Items are optional.\n\n" +
+            "    - Error Responses optionally support multiple messages via a details field.\n\n" +
+            "    - Various improvements for BETA APIs.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +

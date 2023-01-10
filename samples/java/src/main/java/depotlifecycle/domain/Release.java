@@ -13,6 +13,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -20,6 +21,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -62,10 +64,11 @@ public class Release {
     @Column
     ZonedDateTime expirationDate;
 
-    @Schema(description = "comments pertaining to this release for the intended recipient of this message", maxLength = 512, example = "[an example release level comment]")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example release level comment.']")
+    @Lob
     @ElementCollection
-    @Column(length = 512)
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
     @Schema(description = "The location for this release", required = true)
