@@ -33,7 +33,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Represents an estimation of costs to repair or upgrade a shipping container.", requiredProperties = {"estimateNumber", "unitNumber", "condition", "estimateTime", "depot", "currency", "total", "lineItems"})
+@Schema(description = "Represents an estimation of costs to repair or upgrade a shipping container.", requiredProperties = {"estimateNumber", "unitNumber", "condition", "estimateTime", "depot", "currency", "total"})
 @EqualsAndHashCode(of = {"estimateNumber", "depot", "revision"})
 @ToString(of = {"estimateNumber", "depot", "revision"})
 @Introspected
@@ -110,7 +110,7 @@ public class Estimate {
     @Column(nullable = true)
     Integer revision;
 
-    @Schema(description = "detailed damage descriptions that when combined represent the damages being repaired by this estimate", required = true, minLength = 1)
+    @Schema(description = "detailed damage descriptions that when combined represent the damages being repaired by this estimate", required = false, minimum = "0")
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimateLineItem> lineItems = new ArrayList<>();
 
