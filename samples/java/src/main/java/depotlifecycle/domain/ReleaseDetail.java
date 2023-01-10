@@ -74,7 +74,7 @@ public class ReleaseDetail {
     @Column(length = 512)
     List<String> comments;
 
-    @Schema(description = "the number of shipping containers assigned to this detail", required = true, example = "1", minimum = "0")
+    @Schema(description = "the number of shipping containers assigned to this detail", required = true, minimum = "0", example = "1")
     @Column(nullable = false)
     Integer quantity;
 

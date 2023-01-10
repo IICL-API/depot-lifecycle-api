@@ -69,7 +69,7 @@ public class RedeliveryDetail {
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<RedeliveryUnit> units = new ArrayList<>();
 
-    @Schema(description = "the number of shipping containers assigned to this detail", required = true, example = "1", minimum = "0")
+    @Schema(description = "the number of shipping containers assigned to this detail", required = true, minimum = "0", example = "1")
     @Column(nullable = false)
     Integer quantity;
 
