@@ -12,6 +12,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -19,6 +20,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -57,25 +59,26 @@ public class RedeliveryDetail {
     @Schema(description = "the insurance coverage for damage repairs")
     InsuranceCoverage insuranceCoverage;
 
-    @Schema(description = "the grade / category of the unit as it was when it last left a depot", required = true, example = "IICL", maxLength = 10)
-    @Column(nullable = false, length = 10)
-    String inspectionCriteria;
+    @Schema(description = "the grade / category of the unit as it was when it last left a depot", required = false, example = "IICL", maxLength = 10)
+    @Column(nullable = true, length = 10)
+    String grade;
 
     @Schema(description = "an indicator for the upgrades applied to units on this detail.\n\n`FG` - Food grade\n\n`ML` - Malt\n\n`DB` - Dairy Board\n\n`EV` - Evian\n\n`WH` - Whiskey\n\n`SU` - Sugar\n\n`CF` - Coffee\n\n`TB` - Tobacco\n\n`MC` - Milk cartons\n\n`MP` - Milk powder\n\n`AM` - Ammunition\n\n`CH` - Cotton/Hay\n\n`TE` - Tea\n\n`FT` - Flexitank", allowableValues = {"FG", "ML", "DB", "EV", "WH", "SU", "CF", "TB", "MC", "MP", "AM", "CH", "TE", "FT"}, required = false, example = "AM", maxLength = 2)
-    @Column(length = 2)
+    @Column(nullable = true, length = 2)
     String upgradeType;
 
     @Schema(description = "the specific units for this redelivery if defined, if not, assumed blanket (any unit matching criteria can be tied up to the quantity limit of this detail)")
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<RedeliveryUnit> units = new ArrayList<>();
 
-    @Schema(description = "the number of shipping containers assigned to this detail", required = true, example = "1", minimum = "0")
+    @Schema(description = "the number of shipping containers assigned to this detail", required = true, minimum = "0", example = "1")
     @Column(nullable = false)
     Integer quantity;
 
-    @Schema(description = "comments pertaining to this detail for the intended recipient of this message", maxLength = 512, example = "[an example detail comment]")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example detail level comment.']")
+    @Lob
     @ElementCollection
-    @Column(length = 512)
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 }

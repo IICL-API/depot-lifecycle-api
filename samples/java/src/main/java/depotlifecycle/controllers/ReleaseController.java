@@ -114,7 +114,7 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, HttpHeaders headers) {
+    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Release Create");
         conversionService.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
         Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v)->m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
@@ -170,7 +170,7 @@ public class ReleaseController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     public HttpResponse<HttpStatus> update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
-                       @Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, HttpHeaders headers) {
+                       @Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Release Update");
         conversionService.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
         Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v)->m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);

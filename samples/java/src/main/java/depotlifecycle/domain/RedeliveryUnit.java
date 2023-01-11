@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -22,6 +23,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -61,10 +63,11 @@ public class RedeliveryUnit {
     @Column(nullable = false, length = 7)
     String status;
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 512, example = "[an example unit level comment]")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example unit level comment.']")
+    @Lob
     @ElementCollection
-    @Column(length = 512)
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
     @Schema(description = "the last cargo this shipping container carried", maxLength = 255, example = "Aroset PS 5191")
@@ -78,6 +81,10 @@ public class RedeliveryUnit {
     @Schema(description = "The party that will handle any repair (estimate & work order) billing for units associated with this detail.", required = true)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party billingParty;
+
+    @Schema(description = "If the unit is damaged on turn in, the grade / category that the shipping container should be estimated", required = false, example = "IICL", maxLength = 10)
+    @Column(nullable = true, length = 10)
+    String inspectionCriteria;
 
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information")

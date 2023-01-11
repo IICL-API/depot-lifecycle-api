@@ -7,7 +7,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
+import javax.persistence.Lob;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -39,7 +44,11 @@ public class GateResponse {
     @Schema(description = "the exchange rate to convert billed currency to the local currency for damage estimate totals", required = false, type = "number", format = "double", example = "0.8133")
     BigDecimal currentExchangeRate;
 
-    @Schema(description = "comments pertaining to this gate record", implementation = String.class, example = "['ALL CLEANING MUST BE CODED TO \"O\" FOR OWNER.']", required = false)
+    @Schema(description = "comments pertaining to this gate record", example = "['ALL CLEANING MUST BE CODED TO \"O\" FOR OWNER.']")
+    @Lob
+    @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
     @Schema(description = "the last reported grade or category standard this unit", required = true, example = "IICL", maxLength = 10)

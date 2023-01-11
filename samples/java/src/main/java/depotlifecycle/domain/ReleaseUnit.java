@@ -11,13 +11,16 @@ import lombok.ToString;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -39,10 +42,11 @@ public class ReleaseUnit {
     @Column(nullable = false, length = 11)
     String unitNumber;
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", maxLength = 512, example = "[An example unit level comment.]")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example unit level comment.']")
+    @Lob
     @ElementCollection
-    @Column(length = 512)
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
     @Schema(description = "Describes the state of the shipping container for this release: \n\n`TIED` - shipping container is assigned to this release and ready to lease out.\n\n`REMOVED` - shipping container was attached to this release, but is no longer valid for release.\n\n`LOT` - shipping container has left the storage location.\n\n`CANDIDATE` - this container is eligible for this release but not currently assigned.", allowableValues = {"REMOVED", "TIED", "LOT", "CANDIDATE"}, example = "TIED")
@@ -52,4 +56,8 @@ public class ReleaseUnit {
     @Schema(description = "specific to Genset equipment, indicator for California Air Resources Board compliance")
     @Column
     Boolean carbCompliant;
+
+    @Schema(description = "date and month this unit was manufactured\n\n( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2001-07-21", type = "string", format = "date", required = false)
+    @Column(nullable = true)
+    LocalDate manufactureDate;
 }

@@ -24,19 +24,22 @@ info:
     \ to report the initial gate in movement, issue gate data corrections (i.e. the\
     \ damage status or activity date), participate in the estimate process (i.e. creation,\
     \ surveys, and customer approval), notify when a shipping container is repaired,\
-    \ and create a gate out for leaving the depot.\n\n\n\n\n # Depreciation\n\n If\
+    \ and create a gate out for leaving the depot.\n\n\n\n\n # Deprecation\n\n If\
     \ this API version were to be discontinued, a minimum of 6 months time would pass\
-    \ before it's removal.\n\n\n\n # Security & Authentication\n\n To ensure secure\
-    \ communication, all endpoints of this API should use the https protocol instead\
-    \ of http.  Authentication methods will differ between systems, but two popular\
-    \ methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n\
-    \n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/), is used for\
-    \ stateless authentication.  Since all requests are sent using https, tokens are\
-    \ not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
-    \ format. \n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\"\
-    ,\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\
-    \n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
+    \ before it's removal.\n\n\n\n # Change Log\n\n * 2.2.2\n\n    - Estimate Line\
+    \ Items are optional.\n\n    - Error Responses optionally support multiple messages\
+    \ via a details field.\n\n    - Various improvements for BETA APIs.\n\n\n\n\n\
+    \ # Security & Authentication\n\n To ensure secure communication, all endpoints\
+    \ of this API should use the https protocol instead of http.  Authentication methods\
+    \ will differ between systems, but two popular methods are JSON Web Tokens and\
+    \ Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n\
+    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
+    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\
+    \ \n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"\
+    roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\"\
+    :\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"\
+    eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
     :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n\n\n\n\n An access_token is provided\
     \ for authentication to API endpoints and a refresh_token is provided to generate\
     \ a new access_token when one expires.\n\n\n\n\n\n ### 2. Obtaining an access\
@@ -71,7 +74,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 2.2.1
+  version: 2.2.2
 externalDocs:
   description: Find out more about this api
   url: https://github.com/IICL-API/depot-lifecycle-api
@@ -716,13 +719,7 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-              - $ref: '#/components/schemas/Redelivery'
-              - properties:
-                  headers:
-                    type: array
-                    items:
-                      type: object
+              $ref: '#/components/schemas/Redelivery'
         required: true
       responses:
         "200":
@@ -763,13 +760,7 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-              - $ref: '#/components/schemas/Redelivery'
-              - properties:
-                  headers:
-                    type: array
-                    items:
-                      type: object
+              $ref: '#/components/schemas/Redelivery'
         required: true
       responses:
         "200":
@@ -839,13 +830,7 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-              - $ref: '#/components/schemas/Release'
-              - properties:
-                  headers:
-                    type: array
-                    items:
-                      type: object
+              $ref: '#/components/schemas/Release'
         required: true
       responses:
         "200":
@@ -886,13 +871,7 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-              - $ref: '#/components/schemas/Release'
-              - properties:
-                  headers:
-                    type: array
-                    items:
-                      type: object
+              $ref: '#/components/schemas/Release'
         required: true
       responses:
         "200":
@@ -1054,6 +1033,13 @@ components:
           type: string
           description: a descriptive error message
           example: Info TRI521 - Unit has been gated-in but is not off-hired
+        details:
+          type: array
+          description: details for the descriptive error message
+          example: "['Customer may turn in unit, but will continued to be billed.',\
+            \ 'Contact support for further assistance.']"
+          items:
+            type: string
       description: |-
         a general response object used when an error occurs to describe why it occurred
 
@@ -1067,7 +1053,6 @@ components:
       - depot
       - estimateNumber
       - estimateTime
-      - lineItems
       - total
       - unitNumber
       type: object
@@ -1260,9 +1245,9 @@ components:
           nullable: true
           example: 0
         lineItems:
-          minLength: 1
+          minimum: 0
           required:
-          - "true"
+          - "false"
           type: array
           description: detailed damage descriptions that when combined represent the
             damages being repaired by this estimate
@@ -1875,11 +1860,11 @@ components:
           format: double
           example: 0.8133
         comments:
-          required:
-          - "false"
-          type: string
+          type: array
           description: comments pertaining to this gate record
           example: "['ALL CLEANING MUST BE CODED TO \"O\" FOR OWNER.']"
+          items:
+            type: string
         currentInspectionCriteria:
           maxLength: 10
           required:
@@ -2171,6 +2156,7 @@ components:
       - depot
       - details
       - owner
+      - quantity
       - recipient
       - redeliveryNumber
       type: object
@@ -2183,6 +2169,13 @@ components:
           description: "the identifier for this redelivery, also referred to as the\
             \ advice number or redelivery number"
           example: AHAMG33141
+        approvalDate:
+          type: string
+          description: |-
+            the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this redelivery is considered approved / effective
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
         expirationDate:
           type: string
           description: |-
@@ -2190,19 +2183,11 @@ components:
 
             ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
           format: date-time
-        approvalDate:
-          type: string
-          description: |-
-            the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this redelivery is considered approved
-
-            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date-time
         comments:
-          maxLength: 512
           type: array
-          description: comments pertaining to this redelivery for the intended recipient
+          description: comments pertaining to this unit for the intended recipient
             of this message
-          example: "[an example redelivery level comment]"
+          example: "['An example redelivery level comment.']"
           items:
             type: string
         depot:
@@ -2211,6 +2196,14 @@ components:
           $ref: '#/components/schemas/Party'
         recipient:
           $ref: '#/components/schemas/Party'
+        quantity:
+          minimum: 0
+          required:
+          - "true"
+          type: integer
+          description: the number of shipping containers assigned to this redelivery.
+          format: int32
+          example: 1
         details:
           minLength: 1
           required:
@@ -2250,13 +2243,14 @@ components:
           allOf:
           - $ref: '#/components/schemas/InsuranceCoverage'
           - nullable: true
-        inspectionCriteria:
+        grade:
           maxLength: 10
           required:
-          - "true"
+          - "false"
           type: string
           description: the grade / category of the unit as it was when it last left
             a depot
+          nullable: true
           example: IICL
         upgradeType:
           maxLength: 2
@@ -2293,6 +2287,7 @@ components:
             `TE` - Tea
 
             `FT` - Flexitank
+          nullable: true
           example: AM
           enum:
           - FG
@@ -2325,11 +2320,10 @@ components:
           format: int32
           example: 1
         comments:
-          maxLength: 512
           type: array
-          description: comments pertaining to this detail for the intended recipient
+          description: comments pertaining to this unit for the intended recipient
             of this message
-          example: "[an example detail comment]"
+          example: "['An example detail level comment.']"
           items:
             type: string
       description: unit criteria that groups similar units on a redelivery
@@ -2384,11 +2378,10 @@ components:
           - TIED
           - TIN
         comments:
-          maxLength: 512
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
-          example: "[an example unit level comment]"
+          example: "['An example unit level comment.']"
           items:
             type: string
         lastCargo:
@@ -2407,6 +2400,15 @@ components:
           - C
         billingParty:
           $ref: '#/components/schemas/Party'
+        inspectionCriteria:
+          maxLength: 10
+          required:
+          - "false"
+          type: string
+          description: "If the unit is damaged on turn in, the grade / category that\
+            \ the shipping container should be estimated"
+          nullable: true
+          example: IICL
         machineryInfo:
           allOf:
           - $ref: '#/components/schemas/MachineryInfo'
@@ -2418,6 +2420,7 @@ components:
       - depot
       - details
       - owner
+      - quantity
       - recipient
       - releaseNumber
       - type
@@ -2443,6 +2446,13 @@ components:
           - SALE
           - BOOK
           - REPO
+        approvalDate:
+          type: string
+          description: |-
+            the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved / effective
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
         expirationDate:
           type: string
           description: |-
@@ -2450,19 +2460,11 @@ components:
 
             ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
           format: date-time
-        approvalDate:
-          type: string
-          description: |-
-            the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved
-
-            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date-time
         comments:
-          maxLength: 512
           type: array
-          description: comments pertaining to this release for the intended recipient
+          description: comments pertaining to this unit for the intended recipient
             of this message
-          example: "[an example release level comment]"
+          example: "['An example release level comment.']"
           items:
             type: string
         depot:
@@ -2475,6 +2477,14 @@ components:
           type: boolean
           description: indicates if an on-hire survey is required for units associated
             to this release
+        quantity:
+          minimum: 0
+          required:
+          - "true"
+          type: integer
+          description: the number of shipping containers assigned to this release.
+          format: int32
+          example: 1
         details:
           minLength: 1
           required:
@@ -2582,11 +2592,10 @@ components:
           items:
             $ref: '#/components/schemas/ReleaseDetailCriteria'
         comments:
-          maxLength: 512
           type: array
-          description: comments pertaining to this detail for the intended recipient
+          description: comments pertaining to this unit for the intended recipient
             of this message
-          example: "[an example release detail comment]"
+          example: "['An example detail level comment.']"
           items:
             type: string
         quantity:
@@ -2665,11 +2674,10 @@ components:
           description: the current unit number of the shipping container
           example: CONU1234561
         comments:
-          maxLength: 512
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
-          example: "[An example unit level comment.]"
+          example: "['An example unit level comment.']"
           items:
             type: string
         status:
@@ -2690,6 +2698,17 @@ components:
           type: boolean
           description: "specific to Genset equipment, indicator for California Air\
             \ Resources Board compliance"
+        manufactureDate:
+          required:
+          - "false"
+          type: string
+          description: |-
+            date and month this unit was manufactured
+
+            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date
+          nullable: true
+          example: 2001-07-21
       description: information for a specific unit on a release
     RepairComplete:
       required:

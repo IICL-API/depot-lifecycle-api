@@ -6,6 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
+import javax.persistence.Lob;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,4 +26,11 @@ public class ErrorResponse {
 
     @Schema(description = "a descriptive error message", required = false, example = "Info TRI521 - Unit has been gated-in but is not off-hired")
     String message;
+
+    @Schema(description = "details for the descriptive error message", example = "['Customer may turn in unit, but will continued to be billed.', 'Contact support for further assistance.']")
+    @Lob
+    @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
+    List<String> details;
 }
