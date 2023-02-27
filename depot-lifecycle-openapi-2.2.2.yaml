@@ -2015,6 +2015,10 @@ components:
           type: string
           description: The currency for the insurance coverage amount
           example: EUR
+        appliesToCTL:
+          type: boolean
+          description: indicates if this coverage should apply to scenarios where
+            the damage exceeds the depreciated value of the container
         allOrNothing:
           type: boolean
           description: "indicates if the amount of damage exceeds the insurance coverage,\
@@ -2159,6 +2163,7 @@ components:
       - quantity
       - recipient
       - redeliveryNumber
+      - status
       type: object
       properties:
         redeliveryNumber:
@@ -2183,6 +2188,26 @@ components:
 
             ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
           format: date-time
+        status:
+          type: string
+          description: "Describes the status for this redelivery: \n\n`APPROVED` -\
+            \ redelivery is approved\n\n`COMPLETE` - all units are turned in and no\
+            \ more may be turned in\n\n`EXPIRED` - the redelivery is now expired and\
+            \ any remaining units are no longer valid for turn in\n\n`CANCELLED` -\
+            \ the redelivery is cancelled and not valid for turn in"
+          example: APPROVED
+          default: APPROVED
+          enum:
+          - APPROVED
+          - COMPLETE
+          - EXPIRED
+          - CANCELLED
+        estimateEmailRecipients:
+          type: array
+          description: list of emails to notify for an estimate revision
+          example: "['customer@example.com']"
+          items:
+            type: string
         comments:
           type: array
           description: comments pertaining to this unit for the intended recipient
@@ -2387,8 +2412,17 @@ components:
         lastCargo:
           maxLength: 255
           type: string
-          description: the last cargo this shipping container carried
+          description: a description of the last cargo this shipping container carried
           example: Aroset PS 5191
+        lastCargoNumber:
+          maxLength: 4
+          pattern: "^([A-Z]{2})??\\s?[A-Z0-9]{4}$"
+          required:
+          - "false"
+          type: string
+          description: A number (such as a UN Number for hazardous materials) used
+            to identify the type of cargo this container carried
+          example: UN 0305
         tankGrade:
           maxLength: 1
           type: string
@@ -2398,6 +2432,13 @@ components:
           enum:
           - F
           - C
+        technicalBulletins:
+          type: array
+          description: "list of technical bulletins associated to this unit - we suggest\
+            \ this be fixed identifiers, codes, or urls"
+          example: "['https://technical.example.com/bulletin/1234']"
+          items:
+            type: string
         billingParty:
           $ref: '#/components/schemas/Party'
         inspectionCriteria:
@@ -2423,6 +2464,7 @@ components:
       - quantity
       - recipient
       - releaseNumber
+      - status
       - type
       type: object
       properties:
@@ -2434,6 +2476,20 @@ components:
           description: "the identifier for this release, also referred to as the advice\
             \ number or release number"
           example: AHAMG33141
+        status:
+          type: string
+          description: "Describes the status for this release: \n\n`APPROVED` - release\
+            \ is approved for leaving the storage location\n\n`COMPLETE` - all containers\
+            \ have left the depot and no more may be processed\n\n`EXPIRED` - the\
+            \ release is now expired and any remaining units are no longer valid\n\
+            \n`CANCELLED` - the release is cancelled and not valid"
+          example: APPROVED
+          default: APPROVED
+          enum:
+          - APPROVED
+          - COMPLETE
+          - EXPIRED
+          - CANCELLED
         type:
           required:
           - "true"
@@ -2762,7 +2818,8 @@ components:
           required:
           - "true"
           type: string
-          description: the identifier for this work order
+          description: the identifier for this work order; this will be the approval
+            number for repairs
           example: WHAMG46019
         depot:
           $ref: '#/components/schemas/Party'

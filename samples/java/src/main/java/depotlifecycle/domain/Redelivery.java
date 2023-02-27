@@ -34,7 +34,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "An approval to deliver units to a storage location.", requiredProperties = {"redeliveryNumber", "approvalDate", "depot", "recipient", "owner", "details"})
+@Schema(description = "An approval to deliver units to a storage location.", requiredProperties = {"redeliveryNumber", "status", "approvalDate", "depot", "recipient", "owner", "details"})
 @EqualsAndHashCode(of = {"redeliveryNumber"})
 @ToString(of = {"redeliveryNumber"})
 @Introspected
@@ -59,6 +59,17 @@ public class Redelivery {
     @Schema(description = "the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this redelivery is considered no longer valid\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
     @Column
     ZonedDateTime expirationDate;
+
+    @Schema(defaultValue = "APPROVED", description = "Describes the status for this redelivery: \n\n`APPROVED` - redelivery is approved\n\n`COMPLETE` - all units are turned in and no more may be turned in\n\n`EXPIRED` - the redelivery is now expired and any remaining units are no longer valid for turn in\n\n`CANCELLED` - the redelivery is cancelled and not valid for turn in", allowableValues = {"APPROVED", "COMPLETE", "EXPIRED", "CANCELLED"}, example = "APPROVED")
+    @Column(nullable = false, length = 9)
+    String status;
+
+    @Schema(description = "list of emails to notify for an estimate revision", example = "['customer@example.com']")
+    @Lob
+    @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
+    List<String> estimateEmailRecipients;
 
     @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example redelivery level comment.']")
     @Lob

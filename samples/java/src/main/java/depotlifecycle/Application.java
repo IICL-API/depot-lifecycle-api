@@ -273,6 +273,7 @@ public class Application {
 
     private void buildReleases(Party depot1, Party depot2, Party customer, Party owner) {
         Release release = new Release();
+        release.setStatus("APPROVED");
         release.setReleaseNumber("RHAMG134512");
         release.setType("BOOK");
         release.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
@@ -318,6 +319,7 @@ public class Application {
 
     private void buildRedeliveries(Party depot1, Party depot2, Party customer, Party owner) {
         Redelivery redelivery = new Redelivery();
+        redelivery.setStatus("APPROVED");
         redelivery.setRedeliveryNumber("AHAMG33141");
         redelivery.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
         redelivery.setExpirationDate(getLocal(LocalDateTime.now().plusMonths(4)));
