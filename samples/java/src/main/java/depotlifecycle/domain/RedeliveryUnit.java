@@ -74,7 +74,7 @@ public class RedeliveryUnit {
     @Column(length = 255)
     String lastCargo;
 
-    @Schema(description = "A number (such as a UN Number for hazardous materials) used to identify the type of cargo this container carried", required = false, maxLength = 4, pattern = "^([A-Z]{2})??\\s?[A-Z0-9]{4}$", example="UN 0305")
+    @Schema(description = "A number (such as a UN Number for hazardous materials) used to identify the type of cargo this container carried", required = false, minLength = 4, maxLength = 7, pattern = "^([A-Z]{2})??\\s?[A-Z0-9]{4}$", example="UN 0305")
     @Column(length = 7)
     String lastCargoNumber;
 

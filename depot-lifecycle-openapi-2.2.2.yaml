@@ -796,6 +796,13 @@ paths:
           maxLength: 16
           type: object
           example: RHAMG000000
+      - name: includeCandidates
+        in: query
+        description: whether to include candidate units for any found release
+        required: false
+        schema:
+          type: boolean
+          example: false
       responses:
         "200":
           description: successful search
@@ -2415,7 +2422,8 @@ components:
           description: a description of the last cargo this shipping container carried
           example: Aroset PS 5191
         lastCargoNumber:
-          maxLength: 4
+          maxLength: 7
+          minLength: 4
           pattern: "^([A-Z]{2})??\\s?[A-Z0-9]{4}$"
           required:
           - "false"
