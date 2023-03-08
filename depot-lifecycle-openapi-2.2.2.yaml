@@ -2143,6 +2143,18 @@ components:
           maxLength: 20
           type: string
           description: the optional state or province code for the address
+        latitude:
+          required:
+          - "false"
+          type: number
+          description: "Instead of an address, provides the latitude of this party"
+          format: double
+        longitude:
+          required:
+          - "false"
+          type: number
+          description: "Instead of an address, provides the longitude of this party"
+          format: double
       description: represents a company (or location) involving shipping containers
     PendingResponse:
       type: object

@@ -20,6 +20,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -92,4 +93,12 @@ public class Party {
     @Schema(description = "the optional state or province code for the address", maxLength = 20)
     @Column(length = 20)
     String stateProvince;
+
+    @Schema(required = false, type = "number", format = "double", description = "Instead of an address, provides the latitude of this party")
+    @Column
+    BigDecimal latitude;
+
+    @Schema(required = false, type = "number", format = "double", description = "Instead of an address, provides the longitude of this party")
+    @Column
+    BigDecimal longitude;
 }
