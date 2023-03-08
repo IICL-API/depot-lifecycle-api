@@ -2134,7 +2134,7 @@ components:
         country:
           maxLength: 2
           type: string
-          description: the country for the address
+          description: the 2 digit ISO country code for the address
         postalCode:
           maxLength: 20
           type: string

@@ -81,7 +81,7 @@ public class Party {
     @Column(length = 28)
     String city;
 
-    @Schema(description = "the country for the address", maxLength = 2)
+    @Schema(description = "the 2 digit ISO country code for the address", maxLength = 2)
     @Column(length = 2)
     String country;
 
