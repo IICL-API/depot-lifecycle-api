@@ -8,13 +8,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
+import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @JsonView
@@ -43,6 +50,18 @@ public class Party {
     @Column(length = 70)
     String userName;
 
+    @Schema(description = "the contact fax number for this party", maxLength = 32)
+    @Column(length = 32)
+    String faxNumber;
+
+    @Schema(description = "the contact phone number for this party", maxLength = 32)
+    @Column(length = 32)
+    String phoneNumber;
+
+    @Schema(description = "the contact email address for this party", maxLength = 320)
+    @Column(length = 320)
+    String emailAddress;
+
     @Schema(description = "the name of this company", example = "CMR Container Maintenance Rep.", maxLength = 150)
     @Column(length = 150)
     String name;
@@ -50,4 +69,36 @@ public class Party {
     @Schema(description = "the internal system code for this company, will be system specific to the system delivering or receiving this message", example = "HAMG", maxLength = 10)
     @Column(length = 10)
     String code;
+
+    // Address Information
+    @Schema(description = "the street address lines")
+    @Lob
+    @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
+    List<String> streetAddress;
+
+    @Schema(description = "the city for the address", maxLength = 28)
+    @Column(length = 28)
+    String city;
+
+    @Schema(description = "the 2 digit ISO country code for the address", maxLength = 2)
+    @Column(length = 2)
+    String country;
+
+    @Schema(description = "the postal code for the address", maxLength = 20)
+    @Column(length = 20)
+    String postalCode;
+
+    @Schema(description = "the optional state or province code for the address", maxLength = 20)
+    @Column(length = 20)
+    String stateProvince;
+
+    @Schema(required = false, type = "number", format = "double", description = "Instead of an address, provides the latitude of this party")
+    @Column
+    BigDecimal latitude;
+
+    @Schema(required = false, type = "number", format = "double", description = "Instead of an address, provides the longitude of this party")
+    @Column
+    BigDecimal longitude;
 }

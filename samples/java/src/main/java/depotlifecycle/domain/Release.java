@@ -34,7 +34,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "An approval to remove shipping containers from a storage location.", requiredProperties = {"releaseNumber", "type", "approvalDate", "depot", "owner", "recipient", "details"})
+@Schema(description = "An approval to remove shipping containers from a storage location.", requiredProperties = {"releaseNumber", "status", "type", "approvalDate", "depot", "owner", "recipient", "details"})
 @EqualsAndHashCode(of = {"releaseNumber"})
 @ToString(of = {"releaseNumber"})
 @Introspected
@@ -47,6 +47,10 @@ public class Release {
     @Schema(description = "the identifier for this release, also referred to as the advice number or release number", example = "AHAMG33141", maxLength = 16, required = true)
     @Column(nullable = false, length = 16)
     String releaseNumber;
+
+    @Schema(defaultValue = "APPROVED", description = "Describes the status for this release: \n\n`APPROVED` - release is approved for leaving the storage location\n\n`COMPLETE` - all containers have left the depot and no more may be processed\n\n`EXPIRED` - the release is now expired and any remaining units are no longer valid\n\n`CANCELLED` - the release is cancelled and not valid", allowableValues = {"APPROVED", "COMPLETE", "EXPIRED", "CANCELLED"}, example = "APPROVED")
+    @Column(nullable = false, length = 9)
+    String status;
 
     @Schema(description = "Describes the intended purpose of the release: \n\n`SALE` - shipping containers are being sold\n\n`BOOK` - shipping containers are being leased to a customer\n\n`REPO` - shipping containers are being relocated by the owner to another storage location", allowableValues = {"SALE", "BOOK", "REPO"}, required = true)
     @Column(nullable = false, length = 4)

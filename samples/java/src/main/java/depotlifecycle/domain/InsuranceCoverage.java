@@ -48,6 +48,10 @@ public class InsuranceCoverage {
     @Column(length = 3)
     String amountCurrency;
 
+    @Schema(description = "indicates if this coverage should apply to scenarios where the damage exceeds the depreciated value of the container")
+    @Column
+    Boolean appliesToCTL;
+
     @Schema(description = "indicates if the amount of damage exceeds the insurance coverage, whether the lessee if fully responsible for the damage")
     @Column
     Boolean allOrNothing;

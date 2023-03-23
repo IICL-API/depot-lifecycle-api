@@ -28,30 +28,38 @@ info:
     \ this API version were to be discontinued, a minimum of 6 months time would pass\
     \ before it's removal.\n\n\n\n # Change Log\n\n * 2.2.2\n\n    - Estimate Line\
     \ Items are optional.\n\n    - Error Responses optionally support multiple messages\
-    \ via a details field.\n\n    - Various improvements for BETA APIs.\n\n\n\n\n\
-    \ # Security & Authentication\n\n To ensure secure communication, all endpoints\
-    \ of this API should use the https protocol instead of http.  Authentication methods\
-    \ will differ between systems, but two popular methods are JSON Web Tokens and\
-    \ Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n\
-    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
-    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
-    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\
-    \ \n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"\
-    roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\"\
-    :\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"\
-    eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n\n\n\n\n An access_token is provided\
-    \ for authentication to API endpoints and a refresh_token is provided to generate\
-    \ a new access_token when one expires.\n\n\n\n\n\n ### 2. Obtaining an access\
-    \ token\n\n Issuing a POST request to `/api/login` with a username and password\
-    \ payload will cause a JWT token to be issued in the response.\n\n ```\n\n POST\
-    \ /api/login HTTP/1.1\n\n Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\
-    \n\n\n\n\n {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n\
-    \ }\n\n ```\n\n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created\
-    \ by invoking the login endpoint expire after a determined period.  Issuing a\
-    \ POST request to `/oauth/access_token` with: the refresh_token from the JWT token\
-    \ previously issued and a grant_type of refresh_token will reissue a new JWT token.\n\
-    \n ```\n\n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
+    \ via a details field.\n\n    - Various improvements for BETA APIs.\n\n * 2.2.3\n\
+    \n    - Party model (optional):\n\n        - Latitude & Longitude\n\n        -\
+    \ Physical Address\n\n        - Contact Phone, Fax, & Phone Number fields\n\n\
+    \    - Insurance Coverage model:\n\n         - Add indicator for insurance coverage\
+    \ applicable to CTL scenarios\n\n    - Release & Redelivery models - Status field\n\
+    \n    - Redelivery model - Add field to store estimate recipient emails\n\n  \
+    \  - RedeliveryUnit model - Add cargo # to identify type of cargo by UN or other\
+    \ standard numbers\n\n    - RedeliveryUnit model - Add technical bulletins field\n\
+    \n    - Release search - Add search flag to find candidate units\n\n\n\n\n # Security\
+    \ & Authentication\n\n To ensure secure communication, all endpoints of this API\
+    \ should use the https protocol instead of http.  Authentication methods will\
+    \ differ between systems, but two popular methods are JSON Web Tokens and Static\
+    \ Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n [JSON Web\
+    \ Token, or JWT](https://jwt.io/), is used for stateless authentication.  Since\
+    \ all requests are sent using https, tokens are not encrypted.  Tokens follow\
+    \ the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format. \n\n\
+    ### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
+    : [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"\
+    j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    ,\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    \n\n }\n\n ```\n\n\n\n\n\n An access_token is provided for authentication to API\
+    \ endpoints and a refresh_token is provided to generate a new access_token when\
+    \ one expires.\n\n\n\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
+    \ request to `/api/login` with a username and password payload will cause a JWT\
+    \ token to be issued in the response.\n\n ```\n\n POST /api/login HTTP/1.1\n\n\
+    \ Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\n\n\n\n\n\
+    \ {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n }\n\n ```\n\
+    \n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created by invoking the\
+    \ login endpoint expire after a determined period.  Issuing a POST request to\
+    \ `/oauth/access_token` with: the refresh_token from the JWT token previously\
+    \ issued and a grant_type of refresh_token will reissue a new JWT token.\n\n ```\n\
+    \n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
     \ application/x-www-form-urlencoded\n\n\n\n\n\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
     \n ```\n\n\n\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked\
     \ if it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n\n\
@@ -74,7 +82,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 2.2.2
+  version: 2.2.3
 externalDocs:
   description: Find out more about this api
   url: https://github.com/IICL-API/depot-lifecycle-api
@@ -796,6 +804,13 @@ paths:
           maxLength: 16
           type: object
           example: RHAMG000000
+      - name: includeCandidates
+        in: query
+        description: whether to include candidate units for any found release
+        required: false
+        schema:
+          type: boolean
+          example: false
       responses:
         "200":
           description: successful search
@@ -2015,6 +2030,10 @@ components:
           type: string
           description: The currency for the insurance coverage amount
           example: EUR
+        appliesToCTL:
+          type: boolean
+          description: indicates if this coverage should apply to scenarios where
+            the damage exceeds the depreciated value of the container
         allOrNothing:
           type: boolean
           description: "indicates if the amount of damage exceeds the insurance coverage,\
@@ -2088,6 +2107,18 @@ components:
           type: string
           description: the full name for the user identified by `userCode`
           example: John Doe
+        faxNumber:
+          maxLength: 32
+          type: string
+          description: the contact fax number for this party
+        phoneNumber:
+          maxLength: 32
+          type: string
+          description: the contact phone number for this party
+        emailAddress:
+          maxLength: 320
+          type: string
+          description: the contact email address for this party
         name:
           maxLength: 150
           type: string
@@ -2099,6 +2130,39 @@ components:
           description: "the internal system code for this company, will be system\
             \ specific to the system delivering or receiving this message"
           example: HAMG
+        streetAddress:
+          type: array
+          description: the street address lines
+          items:
+            type: string
+        city:
+          maxLength: 28
+          type: string
+          description: the city for the address
+        country:
+          maxLength: 2
+          type: string
+          description: the 2 digit ISO country code for the address
+        postalCode:
+          maxLength: 20
+          type: string
+          description: the postal code for the address
+        stateProvince:
+          maxLength: 20
+          type: string
+          description: the optional state or province code for the address
+        latitude:
+          required:
+          - "false"
+          type: number
+          description: "Instead of an address, provides the latitude of this party"
+          format: double
+        longitude:
+          required:
+          - "false"
+          type: number
+          description: "Instead of an address, provides the longitude of this party"
+          format: double
       description: represents a company (or location) involving shipping containers
     PendingResponse:
       type: object
@@ -2159,6 +2223,7 @@ components:
       - quantity
       - recipient
       - redeliveryNumber
+      - status
       type: object
       properties:
         redeliveryNumber:
@@ -2183,6 +2248,26 @@ components:
 
             ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
           format: date-time
+        status:
+          type: string
+          description: "Describes the status for this redelivery: \n\n`APPROVED` -\
+            \ redelivery is approved\n\n`COMPLETE` - all units are turned in and no\
+            \ more may be turned in\n\n`EXPIRED` - the redelivery is now expired and\
+            \ any remaining units are no longer valid for turn in\n\n`CANCELLED` -\
+            \ the redelivery is cancelled and not valid for turn in"
+          example: APPROVED
+          default: APPROVED
+          enum:
+          - APPROVED
+          - COMPLETE
+          - EXPIRED
+          - CANCELLED
+        estimateEmailRecipients:
+          type: array
+          description: list of emails to notify for an estimate revision
+          example: "['customer@example.com']"
+          items:
+            type: string
         comments:
           type: array
           description: comments pertaining to this unit for the intended recipient
@@ -2387,8 +2472,18 @@ components:
         lastCargo:
           maxLength: 255
           type: string
-          description: the last cargo this shipping container carried
+          description: a description of the last cargo this shipping container carried
           example: Aroset PS 5191
+        lastCargoNumber:
+          maxLength: 7
+          minLength: 4
+          pattern: "^([A-Z]{2})??\\s?[A-Z0-9]{4}$"
+          required:
+          - "false"
+          type: string
+          description: A number (such as a UN Number for hazardous materials) used
+            to identify the type of cargo this container carried
+          example: UN 0305
         tankGrade:
           maxLength: 1
           type: string
@@ -2398,6 +2493,13 @@ components:
           enum:
           - F
           - C
+        technicalBulletins:
+          type: array
+          description: "list of technical bulletins associated to this unit - we suggest\
+            \ this be fixed identifiers, codes, or urls"
+          example: "['https://technical.example.com/bulletin/1234']"
+          items:
+            type: string
         billingParty:
           $ref: '#/components/schemas/Party'
         inspectionCriteria:
@@ -2423,6 +2525,7 @@ components:
       - quantity
       - recipient
       - releaseNumber
+      - status
       - type
       type: object
       properties:
@@ -2434,6 +2537,20 @@ components:
           description: "the identifier for this release, also referred to as the advice\
             \ number or release number"
           example: AHAMG33141
+        status:
+          type: string
+          description: "Describes the status for this release: \n\n`APPROVED` - release\
+            \ is approved for leaving the storage location\n\n`COMPLETE` - all containers\
+            \ have left the depot and no more may be processed\n\n`EXPIRED` - the\
+            \ release is now expired and any remaining units are no longer valid\n\
+            \n`CANCELLED` - the release is cancelled and not valid"
+          example: APPROVED
+          default: APPROVED
+          enum:
+          - APPROVED
+          - COMPLETE
+          - EXPIRED
+          - CANCELLED
         type:
           required:
           - "true"
@@ -2762,7 +2879,8 @@ components:
           required:
           - "true"
           type: string
-          description: the identifier for this work order
+          description: the identifier for this work order; this will be the approval
+            number for repairs
           example: WHAMG46019
         depot:
           $ref: '#/components/schemas/Party'

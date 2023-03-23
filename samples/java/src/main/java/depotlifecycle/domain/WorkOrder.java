@@ -40,7 +40,7 @@ public class WorkOrder {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the identifier for this work order", example = "WHAMG46019", minLength = 1, maxLength = 16, required = true)
+    @Schema(description = "the identifier for this work order; this will be the approval number for repairs", example = "WHAMG46019", minLength = 1, maxLength = 16, required = true)
     @Column(nullable = false, length = 16)
     String workOrderNumber;
 

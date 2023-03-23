@@ -40,7 +40,7 @@ import java.util.Arrays;
 @OpenAPIDefinition(
     info = @Info(
         title = "Depot Life Cycle",
-        version = "2.2.2",
+        version = "2.2.3",
         description = "# Purpose\n\n" +
             " A depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to facilitate real time communication between systems instead of traditional EDI files.\n" +
             "\n\n\n" +
@@ -69,6 +69,18 @@ import java.util.Arrays;
             "    - Estimate Line Items are optional.\n\n" +
             "    - Error Responses optionally support multiple messages via a details field.\n\n" +
             "    - Various improvements for BETA APIs.\n\n" +
+            " * 2.2.3\n\n" +
+            "    - Party model (optional):\n\n" +
+            "        - Latitude & Longitude\n\n" +
+            "        - Physical Address\n\n" +
+            "        - Contact Phone, Fax, & Phone Number fields\n\n" +
+            "    - Insurance Coverage model:\n\n" +
+            "         - Add indicator for insurance coverage applicable to CTL scenarios\n\n" +
+            "    - Release & Redelivery models - Status field\n\n" +
+            "    - Redelivery model - Add field to store estimate recipient emails\n\n" +
+            "    - RedeliveryUnit model - Add cargo # to identify type of cargo by UN or other standard numbers\n\n" +
+            "    - RedeliveryUnit model - Add technical bulletins field\n\n" +
+            "    - Release search - Add search flag to find candidate units\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
@@ -273,6 +285,7 @@ public class Application {
 
     private void buildReleases(Party depot1, Party depot2, Party customer, Party owner) {
         Release release = new Release();
+        release.setStatus("APPROVED");
         release.setReleaseNumber("RHAMG134512");
         release.setType("BOOK");
         release.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
@@ -318,6 +331,7 @@ public class Application {
 
     private void buildRedeliveries(Party depot1, Party depot2, Party customer, Party owner) {
         Redelivery redelivery = new Redelivery();
+        redelivery.setStatus("APPROVED");
         redelivery.setRedeliveryNumber("AHAMG33141");
         redelivery.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
         redelivery.setExpirationDate(getLocal(LocalDateTime.now().plusMonths(4)));

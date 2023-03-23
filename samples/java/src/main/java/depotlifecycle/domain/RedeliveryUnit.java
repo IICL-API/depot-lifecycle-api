@@ -70,13 +70,24 @@ public class RedeliveryUnit {
     @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
-    @Schema(description = "the last cargo this shipping container carried", maxLength = 255, example = "Aroset PS 5191")
+    @Schema(description = "a description of the last cargo this shipping container carried", maxLength = 255, example = "Aroset PS 5191")
     @Column(length = 255)
     String lastCargo;
+
+    @Schema(description = "A number (such as a UN Number for hazardous materials) used to identify the type of cargo this container carried", required = false, minLength = 4, maxLength = 7, pattern = "^([A-Z]{2})??\\s?[A-Z0-9]{4}$", example="UN 0305")
+    @Column(length = 7)
+    String lastCargoNumber;
 
     @Schema(description = "if this is a tank, then this describes the type of liquids it can contain: \n\n`F` - Food\n\n`C` - Chemical ", maxLength = 1, example = "C", allowableValues = {"F", "C"})
     @Column(length = 1)
     String tankGrade;
+
+    @Schema(description = "list of technical bulletins associated to this unit - we suggest this be fixed identifiers, codes, or urls", example = "['https://technical.example.com/bulletin/1234']")
+    @Lob
+    @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
+    List<String> technicalBulletins;
 
     @Schema(description = "The party that will handle any repair (estimate & work order) billing for units associated with this detail.", required = true)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
