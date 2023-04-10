@@ -2108,17 +2108,20 @@ components:
           description: the full name for the user identified by `userCode`
           example: John Doe
         faxNumber:
-          maxLength: 32
-          type: string
-          description: the contact fax number for this party
+          type: array
+          description: the contact fax number(s) for this party
+          items:
+            type: string
         phoneNumber:
-          maxLength: 32
-          type: string
-          description: the contact phone number for this party
+          type: array
+          description: the contact phone number(s) for this party
+          items:
+            type: string
         emailAddress:
-          maxLength: 320
-          type: string
-          description: the contact email address for this party
+          type: array
+          description: the contact email address(es) for this party
+          items:
+            type: string
         name:
           maxLength: 150
           type: string

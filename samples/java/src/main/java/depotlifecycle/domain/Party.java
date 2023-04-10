@@ -50,17 +50,26 @@ public class Party {
     @Column(length = 70)
     String userName;
 
-    @Schema(description = "the contact fax number for this party", maxLength = 32)
-    @Column(length = 32)
-    String faxNumber;
+    @Schema(description = "the contact fax number(s) for this party")
+    @Lob
+    @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
+    List<String> faxNumber;
 
-    @Schema(description = "the contact phone number for this party", maxLength = 32)
-    @Column(length = 32)
-    String phoneNumber;
+    @Schema(description = "the contact phone number(s) for this party")
+    @Lob
+    @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
+    List<String> phoneNumber;
 
-    @Schema(description = "the contact email address for this party", maxLength = 320)
-    @Column(length = 320)
-    String emailAddress;
+    @Schema(description = "the contact email address(es) for this party")
+    @Lob
+    @ElementCollection
+    @CollectionTable
+    @LazyCollection(LazyCollectionOption.FALSE)
+    List<String> emailAddress;
 
     @Schema(description = "the name of this company", example = "CMR Container Maintenance Rep.", maxLength = 150)
     @Column(length = 150)
