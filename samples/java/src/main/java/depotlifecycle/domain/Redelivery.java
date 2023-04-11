@@ -60,7 +60,7 @@ public class Redelivery {
     @Column
     ZonedDateTime expirationDate;
 
-    @Schema(defaultValue = "APPROVED", description = "Describes the status for this redelivery: \n\n`APPROVED` - redelivery is approved\n\n`COMPLETE` - all units are turned in and no more may be turned in\n\n`EXPIRED` - the redelivery is now expired and any remaining units are no longer valid for turn in\n\n`CANCELLED` - the redelivery is cancelled and not valid for turn in", allowableValues = {"APPROVED", "COMPLETE", "EXPIRED", "CANCELLED"}, example = "APPROVED")
+    @Schema(defaultValue = "APPROVED", description = "Describes the status for this redelivery: \n\n`PENDING` - redelivery is pending and not yet valid for turn in\n\n`APPROVED` - redelivery is approved\n\n`COMPLETE` - all units are turned in and no more may be turned in\n\n`EXPIRED` - the redelivery is now expired and any remaining units are no longer valid for turn in\n\n`CANCELLED` - the redelivery is cancelled and not valid for turn in", allowableValues = {"PENDING", "APPROVED", "COMPLETE", "EXPIRED", "CANCELLED"}, example = "APPROVED")
     @Column(nullable = false, length = 9)
     String status;
 
