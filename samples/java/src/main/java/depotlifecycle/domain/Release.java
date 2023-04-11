@@ -48,7 +48,7 @@ public class Release {
     @Column(nullable = false, length = 16)
     String releaseNumber;
 
-    @Schema(defaultValue = "APPROVED", description = "Describes the status for this release: \n\n`APPROVED` - release is approved for leaving the storage location\n\n`COMPLETE` - all containers have left the depot and no more may be processed\n\n`EXPIRED` - the release is now expired and any remaining units are no longer valid\n\n`CANCELLED` - the release is cancelled and not valid", allowableValues = {"APPROVED", "COMPLETE", "EXPIRED", "CANCELLED"}, example = "APPROVED")
+    @Schema(defaultValue = "APPROVED", description = "Describes the status for this release: \n\n`PENDING` - release is pending and not yet valid\n\n`APPROVED` - release is approved for leaving the storage location\n\n`COMPLETE` - all containers have left the depot and no more may be processed\n\n`EXPIRED` - the release is now expired and any remaining units are no longer valid\n\n`CANCELLED` - the release is cancelled and not valid", allowableValues = {"PENDING", "APPROVED", "COMPLETE", "EXPIRED", "CANCELLED"}, example = "APPROVED")
     @Column(nullable = false, length = 9)
     String status;
 
