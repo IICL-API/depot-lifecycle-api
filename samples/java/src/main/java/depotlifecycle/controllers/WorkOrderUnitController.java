@@ -68,16 +68,18 @@ public class WorkOrderUnitController {
         conversionService.convert(repairComplete, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
         Optional<WorkOrder> workOrder = workOrderRepository.findByWorkOrderNumber(workOrderNumber);
-        if(workOrder.isEmpty()) {
-            throw new IllegalArgumentException("Work Order " + workOrderNumber + " was not found.");
-        }
 
-        Optional<WorkOrderUnit> unit = workOrder.get().getLineItems().stream().filter(p -> p.getUnitNumber().equals(repairComplete.getUnitNumber())).findAny();
-        if(unit.isEmpty()) {
-            throw new IllegalArgumentException("Work Order " + workOrderNumber + " does not contain unit " + repairComplete.getUnitNumber());
-        }
+        Optional<WorkOrderUnit> unit = workOrder.flatMap(order -> order.getLineItems().stream().filter(p -> p.getUnitNumber().equals(repairComplete.getUnitNumber())).findAny());
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
+            if(workOrder.isEmpty()) {
+                throw new IllegalArgumentException("Work Order " + workOrderNumber + " was not found.");
+            }
+
+            if(unit.isEmpty()) {
+                throw new IllegalArgumentException("Work Order " + workOrderNumber + " does not contain unit " + repairComplete.getUnitNumber());
+            }
+
             if(unit.get().getStatus().equals("REMOVED")) {
                 throw new IllegalArgumentException("Unit was removed from work order.");
             }
@@ -87,8 +89,11 @@ public class WorkOrderUnitController {
             }
         }
 
-        unit.get().setStatus("REPAIRED");
-        workOrderUnitRepository.save(unit.get());
+        if(unit.isPresent()) {
+            unit.get().setStatus("REPAIRED");
+            workOrderUnitRepository.save(unit.get());
+        }
+
 
         return HttpResponse.ok();
     }
