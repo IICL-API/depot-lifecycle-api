@@ -26,12 +26,13 @@ info:
     \ surveys, and customer approval), notify when a shipping container is repaired,\
     \ and create a gate out for leaving the depot.\n\n\n\n\n # Deprecation\n\n If\
     \ this API version were to be discontinued, a minimum of 6 months time would pass\
-    \ before it's removal.\n\n\n\n # Change Log\n\n * 2.2.2\n\n    - Estimate Line\
-    \ Items are optional.\n\n    - Error Responses optionally support multiple messages\
-    \ via a details field.\n\n    - Various improvements for BETA APIs.\n\n * 2.2.3\n\
-    \n    - Party model (optional):\n\n        - Latitude & Longitude\n\n        -\
-    \ Physical Address\n\n        - Contact Phone, Fax, & Phone Number fields\n\n\
-    \    - Insurance Coverage model:\n\n         - Add indicator for insurance coverage\
+    \ before it's removal.\n\n\n\n # Change Log\n\n * 2.2.1\n\n    - Estimate Photo\
+    \ support for line items and the overall estimate (header).\n\n * 2.2.2\n\n  \
+    \  - Estimate Line Items are optional.\n\n    - Error Responses optionally support\
+    \ multiple messages via a details field.\n\n    - Various improvements for BETA\
+    \ APIs.\n\n * 2.2.3\n\n    - Party model (optional):\n\n        - Latitude & Longitude\n\
+    \n        - Physical Address\n\n        - Contact Phone, Fax, & Phone Number fields\n\
+    \n    - Insurance Coverage model:\n\n         - Add indicator for insurance coverage\
     \ applicable to CTL scenarios\n\n    - Release & Redelivery models - Status field\n\
     \n    - Redelivery model - Add field to store estimate recipient emails\n\n  \
     \  - RedeliveryUnit model - Add cargo # to identify type of cargo by UN or other\
