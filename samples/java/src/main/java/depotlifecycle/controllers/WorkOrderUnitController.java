@@ -9,11 +9,13 @@ import depotlifecycle.repositories.WorkOrderRepository;
 import depotlifecycle.repositories.WorkOrderUnitRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
 import io.micronaut.core.convert.ConversionService;
+import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.utils.SecurityService;
@@ -96,5 +98,15 @@ public class WorkOrderUnitController {
 
 
         return HttpResponse.ok();
+    }
+
+    @Error
+    public HttpResponse<ErrorResponse> onSavedFailed(HttpRequest request, Throwable ex) {
+        LOG.info("\tError - 400 - Bad Request", ex);
+        ErrorResponse error = new ErrorResponse();
+        error.setCode("ERR000");
+        error.setMessage(ex.getMessage());
+
+        return HttpResponse.<ErrorResponse>badRequest().body(error);
     }
 }
