@@ -83,7 +83,7 @@ info:
     \ HTTP/1.1\n\n Host: www.example.com\n\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9\n\
     \n ```\n"
   contact:
-    email: techncial@iicl.org
+    email: technical@iicl.org
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html

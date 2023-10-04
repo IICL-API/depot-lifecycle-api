@@ -210,7 +210,7 @@ import java.util.Arrays;
             "\n" +
             " ```\n",
         license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html"),
-        contact = @Contact(email = "techncial@iicl.org")
+        contact = @Contact(email = "technical@iicl.org")
     ),
     externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/IICL-API/depot-lifecycle-api"),
     tags = {
