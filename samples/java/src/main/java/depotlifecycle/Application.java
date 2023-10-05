@@ -61,6 +61,9 @@ import java.util.Arrays;
             " 4. PUT - marks a shipping container repaired \n\n" +
             " These APIs allow the Depot to report the initial gate in movement, issue gate data corrections (i.e. the damage status or activity date), participate in the estimate process (i.e. creation, surveys, and customer approval), notify when a shipping container is repaired, and create a gate out for leaving the depot.\n\n" +
             "\n\n\n" +
+            " # Depot Identifiers\n\n" +
+            " Depot or facility identifiers, henceforth referred to as `EDI Address`, `CompanyId`, or `Party Id` in this document, are maintained by The Bureau International des Containers (BIC) and officially known as the BIC Facility Code. For codes and more information please refer to [https://www.bic-code.org/bic-facility-codes](https://www.bic-code.org/bic-facility-codes/).\n" +
+            "\n\n\n" +
             " # Deprecation\n\n" +
             " If this API version were to be discontinued, a minimum of 6 months time would pass before it's removal.\n" +
             "\n\n\n" +
@@ -207,7 +210,7 @@ import java.util.Arrays;
             "\n" +
             " ```\n",
         license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html"),
-        contact = @Contact(email = "techncial@iicl.org")
+        contact = @Contact(email = "technical@iicl.org")
     ),
     externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/IICL-API/depot-lifecycle-api"),
     tags = {
