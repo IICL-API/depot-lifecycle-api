@@ -42,17 +42,18 @@ info:
     \ Add field to store estimate recipient emails\n\n    - RedeliveryUnit model -\
     \ Add cargo # to identify type of cargo by UN or other standard numbers\n\n  \
     \  - RedeliveryUnit model - Add technical bulletins field\n\n    - Release search\
-    \ - Add search flag to find candidate units\n\n\n\n\n # Security & Authentication\n\
-    \n To ensure secure communication, all endpoints of this API should use the https\
-    \ protocol instead of http.  Authentication methods will differ between systems,\
-    \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
-    \ both of these follow.\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
-    \ is used for stateless authentication.  Since all requests are sent using https,\
-    \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
-    \ format. \n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\"\
-    ,\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\
-    \n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
+    \ - Add search flag to find candidate units\n\n * 2.2.4\n\n    - Estimate Photo\
+    \ Upload Proposal\n\n\n\n\n # Security & Authentication\n\n To ensure secure communication,\
+    \ all endpoints of this API should use the https protocol instead of http.  Authentication\
+    \ methods will differ between systems, but two popular methods are JSON Web Tokens\
+    \ and Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\
+    \n [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
+    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\
+    \ \n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"\
+    roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\"\
+    :\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"\
+    eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
     :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n\n\n\n\n An access_token is provided\
     \ for authentication to API endpoints and a refresh_token is provided to generate\
     \ a new access_token when one expires.\n\n\n\n\n\n ### 2. Obtaining an access\
@@ -87,15 +88,18 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 2.2.3
+  version: 2.2.4
 externalDocs:
   description: Find out more about this api
   url: https://github.com/IICL-API/depot-lifecycle-api
 servers:
 - url: https://api.example.com/examplecontextpath
 security:
-- JWT: []
+- Dynamic_Token: []
+- Static_Token: []
 tags:
+- name: estimate proposals
+  description: '*new estimate apis that are being considered*'
 - name: redelivery
   description: '*turn in approval for shipping containers*'
 - name: release
@@ -454,6 +458,65 @@ paths:
           description: estimate total update is disallowed by security
         "404":
           description: the estimate was not found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
+  /api/v2/estimatePhoto/{estimateIdentifier}:
+    post:
+      tags:
+      - estimate proposals
+      summary: upload an estimate photo
+      description: "Instead of using a link, upload a photo for a previously allocated\
+        \ estimate"
+      operationId: uploadEstimatePhoto
+      parameters:
+      - name: estimateIdentifier
+        in: path
+        description: the estimate identifier
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 10102561
+      - name: line
+        in: query
+        description: an optional line number to associate this photo to
+        required: false
+        schema:
+          type: integer
+          format: int32
+          example: 1
+      requestBody:
+        description: The photo to upload
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              description: the photo data
+              format: binary
+        required: true
+      responses:
+        "200":
+          description: successfully uploaded an estimate photo
+        "202":
+          description: "photo accepted for processing, but not created due to manual\
+            \ processing requirement"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingResponse'
+        "400":
+          description: an invalid request was provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: uploading an estimate photo is disallowed by security
+        "404":
+          description: the estimate or line item could not be found
         "501":
           description: this feature is not supported by this server
         "503":
@@ -3025,7 +3088,21 @@ components:
           - REMOVED
           - REPAIRED
       description: information for a specific unit on a work order
+  securitySchemes:
+    Dynamic_Token:
+      type: http
+      description: Dynamic JWT Bearer Authentication
+      scheme: bearer
+      bearerFormat: JWT
+    Static_Token:
+      type: http
+      description: Static JWT Bearer Authentication
+      scheme: bearer
+      bearerFormat: JWT
 x-tagGroups:
+- name: "API: Proposals (Alpha)"
+  tags:
+  - estimate proposals
 - name: "API: Under Development (Beta)"
   tags:
   - redelivery

@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
-@Tag(name = "estimate")
+@Tag(name = "estimate proposals")
 @Validated
 @Secured("isAuthenticated()")
 @Controller("/api/v2/estimatePhoto")

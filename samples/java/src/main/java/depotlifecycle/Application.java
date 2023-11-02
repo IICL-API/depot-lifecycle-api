@@ -43,7 +43,7 @@ import java.util.Arrays;
 @OpenAPIDefinition(
     info = @Info(
         title = "Depot Life Cycle",
-        version = "2.2.3",
+        version = "2.2.4",
         description = "# Purpose\n\n" +
             " A depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to facilitate real time communication between systems instead of traditional EDI files.\n" +
             "\n\n\n" +
@@ -89,6 +89,8 @@ import java.util.Arrays;
             "    - RedeliveryUnit model - Add cargo # to identify type of cargo by UN or other standard numbers\n\n" +
             "    - RedeliveryUnit model - Add technical bulletins field\n\n" +
             "    - Release search - Add search flag to find candidate units\n\n" +
+            " * 2.2.4\n\n" +
+            "    - Estimate Photo Upload Proposal\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
@@ -217,6 +219,7 @@ import java.util.Arrays;
     ),
     externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/IICL-API/depot-lifecycle-api"),
     tags = {
+        @Tag(name = "estimate proposals", description = "*new estimate apis that are being considered*"),
         @Tag(name = "redelivery", description = "*turn in approval for shipping containers*"),
         @Tag(name = "release", description = "*lease out approval for shipping containers*"),
         @Tag(name = "gate", description = "*manage gate ins and gate outs of shipping containers*"),
@@ -224,27 +227,27 @@ import java.util.Arrays;
         @Tag(name = "workOrder", description = "*manage damage estimates that are approved for repair*")
     },
     extensions = {
-        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }]", parseValue = true)})
+        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Proposals (Alpha)\", \"tags\": [ \"estimate proposals\" ] }, { \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }]", parseValue = true)})
     },
     servers = {
         @Server(url = "https://api.example.com/examplecontextpath")
     },
     security = {
-        @SecurityRequirement(name = "Bearer_Authentication"),
-        @SecurityRequirement(name = "Static_API_Key"),
+        @SecurityRequirement(name = "Dynamic_Token"),
+        @SecurityRequirement(name = "Static_Token"),
     }
 )
 @SecuritySchemes (
     value = {
             @SecurityScheme(
-                    name = "Bearer_Authentication",
+                    name = "Dynamic_Token",
                     description = "Dynamic JWT Bearer Authentication",
                     type = SecuritySchemeType.HTTP,
                     bearerFormat = "JWT",
                     scheme = "bearer"
             ),
             @SecurityScheme(
-                    name = "Static_API_Key",
+                    name = "Static_Token",
                     description = "Static JWT Bearer Authentication",
                     type = SecuritySchemeType.HTTP,
                     bearerFormat = "JWT",
