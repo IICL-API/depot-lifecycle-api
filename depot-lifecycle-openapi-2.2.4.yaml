@@ -111,6 +111,104 @@ tags:
     in*'
 - name: workOrder
   description: '*manage damage estimates that are approved for repair*'
+- name: m_error_response
+  description: <SchemaDefinition schemaRef="#/components/schemas/ErrorResponse" />
+  x-displayName: ErrorResponse
+- name: m_insurance_coverage
+  description: <SchemaDefinition schemaRef="#/components/schemas/InsuranceCoverage"
+    />
+  x-displayName: InsuranceCoverage
+- name: m_party
+  description: <SchemaDefinition schemaRef="#/components/schemas/Party" />
+  x-displayName: Party
+- name: m_pending_response
+  description: <SchemaDefinition schemaRef="#/components/schemas/PendingResponse"
+    />
+  x-displayName: PendingResponse
+- name: m_redelivery
+  description: <SchemaDefinition schemaRef="#/components/schemas/Redelivery" />
+  x-displayName: Redelivery
+- name: m_redelivery_detail
+  description: <SchemaDefinition schemaRef="#/components/schemas/RedeliveryDetail"
+    />
+  x-displayName: RedeliveryDetail
+- name: m_redelivery_unit
+  description: <SchemaDefinition schemaRef="#/components/schemas/RedeliveryUnit" />
+  x-displayName: RedeliveryUnit
+- name: m_release
+  description: <SchemaDefinition schemaRef="#/components/schemas/Release" />
+  x-displayName: Release
+- name: m_release_detail
+  description: <SchemaDefinition schemaRef="#/components/schemas/ReleaseDetail" />
+  x-displayName: ReleaseDetail
+- name: m_release_detail_criteria
+  description: <SchemaDefinition schemaRef="#/components/schemas/ReleaseDetailCriteria"
+    />
+  x-displayName: ReleaseDetailCriteria
+- name: m_release_unit
+  description: <SchemaDefinition schemaRef="#/components/schemas/ReleaseUnit" />
+  x-displayName: ReleaseUnit
+- name: m_gate_create
+  description: <SchemaDefinition schemaRef="#/components/schemas/GateCreateRequest"
+    />
+  x-displayName: GateCreateRequest
+- name: m_gate_create_photo
+  description: <SchemaDefinition schemaRef="#/components/schemas/GateCreatePhoto"
+    />
+  x-displayName: GateCreatePhoto
+- name: m_gate_response
+  description: <SchemaDefinition schemaRef="#/components/schemas/GateResponse" />
+  x-displayName: GateResponse
+- name: m_gate_status
+  description: <SchemaDefinition schemaRef="#/components/schemas/GateStatus" />
+  x-displayName: GateStatus
+- name: m_gate_update_request
+  description: <SchemaDefinition schemaRef="#/components/schemas/GateUpdateRequest"
+    />
+  x-displayName: GateUpdateRequest
+- name: m_gate_update_photo
+  description: <SchemaDefinition schemaRef="#/components/schemas/GateUpdatePhoto"
+    />
+  x-displayName: GateUpdatePhoto
+- name: m_estimate
+  description: <SchemaDefinition schemaRef="#/components/schemas/Estimate" />
+  x-displayName: Estimate
+- name: m_estimate_photo
+  description: <SchemaDefinition schemaRef="#/components/schemas/EstimatePhoto" />
+  x-displayName: EstimatePhoto
+- name: m_estimate_line_item
+  description: <SchemaDefinition schemaRef="#/components/schemas/EstimateLineItem"
+    />
+  x-displayName: EstimateLineItem
+- name: m_estimate_line_item_part
+  description: <SchemaDefinition schemaRef="#/components/schemas/EstimateLineItemPart"
+    />
+  x-displayName: EstimateLineItemPart
+- name: m_estimate_line_item_photo
+  description: <SchemaDefinition schemaRef="#/components/schemas/EstimateLineItemPhoto"
+    />
+  x-displayName: EstimateLineItemPhoto
+- name: m_estimate_allocation
+  description: <SchemaDefinition schemaRef="#/components/schemas/EstimateAllocation"
+    />
+  x-displayName: EstimateAllocation
+- name: m_preliminary_decision
+  description: <SchemaDefinition schemaRef="#/components/schemas/PreliminaryDecision"
+    />
+  x-displayName: PreliminaryDecision
+- name: m_estimate_customer_approval
+  description: <SchemaDefinition schemaRef="#/components/schemas/EstimateCustomerApproval"
+    />
+  x-displayName: EstimateCustomerApproval
+- name: m_work_order
+  description: <SchemaDefinition schemaRef="#/components/schemas/WorkOrder" />
+  x-displayName: WorkOrder
+- name: m_work_order_unit
+  description: <SchemaDefinition schemaRef="#/components/schemas/WorkOrderUnit" />
+  x-displayName: WorkOrderUnit
+- name: m_repair_complete
+  description: <SchemaDefinition schemaRef="#/components/schemas/RepairComplete" />
+  x-displayName: RepairComplete
 paths:
   /api/v2/estimate:
     get:
@@ -3112,3 +3210,33 @@ x-tagGroups:
   - gate
   - estimate
   - workOrder
+- name: Models
+  tags:
+  - m_error_response
+  - m_insurance_coverage
+  - m_party
+  - m_pending_response
+  - m_redelivery
+  - m_redelivery_detail
+  - m_redelivery_unit
+  - m_release
+  - m_release_detail
+  - m_release_detail_criteria
+  - m_release_unit
+  - m_gate_create
+  - m_gate_create_photo
+  - m_gate_response
+  - m_gate_status
+  - m_gate_update_request
+  - m_gate_update_photo
+  - m_estimate
+  - m_estimate_photo
+  - m_estimate_line_item
+  - m_estimate_line_item_part
+  - m_estimate_line_item_photo
+  - m_estimate_allocation
+  - m_preliminary_decision
+  - m_estimate_customer_approval
+  - m_work_order
+  - m_work_order_unit
+  - m_repair_complete
