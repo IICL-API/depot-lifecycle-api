@@ -16,12 +16,15 @@ import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -227,7 +230,26 @@ import java.util.Arrays;
         @Server(url = "https://api.example.com/examplecontextpath")
     },
     security = {
-        @SecurityRequirement(name = "JWT")
+        @SecurityRequirement(name = "Bearer_Authentication"),
+        @SecurityRequirement(name = "Static_API_Key"),
+    }
+)
+@SecuritySchemes (
+    value = {
+            @SecurityScheme(
+                    name = "Bearer_Authentication",
+                    description = "Dynamic JWT Bearer Authentication",
+                    type = SecuritySchemeType.HTTP,
+                    bearerFormat = "JWT",
+                    scheme = "bearer"
+            ),
+            @SecurityScheme(
+                    name = "Static_API_Key",
+                    description = "Static JWT Bearer Authentication",
+                    type = SecuritySchemeType.HTTP,
+                    bearerFormat = "JWT",
+                    scheme = "bearer"
+            )
     }
 )
 @Singleton
