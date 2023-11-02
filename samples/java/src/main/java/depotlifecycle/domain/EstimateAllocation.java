@@ -34,7 +34,7 @@ import java.math.BigDecimal;
 public class EstimateAllocation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
+    @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nAn internal system identifier to be used to upload Estimate Photos.", type = "integer", format = "int64", example = "10102561", required = false)
     Long id;
 
     @Schema(description = "The estimate number this allocation applies to", example = "DEHAMCE1856373", minLength = 1, maxLength = 16, required = true)

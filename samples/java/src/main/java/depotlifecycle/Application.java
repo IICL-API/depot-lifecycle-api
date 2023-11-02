@@ -90,7 +90,11 @@ import java.util.Arrays;
             "    - RedeliveryUnit model - Add technical bulletins field\n\n" +
             "    - Release search - Add search flag to find candidate units\n\n" +
             " * 2.2.4\n\n" +
-            "    - Estimate Photo Upload Proposal\n\n" +
+            "    - Added separate section for shared models to documentation.\n\n" +
+            "    - Documented suggested security schemes for easier adoption with API importing tools.\n\n" +
+            "    - Estimate Photo Upload Proposal:\n\n" +
+            "        - Estimate Photo Upload endpoint\n\n" +
+            "        - Added identifier field, 'id', to EstimateAllocation to use to upload photos\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +

@@ -42,12 +42,16 @@ info:
     \ Add field to store estimate recipient emails\n\n    - RedeliveryUnit model -\
     \ Add cargo # to identify type of cargo by UN or other standard numbers\n\n  \
     \  - RedeliveryUnit model - Add technical bulletins field\n\n    - Release search\
-    \ - Add search flag to find candidate units\n\n * 2.2.4\n\n    - Estimate Photo\
-    \ Upload Proposal\n\n\n\n\n # Security & Authentication\n\n To ensure secure communication,\
-    \ all endpoints of this API should use the https protocol instead of http.  Authentication\
-    \ methods will differ between systems, but two popular methods are JSON Web Tokens\
-    \ and Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\
-    \n [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \ - Add search flag to find candidate units\n\n * 2.2.4\n\n    - Added separate\
+    \ section for shared models to documentation.\n\n    - Documented suggested security\
+    \ schemes for easier adoption with API importing tools.\n\n    - Estimate Photo\
+    \ Upload Proposal:\n\n        - Estimate Photo Upload endpoint\n\n        - Added\
+    \ identifier field, 'id', to EstimateAllocation to use to upload photos\n\n\n\n\
+    \n # Security & Authentication\n\n To ensure secure communication, all endpoints\
+    \ of this API should use the https protocol instead of http.  Authentication methods\
+    \ will differ between systems, but two popular methods are JSON Web Tokens and\
+    \ Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n\
+    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
     \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
     \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\
     \ \n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"\
@@ -1459,6 +1463,17 @@ components:
       - total
       type: object
       properties:
+        id:
+          required:
+          - "false"
+          type: integer
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            An internal system identifier to be used to upload Estimate Photos.
+          format: int64
+          nullable: true
+          example: 10102561
         estimateNumber:
           maxLength: 16
           minLength: 1
