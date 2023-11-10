@@ -589,13 +589,18 @@ paths:
         schema:
           type: integer
           format: int32
+          nullable: true
           example: 1
       requestBody:
-        description: The photo to upload
+        description: The photo to upload (expected name of part is `file`)
         content:
           multipart/form-data:
             schema:
               type: string
+              properties:
+                file:
+                  type: string
+                  format: binary
               description: the photo data
               format: binary
         required: true

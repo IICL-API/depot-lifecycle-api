@@ -5,6 +5,7 @@ import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.Estimate;
 import depotlifecycle.repositories.EstimateRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -14,6 +15,8 @@ import io.micronaut.http.annotation.*;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.http.multipart.CompletedFileUpload;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
@@ -47,6 +50,7 @@ public class EstimatePhotoController {
     private final SecurityService securityService;
 
     @Post(uri = "/{estimateIdentifier}", consumes = MediaType.MULTIPART_FORM_DATA, produces = MediaType.APPLICATION_JSON)
+    @ExecuteOn(TaskExecutors.IO)
     @Operation(summary = "upload an estimate photo",
         description = "Instead of using a link, upload a photo for a previously allocated estimate",
         method = "POST",
@@ -62,11 +66,11 @@ public class EstimatePhotoController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    @RequestBody(description = "The photo to upload", required = true, content = {@Content(mediaType = MediaType.MULTIPART_FORM_DATA, schema = @Schema(name="file", type = "string", format = "binary", description = "the photo data"))})
+    @RequestBody(description = "The photo to upload (expected name of part is `file`)", required = true, content = {@Content(mediaType = MediaType.MULTIPART_FORM_DATA, schema = @Schema(name="file", type = "string", format = "binary", description = "the photo data"))})
     public HttpResponse<HttpStatus> create(@Parameter(name = "estimateIdentifier", description = "the estimate identifier", in = ParameterIn.PATH, required = true, schema = @Schema(example = "10102561", type = "integer", format = "int64")) Long estimateIdentifier,
-                                           @QueryValue("line") @Parameter(name = "line", description = "an optional line number to associate this photo to", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "integer", format="int32", example = "1")) Integer line,
-                                           @Body CompletedFileUpload file) {
-        LOG.info("Received Estimate Photo");
+                                           @Nullable @QueryValue("line") @Parameter(name = "line", description = "an optional line number to associate this photo to", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "integer", format="int32", example = "1")) Integer line,
+                                           CompletedFileUpload file) {
+        LOG.info("Received Estimate Photo with name: {} of size {} bytes", file.getFilename(), file.getSize());
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
             Optional<Estimate> estimate = estimateRepository.findById(estimateIdentifier);
