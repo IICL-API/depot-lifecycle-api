@@ -72,7 +72,16 @@ public class EstimatePhotoController {
                                            @Nullable @QueryValue("line") @Parameter(name = "line", description = "an optional line number to associate this photo to", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "integer", format="int32", example = "1")) Integer line,
                                            @Nullable @QueryValue("status") @Parameter(name = "status", description = "indicator of when this photo applies\n\n`REPAIRED` - Photo is after repair \n\n`BEFORE` - Photo is before repair", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", allowableValues = {"REPAIRED", "BEFORE"}, defaultValue = "BEFORE", example = "BEFORE", maxLength = 8)) String status,
                                            CompletedFileUpload file) {
-        LOG.info("Received Estimate Photo with name: {} of size {} bytes", file.getFilename(), file.getSize());
+        LOG.info("Received Estimate Photo with name: {} of size {} bytes for line {} with status {}", file.getFilename(), file.getSize(), line, status);
+
+        if(Objects.isNull(status) || status.isEmpty()) {
+            LOG.info("No status received, defaulting to BEFORE.");
+            status = "BEFORE";
+        }
+
+        if(!status.equals("BEFORE") && !status.equals("REPAIRED")) {
+            throw new IllegalArgumentException("Status may only be BEFORE or REPAIRED.");
+        }
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
             Optional<Estimate> estimate = estimateRepository.findById(estimateIdentifier);
