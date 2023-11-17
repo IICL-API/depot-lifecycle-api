@@ -32,19 +32,19 @@ public class EstimateLineItemPart {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "a description for this part", maxLength = 500, example = "Paint A")
+    @Schema(description = "a description for this part", maxLength = 500, example = "Paint A", required = false, nullable = true)
     @Column(length = 500)
     String description;
 
-    @Schema(description = "ID number used to signify what part is being used", required = true, example = "108106", maxLength = 50)
+    @Schema(description = "ID number used to signify what part is being used", required = true, nullable = false, example = "108106", maxLength = 50)
     @Column(length = 64, nullable = false)
     String number;
 
-    @Schema(description = "the number of parts used", required = true, type = "number", format = "int32", example = "1", minimum = "1")
+    @Schema(description = "the number of parts used", required = true, nullable = false, type = "number", format = "int32", example = "1", minimum = "1")
     @Column(nullable = false)
     Integer quantity;
 
-    @Schema(description = "the price per part", required = true, type = "number", format = "double", example = "2.88")
+    @Schema(description = "the price per part", required = true, nullable = false, type = "number", format = "double", example = "2.88")
     @Column(nullable = false)
     BigDecimal price;
 }

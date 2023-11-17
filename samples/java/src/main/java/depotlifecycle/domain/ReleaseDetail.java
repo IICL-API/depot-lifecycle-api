@@ -42,54 +42,54 @@ public class ReleaseDetail {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "The customer for the contract on this detail.", required = true)
+    @Schema(description = "The customer for the contract on this detail.", required = true, nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party customer;
 
-    @Schema(description = "the contract code for the given shipping containers", required = true, example = "CNCX05-100000", maxLength = 16)
+    @Schema(description = "the contract code for the given shipping containers", required = true, nullable = false, example = "CNCX05-100000", maxLength = 16)
     @Column(nullable = false, length = 16)
     String contract;
 
-    @Schema(description = "the equipment type ISO code or an internal code if one does not exist for the given shipping containers", required = true, example = "22G1", maxLength = 10)
+    @Schema(description = "the equipment type ISO code or an internal code if one does not exist for the given shipping containers", required = true, nullable = false, example = "22G1", maxLength = 10)
     @Column(nullable = false, length = 10)
     String equipment;
 
-    @Schema(description = "the current grade of the unit", required = true, example = "IICL", maxLength = 10)
+    @Schema(description = "the current grade of the unit", required = true, nullable = false, example = "IICL", maxLength = 10)
     @Column(nullable = false, length = 10)
     String grade;
 
-    @Schema(description = "an indicator for the upgrades applied to units on this detail.\n\n`FG` - Food grade\n\n`ML` - Malt\n\n`DB` - Dairy Board\n\n`EV` - Evian\n\n`WH` - Whiskey\n\n`SU` - Sugar\n\n`CF` - Coffee\n\n`TB` - Tobacco\n\n`MC` - Milk cartons\n\n`MP` - Milk powder\n\n`AM` - Ammunition\n\n`CH` - Cotton/Hay\n\n`TE` - Tea\n\n`FT` - Flexitank", allowableValues = {"FG", "ML", "DB", "EV", "WH", "SU", "CF", "TB", "MC", "MP", "AM", "CH", "TE", "FT"}, required = false, example = "AM", maxLength = 2)
+    @Schema(description = "an indicator for the upgrades applied to units on this detail.\n\n`FG` - Food grade\n\n`ML` - Malt\n\n`DB` - Dairy Board\n\n`EV` - Evian\n\n`WH` - Whiskey\n\n`SU` - Sugar\n\n`CF` - Coffee\n\n`TB` - Tobacco\n\n`MC` - Milk cartons\n\n`MP` - Milk powder\n\n`AM` - Ammunition\n\n`CH` - Cotton/Hay\n\n`TE` - Tea\n\n`FT` - Flexitank", allowableValues = {"FG", "ML", "DB", "EV", "WH", "SU", "CF", "TB", "MC", "MP", "AM", "CH", "TE", "FT"}, required = false, nullable = true, example = "AM", maxLength = 2)
     @Column(length = 2)
     String upgradeType;
 
-    @Schema(description = "the specific units for this release if defined, if not, assumed blanket (any unit matching criteria can be tied up to the quantity limit of this detail)")
+    @Schema(description = "the specific units for this release if defined, if not, assumed blanket (any unit matching criteria can be tied up to the quantity limit of this detail)", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<ReleaseUnit> units = new ArrayList<>();
 
-    @Schema(description = "additional criteria beyond the required properties of this detail to further restrict units.  i.e. <= 2003 manufacture year. ")
+    @Schema(description = "additional criteria beyond the required properties of this detail to further restrict units.  i.e. <= 2003 manufacture year. ", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
     List<ReleaseDetailCriteria> criteria = new ArrayList<>();
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example detail level comment.']")
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example detail level comment.']", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable
     @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
-    @Schema(description = "the number of shipping containers assigned to this detail", required = true, minimum = "0", example = "1")
+    @Schema(description = "the number of shipping containers assigned to this detail", required = true, nullable = false, minimum = "0", example = "1")
     @Column(nullable = false)
     Integer quantity;
 
-    @Schema(description = "indicator if mechanical equipment must be tested prior to lease out")
+    @Schema(description = "indicator if mechanical equipment must be tested prior to lease out", required = false, nullable = true)
     @Column
     Boolean preTripInspectionRequired;
 
-    @Schema(example = "-23", description = "the reefer setpoint / desired temperature")
+    @Schema(example = "-23", description = "the reefer setpoint / desired temperature", required = false, nullable = true)
     @Column
     Integer desiredTemperature;
 
-    @Schema(description = "if the equipment has fresh air ventilation, the rate of the fresh air ventilation", example = "90 CBM", maxLength = 10)
+    @Schema(description = "if the equipment has fresh air ventilation, the rate of the fresh air ventilation", example = "90 CBM", maxLength = 10, required = false, nullable = true)
     @Column(length = 10)
     String ventilation;
 }

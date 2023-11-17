@@ -74,7 +74,7 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@QueryValue("releaseNumber") @Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
+    public HttpResponse index(@QueryValue("releaseNumber") @Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "RHAMG000000", maxLength = 16)) String releaseNumber,
                               @QueryValue("includeCandidates") @Parameter(name = "includeCandidates", description = "whether to include candidate units for any found release", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "boolean", example = "false")) Boolean includeCandidates
                               ) {
         LOG.info("Received Release Search");
@@ -171,7 +171,7 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "RHAMG000000", maxLength = 16)) String releaseNumber,
+    public HttpResponse<HttpStatus> update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(type = "string", example = "RHAMG000000", maxLength = 16)) String releaseNumber,
                        @Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Release Update");
         conversionService.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));

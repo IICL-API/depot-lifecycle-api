@@ -40,37 +40,37 @@ public class InsuranceCoverage {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the total amount allowable to by covered by insurance", format = "double")
+    @Schema(description = "the total amount allowable to by covered by insurance", format = "double", required = false, nullable = true)
     @Column
     BigDecimal amountCovered;
 
-    @Schema(description = "The currency for the insurance coverage amount", pattern = "^[A-Z]{3}$", example = "EUR")
+    @Schema(description = "The currency for the insurance coverage amount", pattern = "^[A-Z]{3}$", example = "EUR", required = false, nullable = true)
     @Column(length = 3)
     String amountCurrency;
 
-    @Schema(description = "indicates if this coverage should apply to scenarios where the damage exceeds the depreciated value of the container")
+    @Schema(description = "indicates if this coverage should apply to scenarios where the damage exceeds the depreciated value of the container", required = false, nullable = true)
     @Column
     Boolean appliesToCTL;
 
-    @Schema(description = "indicates if the amount of damage exceeds the insurance coverage, whether the lessee if fully responsible for the damage")
+    @Schema(description = "indicates if the amount of damage exceeds the insurance coverage, whether the lessee if fully responsible for the damage", required = false, nullable = true)
     @Column
     Boolean allOrNothing;
 
-    @Schema(description = "any contractual reason why the coverage may not apply")
+    @Schema(description = "any contractual reason why the coverage may not apply", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable
     @LazyCollection(LazyCollectionOption.FALSE)
     List<String> exceptions;
 
-    @Schema(description = "reasons insurance coverage would be excluded from a repair")
+    @Schema(description = "reasons insurance coverage would be excluded from a repair", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable
     @LazyCollection(LazyCollectionOption.FALSE)
     List<String> exclusions;
 
-    @Schema(description = "reasons insurance coverage would include a repair")
+    @Schema(description = "reasons insurance coverage would include a repair", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable

@@ -44,31 +44,31 @@ public class Release {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the identifier for this release, also referred to as the advice number or release number", example = "AHAMG33141", maxLength = 16, required = true)
+    @Schema(description = "the identifier for this release, also referred to as the advice number or release number", example = "AHAMG33141", maxLength = 16, required = true, nullable = false)
     @Column(nullable = false, length = 16)
     String releaseNumber;
 
-    @Schema(defaultValue = "APPROVED", description = "Describes the status for this release: \n\n`PENDING` - release is pending and not yet valid\n\n`APPROVED` - release is approved for leaving the storage location\n\n`COMPLETE` - all containers have left the depot and no more may be processed\n\n`EXPIRED` - the release is now expired and any remaining units are no longer valid\n\n`CANCELLED` - the release is cancelled and not valid", allowableValues = {"PENDING", "APPROVED", "COMPLETE", "EXPIRED", "CANCELLED"}, example = "APPROVED")
+    @Schema(required = true, nullable = false, description = "Describes the status for this release: \n\n`PENDING` - release is pending and not yet valid\n\n`APPROVED` - release is approved for leaving the storage location\n\n`COMPLETE` - all containers have left the depot and no more may be processed\n\n`EXPIRED` - the release is now expired and any remaining units are no longer valid\n\n`CANCELLED` - the release is cancelled and not valid", allowableValues = {"PENDING", "APPROVED", "COMPLETE", "EXPIRED", "CANCELLED"}, example = "APPROVED")
     @Column(nullable = false, length = 9)
     String status;
 
-    @Schema(description = "Describes the intended purpose of the release: \n\n`SALE` - shipping containers are being sold\n\n`BOOK` - shipping containers are being leased to a customer\n\n`REPO` - shipping containers are being relocated by the owner to another storage location", allowableValues = {"SALE", "BOOK", "REPO"}, required = true)
+    @Schema(description = "Describes the intended purpose of the release: \n\n`SALE` - shipping containers are being sold\n\n`BOOK` - shipping containers are being leased to a customer\n\n`REPO` - shipping containers are being relocated by the owner to another storage location", allowableValues = {"SALE", "BOOK", "REPO"}, required = true, nullable = false)
     @Column(nullable = false, length = 4)
     String type;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2019-07-21T17:32:28Z"
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved / effective\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Schema(description = "the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved / effective\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time", required = true, nullable = false)
     @Column(nullable = false)
     ZonedDateTime approvalDate;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2020-07-21T17:32:28Z"
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
-    @Schema(description = "the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this release is considered no longer valid\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time")
+    @Schema(description = "the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this release is considered no longer valid\n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", type = "string", format = "date-time", required = true, nullable = false)
     @Column
     ZonedDateTime expirationDate;
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example release level comment.']")
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example release level comment.']", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable
@@ -95,7 +95,7 @@ public class Release {
     @Column(nullable = false)
     Integer quantity;
 
-    @Schema(description = "groups of like-criteria units", required = true, minLength = 1)
+    @Schema(description = "groups of like-criteria units", required = true, minLength = 1, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<ReleaseDetail> details = new ArrayList<>();
 }

@@ -64,7 +64,7 @@ public class WorkOrderUnitController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> update(@Parameter(name = "workOrderNumber", description = "the work order number", in = ParameterIn.PATH, required = true, schema = @Schema(example = "WHAMG30001", maxLength = 16)) String workOrderNumber,
+    public HttpResponse<HttpStatus> update(@Parameter(name = "workOrderNumber", description = "the work order number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "WHAMG30001", maxLength = 16)) String workOrderNumber,
                                            @Body @RequestBody(description = "Necessary information to mark a shipping container repair complete", required = true, content = {@Content(schema = @Schema(implementation = RepairComplete.class))}) RepairComplete repairComplete) {
         LOG.info("Received Work Order Repair Complete for {}:", workOrderNumber);
         conversionService.convert(repairComplete, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));

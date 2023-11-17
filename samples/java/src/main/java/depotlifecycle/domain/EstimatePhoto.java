@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Links to a photo for a damage estimate.", requiredProperties = {"url", "status"})
+@Schema(description = "Links to a photo for a damage estimate.", requiredProperties = {"url"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
@@ -31,11 +31,11 @@ public class EstimatePhoto {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986) that is a photo for this estimate.", required = true, example = "https://www.example.com/photo.png")
+    @Schema(description = "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986) that is a photo for this estimate.", required = true, nullable = false, example = "https://www.example.com/photo.png")
     @Column(length = 2048, nullable = false)
     String url;
 
-    @Schema(description = "indicator of when this photo applies\n\n`REPAIRED` - Photo is after repair \n\n`BEFORE` - Photo is before repair", required = true, allowableValues = {"REPAIRED", "BEFORE"}, example = "BEFORE", maxLength = 8)
+    @Schema(description = "indicator of when this photo applies\n\n`REPAIRED` - Photo is after repair \n\n`BEFORE` - Photo is before repair", required = false, nullable = true, defaultValue = "BEFORE", allowableValues = {"REPAIRED", "BEFORE"}, example = "BEFORE", maxLength = 8)
     @Column(length = 8, nullable = false)
     String status;
 }

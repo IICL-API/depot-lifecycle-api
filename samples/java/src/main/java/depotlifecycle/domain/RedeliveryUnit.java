@@ -43,61 +43,61 @@ public class RedeliveryUnit {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the current unit number of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, example = "CONU1234561", maxLength = 11)
+    @Schema(description = "the current unit number of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", maxLength = 11)
     @Column(nullable = false, length = 11)
     String unitNumber;
 
-    @Schema(description = "date and month this unit was manufactured\n\n( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2001-07-21", type = "string", format = "date", required = true)
+    @Schema(description = "date and month this unit was manufactured\n\n( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2001-07-21", type = "string", format = "date", required = true, nullable = false)
     @Column(nullable = false)
     LocalDate manufactureDate;
 
-    @Schema(description = "the date this unit was on hired to the customer for this unit's detail\n\n( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2001-07-21", type = "string", format = "date")
+    @Schema(description = "the date this unit was on hired to the customer for this unit's detail\n\n( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2001-07-21", type = "string", format = "date", required = false, nullable = true)
     @Column
     LocalDate lastOnHireDate;
 
-    @Schema(description = "The location this unit was last on-hired.")
+    @Schema(description = "The location this unit was last on-hired.", required = false, nullable = true)
     @ManyToOne(fetch = FetchType.EAGER)
     Party lastOnHireLocation;
 
-    @Schema(description = "Describes the state of the shipping container for this redelivery: \n\n`TIED` - shipping container is assigned to this redelivery and ready to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery, but is no longer valid for redelivery.\n\n`TIN` - shipping container has turned into the storage location of this redelivery.", allowableValues = {"REMOVED", "TIED", "TIN"}, example = "TIED")
+    @Schema(description = "Describes the state of the shipping container for this redelivery: \n\n`TIED` - shipping container is assigned to this redelivery and ready to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery, but is no longer valid for redelivery.\n\n`TIN` - shipping container has turned into the storage location of this redelivery.", allowableValues = {"REMOVED", "TIED", "TIN"}, example = "TIED", required = true, nullable = false)
     @Column(nullable = false, length = 7)
     String status;
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example unit level comment.']")
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example unit level comment.']", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable
     @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
-    @Schema(description = "a description of the last cargo this shipping container carried", maxLength = 255, example = "Aroset PS 5191")
+    @Schema(description = "a description of the last cargo this shipping container carried", maxLength = 255, example = "Aroset PS 5191", required = false, nullable = true)
     @Column(length = 255)
     String lastCargo;
 
-    @Schema(description = "A number (such as a UN Number for hazardous materials) used to identify the type of cargo this container carried", required = false, minLength = 4, maxLength = 7, pattern = "^([A-Z]{2})??\\s?[A-Z0-9]{4}$", example="UN 0305")
+    @Schema(description = "A number (such as a UN Number for hazardous materials) used to identify the type of cargo this container carried", required = false, nullable = true, minLength = 4, maxLength = 7, pattern = "^([A-Z]{2})??\\s?[A-Z0-9]{4}$", example="UN 0305")
     @Column(length = 7)
     String lastCargoNumber;
 
-    @Schema(description = "if this is a tank, then this describes the type of liquids it can contain: \n\n`F` - Food\n\n`C` - Chemical ", maxLength = 1, example = "C", allowableValues = {"F", "C"})
+    @Schema(description = "if this is a tank, then this describes the type of liquids it can contain: \n\n`F` - Food\n\n`C` - Chemical ", maxLength = 1, example = "C", allowableValues = {"F", "C"}, required = false, nullable = true)
     @Column(length = 1)
     String tankGrade;
 
-    @Schema(description = "list of technical bulletins associated to this unit - we suggest this be fixed identifiers, codes, or urls", example = "['https://technical.example.com/bulletin/1234']")
+    @Schema(description = "list of technical bulletins associated to this unit - we suggest this be fixed identifiers, codes, or urls", example = "['https://technical.example.com/bulletin/1234']", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable
     @LazyCollection(LazyCollectionOption.FALSE)
     List<String> technicalBulletins;
 
-    @Schema(description = "The party that will handle any repair (estimate & work order) billing for units associated with this detail.", required = true)
+    @Schema(description = "The party that will handle any repair (estimate & work order) billing for units associated with this detail.", required = true, nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party billingParty;
 
-    @Schema(description = "If the unit is damaged on turn in, the grade / category that the shipping container should be estimated", required = false, example = "IICL", maxLength = 10)
+    @Schema(description = "If the unit is damaged on turn in, the grade / category that the shipping container should be estimated", required = false, nullable = true, example = "IICL", maxLength = 10)
     @Column(nullable = true, length = 10)
     String inspectionCriteria;
 
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-    @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information")
+    @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information", required = false, nullable = true)
     MachineryInfo machineryInfo;
 }

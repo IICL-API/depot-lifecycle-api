@@ -35,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.Column;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
@@ -69,6 +70,7 @@ public class EstimatePhotoController {
     @RequestBody(description = "The photo to upload (expected name of part is `file`)", required = true, content = {@Content(mediaType = MediaType.MULTIPART_FORM_DATA, schema = @Schema(name="file", type = "string", format = "binary", description = "the photo data"))})
     public HttpResponse<HttpStatus> create(@Parameter(name = "estimateIdentifier", description = "the estimate identifier", in = ParameterIn.PATH, required = true, schema = @Schema(example = "10102561", type = "integer", format = "int64")) Long estimateIdentifier,
                                            @Nullable @QueryValue("line") @Parameter(name = "line", description = "an optional line number to associate this photo to", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "integer", format="int32", example = "1")) Integer line,
+                                           @Nullable @QueryValue("status") @Parameter(name = "status", description = "indicator of when this photo applies\n\n`REPAIRED` - Photo is after repair \n\n`BEFORE` - Photo is before repair", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", allowableValues = {"REPAIRED", "BEFORE"}, defaultValue = "BEFORE", example = "BEFORE", maxLength = 8)) String status,
                                            CompletedFileUpload file) {
         LOG.info("Received Estimate Photo with name: {} of size {} bytes", file.getFilename(), file.getSize());
 
