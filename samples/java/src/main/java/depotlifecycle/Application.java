@@ -109,6 +109,7 @@ import java.util.Arrays;
             "    - Fixed type definitions for query parameters - `string` will now show instead of `object`.\n\n" +
             "    - Fixed type definitions for path parameters - `string` will now show instead of `object`.\n\n" +
             "    - Fixed minimum length documentation for damage location code on Estimate Line Item.\n\n" +
+            "    - Add `type` to Gate Status API.\n\n" +
             "    - Estimate Photo Upload Proposal:\n\n" +
             "        - For all photo APIs, assume a default status of `BEFORE` so that it is not required.\n\n" +
             "        - Estimate Photo Upload endpoint\n\n" +

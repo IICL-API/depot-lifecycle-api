@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
@@ -42,4 +43,8 @@ public class GateStatus {
 
     @Schema(description = "the last reported grade or category standard this unit", required = true, nullable = false, example = "IICL", maxLength = 10)
     String currentInspectionCriteria;
+
+    @Schema(description = "current gate type indicator\n\n`IN` - Gate In\n\n`OUT` - Gate Out\n\nNo value means unknown.", maxLength = 3, example = "IN", allowableValues = {"IN", "OUT"}, required = false, nullable = true)
+    @Column(nullable = false, length = 3)
+    String type;
 }
