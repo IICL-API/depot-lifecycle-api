@@ -18,7 +18,7 @@ import java.time.ZonedDateTime;
 @Setter
 @JsonView
 @NoArgsConstructor
-@Schema(description = "the current gate status of a given shipping container", requiredProperties = {"adviceNumber", "depot", "status", "activityTime", "currentInspectionCriteria"})
+@Schema(description = "the current gate status of a given shipping container", requiredProperties = {"adviceNumber", "depot", "status", "activityTime"})
 @Introspected
 public class GateStatus {
     @Schema(required = true, nullable = false, description = "the redelivery or release advice number for the gate record", example = "AHAMG000000", maxLength = 16)
@@ -41,10 +41,9 @@ public class GateStatus {
     @Schema(description = "the exchange rate to convert billed currency to the local currency for damage estimate totals", required = false, nullable = true, type = "number", format = "double", example = "0.8133")
     BigDecimal currentExchangeRate;
 
-    @Schema(description = "the last reported grade or category standard this unit", required = true, nullable = false, example = "IICL", maxLength = 10)
+    @Schema(description = "the unit should be inspected to this grade; if none, no estimate is allowed", required = false, nullable = true, example = "IICL", maxLength = 10)
     String currentInspectionCriteria;
 
     @Schema(description = "current gate type indicator\n\n`IN` - Gate In\n\n`OUT` - Gate Out\n\nNo value means unknown.", maxLength = 3, example = "IN", allowableValues = {"IN", "OUT"}, required = false, nullable = true)
-    @Column(nullable = false, length = 3)
     String type;
 }

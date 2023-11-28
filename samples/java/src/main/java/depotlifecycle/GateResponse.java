@@ -20,7 +20,7 @@ import java.util.List;
 @Setter
 @JsonView
 @NoArgsConstructor
-@Schema(description = "A confirmation that a gate completed successfully and the necessary information to perform a damage estimate if required.", requiredProperties = {"adviceNumber", "currentInspectionCriteria"})
+@Schema(description = "A confirmation that a gate completed successfully and the necessary information to perform a damage estimate if required.", requiredProperties = {"adviceNumber"})
 @Introspected
 public class GateResponse {
     @Schema(pattern = "^[A-Z0-9]{3}[0-9]{3}$", description = "indicator code for this response", example = "TRI521", required = false, nullable = true, maxLength = 6)
@@ -51,6 +51,6 @@ public class GateResponse {
     @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
-    @Schema(description = "the last reported grade or category standard this unit", required = true, nullable = false, example = "IICL", maxLength = 10)
+    @Schema(description = "the grade the unit should be inspected to for estimates; if none, no estimate is allowed", required = false, nullable = true, example = "IICL", maxLength = 10)
     String currentInspectionCriteria;
 }

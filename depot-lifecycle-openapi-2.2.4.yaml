@@ -65,32 +65,34 @@ info:
     \ Fixed type definitions for path parameters - `string` will now show instead\
     \ of `object`.\n\n    - Fixed minimum length documentation for damage location\
     \ code on Estimate Line Item.\n\n    - Add `type` to Gate Status API.\n\n    -\
-    \ Estimate Photo Upload Proposal:\n\n        - For all photo APIs, assume a default\
-    \ status of `BEFORE` so that it is not required.\n\n        - Estimate Photo Upload\
-    \ endpoint\n\n        - Added identifier field, 'id', to EstimateAllocation to\
-    \ use to upload photos\n\n\n\n\n # Security & Authentication\n\n To ensure secure\
-    \ communication, all endpoints of this API should use the https protocol instead\
-    \ of http.  Authentication methods will differ between systems, but two popular\
-    \ methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n\
-    \n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/), is used for\
-    \ stateless authentication.  Since all requests are sent using https, tokens are\
-    \ not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
-    \ format.\n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\"\
-    ,\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\
-    \n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n\n\n\n\n An access_token is provided\
-    \ for authentication to API endpoints and a refresh_token is provided to generate\
-    \ a new access_token when one expires.\n\n\n\n\n\n ### 2. Obtaining an access\
-    \ token\n\n Issuing a POST request to `/api/login` with a username and password\
-    \ payload will cause a JWT token to be issued in the response.\n\n ```\n\n POST\
-    \ /api/login HTTP/1.1\n\n Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\
-    \n\n\n\n\n {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n\
-    \ }\n\n ```\n\n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created\
-    \ by invoking the login endpoint expire after a determined period.  Issuing a\
-    \ POST request to `/oauth/access_token` with: the refresh_token from the JWT token\
-    \ previously issued and a grant_type of refresh_token will reissue a new JWT token.\n\
-    \n ```\n\n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
+    \ Change `currentInspectionCriteria` on Gate Status & Create APIs to optional\
+    \ since Estimates are not always required.\n\n    - Estimate Photo Upload Proposal:\n\
+    \n        - For all photo APIs, assume a default status of `BEFORE` so that it\
+    \ is not required.\n\n        - Estimate Photo Upload endpoint\n\n        - Added\
+    \ identifier field, 'id', to EstimateAllocation to use to upload photos\n\n\n\n\
+    \n # Security & Authentication\n\n To ensure secure communication, all endpoints\
+    \ of this API should use the https protocol instead of http.  Authentication methods\
+    \ will differ between systems, but two popular methods are JSON Web Tokens and\
+    \ Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n\
+    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
+    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
+    \n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
+    : [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"\
+    j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    ,\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    \n\n }\n\n ```\n\n\n\n\n\n An access_token is provided for authentication to API\
+    \ endpoints and a refresh_token is provided to generate a new access_token when\
+    \ one expires.\n\n\n\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
+    \ request to `/api/login` with a username and password payload will cause a JWT\
+    \ token to be issued in the response.\n\n ```\n\n POST /api/login HTTP/1.1\n\n\
+    \ Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\n\n\n\n\n\
+    \ {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n }\n\n ```\n\
+    \n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created by invoking the\
+    \ login endpoint expire after a determined period.  Issuing a POST request to\
+    \ `/oauth/access_token` with: the refresh_token from the JWT token previously\
+    \ issued and a grant_type of refresh_token will reissue a new JWT token.\n\n ```\n\
+    \n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
     \ application/x-www-form-urlencoded\n\n\n\n\n\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
     \n ```\n\n\n\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked\
     \ if it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n\n\
@@ -2115,7 +2117,6 @@ components:
     GateResponse:
       required:
       - adviceNumber
-      - currentInspectionCriteria
       type: object
       properties:
         code:
@@ -2183,10 +2184,11 @@ components:
         currentInspectionCriteria:
           maxLength: 10
           required:
-          - "true"
+          - "false"
           type: string
-          description: the last reported grade or category standard this unit
-          nullable: false
+          description: "the grade the unit should be inspected to for estimates; if\
+            \ none, no estimate is allowed"
+          nullable: true
           example: IICL
       description: A confirmation that a gate completed successfully and the necessary
         information to perform a damage estimate if required.
@@ -2194,7 +2196,6 @@ components:
       required:
       - activityTime
       - adviceNumber
-      - currentInspectionCriteria
       - depot
       - status
       type: object
@@ -2252,10 +2253,11 @@ components:
         currentInspectionCriteria:
           maxLength: 10
           required:
-          - "true"
+          - "false"
           type: string
-          description: the last reported grade or category standard this unit
-          nullable: false
+          description: "the unit should be inspected to this grade; if none, no estimate\
+            \ is allowed"
+          nullable: true
           example: IICL
         type:
           maxLength: 3
