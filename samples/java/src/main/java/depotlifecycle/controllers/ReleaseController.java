@@ -8,6 +8,7 @@ import depotlifecycle.domain.ReleaseDetailCriteria;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.ReleaseRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
@@ -47,6 +48,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Tag(name = "release")
 @Validated
@@ -74,11 +76,13 @@ public class ReleaseController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse index(@QueryValue("releaseNumber") @Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "RHAMG000000", maxLength = 16)) String releaseNumber,
-                              @QueryValue("includeCandidates") @Parameter(name = "includeCandidates", description = "whether to include candidate units for any found release", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "boolean", example = "false")) Boolean includeCandidates
+    public HttpResponse index(@Nullable @QueryValue("releaseNumber") @Parameter(name = "releaseNumber", description = "the release number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "RHAMG000000", maxLength = 16)) String releaseNumber,
+                              @Nullable @QueryValue("includeCandidates") @Parameter(name = "includeCandidates", description = "whether to include candidate units for any found release", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "boolean", example = "false")) Boolean includeCandidates,
+                              @Nullable @QueryValue("gateCheck") @Parameter(name = "gateCheck", description = "flag to indicate this search is to check if the found advices are valid for gate out", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "boolean", example = "true", defaultValue = "true")) Boolean gateCheck
                               ) {
         LOG.info("Received Release Search");
-        Optional.of(releaseNumber).ifPresent(LOG::info);
+        Stream.of(Optional.of("Release Number:"), Optional.ofNullable(releaseNumber)).filter(Optional::isPresent).map(Optional::get).reduce(String::concat).ifPresent(LOG::info);
+        Stream.of(Optional.of("Gate Check:"), Optional.of(gateCheck == null || gateCheck).map(Object::toString)).map(Optional::get).reduce(String::concat).ifPresent(LOG::info);
 
         List<Release> releases = new ArrayList<>();
         if (releaseNumber != null) {

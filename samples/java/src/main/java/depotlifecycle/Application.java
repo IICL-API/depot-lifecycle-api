@@ -111,6 +111,7 @@ import java.util.Arrays;
             "    - Fixed minimum length documentation for damage location code on Estimate Line Item.\n\n" +
             "    - Add `type` to Gate Status API.\n\n" +
             "    - Change `currentInspectionCriteria` on Gate Status & Create APIs to optional since Estimates are not always required.\n\n" +
+            "    - Add `gateCheck` option to Redelivery & Release search APIs, defaulted so previous query behavior is the same.\n\n" +
             "    - Estimate Photo Upload Proposal:\n\n" +
             "        - For all photo APIs, assume a default status of `BEFORE` so that it is not required.\n\n" +
             "        - Estimate Photo Upload endpoint\n\n" +
