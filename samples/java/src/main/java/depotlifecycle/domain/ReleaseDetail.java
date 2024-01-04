@@ -85,7 +85,7 @@ public class ReleaseDetail {
     @Column
     Boolean preTripInspectionRequired;
 
-    @Schema(example = "-23", description = "the reefer setpoint / desired temperature", required = false, nullable = true)
+    @Schema(example = "-23", description = "the reefer setpoint / desired temperature in Celsius", required = false, nullable = true)
     @Column
     Integer desiredTemperature;
 
