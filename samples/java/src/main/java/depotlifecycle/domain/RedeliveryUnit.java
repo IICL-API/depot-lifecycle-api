@@ -93,7 +93,7 @@ public class RedeliveryUnit {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party billingParty;
 
-    @Schema(description = "If the unit is damaged on turn in, the grade / category that the shipping container should be estimated", required = false, nullable = true, example = "IICL", maxLength = 10)
+    @Schema(description = "conveys the estimate instructions to the depot; if the unit is damaged on turn in, the estimate standard that the shipping container should be estimated to and if it should not be estimated, then null", required = false, nullable = true, example = "IICL", maxLength = 10)
     @Column(nullable = true, length = 10)
     String inspectionCriteria;
 
