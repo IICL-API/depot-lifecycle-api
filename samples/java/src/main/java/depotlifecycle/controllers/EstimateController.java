@@ -118,6 +118,7 @@ public class EstimateController {
 
         //Generate an example allocation for the purposes of this demo
         EstimateAllocation allocation = new EstimateAllocation();
+        allocation.setRelatedId(estimate.getId());
         allocation.setEstimateNumber(estimate.getEstimateNumber());
         allocation.setDepot(estimate.getDepot());
         allocation.setRevision(estimate.getRevision());

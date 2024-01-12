@@ -2,16 +2,16 @@ package depotlifecycle.controllers;
 
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.PendingResponse;
-import depotlifecycle.domain.Estimate;
-import depotlifecycle.repositories.EstimateRepository;
+import depotlifecycle.domain.GateCreateRequest;
+import depotlifecycle.repositories.GateCreateRequestRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
-import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
-import io.micronaut.http.annotation.*;
+import io.micronaut.http.annotation.Post;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.http.multipart.CompletedFileUpload;
@@ -39,60 +39,42 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
-@Tag(name = "estimate proposals")
+@Tag(name = "gate proposals")
 @Validated
 @Secured("isAuthenticated()")
-@Controller("/api/v2/estimatePhoto")
+@Controller("/api/v2/gatePhoto")
 @RequiredArgsConstructor
-public class EstimatePhotoController {
-    private static final Logger LOG = LoggerFactory.getLogger(EstimatePhotoController.class);
-    private final EstimateRepository estimateRepository;
+public class GatePhotoController {
+    private static final Logger LOG = LoggerFactory.getLogger(GatePhotoController.class);
+    private final GateCreateRequestRepository gateCreateRequestRepository;
     private final SecurityService securityService;
 
     @Post(uri = "/{relatedId}", consumes = MediaType.MULTIPART_FORM_DATA, produces = MediaType.APPLICATION_JSON)
     @ExecuteOn(TaskExecutors.IO)
-    @Operation(summary = "upload an estimate photo",
-        description = "Instead of using a link, upload a photo for a previously allocated estimate",
+    @Operation(summary = "upload a gate photo",
+        description = "Instead of using a link, upload a photo for a previously created gate record",
         method = "POST",
-        operationId = "uploadEstimatePhoto",
+        operationId = "uploadGatePhoto",
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully uploaded an estimate photo"),
+        @ApiResponse(responseCode = "200", description = "successfully uploaded a gate photo"),
         @ApiResponse(responseCode = "202", description = "photo accepted for processing, but not created due to manual processing requirement", content = {@Content(schema = @Schema(implementation = PendingResponse.class))}),
         @ApiResponse(responseCode = "400", description = "an invalid request was provided", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "uploading an estimate photo is disallowed by security"),
-        @ApiResponse(responseCode = "404", description = "the estimate or line item could not be found"),
+        @ApiResponse(responseCode = "403", description = "uploading a gate photo is disallowed by security"),
+        @ApiResponse(responseCode = "404", description = "the gate record could not be found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     @RequestBody(description = "The photo to upload (expected name of part is `file`)", required = true, content = {@Content(mediaType = MediaType.MULTIPART_FORM_DATA, schema = @Schema(name="file", type = "string", format = "binary", description = "the photo data"))})
-    public HttpResponse<HttpStatus> create(@Parameter(name = "relatedId", description = "the related identifier (from the estimate allocation) that this photo should be attached", in = ParameterIn.PATH, required = true, schema = @Schema(example = "10102561", type = "integer", format = "int64")) Long relatedId,
-                                           @Nullable @QueryValue("line") @Parameter(name = "line", description = "an optional line number to associate this photo to", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "integer", format="int32", example = "1")) Integer line,
-                                           @Nullable @QueryValue("status") @Parameter(name = "status", description = "indicator of when this photo applies\n\n`REPAIRED` - Photo is after repair \n\n`BEFORE` - Photo is before repair", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", allowableValues = {"REPAIRED", "BEFORE"}, defaultValue = "BEFORE", example = "BEFORE", maxLength = 8)) String status,
+    public HttpResponse<HttpStatus> create(@Parameter(name = "relatedId", description = "the related identifier (from the gate record) that this photo should be attached", in = ParameterIn.PATH, required = true, schema = @Schema(example = "10102561", type = "integer", format = "int64")) Long relatedId,
                                            CompletedFileUpload file) {
-        LOG.info("Received Estimate Photo with name: {} of size {} bytes for line {} with status {} for relatedId {}", file.getFilename(), file.getSize(), line, status, relatedId);
-
-        if(Objects.isNull(status) || status.isEmpty()) {
-            LOG.info("No status received, defaulting to BEFORE.");
-            status = "BEFORE";
-        }
-
-        if(!status.equals("BEFORE") && !status.equals("REPAIRED")) {
-            throw new IllegalArgumentException("Status may only be BEFORE or REPAIRED.");
-        }
+        LOG.info("Received Gate Photo with name: {} of size {} bytes for relatedId {}", file.getFilename(), file.getSize(), relatedId);
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
-            Optional<Estimate> estimate = estimateRepository.findById(relatedId);
+            Optional<GateCreateRequest> estimate = gateCreateRequestRepository.findById(relatedId);
             if (estimate.isEmpty()) {
                 throw new HttpStatusException(HttpStatus.NOT_FOUND, "Estimate does not exist to allocate.");
-            }
-
-            if(!Objects.isNull(line)) {
-                boolean hasLineItem = estimate.get().getLineItems().stream().anyMatch(estimateLineItem -> estimateLineItem.getLine().equals(line));
-                if(!hasLineItem) {
-                    throw new HttpStatusException(HttpStatus.NOT_FOUND, "Estimate does not have line [" + line + "].");
-                }
             }
         }
 

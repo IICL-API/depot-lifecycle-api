@@ -38,6 +38,9 @@ public class GateResponse {
     @Schema(description = "the transaction reference for this activity", maxLength = 35, example = "74454D", required = false, nullable = true)
     String transactionReference;
 
+    @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nAn internal system identifier to be used to upload Gate Photos or compare related activities.", type = "integer", format = "int64", example = "10102561", required = false, nullable = true)
+    Long relatedId;
+
     @Schema(description = "The applicable insurance coverage for damage estimate purposes", required = false, nullable = true)
     InsuranceCoverage insuranceCoverage;
 

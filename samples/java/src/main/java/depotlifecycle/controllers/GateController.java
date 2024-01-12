@@ -96,6 +96,7 @@ public class GateController {
 
         //Generate an example gate for the purposes of this demo
         GateResponse gate = new GateResponse();
+        gate.setRelatedId(gateCreateRequest.getId());
         gate.setAdviceNumber(gateCreateRequest.getAdviceNumber());
         gate.setCustomerReference("EXAMPLE01");
         gate.setTransactionReference(gateCreateRequest.getId().toString());
@@ -164,6 +165,7 @@ public class GateController {
 
         //Generate an example gate for the purposes of this demo
         GateResponse gate = new GateResponse();
+        gate.setRelatedId(gateUpdateRequest.getId());
         gate.setAdviceNumber(adviceNumber);
         gate.setCustomerReference("EXAMPLE01");
         gate.setTransactionReference(gateUpdateRequest.getId().toString());
