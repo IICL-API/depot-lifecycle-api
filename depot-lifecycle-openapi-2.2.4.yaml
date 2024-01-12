@@ -69,33 +69,37 @@ info:
     \ since Estimates are not always required.\n\n    - Add `gateCheck` option to\
     \ Redelivery & Release search APIs, defaulted so previous query behavior is the\
     \ same.\n\n    - Clarify that the reefer set point temperature is in Celsius on\
-    \ the ReleaseDetail model.\n\n    - Estimate Photo Upload Proposal:\n\n      \
-    \  - For all photo APIs, assume a default status of `BEFORE` so that it is not\
-    \ required.\n\n        - Estimate Photo Upload endpoint\n\n        - Added identifier\
-    \ field, 'id', to EstimateAllocation to use to upload photos\n\n\n\n\n # Security\
-    \ & Authentication\n\n To ensure secure communication, all endpoints of this API\
-    \ should use the https protocol instead of http.  Authentication methods will\
-    \ differ between systems, but two popular methods are JSON Web Tokens and Static\
-    \ Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n [JSON Web\
-    \ Token, or JWT](https://jwt.io/), is used for stateless authentication.  Since\
-    \ all requests are sent using https, tokens are not encrypted.  Tokens follow\
-    \ the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\n\
-    ### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
-    : [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"\
-    j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
-    ,\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
-    \n\n }\n\n ```\n\n\n\n\n\n An access_token is provided for authentication to API\
-    \ endpoints and a refresh_token is provided to generate a new access_token when\
-    \ one expires.\n\n\n\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
-    \ request to `/api/login` with a username and password payload will cause a JWT\
-    \ token to be issued in the response.\n\n ```\n\n POST /api/login HTTP/1.1\n\n\
-    \ Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\n\n\n\n\n\
-    \ {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n }\n\n ```\n\
-    \n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created by invoking the\
-    \ login endpoint expire after a determined period.  Issuing a POST request to\
-    \ `/oauth/access_token` with: the refresh_token from the JWT token previously\
-    \ issued and a grant_type of refresh_token will reissue a new JWT token.\n\n ```\n\
-    \n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
+    \ the ReleaseDetail model.\n\n    - Clarify `inspectionCriteria` field on `RedeliveryUnit`\
+    \ is meant to convey the estimation instructions.\n\n    - Estimate Photo Upload\
+    \ Proposal:\n\n        - For all photo APIs, assume a default status of `BEFORE`\
+    \ so that it is not required.\n\n        - Estimate Photo Upload endpoint\n\n\
+    \        - Added identifier field, 'relatedId', to `EstimateAllocation` to use\
+    \ to upload photos\n\n        - Added identifier field, 'relatedId', to `WorkOrder`\
+    \ to use to upload photos\n\n    - Gate Photo Upload Proposal:\n\n        - Gate\
+    \ Photo Upload endpoint\n\n        - Added identifier field, 'relatedId', to `GateResponse`\
+    \ to use to upload photos\n\n\n\n\n # Security & Authentication\n\n To ensure\
+    \ secure communication, all endpoints of this API should use the https protocol\
+    \ instead of http.  Authentication methods will differ between systems, but two\
+    \ popular methods are JSON Web Tokens and Static Tokens.  Examples for both of\
+    \ these follow.\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
+    \ is used for stateless authentication.  Since all requests are sent using https,\
+    \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
+    \ format.\n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\"\
+    ,\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\
+    \n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\"\
+    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
+    :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n\n\n\n\n An access_token is provided\
+    \ for authentication to API endpoints and a refresh_token is provided to generate\
+    \ a new access_token when one expires.\n\n\n\n\n\n ### 2. Obtaining an access\
+    \ token\n\n Issuing a POST request to `/api/login` with a username and password\
+    \ payload will cause a JWT token to be issued in the response.\n\n ```\n\n POST\
+    \ /api/login HTTP/1.1\n\n Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\
+    \n\n\n\n\n {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n\
+    \ }\n\n ```\n\n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created\
+    \ by invoking the login endpoint expire after a determined period.  Issuing a\
+    \ POST request to `/oauth/access_token` with: the refresh_token from the JWT token\
+    \ previously issued and a grant_type of refresh_token will reissue a new JWT token.\n\
+    \n ```\n\n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
     \ application/x-www-form-urlencoded\n\n\n\n\n\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
     \n ```\n\n\n\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked\
     \ if it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n\n\
@@ -130,6 +134,8 @@ security:
 tags:
 - name: estimate proposals
   description: '*new estimate apis that are being considered*'
+- name: gate proposals
+  description: '*new gate apis that are being considered*'
 - name: redelivery
   description: '*turn in approval for shipping containers*'
 - name: release
@@ -593,7 +599,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       x-iicl-purpose: activity
-  /api/v2/estimatePhoto/{estimateIdentifier}:
+  /api/v2/estimatePhoto/{relatedId}:
     post:
       tags:
       - estimate proposals
@@ -602,9 +608,10 @@ paths:
         \ estimate"
       operationId: uploadEstimatePhoto
       parameters:
-      - name: estimateIdentifier
+      - name: relatedId
         in: path
-        description: the estimate identifier
+        description: the related identifier (from the estimate allocation) that this
+          photo should be attached
         required: true
         schema:
           type: integer
@@ -885,6 +892,62 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       x-iicl-purpose: reporting
+  /api/v2/gatePhoto/{relatedId}:
+    post:
+      tags:
+      - gate proposals
+      summary: upload a gate photo
+      description: "Instead of using a link, upload a photo for a previously created\
+        \ gate record"
+      operationId: uploadGatePhoto
+      parameters:
+      - name: relatedId
+        in: path
+        description: the related identifier (from the gate record) that this photo
+          should be attached
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 10102561
+      requestBody:
+        description: The photo to upload (expected name of part is `file`)
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              properties:
+                file:
+                  type: string
+                  format: binary
+              description: the photo data
+              format: binary
+        required: true
+      responses:
+        "200":
+          description: successfully uploaded a gate photo
+        "202":
+          description: "photo accepted for processing, but not created due to manual\
+            \ processing requirement"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingResponse'
+        "400":
+          description: an invalid request was provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "403":
+          description: uploading a gate photo is disallowed by security
+        "404":
+          description: the gate record could not be found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      x-iicl-purpose: activity
   /api/v2/redelivery:
     get:
       tags:
@@ -1553,14 +1616,14 @@ components:
       - total
       type: object
       properties:
-        id:
+        relatedId:
           required:
           - "false"
           type: integer
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
 
-            An internal system identifier to be used to upload Estimate Photos.
+            An internal system identifier to be used to upload Estimate Photos or compare related activities.
           format: int64
           nullable: true
           example: 10102561
@@ -2188,6 +2251,17 @@ components:
           description: the transaction reference for this activity
           nullable: true
           example: 74454D
+        relatedId:
+          required:
+          - "false"
+          type: integer
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            An internal system identifier to be used to upload Gate Photos or compare related activities.
+          format: int64
+          nullable: true
+          example: 10102561
         insuranceCoverage:
           $ref: '#/components/schemas/InsuranceCoverage'
         currentExchangeRate:
@@ -2596,15 +2670,14 @@ components:
           type: string
           description: indicator code for this response
           nullable: true
-          example: TRI365
+          example: EXX365
         message:
           required:
           - "false"
           type: string
           description: a descriptive reason why the activity was not immediately created
           nullable: true
-          example: "Info TRI365 - Estimate accepted, but requires manual DV calculation\
-            \ to process."
+          example: "Info EXX365 - Accepted, but requires verification to process."
       description: used inform why an activity could not be immediately processed
     PreliminaryDecision:
       required:
@@ -2982,8 +3055,9 @@ components:
           required:
           - "false"
           type: string
-          description: "If the unit is damaged on turn in, the grade / category that\
-            \ the shipping container should be estimated"
+          description: "conveys the estimate instructions to the depot; if the unit\
+            \ is damaged on turn in, the estimate standard that the shipping container\
+            \ should be estimated to and if it should not be estimated, then null"
           nullable: true
           example: IICL
         machineryInfo:
@@ -3407,6 +3481,17 @@ components:
       - workOrderNumber
       type: object
       properties:
+        relatedId:
+          required:
+          - "false"
+          type: integer
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            An internal system identifier to be used to upload Estimate Photos or compare related activities.
+          format: int64
+          nullable: true
+          example: 10102561
         workOrderNumber:
           maxLength: 16
           minLength: 1
@@ -3575,6 +3660,7 @@ x-tagGroups:
 - name: "API: Proposals (Alpha)"
   tags:
   - estimate proposals
+  - gate proposals
 - name: "API: Under Development (Beta)"
   tags:
   - redelivery
