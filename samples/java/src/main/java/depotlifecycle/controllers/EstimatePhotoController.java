@@ -85,7 +85,7 @@ public class EstimatePhotoController {
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
             Optional<Estimate> estimate = estimateRepository.findById(relatedId);
             if (estimate.isEmpty()) {
-                throw new HttpStatusException(HttpStatus.NOT_FOUND, "Estimate does not exist to allocate.");
+                throw new HttpStatusException(HttpStatus.NOT_FOUND, "Estimate does not exist for photo upload.");
             }
 
             if(!Objects.isNull(line)) {

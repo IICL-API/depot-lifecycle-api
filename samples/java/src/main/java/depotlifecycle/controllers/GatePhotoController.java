@@ -72,9 +72,9 @@ public class GatePhotoController {
         LOG.info("Received Gate Photo with name: {} of size {} bytes for relatedId {}", file.getFilename(), file.getSize(), relatedId);
 
         if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
-            Optional<GateCreateRequest> estimate = gateCreateRequestRepository.findById(relatedId);
-            if (estimate.isEmpty()) {
-                throw new HttpStatusException(HttpStatus.NOT_FOUND, "Estimate does not exist to allocate.");
+            Optional<GateCreateRequest> gate = gateCreateRequestRepository.findById(relatedId);
+            if (gate.isEmpty()) {
+                throw new HttpStatusException(HttpStatus.NOT_FOUND, "Gate does not exist for upload photo.");
             }
         }
 

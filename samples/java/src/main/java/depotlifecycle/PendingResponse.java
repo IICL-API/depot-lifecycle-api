@@ -14,9 +14,9 @@ import lombok.Setter;
 @Schema(description = "used inform why an activity could not be immediately processed")
 @Introspected
 public class PendingResponse {
-    @Schema(pattern = "^[A-Z0-9]{3}[0-9]{3}$", description = "indicator code for this response", example = "TRI365", required = false, nullable = true, maxLength = 6)
+    @Schema(pattern = "^[A-Z0-9]{3}[0-9]{3}$", description = "indicator code for this response", example = "EXX365", required = false, nullable = true, maxLength = 6)
     String code;
 
-    @Schema(description = "a descriptive reason why the activity was not immediately created", required = false, nullable = true, example = "Info TRI365 - Estimate accepted, but requires manual DV calculation to process.")
+    @Schema(description = "a descriptive reason why the activity was not immediately created", required = false, nullable = true, example = "Info EXX365 - Accepted, but requires verification to process.")
     String message;
 }
