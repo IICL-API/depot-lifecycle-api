@@ -73,10 +73,10 @@ info:
     \ is meant to convey the estimation instructions.\n\n    - Estimate Photo Upload\
     \ Proposal:\n\n        - For all photo APIs, assume a default status of `BEFORE`\
     \ so that it is not required.\n\n        - Estimate Photo Upload endpoint\n\n\
-    \        - Added identifier field, 'relatedId', to `EstimateAllocation` to use\
-    \ to upload photos\n\n        - Added identifier field, 'relatedId', to `WorkOrder`\
+    \        - Added identifier field, `relatedId`, to `EstimateAllocation` to use\
+    \ to upload photos\n\n        - Added identifier field, `relatedId`, to `WorkOrder`\
     \ to use to upload photos\n\n    - Gate Photo Upload Proposal:\n\n        - Gate\
-    \ Photo Upload endpoint\n\n        - Added identifier field, 'relatedId', to `GateResponse`\
+    \ Photo Upload endpoint\n\n        - Added identifier field, `relatedId`, to `GateResponse`\
     \ to use to upload photos\n\n\n\n\n # Security & Authentication\n\n To ensure\
     \ secure communication, all endpoints of this API should use the https protocol\
     \ instead of http.  Authentication methods will differ between systems, but two\
