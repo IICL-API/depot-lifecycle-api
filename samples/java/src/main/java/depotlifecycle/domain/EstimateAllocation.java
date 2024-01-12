@@ -27,7 +27,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Indicates the allocated estimate totals, including any comments on the allocation and if the box is considered a constructive loss.", requiredProperties = {"estimateNumber", "revision", "depot", "total", "ownerTotal", "customerTotal", "insuranceTotal", "ctl", "preliminaryDecision"}, accessMode = Schema.AccessMode.READ_ONLY)
+@Schema(description = "Indicates the allocated estimate totals, including any comments on the allocation and if the box is considered a constructive loss.", requiredProperties = {"estimateNumber", "revision", "depot", "total", "ownerTotal", "customerTotal", "insuranceTotal", "ctl"}, accessMode = Schema.AccessMode.READ_ONLY)
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
@@ -77,7 +77,7 @@ public class EstimateAllocation {
     @Column(length = 500)
     String comments;
 
-    @Schema(type = "object", description = "when possible, this is set to an expected sell/fix decision to indicate the likely estimate owner approval action", required = true, nullable = false)
+    @Schema(type = "object", description = "when possible, this is set to an expected sell/fix decision to indicate the likely estimate owner approval action", required = false, nullable = true)
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     PreliminaryDecision preliminaryDecision;
 }

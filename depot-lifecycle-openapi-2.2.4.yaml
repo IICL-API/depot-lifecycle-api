@@ -1611,7 +1611,6 @@ components:
       - estimateNumber
       - insuranceTotal
       - ownerTotal
-      - preliminaryDecision
       - revision
       - total
       type: object
@@ -1703,7 +1702,9 @@ components:
             \ exceeds DPP Coverage.; Damages exceed coverage amount. User pays excess.;\
             \ Total paid by DPP Coverage: 121.99; Total owed by user: 422.96;"
         preliminaryDecision:
-          $ref: '#/components/schemas/PreliminaryDecision'
+          allOf:
+          - $ref: '#/components/schemas/PreliminaryDecision'
+          - nullable: true
       description: "Indicates the allocated estimate totals, including any comments\
         \ on the allocation and if the box is considered a constructive loss."
       readOnly: true
