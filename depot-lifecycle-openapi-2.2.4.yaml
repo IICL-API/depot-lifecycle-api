@@ -2302,6 +2302,17 @@ components:
       - status
       type: object
       properties:
+        relatedId:
+          required:
+          - "false"
+          type: integer
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            An internal system identifier to be used to upload Gate Photos or compare related activities.
+          format: int64
+          nullable: true
+          example: 10102561
         adviceNumber:
           maxLength: 16
           required:

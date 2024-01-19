@@ -21,6 +21,9 @@ import java.time.ZonedDateTime;
 @Schema(description = "the current gate status of a given shipping container", requiredProperties = {"adviceNumber", "depot", "status", "activityTime"})
 @Introspected
 public class GateStatus {
+    @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nAn internal system identifier to be used to upload Gate Photos or compare related activities.", type = "integer", format = "int64", example = "10102561", required = false, nullable = true)
+    Long relatedId;
+
     @Schema(required = true, nullable = false, description = "the redelivery or release advice number for the gate record", example = "AHAMG000000", maxLength = 16)
     String adviceNumber;
 
