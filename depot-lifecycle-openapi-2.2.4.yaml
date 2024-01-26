@@ -70,18 +70,18 @@ info:
     \ Redelivery & Release search APIs, defaulted so previous query behavior is the\
     \ same.\n\n    - Clarify that the reefer set point temperature is in Celsius on\
     \ the ReleaseDetail model.\n\n    - Clarify `inspectionCriteria` field on `RedeliveryUnit`\
-    \ is meant to convey the estimation instructions.\n\n    - Estimate Photo Upload\
-    \ Proposal:\n\n        - For all photo APIs, assume a default status of `BEFORE`\
-    \ so that it is not required.\n\n        - Estimate Photo Upload endpoint\n\n\
-    \        - Added identifier field, `relatedId`, to `EstimateAllocation` to use\
-    \ to upload photos\n\n        - Added identifier field, `relatedId`, to `WorkOrder`\
-    \ to use to upload photos\n\n    - Gate Photo Upload Proposal:\n\n        - Gate\
-    \ Photo Upload endpoint\n\n        - Added identifier field, `relatedId`, to `GateResponse`\
-    \ to use to upload photos\n\n\n\n\n # Security & Authentication\n\n To ensure\
-    \ secure communication, all endpoints of this API should use the https protocol\
-    \ instead of http.  Authentication methods will differ between systems, but two\
-    \ popular methods are JSON Web Tokens and Static Tokens.  Examples for both of\
-    \ these follow.\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
+    \ is meant to convey the estimation instructions.\n\n    - Fix array string examples.\n\
+    \n    - Estimate Photo Upload Proposal:\n\n        - For all photo APIs, assume\
+    \ a default status of `BEFORE` so that it is not required.\n\n        - Estimate\
+    \ Photo Upload endpoint\n\n        - Added identifier field, `relatedId`, to `EstimateAllocation`\
+    \ to use to upload photos\n\n        - Added identifier field, `relatedId`, to\
+    \ `WorkOrder` to use to upload photos\n\n    - Gate Photo Upload Proposal:\n\n\
+    \        - Gate Photo Upload endpoint\n\n        - Added identifier field, `relatedId`,\
+    \ to `GateResponse` to use to upload photos\n\n\n\n\n # Security & Authentication\n\
+    \n To ensure secure communication, all endpoints of this API should use the https\
+    \ protocol instead of http.  Authentication methods will differ between systems,\
+    \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
+    \ both of these follow.\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
     \ is used for stateless authentication.  Since all requests are sent using https,\
     \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
     \ format.\n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\"\
@@ -1359,11 +1359,14 @@ components:
           - "false"
           type: array
           description: details for the descriptive error message
-          nullable: true
-          example: "['Customer may turn in unit, but will continued to be billed.',\
-            \ 'Contact support for further assistance.']"
+          nullable: false
           items:
+            required:
+            - "false"
             type: string
+            description: details for the descriptive error message
+            nullable: false
+            example: "Customer may turn in unit, but will continued to be billed."
       description: |-
         a general response object used when an error occurs to describe why it occurred
 
@@ -2280,9 +2283,13 @@ components:
           type: array
           description: comments pertaining to this gate record
           nullable: false
-          example: "['ALL CLEANING MUST BE CODED TO \"O\" FOR OWNER.']"
           items:
+            required:
+            - "false"
             type: string
+            description: comments pertaining to this gate record
+            nullable: false
+            example: ALL CLEANING MUST BE CODED TO 'O' FOR OWNER.
         currentInspectionCriteria:
           maxLength: 10
           required:
@@ -2790,9 +2797,13 @@ components:
           type: array
           description: list of emails to notify for an estimate revision
           nullable: false
-          example: "['customer@example.com']"
           items:
+            required:
+            - "false"
             type: string
+            description: list of emails to notify for an estimate revision
+            nullable: false
+            example: customer@example.com
         comments:
           required:
           - "false"
@@ -2800,9 +2811,14 @@ components:
           description: comments pertaining to this unit for the intended recipient
             of this message
           nullable: false
-          example: "['An example redelivery level comment.']"
           items:
+            required:
+            - "false"
             type: string
+            description: comments pertaining to this unit for the intended recipient
+              of this message
+            nullable: false
+            example: An example redelivery level comment.
         depot:
           $ref: '#/components/schemas/Party'
         owner:
@@ -2947,9 +2963,14 @@ components:
           description: comments pertaining to this unit for the intended recipient
             of this message
           nullable: false
-          example: "['An example detail level comment.']"
           items:
+            required:
+            - "false"
             type: string
+            description: comments pertaining to this unit for the intended recipient
+              of this message
+            nullable: false
+            example: An example detail level comment.
       description: unit criteria that groups similar units on a redelivery
     RedeliveryUnit:
       required:
@@ -3016,9 +3037,14 @@ components:
           description: comments pertaining to this unit for the intended recipient
             of this message
           nullable: false
-          example: "['An example unit level comment.']"
           items:
+            required:
+            - "false"
             type: string
+            description: comments pertaining to this unit for the intended recipient
+              of this message
+            nullable: false
+            example: An example unit level comment.
         lastCargo:
           maxLength: 255
           required:
@@ -3057,9 +3083,14 @@ components:
           description: "list of technical bulletins associated to this unit - we suggest\
             \ this be fixed identifiers, codes, or urls"
           nullable: false
-          example: "['https://technical.example.com/bulletin/1234']"
           items:
+            required:
+            - "false"
             type: string
+            description: "list of technical bulletins associated to this unit - we\
+              \ suggest this be fixed identifiers, codes, or urls"
+            nullable: false
+            example: https://technical.example.com/bulletin/1234
         billingParty:
           $ref: '#/components/schemas/Party'
         inspectionCriteria:
@@ -3158,9 +3189,14 @@ components:
           description: comments pertaining to this unit for the intended recipient
             of this message
           nullable: false
-          example: "['An example release level comment.']"
           items:
+            required:
+            - "false"
             type: string
+            description: comments pertaining to this unit for the intended recipient
+              of this message
+            nullable: false
+            example: An example release level comment.
         depot:
           $ref: '#/components/schemas/Party'
         owner:
@@ -3303,9 +3339,14 @@ components:
           description: comments pertaining to this unit for the intended recipient
             of this message
           nullable: false
-          example: "['An example detail level comment.']"
           items:
+            required:
+            - "false"
             type: string
+            description: comments pertaining to this unit for the intended recipient
+              of this message
+            nullable: false
+            example: An example detail level comment.
         quantity:
           minimum: 0
           required:
@@ -3403,9 +3444,14 @@ components:
           description: comments pertaining to this unit for the intended recipient
             of this message
           nullable: false
-          example: "['An example unit level comment.']"
           items:
+            required:
+            - "false"
             type: string
+            description: comments pertaining to this unit for the intended recipient
+              of this message
+            nullable: false
+            example: An example unit level comment.
         status:
           required:
           - "true"

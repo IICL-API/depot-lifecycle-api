@@ -3,6 +3,7 @@ package depotlifecycle;
 import com.fasterxml.jackson.annotation.JsonView;
 import depotlifecycle.domain.InsuranceCoverage;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,7 +48,8 @@ public class GateResponse {
     @Schema(description = "the exchange rate to convert billed currency to the local currency for damage estimate totals", required = false, nullable = true, type = "number", format = "double", example = "0.8133")
     BigDecimal currentExchangeRate;
 
-    @Schema(description = "comments pertaining to this gate record", example = "['ALL CLEANING MUST BE CODED TO \"O\" FOR OWNER.']", required = false, nullable = false)
+    @ArraySchema(schema = @Schema(description = "comments pertaining to this gate record", example = "ALL CLEANING MUST BE CODED TO 'O' FOR OWNER.", required = false, nullable = false))
+    @Schema(description = "comments pertaining to this gate record", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable

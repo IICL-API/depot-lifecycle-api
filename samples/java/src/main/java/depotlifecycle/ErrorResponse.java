@@ -2,6 +2,7 @@ package depotlifecycle;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +28,10 @@ public class ErrorResponse {
     @Schema(description = "a descriptive error message", required = false, nullable = true, example = "Info TRI521 - Unit has been gated-in but is not off-hired")
     String message;
 
-    @Schema(description = "details for the descriptive error message", example = "['Customer may turn in unit, but will continued to be billed.', 'Contact support for further assistance.']", required = false, nullable = true)
+    @ArraySchema(schema =
+    @Schema(description = "details for the descriptive error message", example = "Customer may turn in unit, but will continued to be billed.", required = false, nullable = false)
+    )
+    @Schema(description = "details for the descriptive error message", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable
