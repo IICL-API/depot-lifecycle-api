@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -68,7 +69,8 @@ public class Release {
     @Column
     ZonedDateTime expirationDate;
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example release level comment.']", required = false, nullable = false)
+    @ArraySchema(schema = @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "An example release level comment.", required = false, nullable = false))
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable

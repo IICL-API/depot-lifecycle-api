@@ -3,6 +3,7 @@ package depotlifecycle.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -63,7 +64,8 @@ public class RedeliveryUnit {
     @Column(nullable = false, length = 7)
     String status;
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example unit level comment.']", required = false, nullable = false)
+    @ArraySchema(schema = @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "An example unit level comment.", required = false, nullable = false))
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable
@@ -82,7 +84,8 @@ public class RedeliveryUnit {
     @Column(length = 1)
     String tankGrade;
 
-    @Schema(description = "list of technical bulletins associated to this unit - we suggest this be fixed identifiers, codes, or urls", example = "['https://technical.example.com/bulletin/1234']", required = false, nullable = false)
+    @ArraySchema(schema = @Schema(description = "list of technical bulletins associated to this unit - we suggest this be fixed identifiers, codes, or urls", example = "https://technical.example.com/bulletin/1234", required = false, nullable = false))
+    @Schema(description = "list of technical bulletins associated to this unit - we suggest this be fixed identifiers, codes, or urls", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable

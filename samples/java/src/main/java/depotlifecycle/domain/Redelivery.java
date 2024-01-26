@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -64,14 +65,16 @@ public class Redelivery {
     @Column(nullable = false, length = 9)
     String status;
 
-    @Schema(description = "list of emails to notify for an estimate revision", example = "['customer@example.com']", required = false, nullable = false)
+    @ArraySchema(schema = @Schema(description = "list of emails to notify for an estimate revision", example = "customer@example.com", required = false, nullable = false))
+    @Schema(description = "list of emails to notify for an estimate revision", required = false, nullable = false)
     @Lob
     @ElementCollection
     @CollectionTable
     @LazyCollection(LazyCollectionOption.FALSE)
     List<String> estimateEmailRecipients;
 
-    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "['An example redelivery level comment.']", required = false, nullable = false)
+    @Schema(description = "comments pertaining to this unit for the intended recipient of this message", required = false, nullable = false)
+    @ArraySchema(schema = @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "An example redelivery level comment.", required = false, nullable = false))
     @Lob
     @ElementCollection
     @CollectionTable
