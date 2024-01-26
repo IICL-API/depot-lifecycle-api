@@ -33,15 +33,15 @@ public class MachineryInfo {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "The cooling machinery manufacturer", maxLength = 50, required = false, example = "Carrier Transicold")
+    @Schema(description = "The cooling machinery manufacturer", maxLength = 50, required = false, nullable = true, example = "Carrier Transicold")
     @Column(length = 50, nullable = true)
     String manufacturer;
 
-    @Schema(description = "The machinery model name", maxLength = 50, required = false, example = "ThinLine")
+    @Schema(description = "The machinery model name", maxLength = 50, required = false, nullable = true, example = "ThinLine")
     @Column(length = 50, nullable = true)
     String modelName;
 
-    @Schema(description = "The machinery model number", maxLength = 50, required = false, example = "69NT40-541-301")
+    @Schema(description = "The machinery model number", maxLength = 50, required = false, nullable = true, example = "69NT40-541-301")
     @Column(length = 50, nullable = true)
     String modelNumber;
 }

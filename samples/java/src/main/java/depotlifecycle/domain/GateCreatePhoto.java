@@ -31,7 +31,7 @@ public class GateCreatePhoto {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986) that is a photo of the shipping container.", required = true, example = "https://www.example.com/photo.png")
+    @Schema(description = "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986) that is a photo of the shipping container.", required = true, nullable = false, example = "https://www.example.com/photo.png")
     @Column(length = 2048, nullable = false)
     String url;
 }

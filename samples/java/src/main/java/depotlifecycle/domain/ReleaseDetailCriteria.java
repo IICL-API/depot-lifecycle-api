@@ -39,19 +39,19 @@ public class ReleaseDetailCriteria {
     @JoinColumn(name="releaseDetail_id")
     ReleaseDetail releaseDetail;
 
-    @Schema(description = "a legible field name", required = true, example = "Minimum Tonnage", maxLength = 50)
+    @Schema(description = "a legible field name", required = true, nullable = false, example = "Minimum Tonnage", maxLength = 50)
     @Column(nullable = false, length = 50)
     String fieldName;
 
-    @Schema(description = "an abbreviated form of the field name", required = true, example = "tonnageMin", maxLength = 30)
+    @Schema(description = "an abbreviated form of the field name", required = true, nullable = false, example = "tonnageMin", maxLength = 30)
     @Column(nullable = false, length = 30)
     String fieldId;
 
-    @Schema(description = "an explanation of what the field value is", required = true, example = "minimum tonnage rating of the unit (inclusive)", maxLength = 255)
+    @Schema(description = "an explanation of what the field value is", required = true, nullable = false, example = "minimum tonnage rating of the unit (inclusive)", maxLength = 255)
     @Column(nullable = false, length = 255)
     String fieldDescription;
 
-    @Schema(description = "the value of the field", required = true, example = "30", maxLength = 500)
+    @Schema(description = "the value of the field", required = true, nullable = false, example = "30", maxLength = 500)
     @Column(nullable = false, length = 500)
     String fieldValue;
 }

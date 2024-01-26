@@ -8,6 +8,7 @@ import depotlifecycle.domain.RedeliveryUnit;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import depotlifecycle.services.AuthenticationProviderUserPassword;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Tag(name = "redelivery")
 @Validated
@@ -72,11 +74,13 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> index(@QueryValue("redeliveryNumber") @Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
-                                          @QueryValue("unitNumber") @Parameter(name = "unitNumber", description = "the unit number of the shipping container", in = ParameterIn.QUERY, required = false, schema = @Schema(example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber) {
+    public HttpResponse<HttpStatus> index(@Nullable @QueryValue("redeliveryNumber") @Parameter(name = "redeliveryNumber", description = "the redelivery number to filter to", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
+                                          @Nullable @QueryValue("unitNumber") @Parameter(name = "unitNumber", description = "the unit number of the shipping container", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
+                                          @Nullable @QueryValue("gateCheck") @Parameter(name = "gateCheck", description = "flag to indicate this search is to check if the found advices are valid for gate in", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "boolean", example = "true", defaultValue = "true")) Boolean gateCheck) {
         LOG.info("Received Redelivery Search");
-        Optional.of(redeliveryNumber).ifPresent(LOG::info);
-        Optional.of(unitNumber).ifPresent(LOG::info);
+        Stream.of(Optional.of("Redelivery Number:"), Optional.ofNullable(redeliveryNumber)).filter(Optional::isPresent).map(Optional::get).reduce(String::concat).ifPresent(LOG::info);
+        Stream.of(Optional.of("Unit Number:"), Optional.ofNullable(unitNumber)).filter(Optional::isPresent).map(Optional::get).reduce(String::concat).ifPresent(LOG::info);
+        Stream.of(Optional.of("Gate Check:"), Optional.of(gateCheck == null || gateCheck).map(Object::toString)).map(Optional::get).reduce(String::concat).ifPresent(LOG::info);
 
         return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
     }
@@ -126,7 +130,7 @@ public class RedeliveryController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
+    public HttpResponse<HttpStatus> update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(type = "string", example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
                                            @Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Redelivery Update");
         conversionService.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
