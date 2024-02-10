@@ -43,7 +43,7 @@ import java.util.Arrays;
 @OpenAPIDefinition(
     info = @Info(
         title = "Depot Life Cycle",
-        version = "2.2.4",
+        version = "2.2.5",
         description = "# Purpose\n\n" +
             " A depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to facilitate real time communication between systems instead of traditional EDI files.\n" +
             "\n\n\n" +
@@ -123,6 +123,8 @@ import java.util.Arrays;
             "    - Gate Photo Upload Proposal:\n\n" +
             "        - Gate Photo Upload endpoint\n\n" +
             "        - Added identifier field, `relatedId`, to `GateResponse` to use to upload photos\n\n" +
+            " * 2.2.5\n\n" +
+            "    - Share the same Gate Photo model between Create & Update since they are the same.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
@@ -270,11 +272,10 @@ import java.util.Arrays;
         @Tag(name="m_release_detail_criteria", description="<SchemaDefinition schemaRef=\"#/components/schemas/ReleaseDetailCriteria\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="ReleaseDetailCriteria")})}),
         @Tag(name="m_release_unit", description="<SchemaDefinition schemaRef=\"#/components/schemas/ReleaseUnit\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="ReleaseUnit")})}),
         @Tag(name="m_gate_create", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateCreateRequest\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateCreateRequest")})}),
-        @Tag(name="m_gate_create_photo", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateCreatePhoto\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateCreatePhoto")})}),
+        @Tag(name="m_gate_photo", description="<SchemaDefinition schemaRef=\"#/components/schemas/GatePhoto\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GatePhoto")})}),
         @Tag(name="m_gate_response", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateResponse\"/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateResponse")})}),
         @Tag(name="m_gate_status", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateStatus\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateStatus")})}),
         @Tag(name="m_gate_update_request", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateUpdateRequest\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateUpdateRequest")})}),
-        @Tag(name="m_gate_update_photo", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateUpdatePhoto\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateUpdatePhoto")})}),
         @Tag(name="m_estimate", description="<SchemaDefinition schemaRef=\"#/components/schemas/Estimate\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="Estimate")})}),
         @Tag(name="m_estimate_photo", description="<SchemaDefinition schemaRef=\"#/components/schemas/EstimatePhoto\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="EstimatePhoto")})}),
         @Tag(name="m_estimate_line_item", description="<SchemaDefinition schemaRef=\"#/components/schemas/EstimateLineItem\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="EstimateLineItem")})}),
@@ -288,7 +289,7 @@ import java.util.Arrays;
         @Tag(name="m_repair_complete", description="<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="RepairComplete")})})
     },
     extensions = {
-        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Proposals (Alpha)\", \"tags\": [ \"estimate proposals\", \"gate proposals\" ] }, { \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_create_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_gate_update_photo\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_allocation\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\" ] }]", parseValue = true)})
+        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Proposals (Alpha)\", \"tags\": [ \"estimate proposals\", \"gate proposals\" ] }, { \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_allocation\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\" ] }]", parseValue = true)})
     },
     servers = {
         @Server(url = "https://api.example.com/examplecontextpath")

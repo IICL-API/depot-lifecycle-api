@@ -21,11 +21,11 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Links to a photo for a shipping container at the time of gate creation.", requiredProperties = {"url"})
+@Schema(description = "Links to a photo for a shipping container for gate records.", requiredProperties = {"url"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
-public class GateCreatePhoto {
+public class GatePhoto {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
