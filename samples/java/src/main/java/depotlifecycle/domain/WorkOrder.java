@@ -41,6 +41,7 @@ public class WorkOrder {
     Long id;
 
     @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nAn internal system identifier to be used to upload Estimate Photos or compare related activities.", type = "integer", format = "int64", example = "10102561", required = false, nullable = true)
+    @Column(nullable = true)
     Long relatedId;
 
     @Schema(description = "the identifier for this work order; this will be the approval number for repairs", example = "WHAMG46019", minLength = 1, maxLength = 16, required = true, nullable = false)
