@@ -4,7 +4,7 @@ import depotlifecycle.ErrorResponse;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.Estimate;
 import depotlifecycle.repositories.EstimateRepository;
-import depotlifecycle.services.AuthenticationProviderUserPassword;
+import depotlifecycle.security.AuthenticationProviderUserPassword;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;

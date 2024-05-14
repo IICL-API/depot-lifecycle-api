@@ -14,7 +14,7 @@ import depotlifecycle.repositories.EstimateAllocationRepository;
 import depotlifecycle.repositories.EstimateCancelRequestRepository;
 import depotlifecycle.repositories.EstimateRepository;
 import depotlifecycle.repositories.PartyRepository;
-import depotlifecycle.services.AuthenticationProviderUserPassword;
+import depotlifecycle.security.AuthenticationProviderUserPassword;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;

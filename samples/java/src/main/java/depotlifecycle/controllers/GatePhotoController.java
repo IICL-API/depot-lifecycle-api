@@ -4,7 +4,7 @@ import depotlifecycle.ErrorResponse;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.GateCreateRequest;
 import depotlifecycle.repositories.GateCreateRequestRepository;
-import depotlifecycle.services.AuthenticationProviderUserPassword;
+import depotlifecycle.security.AuthenticationProviderUserPassword;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;

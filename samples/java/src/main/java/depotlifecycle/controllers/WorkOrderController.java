@@ -5,7 +5,7 @@ import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.WorkOrderRepository;
-import depotlifecycle.services.AuthenticationProviderUserPassword;
+import depotlifecycle.security.AuthenticationProviderUserPassword;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;

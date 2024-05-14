@@ -7,7 +7,7 @@ import depotlifecycle.domain.ReleaseDetail;
 import depotlifecycle.domain.ReleaseDetailCriteria;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.ReleaseRepository;
-import depotlifecycle.services.AuthenticationProviderUserPassword;
+import depotlifecycle.security.AuthenticationProviderUserPassword;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpHeaders;
