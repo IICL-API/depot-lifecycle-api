@@ -59,7 +59,7 @@ public class ReleaseController {
     private static final Logger LOG = LoggerFactory.getLogger(ReleaseController.class);
     private final PartyRepository partyRepository;
     private final ReleaseRepository releaseRepository;
-    private final ConversionService<?> conversionService;
+    private final ConversionService conversionService;
     private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)

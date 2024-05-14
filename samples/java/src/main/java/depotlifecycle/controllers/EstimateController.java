@@ -64,7 +64,7 @@ public class EstimateController {
     private final EstimateRepository estimateRepository;
     private final EstimateCancelRequestRepository estimateCancelRequestRepository;
     private final EstimateAllocationRepository estimateAllocationRepository;
-    private final ConversionService<?> conversionService;
+    private final ConversionService conversionService;
     private final SecurityService securityService;
 
     @Get(produces = MediaType.APPLICATION_JSON)

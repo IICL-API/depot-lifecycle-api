@@ -46,7 +46,7 @@ public class WorkOrderUnitController {
     private static final Logger LOG = LoggerFactory.getLogger(WorkOrderController.class);
     private final WorkOrderRepository workOrderRepository;
     private final WorkOrderUnitRepository workOrderUnitRepository;
-    private final ConversionService<?> conversionService;
+    private final ConversionService conversionService;
     private final SecurityService securityService;
 
     @Put(uri = "/{workOrderNumber}", produces = MediaType.APPLICATION_JSON)

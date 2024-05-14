@@ -44,7 +44,7 @@ public class WorkOrderController {
     private static final Logger LOG = LoggerFactory.getLogger(WorkOrderController.class);
     private final PartyRepository partyRepository;
     private final WorkOrderRepository workOrderRepository;
-    private final ConversionService<?> conversionService;
+    private final ConversionService conversionService;
     private final SecurityService securityService;
 
     @Post(produces = MediaType.APPLICATION_JSON)

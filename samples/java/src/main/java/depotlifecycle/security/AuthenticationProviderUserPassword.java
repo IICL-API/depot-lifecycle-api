@@ -3,9 +3,9 @@ package depotlifecycle.security;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.security.authentication.AuthenticationFailureReason;
-import io.micronaut.security.authentication.AuthenticationProvider;
 import io.micronaut.security.authentication.AuthenticationRequest;
 import io.micronaut.security.authentication.AuthenticationResponse;
+import io.micronaut.security.authentication.provider.ReactiveAuthenticationProvider;
 import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -15,12 +15,12 @@ import reactor.core.publisher.Flux;
 import java.util.Optional;
 
 @Singleton
-public class AuthenticationProviderUserPassword implements AuthenticationProvider {
+public class AuthenticationProviderUserPassword<B, I, S> implements ReactiveAuthenticationProvider<HttpRequest<B>, I, S> {
     public static Optional<String> VALIDATE_USER_NAME = Optional.of("validate");
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticationProviderUserPassword.class);
 
     @Override
-    public Publisher<AuthenticationResponse> authenticate(@Nullable HttpRequest<?> httpRequest, AuthenticationRequest<?, ?> authenticationRequest) {
+    public Publisher<AuthenticationResponse> authenticate(@Nullable HttpRequest<B> httpRequest, AuthenticationRequest<I, S> authenticationRequest) {
         LOG.info("Received Authentication Request");
         if (authenticationRequest.getIdentity().equals("fail")) {
             //if the user wants to test what a fail authentication responds

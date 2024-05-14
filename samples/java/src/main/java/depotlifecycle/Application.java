@@ -12,6 +12,7 @@ import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import depotlifecycle.repositories.ReleaseRepository;
 import io.micronaut.context.event.StartupEvent;
+import io.micronaut.core.annotation.Introspected;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -27,6 +28,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.Entity;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -319,6 +321,7 @@ import java.util.Arrays;
 )
 @Singleton
 @RequiredArgsConstructor
+//@Introspected(packages="depotlifecycle.domain", includedAnnotations=Entity.class)
 public class Application {
 
     private static final Logger LOG = LoggerFactory.getLogger(Application.class);

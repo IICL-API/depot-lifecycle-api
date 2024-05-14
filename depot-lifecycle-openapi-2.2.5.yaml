@@ -314,13 +314,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Estimate'
+                  $ref: "#/components/schemas/Estimate"
         "400":
           description: invalid estimate search object was provided
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: searching for estimates is disallowed by security
         "404":
@@ -329,6 +329,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: reporting
     post:
       tags:
@@ -337,13 +339,12 @@ paths:
       description: Create a damage estimate or a revision to an existing estimate
         that documents the type of damage and the cost of the repairs.
       operationId: saveEstimate
-      parameters: []
       requestBody:
         description: Estimate object to create a new estimate revision
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Estimate'
+              $ref: "#/components/schemas/Estimate"
         required: true
       responses:
         "200":
@@ -351,27 +352,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EstimateAllocation'
+                $ref: "#/components/schemas/EstimateAllocation"
         "201":
           description: "successfully created the estimate revision, accepted it, and\
             \ created a repair authorization for the estimate"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkOrder'
+                $ref: "#/components/schemas/WorkOrder"
         "202":
           description: "estimate accepted for processing, but not created due to manual\
             \ processing requirement"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PendingResponse'
+                $ref: "#/components/schemas/PendingResponse"
         "400":
           description: an invalid request was provided
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: creating an estimate is disallowed by security
         "404":
@@ -380,6 +381,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/estimate/{estimateNumber}:
     get:
@@ -425,13 +428,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Estimate'
+                $ref: "#/components/schemas/Estimate"
         "400":
           description: invalid request was supplied
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: fetching estimate is disallowed by security
         "404":
@@ -440,6 +443,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: reporting
     put:
       tags:
@@ -473,7 +478,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EstimateCustomerApproval'
+              $ref: "#/components/schemas/EstimateCustomerApproval"
         required: true
       responses:
         "200":
@@ -481,27 +486,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EstimateAllocation'
+                $ref: "#/components/schemas/EstimateAllocation"
         "201":
           description: successfully received the customer approval and issued a repair
             authorization for the estimate
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkOrder'
+                $ref: "#/components/schemas/WorkOrder"
         "202":
           description: "customer approval accepted for processing, but not created\
             \ due to manual processing requirement"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PendingResponse'
+                $ref: "#/components/schemas/PendingResponse"
         "400":
           description: an error occurred trying to customer approve the estimate
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: customer approval is disallowed by security
         "404":
@@ -510,6 +515,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
     delete:
       tags:
@@ -538,12 +545,16 @@ paths:
       responses:
         "200":
           description: successfully cancelled the estimate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpStatus"
         "400":
           description: an error occurred trying to cancel the estimate
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: cancel estimate is disallowed by security
         "404":
@@ -552,6 +563,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
     patch:
       tags:
@@ -576,17 +589,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EstimateAllocation'
+              $ref: "#/components/schemas/EstimateAllocation"
         required: true
       responses:
         "200":
           description: successfully received estimate totals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpStatus"
         "400":
           description: an error occurred trying to update totals
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: estimate total update is disallowed by security
         "404":
@@ -595,6 +612,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/estimatePhoto/{relatedId}:
     post:
@@ -617,7 +636,6 @@ paths:
       - name: line
         in: query
         description: an optional line number to associate this photo to
-        required: false
         schema:
           type: integer
           format: int32
@@ -627,7 +645,6 @@ paths:
         in: query
         description: "indicator of when this photo applies\n\n`REPAIRED` - Photo is\
           \ after repair \n\n`BEFORE` - Photo is before repair"
-        required: false
         schema:
           maxLength: 8
           type: string
@@ -649,23 +666,30 @@ paths:
                   format: binary
               description: the photo data
               format: binary
+            encoding:
+              file:
+                contentType: application/octet-stream
         required: true
       responses:
         "200":
           description: successfully uploaded an estimate photo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpStatus"
         "202":
           description: "photo accepted for processing, but not created due to manual\
             \ processing requirement"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PendingResponse'
+                $ref: "#/components/schemas/PendingResponse"
         "400":
           description: an invalid request was provided
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: uploading an estimate photo is disallowed by security
         "404":
@@ -674,6 +698,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/gate:
     post:
@@ -683,13 +709,12 @@ paths:
       description: Creates either a gate-in or gate-out record for the given shipping
         container against the provided advice and depot data.
       operationId: saveGate
-      parameters: []
       requestBody:
         description: gate object to create a new gate in or gate out record
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GateCreateRequest'
+              $ref: "#/components/schemas/GateCreateRequest"
         required: true
       responses:
         "200":
@@ -698,20 +723,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GateResponse'
+                $ref: "#/components/schemas/GateResponse"
         "202":
           description: "gate accepted for processing, but not created due to manual\
             \ processing requirement"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PendingResponse'
+                $ref: "#/components/schemas/PendingResponse"
         "400":
           description: an error occurred
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: create a gate record is disallowed by security configuration
         "404":
@@ -720,6 +745,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/gate/{depot}/{adviceNumber}/{unitNumber}:
     put:
@@ -763,7 +790,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GateUpdateRequest'
+              $ref: "#/components/schemas/GateUpdateRequest"
         required: true
       responses:
         "200":
@@ -771,20 +798,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GateResponse'
+                $ref: "#/components/schemas/GateResponse"
         "202":
           description: "gate update accepted for processing, but not created due to\
             \ manual processing requirement"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PendingResponse'
+                $ref: "#/components/schemas/PendingResponse"
         "400":
           description: an error occurred
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: update a gate record is disallowed by security
         "404":
@@ -793,6 +820,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
     delete:
       tags:
@@ -832,12 +861,16 @@ paths:
       responses:
         "200":
           description: successfully delete the gate record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpStatus"
         "400":
           description: an error occurred
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: delete a gate record is disallowed by security
         "404":
@@ -846,6 +879,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/gate/{unitNumber}:
     get:
@@ -873,13 +908,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GateStatus'
+                $ref: "#/components/schemas/GateStatus"
         "400":
           description: an error occurred
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: fetching a gate record is disallowed by security
         "404":
@@ -888,6 +923,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: reporting
   /api/v2/gatePhoto/{relatedId}:
     post:
@@ -919,23 +956,30 @@ paths:
                   format: binary
               description: the photo data
               format: binary
+            encoding:
+              file:
+                contentType: application/octet-stream
         required: true
       responses:
         "200":
           description: successfully uploaded a gate photo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpStatus"
         "202":
           description: "photo accepted for processing, but not created due to manual\
             \ processing requirement"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PendingResponse'
+                $ref: "#/components/schemas/PendingResponse"
         "400":
           description: an invalid request was provided
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: uploading a gate photo is disallowed by security
         "404":
@@ -944,6 +988,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/redelivery:
     get:
@@ -956,7 +1002,6 @@ paths:
       - name: redeliveryNumber
         in: query
         description: the redelivery number to filter to
-        required: false
         schema:
           maxLength: 16
           type: string
@@ -965,7 +1010,6 @@ paths:
       - name: unitNumber
         in: query
         description: the unit number of the shipping container
-        required: false
         schema:
           maxLength: 11
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
@@ -976,7 +1020,6 @@ paths:
         in: query
         description: flag to indicate this search is to check if the found advices
           are valid for gate in
-        required: false
         schema:
           type: boolean
           nullable: true
@@ -990,19 +1033,21 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Redelivery'
+                  $ref: "#/components/schemas/Redelivery"
         "400":
           description: an error occurred
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: security disallows access
         "501":
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: reporting
     post:
       tags:
@@ -1010,23 +1055,26 @@ paths:
       summary: create redelivery
       description: Creates a Redelivery for the given criteria.
       operationId: saveRedelivery
-      parameters: []
       requestBody:
         description: Data to use to update the given Redelivery
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Redelivery'
+              $ref: "#/components/schemas/Redelivery"
         required: true
       responses:
         "200":
           description: successful create
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpStatus"
         "400":
           description: an error occurred
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: security disallows access
         "404":
@@ -1035,6 +1083,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/redelivery/{redeliveryNumber}:
     put:
@@ -1057,17 +1107,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Redelivery'
+              $ref: "#/components/schemas/Redelivery"
         required: true
       responses:
         "200":
           description: successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpStatus"
         "400":
           description: an error occurred
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: security disallows access
         "404":
@@ -1076,6 +1130,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/release:
     get:
@@ -1088,7 +1144,6 @@ paths:
       - name: releaseNumber
         in: query
         description: the release number to filter to
-        required: false
         schema:
           maxLength: 16
           type: string
@@ -1097,7 +1152,6 @@ paths:
       - name: includeCandidates
         in: query
         description: whether to include candidate units for any found release
-        required: false
         schema:
           type: boolean
           nullable: true
@@ -1106,7 +1160,6 @@ paths:
         in: query
         description: flag to indicate this search is to check if the found advices
           are valid for gate out
-        required: false
         schema:
           type: boolean
           nullable: true
@@ -1120,19 +1173,21 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Release'
+                  $ref: "#/components/schemas/Release"
         "400":
           description: an error occurred
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: security disallows access
         "501":
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: reporting
     post:
       tags:
@@ -1140,23 +1195,26 @@ paths:
       summary: create release
       description: Creates a Release for the given criteria.
       operationId: saveRelease
-      parameters: []
       requestBody:
         description: Data to use to update the given Release
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Release'
+              $ref: "#/components/schemas/Release"
         required: true
       responses:
         "200":
           description: successful create
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpStatus"
         "400":
           description: an error occurred
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: security disallows access
         "404":
@@ -1165,6 +1223,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/release/{releaseNumber}:
     put:
@@ -1187,17 +1247,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Release'
+              $ref: "#/components/schemas/Release"
         required: true
       responses:
         "200":
           description: successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpStatus"
         "400":
           description: an error occurred
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: security disallows access
         "404":
@@ -1206,6 +1270,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/workOrder:
     post:
@@ -1215,13 +1281,12 @@ paths:
       description: Submits a work order to repair a shipping container to the given
         inspection criteria.
       operationId: saveWorkOrder
-      parameters: []
       requestBody:
         description: repair authorization object
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WorkOrder'
+              $ref: "#/components/schemas/WorkOrder"
         required: true
       responses:
         "200":
@@ -1229,13 +1294,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkOrder'
+                $ref: "#/components/schemas/WorkOrder"
         "400":
           description: an error occurred trying to create the work order
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: repair authorization is not allowed by security
         "404":
@@ -1244,6 +1309,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
   /api/v2/workOrder/{workOrderNumber}:
     put:
@@ -1266,7 +1333,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WorkOrder'
+              $ref: "#/components/schemas/WorkOrder"
         required: true
       responses:
         "200":
@@ -1274,13 +1341,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkOrder'
+                $ref: "#/components/schemas/WorkOrder"
         "400":
           description: an error occurred trying to update the work order
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: work order updates are not allowed by security
         "404":
@@ -1289,6 +1356,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
   /api/v2/workOrderUnit/{workOrderNumber}:
     put:
       tags:
@@ -1310,17 +1379,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RepairComplete'
+              $ref: "#/components/schemas/RepairComplete"
         required: true
       responses:
         "200":
           description: successfully repair completed the workOrder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpStatus"
         "400":
           description: an error occurred trying to repair complete the work order
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
         "403":
           description: repair completion is not allowed by security
         "404":
@@ -1329,6 +1402,8 @@ paths:
           description: this feature is not supported by this server
         "503":
           description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - Dynamic_Token: []
       x-iicl-purpose: activity
 components:
   schemas:
@@ -1443,19 +1518,25 @@ components:
           description: the comments concerning this estimate
           nullable: true
         requester:
+          nullable: true
           allOf:
-          - $ref: '#/components/schemas/Party'
-          - nullable: true
+          - $ref: "#/components/schemas/Party"
+          - description: the party submitting this estimate
         depot:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: the location of this estimate
         owner:
+          nullable: true
           allOf:
-          - $ref: '#/components/schemas/Party'
-          - nullable: true
+          - $ref: "#/components/schemas/Party"
+          - description: the shipping container's owner
         customer:
+          nullable: true
           allOf:
-          - $ref: '#/components/schemas/Party'
-          - nullable: true
+          - $ref: "#/components/schemas/Party"
+          - description: the lessee of the shipping container to whom customer line
+              items should apply.
         currency:
           maxLength: 3
           pattern: "^[A-Z]{3}$"
@@ -1484,9 +1565,10 @@ components:
           readOnly: true
           example: 0.8133
         customerApproval:
+          nullable: true
           allOf:
-          - $ref: '#/components/schemas/EstimateCustomerApproval'
-          - nullable: true
+          - $ref: "#/components/schemas/EstimateCustomerApproval"
+          - description: lessee approval information for this estimate
         type:
           maxLength: 2
           required:
@@ -1590,7 +1672,7 @@ components:
             damages being repaired by this estimate
           nullable: false
           items:
-            $ref: '#/components/schemas/EstimateLineItem'
+            $ref: "#/components/schemas/EstimateLineItem"
         photos:
           required:
           - "false"
@@ -1598,9 +1680,13 @@ components:
           description: An optional photo list for the shipping container damages.
           nullable: false
           items:
-            $ref: '#/components/schemas/EstimatePhoto'
+            $ref: "#/components/schemas/EstimatePhoto"
         allocation:
-          $ref: '#/components/schemas/EstimateAllocation'
+          allOf:
+          - $ref: "#/components/schemas/EstimateAllocation"
+          - description: the amount break downs by party for this estimate; typically
+              only defined for a response and not included in requests
+            readOnly: true
       description: Represents an estimation of costs to repair or upgrade a shipping
         container.
     EstimateAllocation:
@@ -1645,9 +1731,11 @@ components:
           nullable: false
           example: 0
         depot:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: the location of the estimate
         total:
-          minimum: 0.0
+          minimum: 0
           required:
           - "true"
           type: number
@@ -1656,16 +1744,16 @@ components:
           nullable: false
           example: 544.95
         ownerTotal:
-          minimum: 0.0
+          minimum: 0
           required:
           - "true"
           type: number
           description: the total of the owner portion for the estimate
           format: double
           nullable: false
-          example: 0.00
+          example: 0
         customerTotal:
-          minimum: 0.0
+          minimum: 0
           required:
           - "true"
           type: number
@@ -1674,7 +1762,7 @@ components:
           nullable: false
           example: 422.96
         insuranceTotal:
-          minimum: 0.0
+          minimum: 0
           required:
           - "true"
           type: number
@@ -1702,9 +1790,13 @@ components:
             \ exceeds DPP Coverage.; Damages exceed coverage amount. User pays excess.;\
             \ Total paid by DPP Coverage: 121.99; Total owed by user: 422.96;"
         preliminaryDecision:
+          type: object
+          nullable: true
           allOf:
-          - $ref: '#/components/schemas/PreliminaryDecision'
-          - nullable: true
+          - $ref: "#/components/schemas/PreliminaryDecision"
+          - type: object
+            description: "when possible, this is set to an expected sell/fix decision\
+              \ to indicate the likely estimate owner approval action"
       description: "Indicates the allocated estimate totals, including any comments\
         \ on the allocation and if the box is considered a constructive loss."
       readOnly: true
@@ -1741,7 +1833,7 @@ components:
           nullable: true
           example: KAERTS
         approvalTotal:
-          minimum: 0.00
+          minimum: 0
           required:
           - "true"
           type: number
@@ -1897,7 +1989,7 @@ components:
           - MTT
           - MMT
         hours:
-          minimum: 0.00
+          minimum: 0
           required:
           - "true"
           type: number
@@ -1906,7 +1998,7 @@ components:
           nullable: false
           example: 9.95
         materialCost:
-          minimum: 0.00
+          minimum: 0
           required:
           - "true"
           type: number
@@ -1915,14 +2007,14 @@ components:
           nullable: false
           example: 9.95
         laborRate:
-          minimum: 0.00
+          minimum: 0
           required:
           - "true"
           type: number
           description: rate to pay the labor to repair this damage
           format: double
           nullable: false
-          example: 35.00
+          example: 35
         party:
           maxLength: 1
           required:
@@ -2002,7 +2094,7 @@ components:
           description: "An optional, detailed part list used to repair this line item"
           nullable: false
           items:
-            $ref: '#/components/schemas/EstimateLineItemPart'
+            $ref: "#/components/schemas/EstimateLineItemPart"
         photos:
           required:
           - "false"
@@ -2010,7 +2102,7 @@ components:
           description: An optional photo list showing the damage of this line item
           nullable: false
           items:
-            $ref: '#/components/schemas/EstimateLineItemPhoto'
+            $ref: "#/components/schemas/EstimateLineItemPhoto"
       description: Represents an estimation of costs to repair or upgrade a single
         instance of damage for a shipping container.
     EstimateLineItemPart:
@@ -2128,7 +2220,9 @@ components:
           nullable: false
           example: AHAMG000000
         depot:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: the storage location for the given advice number
         unitNumber:
           maxLength: 11
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
@@ -2189,7 +2283,7 @@ components:
           description: An optional photo list of the shipping container at gate creation
           nullable: false
           items:
-            $ref: '#/components/schemas/GatePhoto'
+            $ref: "#/components/schemas/GatePhoto"
       description: data required to create a gate in or gate out record
     GatePhoto:
       required:
@@ -2264,7 +2358,10 @@ components:
           nullable: true
           example: 10102561
         insuranceCoverage:
-          $ref: '#/components/schemas/InsuranceCoverage'
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/InsuranceCoverage"
+          - description: The applicable insurance coverage for damage estimate purposes
         currentExchangeRate:
           required:
           - "false"
@@ -2326,7 +2423,9 @@ components:
           nullable: false
           example: AHAMG000000
         depot:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: the storage location for the given advice number
         status:
           maxLength: 1
           required:
@@ -2357,7 +2456,10 @@ components:
           format: date-time
           nullable: false
         insuranceCoverage:
-          $ref: '#/components/schemas/InsuranceCoverage'
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/InsuranceCoverage"
+          - description: The applicable insurance coverage for damage estimate purposes
         currentExchangeRate:
           required:
           - "false"
@@ -2449,9 +2551,81 @@ components:
           description: An optional photo list of the shipping container at gate update
           nullable: false
           items:
-            $ref: '#/components/schemas/GatePhoto'
+            $ref: "#/components/schemas/GatePhoto"
       description: Data required to update a gate in or gate out record. Any data
         not provided will result in no update.
+    HttpStatus:
+      type: string
+      enum:
+      - CONTINUE
+      - SWITCHING_PROTOCOLS
+      - PROCESSING
+      - EARLY_HINTS
+      - OK
+      - CREATED
+      - ACCEPTED
+      - NON_AUTHORITATIVE_INFORMATION
+      - NO_CONTENT
+      - RESET_CONTENT
+      - PARTIAL_CONTENT
+      - MULTI_STATUS
+      - ALREADY_IMPORTED
+      - IM_USED
+      - MULTIPLE_CHOICES
+      - MOVED_PERMANENTLY
+      - FOUND
+      - SEE_OTHER
+      - NOT_MODIFIED
+      - USE_PROXY
+      - SWITCH_PROXY
+      - TEMPORARY_REDIRECT
+      - PERMANENT_REDIRECT
+      - BAD_REQUEST
+      - UNAUTHORIZED
+      - PAYMENT_REQUIRED
+      - FORBIDDEN
+      - NOT_FOUND
+      - METHOD_NOT_ALLOWED
+      - NOT_ACCEPTABLE
+      - PROXY_AUTHENTICATION_REQUIRED
+      - REQUEST_TIMEOUT
+      - CONFLICT
+      - GONE
+      - LENGTH_REQUIRED
+      - PRECONDITION_FAILED
+      - REQUEST_ENTITY_TOO_LARGE
+      - REQUEST_URI_TOO_LONG
+      - UNSUPPORTED_MEDIA_TYPE
+      - REQUESTED_RANGE_NOT_SATISFIABLE
+      - EXPECTATION_FAILED
+      - I_AM_A_TEAPOT
+      - ENHANCE_YOUR_CALM
+      - MISDIRECTED_REQUEST
+      - UNPROCESSABLE_ENTITY
+      - LOCKED
+      - FAILED_DEPENDENCY
+      - TOO_EARLY
+      - UPGRADE_REQUIRED
+      - PRECONDITION_REQUIRED
+      - TOO_MANY_REQUESTS
+      - REQUEST_HEADER_FIELDS_TOO_LARGE
+      - NO_RESPONSE
+      - BLOCKED_BY_WINDOWS_PARENTAL_CONTROLS
+      - UNAVAILABLE_FOR_LEGAL_REASONS
+      - REQUEST_HEADER_TOO_LARGE
+      - INTERNAL_SERVER_ERROR
+      - NOT_IMPLEMENTED
+      - BAD_GATEWAY
+      - SERVICE_UNAVAILABLE
+      - GATEWAY_TIMEOUT
+      - HTTP_VERSION_NOT_SUPPORTED
+      - VARIANT_ALSO_NEGOTIATES
+      - INSUFFICIENT_STORAGE
+      - LOOP_DETECTED
+      - BANDWIDTH_LIMIT_EXCEEDED
+      - NOT_EXTENDED
+      - NETWORK_AUTHENTICATION_REQUIRED
+      - CONNECTION_TIMED_OUT
     InsuranceCoverage:
       type: object
       properties:
@@ -2803,11 +2977,17 @@ components:
             nullable: false
             example: An example redelivery level comment.
         depot:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: The location for this redelivery
         owner:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: the shipping container's owner
         recipient:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: The intended recipient for this message representing a redelivery
         quantity:
           minimum: 0
           required:
@@ -2825,19 +3005,20 @@ components:
           description: groups of like-criteria units
           nullable: false
           items:
-            $ref: '#/components/schemas/RedeliveryDetail'
+            $ref: "#/components/schemas/RedeliveryDetail"
       description: An approval to deliver units to a storage location.
     RedeliveryDetail:
       required:
       - contract
       - customer
       - equipment
-      - inspectionCriteria
       - quantity
       type: object
       properties:
         customer:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: The customer for the contract on this detail.
         contract:
           maxLength: 16
           required:
@@ -2856,9 +3037,10 @@ components:
           nullable: false
           example: 22G1
         insuranceCoverage:
+          nullable: true
           allOf:
-          - $ref: '#/components/schemas/InsuranceCoverage'
-          - nullable: true
+          - $ref: "#/components/schemas/InsuranceCoverage"
+          - description: the insurance coverage for damage repairs
         grade:
           maxLength: 10
           required:
@@ -2929,7 +3111,7 @@ components:
             \ limit of this detail)"
           nullable: false
           items:
-            $ref: '#/components/schemas/RedeliveryUnit'
+            $ref: "#/components/schemas/RedeliveryUnit"
         quantity:
           minimum: 0
           required:
@@ -2995,9 +3177,10 @@ components:
           nullable: true
           example: 2001-07-21
         lastOnHireLocation:
+          nullable: true
           allOf:
-          - $ref: '#/components/schemas/Party'
-          - nullable: true
+          - $ref: "#/components/schemas/Party"
+          - description: The location this unit was last on-hired.
         status:
           required:
           - "true"
@@ -3075,7 +3258,10 @@ components:
             nullable: false
             example: https://technical.example.com/bulletin/1234
         billingParty:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: The party that will handle any repair (estimate & work order)
+              billing for units associated with this detail.
         inspectionCriteria:
           maxLength: 10
           required:
@@ -3087,9 +3273,11 @@ components:
           nullable: true
           example: IICL
         machineryInfo:
+          nullable: true
           allOf:
-          - $ref: '#/components/schemas/MachineryInfo'
-          - nullable: true
+          - $ref: "#/components/schemas/MachineryInfo"
+          - description: "if this detail is for a reefer shipping container, then\
+              \ this details the cooling machinery information"
       description: information for a specific unit on a redelivery
     Release:
       required:
@@ -3181,11 +3369,17 @@ components:
             nullable: false
             example: An example release level comment.
         depot:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: The location for this release
         owner:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: The owner of the shipping container that approved the release
         recipient:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: The intended recipient for this message representing a release
         onHireSurveyRequired:
           type: boolean
           description: indicates if an on-hire survey is required for units associated
@@ -3206,7 +3400,7 @@ components:
           description: groups of like-criteria units
           nullable: false
           items:
-            $ref: '#/components/schemas/ReleaseDetail'
+            $ref: "#/components/schemas/ReleaseDetail"
       description: An approval to remove shipping containers from a storage location.
     ReleaseDetail:
       required:
@@ -3218,7 +3412,9 @@ components:
       type: object
       properties:
         customer:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: The customer for the contract on this detail.
         contract:
           maxLength: 16
           required:
@@ -3305,7 +3501,7 @@ components:
             \ of this detail)"
           nullable: false
           items:
-            $ref: '#/components/schemas/ReleaseUnit'
+            $ref: "#/components/schemas/ReleaseUnit"
         criteria:
           required:
           - "false"
@@ -3314,7 +3510,7 @@ components:
             detail to further restrict units.  i.e. <= 2003 manufacture year. '
           nullable: false
           items:
-            $ref: '#/components/schemas/ReleaseDetailCriteria'
+            $ref: "#/components/schemas/ReleaseDetailCriteria"
         comments:
           required:
           - "false"
@@ -3489,7 +3685,10 @@ components:
           nullable: false
           example: WHAMG46019
         depot:
-          $ref: '#/components/schemas/Party'
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: the storage location where the shipping container is being
+              repaired
         completionDate:
           required:
           - "true"
@@ -3544,13 +3743,20 @@ components:
           nullable: false
           example: WHAMG46019
         depot:
-          $ref: '#/components/schemas/Party'
-        owner:
-          $ref: '#/components/schemas/Party'
-        billingParty:
           allOf:
-          - $ref: '#/components/schemas/Party'
-          - nullable: true
+          - $ref: "#/components/schemas/Party"
+          - description: the storage location where the shipping container is being
+              repaired
+        owner:
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: the owner of the shipping container
+        billingParty:
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/Party"
+          - description: the party that will bill the customer portion of damages
+              for this repair
         type:
           maxLength: 11
           required:
@@ -3576,7 +3782,7 @@ components:
           description: the total amount approved for repair
           format: double
           nullable: true
-          example: 175.00
+          example: 175
         approvalCurrency:
           maxLength: 3
           pattern: "^[A-Z]{3}$"
@@ -3614,7 +3820,7 @@ components:
           description: units associated to this work order
           nullable: false
           items:
-            $ref: '#/components/schemas/WorkOrderUnit'
+            $ref: "#/components/schemas/WorkOrderUnit"
       description: An approval of a damage estimate signifying a depot may repair
         a shipping container
     WorkOrderUnit:

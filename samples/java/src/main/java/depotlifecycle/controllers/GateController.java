@@ -61,7 +61,7 @@ public class GateController {
     private final GateCreateRequestRepository gateCreateRequestRepository;
     private final GateUpdateRequestRepository gateUpdateRequestRepository;
     private final GateDeleteRequestRepository gateDeleteRequestRepository;
-    private final ConversionService<?> conversionService;
+    private final ConversionService conversionService;
     private final SecurityService securityService;
 
     @Post(produces = MediaType.APPLICATION_JSON)

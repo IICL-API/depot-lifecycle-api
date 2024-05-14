@@ -74,10 +74,10 @@ datasources:
     dialect: H2
 jpa:
   default:
+    entity-scan:
+      packages: 'depotlifecycle.domain'
     properties:
       hibernate:
-        bytecode:
-          provider: none
         hbm2ddl:
           auto: update
         show_sql: false

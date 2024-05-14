@@ -1,22 +1,13 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.hibernate:hibernate-gradle-plugin:5.5.9.Final"
-    }
-}
-
 plugins {
-    id "groovy"
-    id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "io.micronaut.application" version "3.3.2"
-    id "io.micronaut.docker" version "3.3.2"
+    id("groovy")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.micronaut.application") version "4.3.8"
+    id("io.micronaut.aot") version "4.3.8"
+    id "io.micronaut.docker" version "4.3.8"
+    id "name.remal.lombok" version "2.2.5"
 }
 
-apply plugin: 'org.hibernate.orm'
-
-version "3.1.2"
+version "4.0.0"
 group "depotlifecycle"
 
 repositories {
@@ -24,12 +15,12 @@ repositories {
 }
 
 dependencies {
-    annotationProcessor("org.projectlombok:lombok")
-    annotationProcessor("io.micronaut:micronaut-http-validation")
+    // Lombok provided by gradle program to ensure it runs prior to micronaut processors
+    annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
     annotationProcessor("io.micronaut.data:micronaut-data-processor")
     annotationProcessor("io.micronaut.openapi:micronaut-openapi")
     annotationProcessor("io.micronaut.security:micronaut-security-annotations")
-    annotationProcessor("io.micronaut:micronaut-http-validation")
+    implementation("io.micronaut.validation:micronaut-validation")
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut:micronaut-jackson-databind")
     implementation("io.micronaut:micronaut-runtime")
@@ -41,11 +32,16 @@ dependencies {
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
     implementation("io.swagger.core.v3:swagger-annotations")
     implementation("jakarta.annotation:jakarta.annotation-api")
-    implementation("io.micronaut:micronaut-validation")
     implementation("io.micronaut:micronaut-management")
-    compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.h2database:h2")
+    runtimeOnly("org.yaml:snakeyaml")
+    aotPlugins platform("io.micronaut.platform:micronaut-platform:4.4.2")
+    aotPlugins("io.micronaut.security:micronaut-security-aot")
+
+    constraints {
+        lombok 'org.projectlombok:lombok:1.18.28'
+    }
 }
 
 application {
@@ -53,8 +49,8 @@ application {
 }
 
 java {
-    sourceCompatibility = JavaVersion.toVersion("11")
-    targetCompatibility = JavaVersion.toVersion("11")
+    sourceCompatibility = JavaVersion.toVersion("17")
+    targetCompatibility = JavaVersion.toVersion("17")
 }
 
 graalvmNative.toolchainDetection = false
@@ -65,13 +61,17 @@ micronaut {
         incremental(true)
         annotations("depotlifecycle.*")
     }
-}
-
-hibernate {
-    enhance {
-        enableLazyInitialization= true
-        enableDirtyTracking = true
-        enableAssociationManagement = true
+    aot {
+        // Please review carefully the optimizations enabled below
+        // Check https://micronaut-projects.github.io/micronaut-aot/latest/guide/ for more details
+        optimizeServiceLoading = false
+        convertYamlToJava = false
+        precomputeOperations = true
+        cacheEnvironment = true
+        optimizeClassLoading = true
+        deduceEnvironment = true
+        optimizeNetty = true
+        configurationProperties.put("micronaut.security.jwks.enabled","false")
     }
 }
 
@@ -80,6 +80,7 @@ docker {
     url = isCIBuild ? "tcp://127.0.0.1:2375" : "unix:///var/run/docker.sock"
 }
 
+compileJava.options.compilerArgs += '-parameters'
 
 tasks.withType(io.micronaut.gradle.docker.MicronautDockerfile) {
     baseImage = baseDockerImage
@@ -91,8 +92,8 @@ tasks.withType(io.micronaut.gradle.docker.MicronautDockerfile) {
 }
 
 if (hasProperty("debug")) {
-    run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006')
+    run.jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006')
 }
 else {
-    run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+    run.jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
 }
