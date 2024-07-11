@@ -10,10 +10,7 @@ import depotlifecycle.domain.EstimateCustomerApproval;
 import depotlifecycle.domain.Party;
 import depotlifecycle.domain.PreliminaryDecision;
 import depotlifecycle.domain.WorkOrder;
-import depotlifecycle.repositories.EstimateAllocationRepository;
-import depotlifecycle.repositories.EstimateCancelRequestRepository;
-import depotlifecycle.repositories.EstimateRepository;
-import depotlifecycle.repositories.PartyRepository;
+import depotlifecycle.repositories.*;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpRequest;
@@ -64,6 +61,7 @@ public class EstimateController {
     private final EstimateRepository estimateRepository;
     private final EstimateCancelRequestRepository estimateCancelRequestRepository;
     private final EstimateAllocationRepository estimateAllocationRepository;
+    private final EstimateCustomerApprovalRepository estimateCustomerApprovalRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
 
@@ -202,10 +200,55 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> update(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
+    public HttpResponse<EstimateAllocation> update(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
                                            @QueryValue("depot") @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                            @Body @RequestBody(description = "customer approval object to update an existing estimate", required = true, content = {@Content(schema = @Schema(implementation = EstimateCustomerApproval.class))}) EstimateCustomerApproval customerApproval) {
-        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
+
+
+        LOG.info("Received Estimate Approve: [Estimate = {}, Depot = {}]", estimateNumber, depot);
+        conversionService.convert(customerApproval, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
+        Optional<Party> depotParty = partyRepository.findByCompanyId(depot);
+        if (depotParty.isEmpty()) {
+            LOG.info("Party DNE -> Returning NOT FOUND");
+            return HttpResponse.notFound();
+        }
+
+        if (!estimateRepository.existsByEstimateNumberAndDepot(estimateNumber, depotParty.get())) {
+            LOG.info("Estimate DNE -> Returning NOT FOUND");
+            return HttpResponse.notFound();
+        }
+
+        if (estimateCancelRequestRepository.existsByEstimateNumberAndDepot(estimateNumber, depotParty.get())) {
+            LOG.info("Estimate Already Deleted -> Returning NOT FOUND");
+            return HttpResponse.notFound();
+        }
+
+        Estimate estimate = estimateRepository.findByEstimateNumberAndDepot(estimateNumber, depotParty.get());
+        estimate.setCustomerApproval(estimateCustomerApprovalRepository.save(customerApproval));
+        estimateRepository.update(estimate);
+
+        //Generate an example allocation for the purposes of this demo
+        EstimateAllocation allocation = new EstimateAllocation();
+        allocation.setRelatedId(estimate.getId());
+        allocation.setEstimateNumber(estimate.getEstimateNumber());
+        allocation.setDepot(estimate.getDepot());
+        allocation.setRevision(estimate.getRevision());
+        allocation.setTotal(estimate.getTotal());
+        allocation.setOwnerTotal(estimate.getPartyTotal("O"));
+        allocation.setInsuranceTotal(estimate.getPartyTotal("I"));
+        allocation.setCustomerTotal(estimate.getPartyTotal("U"));
+        allocation.setCtl(false); //assume not a CTL for demo purposes
+        allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
+
+        PreliminaryDecision preliminaryDecision = new PreliminaryDecision();
+        preliminaryDecision.setRecommendation("FIX");
+        allocation.setPreliminaryDecision(preliminaryDecision);
+
+        LOG.info("Responding with example Estimate Allocation");
+        conversionService.convert(allocation, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
+
+        return HttpResponse.ok(allocation);
     }
 
     @Delete(uri = "/{estimateNumber}", produces = MediaType.APPLICATION_JSON)

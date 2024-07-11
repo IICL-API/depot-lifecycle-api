@@ -11,4 +11,6 @@ import jakarta.validation.constraints.NotNull;
 @Repository
 public interface EstimateRepository extends CrudRepository<Estimate, Long> {
     boolean existsByEstimateNumberAndDepot(@NotNull @NonNull String estimateNumber, @NotNull @NonNull Party depot);
+
+    Estimate findByEstimateNumberAndDepot(@NotNull @NonNull String estimateNumber, @NotNull @NonNull Party depot);
 }
