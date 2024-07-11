@@ -1,4 +1,4 @@
-package depotlifecycle.controllers;
+package depotlifecycle.controllers.api;
 
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.PendingResponse;

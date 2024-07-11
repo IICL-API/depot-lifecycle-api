@@ -1,4 +1,4 @@
-package depotlifecycle.controllers;
+package depotlifecycle.controllers.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
