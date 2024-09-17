@@ -55,6 +55,7 @@ micronaut:
             generator:
               secret: pleaseChangeThisSecretForANewOne
 jackson:
+  trim-strings: true
   bean-introspection-module: true
   always-serialize-errors-as-list: false
   serialization:

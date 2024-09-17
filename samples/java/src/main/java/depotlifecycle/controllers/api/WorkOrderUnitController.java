@@ -2,9 +2,7 @@ package depotlifecycle.controllers.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
-import depotlifecycle.domain.RepairComplete;
-import depotlifecycle.domain.WorkOrder;
-import depotlifecycle.domain.WorkOrderUnit;
+import depotlifecycle.domain.*;
 import depotlifecycle.repositories.WorkOrderRepository;
 import depotlifecycle.repositories.WorkOrderUnitRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
@@ -57,7 +55,7 @@ public class WorkOrderUnitController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully repair completed the workOrder"),
+        @ApiResponse(responseCode = "200", description = "successfully repair completed the workOrder", content = {@Content(schema = @Schema())}),
         @ApiResponse(responseCode = "400", description = "an error occurred trying to repair complete the work order", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "repair completion is not allowed by security"),
         @ApiResponse(responseCode = "404", description = "shipping container, depot, or work order could not be found"),
@@ -82,17 +80,17 @@ public class WorkOrderUnitController {
                 throw new IllegalArgumentException("Work Order " + workOrderNumber + " does not contain unit " + repairComplete.getUnitNumber());
             }
 
-            if(unit.get().getStatus().equals("REMOVED")) {
+            if(unit.get().getStatus() == WorkOrderUnitStatus.REMOVED) {
                 throw new IllegalArgumentException("Unit was removed from work order.");
             }
 
-            if (unit.get().getStatus().equals("REPAIRED")) {
+            if (unit.get().getStatus() == WorkOrderUnitStatus.REPAIRED) {
                 throw new IllegalArgumentException("Unit already repaired.");
             }
         }
 
         if(unit.isPresent()) {
-            unit.get().setStatus("REPAIRED");
+            unit.get().setStatus(WorkOrderUnitStatus.REPAIRED);
             workOrderUnitRepository.save(unit.get());
         }
 

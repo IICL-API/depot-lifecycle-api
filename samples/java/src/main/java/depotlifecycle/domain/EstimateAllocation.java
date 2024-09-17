@@ -48,7 +48,7 @@ public class EstimateAllocation {
     @Column(nullable = false)
     Integer revision;
 
-    @Schema(description = "the location of the estimate", required = true, nullable = false)
+    @Schema(description = "the location of the estimate", required = true, nullable = false, implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "depot_id", nullable = false)
     Party depot;
@@ -77,7 +77,7 @@ public class EstimateAllocation {
     @Column(length = 500)
     String comments;
 
-    @Schema(type = "object", description = "when possible, this is set to an expected sell/fix decision to indicate the likely estimate owner approval action", required = false, nullable = true)
+    @Schema(type = "object", description = "when possible, this is set to an expected sell/fix decision to indicate the likely estimate owner approval action", required = false, nullable = true, implementation = PreliminaryDecision.class)
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     PreliminaryDecision preliminaryDecision;
 }

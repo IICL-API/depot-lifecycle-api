@@ -2,14 +2,8 @@ package depotlifecycle.controllers.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
-import depotlifecycle.domain.EstimateAllocation;
+import depotlifecycle.domain.*;
 import depotlifecycle.PendingResponse;
-import depotlifecycle.domain.Estimate;
-import depotlifecycle.domain.EstimateCancelRequest;
-import depotlifecycle.domain.EstimateCustomerApproval;
-import depotlifecycle.domain.Party;
-import depotlifecycle.domain.PreliminaryDecision;
-import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.*;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import io.micronaut.core.convert.ConversionService;
@@ -27,6 +21,7 @@ import io.micronaut.http.annotation.Patch;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.utils.SecurityService;
@@ -43,10 +38,12 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -79,14 +76,40 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> index(@QueryValue("estimateNumber") @Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
-                                          @QueryValue("unitNumber") @Parameter(name = "unitNumber", description = "the unit number of the shipping container at the time of estimate creation", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", maxLength = 11, pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561")) String unitNumber,
-                                          @QueryValue("depot") @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
-                                          @QueryValue("lessee") @Parameter(name = "lessee", description = "the identifier of the lessee", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "SGSINONEA", maxLength = 9)) String lessee,
-                                          @QueryValue("revision") @Parameter(name = "revision", description = "the revision number of the estimate", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "integer", format = "int32", example = "0")) Integer revision,
-                                          @QueryValue("equipmentCode") @Parameter(name = "equipmentCode", description = "the ISO equipment code of the shipping container", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "22G1", maxLength = 10)) String equipmentCode
+    public List<Estimate> index(@Nullable @QueryValue("estimateNumber") @Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16, required = false, nullable = true)) String estimateNumber,
+                                @Nullable @QueryValue("unitNumber") @Parameter(name = "unitNumber", description = "the unit number of the shipping container at the time of estimate creation", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", maxLength = 11, pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561", required = false, nullable = true)) String unitNumber,
+                                @Nullable @QueryValue("depot") @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9, required = false, nullable = true)) String depot,
+                                @Nullable @QueryValue("lessee") @Parameter(name = "lessee", description = "the identifier of the lessee", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "SGSINONEA", maxLength = 9, required = false, nullable = true)) String lessee,
+                                @Nullable @QueryValue("revision") @Parameter(name = "revision", description = "the revision number of the estimate", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "integer", format = "int32", example = "0", required = false, nullable = true)) Integer revision,
+                                @Nullable @QueryValue("equipmentCode") @Parameter(name = "equipmentCode", description = "the ISO equipment code of the shipping container", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "22G1", maxLength = 10, required = false, nullable = true)) String equipmentCode
     ) {
-        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
+        Optional<Party> depotParty = Optional.empty();
+        if(!Objects.isNull(depot)) {
+            depotParty = partyRepository.findByCompanyId(depot);
+            if(depotParty.isEmpty()) {
+                ErrorResponse error = new ErrorResponse();
+                error.setMessage(String.format("Depot Party %s does not exist", depot));
+                throw new HttpStatusException(HttpStatus.BAD_REQUEST, error);
+            }
+        }
+
+        Optional<Party> customerParty = Optional.empty();
+        if(!Objects.isNull(depot)) {
+            customerParty = partyRepository.findByCompanyId(lessee);
+            if(customerParty.isEmpty()) {
+                ErrorResponse error = new ErrorResponse();
+                error.setMessage(String.format("Lessee Party %s does not exist", depot));
+                throw new HttpStatusException(HttpStatus.BAD_REQUEST, error);
+            }
+        }
+
+        if(!Objects.isNull(equipmentCode)) {
+            ErrorResponse error = new ErrorResponse();
+            error.setMessage("Equipment Type searching is not implemented");
+            throw new HttpStatusException(HttpStatus.BAD_REQUEST, error);
+        }
+
+        return estimateRepository.searchEstimates(estimateNumber, depotParty.orElse(null), unitNumber, customerParty.orElse(null), revision);
     }
 
     @Post(produces = MediaType.APPLICATION_JSON)
@@ -121,9 +144,9 @@ public class EstimateController {
         allocation.setDepot(estimate.getDepot());
         allocation.setRevision(estimate.getRevision());
         allocation.setTotal(estimate.getTotal());
-        allocation.setOwnerTotal(estimate.getPartyTotal("O"));
-        allocation.setInsuranceTotal(estimate.getPartyTotal("I"));
-        allocation.setCustomerTotal(estimate.getPartyTotal("U"));
+        allocation.setOwnerTotal(estimate.getPartyTotal(EstimateLineItemParty.O));
+        allocation.setInsuranceTotal(estimate.getPartyTotal(EstimateLineItemParty.I));
+        allocation.setCustomerTotal(estimate.getPartyTotal(EstimateLineItemParty.U));
         allocation.setCtl(false); //assume not a CTL for demo purposes
         allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
 
@@ -235,9 +258,9 @@ public class EstimateController {
         allocation.setDepot(estimate.getDepot());
         allocation.setRevision(estimate.getRevision());
         allocation.setTotal(estimate.getTotal());
-        allocation.setOwnerTotal(estimate.getPartyTotal("O"));
-        allocation.setInsuranceTotal(estimate.getPartyTotal("I"));
-        allocation.setCustomerTotal(estimate.getPartyTotal("U"));
+        allocation.setOwnerTotal(estimate.getPartyTotal(EstimateLineItemParty.O));
+        allocation.setInsuranceTotal(estimate.getPartyTotal(EstimateLineItemParty.I));
+        allocation.setCustomerTotal(estimate.getPartyTotal(EstimateLineItemParty.U));
         allocation.setCtl(false); //assume not a CTL for demo purposes
         allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
 
@@ -259,7 +282,7 @@ public class EstimateController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully cancelled the estimate"),
+        @ApiResponse(responseCode = "200", description = "successfully cancelled the estimate", content = {@Content(schema = @Schema())}),
         @ApiResponse(responseCode = "400", description = "an error occurred trying to cancel the estimate", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "cancel estimate is disallowed by security"),
         @ApiResponse(responseCode = "404", description = "the estimate or depot was not found"),
@@ -309,7 +332,7 @@ public class EstimateController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully received estimate totals"),
+        @ApiResponse(responseCode = "200", description = "successfully received estimate totals", content = {@Content(schema = @Schema(implementation = Estimate.class))}),
         @ApiResponse(responseCode = "400", description = "an error occurred trying to update totals", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "estimate total update is disallowed by security"),
         @ApiResponse(responseCode = "404", description = "the estimate was not found"),

@@ -5,6 +5,7 @@ import depotlifecycle.domain.InsuranceCoverage;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.FetchType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,7 +31,7 @@ public class GateResponse {
     @Schema(description = "A descriptive message concerning this gate in", required = false, nullable = true, example = "Info TRI521 - Unit has been gated-in but is not off-hired")
     String message;
 
-    @Schema(required = true, nullable = true, description = "either the submitted advice number for the gate record or the adjusted one", example = "AHAMG000000", maxLength = 16)
+    @Schema(required = false, nullable = true, description = "either the submitted advice number for the gate record or the adjusted one", example = "AHAMG000000", maxLength = 16)
     String adviceNumber;
 
     @Schema(description = "the customer reference for the unit; typically an internal customer identifier or contract code", maxLength = 35, example = "MAEX", required = false, nullable = true)
@@ -48,12 +49,11 @@ public class GateResponse {
     @Schema(description = "the exchange rate to convert billed currency to the local currency for damage estimate totals", required = false, nullable = true, type = "number", format = "double", example = "0.8133")
     BigDecimal currentExchangeRate;
 
-    @ArraySchema(schema = @Schema(description = "comments pertaining to this gate record", example = "ALL CLEANING MUST BE CODED TO 'O' FOR OWNER.", required = false, nullable = false))
+    @ArraySchema(schema = @Schema(example = "ALL CLEANING MUST BE CODED TO 'O' FOR OWNER."))
     @Schema(description = "comments pertaining to this gate record", required = false, nullable = false)
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
     @Schema(description = "the grade the unit should be inspected to for estimates; if none, no estimate is allowed", required = false, nullable = true, example = "IICL", maxLength = 10)

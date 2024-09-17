@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,15 +49,15 @@ public class WorkOrder {
     @Column(nullable = false, length = 16)
     String workOrderNumber;
 
-    @Schema(required = true, nullable = false, description = "the storage location where the shipping container is being repaired")
+    @Schema(required = true, nullable = false, description = "the storage location where the shipping container is being repaired", implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party depot;
 
-    @Schema(required = true, nullable = false, description = "the owner of the shipping container")
+    @Schema(required = true, nullable = false, description = "the owner of the shipping container", implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party owner;
 
-    @Schema(required = false, nullable = true, description = "the party that will bill the customer portion of damages for this repair")
+    @Schema(required = false, nullable = true, description = "the party that will bill the customer portion of damages for this repair", implementation = Party.class)
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     Party billingParty;
 
@@ -88,7 +89,8 @@ public class WorkOrder {
     @Column(length = 500)
     String comments;
 
-    @Schema(description = "units associated to this work order", required = true, nullable = false, minLength = 1, maxLength = 200)
+    @ArraySchema(minItems = 1, maxItems = 200, schema = @Schema(implementation = WorkOrderUnit.class))
+    @Schema(description = "units associated to this work order", required = true, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<WorkOrderUnit> lineItems = new ArrayList<>();
 }

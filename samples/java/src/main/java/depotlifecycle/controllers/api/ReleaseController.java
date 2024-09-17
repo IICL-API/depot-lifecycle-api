@@ -113,7 +113,7 @@ public class ReleaseController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful create"),
+        @ApiResponse(responseCode = "200", description = "successful create", content = {@Content(schema = @Schema())}),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the release depot was not found"),
@@ -168,7 +168,7 @@ public class ReleaseController {
         operationId = "updateRelease",
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) }))
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful update"),
+        @ApiResponse(responseCode = "200", description = "successful update", content = {@Content(schema = @Schema())}),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the release was not found"),

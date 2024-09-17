@@ -1,10 +1,10 @@
 plugins {
     id("groovy")
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.micronaut.application") version "4.3.8"
-    id("io.micronaut.aot") version "4.3.8"
-    id "io.micronaut.docker" version "4.3.8"
-    id "name.remal.lombok" version "2.2.5"
+    id("io.micronaut.application") version "4.4.2"
+    id("io.micronaut.aot") version "4.4.2"
+    id "io.micronaut.docker" version "4.4.2"
+    id "name.remal.lombok" version "2.2.7"
 }
 
 version "4.0.0"
@@ -18,7 +18,7 @@ dependencies {
     // Lombok provided by gradle program to ensure it runs prior to micronaut processors
     annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
     annotationProcessor("io.micronaut.data:micronaut-data-processor")
-    annotationProcessor("io.micronaut.openapi:micronaut-openapi")
+    annotationProcessor("io.micronaut.openapi:micronaut-openapi:6.12.3")
     annotationProcessor("io.micronaut.security:micronaut-security-annotations")
     implementation("io.micronaut.validation:micronaut-validation")
     implementation("io.micronaut:micronaut-http-client")
@@ -33,14 +33,15 @@ dependencies {
     implementation("io.swagger.core.v3:swagger-annotations")
     implementation("jakarta.annotation:jakarta.annotation-api")
     implementation("io.micronaut:micronaut-management")
+    implementation("io.micronaut.views:micronaut-views-thymeleaf")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.yaml:snakeyaml")
-    aotPlugins platform("io.micronaut.platform:micronaut-platform:4.4.2")
+    aotPlugins platform("io.micronaut.platform:micronaut-platform:4.6.2")
     aotPlugins("io.micronaut.security:micronaut-security-aot")
 
     constraints {
-        lombok 'org.projectlombok:lombok:1.18.28'
+        lombok 'org.projectlombok:lombok:1.18.34'
     }
 }
 
@@ -92,7 +93,7 @@ tasks.withType(io.micronaut.gradle.docker.MicronautDockerfile) {
 }
 
 if (hasProperty("debug")) {
-    run.jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006')
+    run.jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5007')
 }
 else {
     run.jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')

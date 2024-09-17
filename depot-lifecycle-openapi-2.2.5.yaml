@@ -257,54 +257,66 @@ paths:
       - name: estimateNumber
         in: query
         description: the estimate number
-        required: false
         schema:
           maxLength: 16
+          required:
+          - "false"
           type: string
+          nullable: true
           example: DEHAMCE1856373
       - name: unitNumber
         in: query
         description: the unit number of the shipping container at the time of estimate
           creation
-        required: false
         schema:
           maxLength: 11
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          required:
+          - "false"
           type: string
+          nullable: true
           example: CONU1234561
       - name: depot
         in: query
         description: the identifier of the depot
-        required: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
+          required:
+          - "false"
           type: string
+          nullable: true
           example: DEHAMCMRA
       - name: lessee
         in: query
         description: the identifier of the lessee
-        required: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
+          required:
+          - "false"
           type: string
+          nullable: true
           example: SGSINONEA
       - name: revision
         in: query
         description: the revision number of the estimate
-        required: false
         schema:
+          required:
+          - "false"
           type: integer
           format: int32
+          nullable: true
           example: 0
       - name: equipmentCode
         in: query
         description: the ISO equipment code of the shipping container
-        required: false
         schema:
           maxLength: 10
+          required:
+          - "false"
           type: string
+          nullable: true
           example: 22G1
       responses:
         "200":
@@ -330,7 +342,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: reporting
     post:
       tags:
@@ -382,7 +394,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/estimate/{estimateNumber}:
     get:
@@ -444,7 +456,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: reporting
     put:
       tags:
@@ -516,7 +528,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
     delete:
       tags:
@@ -547,8 +559,7 @@ paths:
           description: successfully cancelled the estimate
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HttpStatus"
+              schema: {}
         "400":
           description: an error occurred trying to cancel the estimate
           content:
@@ -564,7 +575,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
     patch:
       tags:
@@ -597,7 +608,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HttpStatus"
+                $ref: "#/components/schemas/Estimate"
         "400":
           description: an error occurred trying to update totals
           content:
@@ -613,7 +624,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/estimatePhoto/{relatedId}:
     post:
@@ -675,8 +686,7 @@ paths:
           description: successfully uploaded an estimate photo
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HttpStatus"
+              schema: {}
         "202":
           description: "photo accepted for processing, but not created due to manual\
             \ processing requirement"
@@ -699,7 +709,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/gate:
     post:
@@ -746,7 +756,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/gate/{depot}/{adviceNumber}/{unitNumber}:
     put:
@@ -821,7 +831,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
     delete:
       tags:
@@ -863,8 +873,7 @@ paths:
           description: successfully delete the gate record
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HttpStatus"
+              schema: {}
         "400":
           description: an error occurred
           content:
@@ -880,7 +889,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/gate/{unitNumber}:
     get:
@@ -924,7 +933,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: reporting
   /api/v2/gatePhoto/{relatedId}:
     post:
@@ -965,8 +974,7 @@ paths:
           description: successfully uploaded a gate photo
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HttpStatus"
+              schema: {}
         "202":
           description: "photo accepted for processing, but not created due to manual\
             \ processing requirement"
@@ -989,7 +997,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/redelivery:
     get:
@@ -1047,7 +1055,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: reporting
     post:
       tags:
@@ -1067,8 +1075,7 @@ paths:
           description: successful create
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HttpStatus"
+              schema: {}
         "400":
           description: an error occurred
           content:
@@ -1084,7 +1091,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/redelivery/{redeliveryNumber}:
     put:
@@ -1114,8 +1121,7 @@ paths:
           description: successful update
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HttpStatus"
+              schema: {}
         "400":
           description: an error occurred
           content:
@@ -1131,7 +1137,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/release:
     get:
@@ -1187,7 +1193,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: reporting
     post:
       tags:
@@ -1207,8 +1213,7 @@ paths:
           description: successful create
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HttpStatus"
+              schema: {}
         "400":
           description: an error occurred
           content:
@@ -1224,7 +1229,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/release/{releaseNumber}:
     put:
@@ -1254,8 +1259,7 @@ paths:
           description: successful update
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HttpStatus"
+              schema: {}
         "400":
           description: an error occurred
           content:
@@ -1271,7 +1275,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/workOrder:
     post:
@@ -1310,7 +1314,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
   /api/v2/workOrder/{workOrderNumber}:
     put:
@@ -1357,7 +1361,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
   /api/v2/workOrderUnit/{workOrderNumber}:
     put:
       tags:
@@ -1386,8 +1390,7 @@ paths:
           description: successfully repair completed the workOrder
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/HttpStatus"
+              schema: {}
         "400":
           description: an error occurred trying to repair complete the work order
           content:
@@ -1403,7 +1406,7 @@ paths:
         "503":
           description: "API is temporarily paused, and not accepting any activity"
       security:
-      - Dynamic_Token: []
+      - JWT_TOKEN: []
       x-iicl-purpose: activity
 components:
   schemas:
@@ -1433,11 +1436,7 @@ components:
           description: details for the descriptive error message
           nullable: false
           items:
-            required:
-            - "false"
             type: string
-            description: details for the descriptive error message
-            nullable: false
             example: "Customer may turn in unit, but will continued to be billed."
       description: |-
         a general response object used when an error occurs to describe why it occurred
@@ -1477,10 +1476,6 @@ components:
           nullable: false
           example: CONU1234561
         condition:
-          maxLength: 1
-          required:
-          - "true"
-          type: string
           description: |-
             an indicator on the status of the estimate and where it is in the revision process
 
@@ -1493,13 +1488,8 @@ components:
             `G` - Customer Approved Estimate, Surveyed
 
             `L` - Owner Surveyed, No Approval
-          nullable: false
-          enum:
-          - D
-          - E
-          - F
-          - G
-          - L
+          allOf:
+          - $ref: "#/components/schemas/EstimateCondition"
         estimateTime:
           required:
           - "true"
@@ -1518,25 +1508,25 @@ components:
           description: the comments concerning this estimate
           nullable: true
         requester:
+          description: the party submitting this estimate
           nullable: true
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the party submitting this estimate
         depot:
+          description: the location of this estimate
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the location of this estimate
         owner:
+          description: the shipping container's owner
           nullable: true
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the shipping container's owner
         customer:
+          description: the lessee of the shipping container to whom customer line
+            items should apply.
           nullable: true
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the lessee of the shipping container to whom customer line
-              items should apply.
         currency:
           maxLength: 3
           pattern: "^[A-Z]{3}$"
@@ -1565,15 +1555,11 @@ components:
           readOnly: true
           example: 0.8133
         customerApproval:
+          description: lessee approval information for this estimate
           nullable: true
           allOf:
           - $ref: "#/components/schemas/EstimateCustomerApproval"
-          - description: lessee approval information for this estimate
         type:
-          maxLength: 2
-          required:
-          - "false"
-          type: string
           description: |-
             delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision
 
@@ -1593,21 +1579,10 @@ components:
 
             `AR` - Ancillary Repair
           nullable: true
+          allOf:
+          - $ref: "#/components/schemas/EstimateType"
           default: R
-          enum:
-          - R
-          - RI
-          - RC
-          - SC
-          - SU
-          - AS
-          - AU
-          - AR
         upgradeType:
-          maxLength: 2
-          required:
-          - "false"
-          type: string
           description: |-
             the type of secondary upgrade this estimate represents.
 
@@ -1640,21 +1615,8 @@ components:
             `FT` - Flexitank
           nullable: true
           example: AM
-          enum:
-          - FG
-          - ML
-          - DB
-          - EV
-          - WH
-          - SU
-          - CF
-          - TB
-          - MC
-          - MP
-          - AM
-          - CH
-          - TE
-          - FT
+          allOf:
+          - $ref: "#/components/schemas/UpgradeType"
         revision:
           required:
           - "false"
@@ -1664,7 +1626,7 @@ components:
           nullable: true
           example: 0
         lineItems:
-          minimum: 0
+          minItems: 0
           required:
           - "false"
           type: array
@@ -1682,11 +1644,11 @@ components:
           items:
             $ref: "#/components/schemas/EstimatePhoto"
         allocation:
+          description: the amount break downs by party for this estimate; typically
+            only defined for a response and not included in requests
+          readOnly: true
           allOf:
           - $ref: "#/components/schemas/EstimateAllocation"
-          - description: the amount break downs by party for this estimate; typically
-              only defined for a response and not included in requests
-            readOnly: true
       description: Represents an estimation of costs to repair or upgrade a shipping
         container.
     EstimateAllocation:
@@ -1731,9 +1693,9 @@ components:
           nullable: false
           example: 0
         depot:
+          description: the location of the estimate
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the location of the estimate
         total:
           minimum: 0
           required:
@@ -1791,15 +1753,35 @@ components:
             \ Total paid by DPP Coverage: 121.99; Total owed by user: 422.96;"
         preliminaryDecision:
           type: object
+          description: "when possible, this is set to an expected sell/fix decision\
+            \ to indicate the likely estimate owner approval action"
           nullable: true
           allOf:
           - $ref: "#/components/schemas/PreliminaryDecision"
           - type: object
-            description: "when possible, this is set to an expected sell/fix decision\
-              \ to indicate the likely estimate owner approval action"
       description: "Indicates the allocated estimate totals, including any comments\
         \ on the allocation and if the box is considered a constructive loss."
       readOnly: true
+    EstimateCondition:
+      type: string
+      description: |-
+        an indicator on the status of the estimate and where it is in the revision process
+
+        `D` - Damaged, Initial Estimate
+
+        `E` - Customer Surveyed, No Approval
+
+        `F` - Customer Approved Estimate, No Survey
+
+        `G` - Customer Approved Estimate, Surveyed
+
+        `L` - Owner Surveyed, No Approval
+      enum:
+      - D
+      - E
+      - F
+      - G
+      - L
     EstimateCustomerApproval:
       required:
       - approvalDateTime
@@ -1928,7 +1910,7 @@ components:
           minimum: 0
           required:
           - "false"
-          type: number
+          type: integer
           description: the length dimension of the damage
           format: int32
           nullable: true
@@ -1937,7 +1919,7 @@ components:
           minimum: 0
           required:
           - "false"
-          type: number
+          type: integer
           description: the width dimension of the damage
           format: int32
           nullable: true
@@ -1946,7 +1928,7 @@ components:
           minimum: 0
           required:
           - "false"
-          type: number
+          type: integer
           description: the height dimension of the damage
           format: int32
           nullable: true
@@ -2016,10 +1998,6 @@ components:
           nullable: false
           example: 35
         party:
-          maxLength: 1
-          required:
-          - "true"
-          type: string
           description: |+
             The party that is responsible for the cost of this repair
 
@@ -2039,16 +2017,8 @@ components:
 
              `T` - Third Party
 
-          nullable: false
-          enum:
-          - O
-          - U
-          - I
-          - W
-          - S
-          - D
-          - X
-          - T
+          allOf:
+          - $ref: "#/components/schemas/EstimateLineItemParty"
         comments:
           maxLength: 256
           required:
@@ -2082,7 +2052,7 @@ components:
           minimum: 1
           required:
           - "false"
-          type: number
+          type: integer
           description: the number of damages
           format: int32
           nullable: true
@@ -2132,7 +2102,7 @@ components:
           minimum: 1
           required:
           - "true"
-          type: number
+          type: integer
           description: the number of parts used
           format: int32
           nullable: false
@@ -2146,6 +2116,36 @@ components:
           nullable: false
           example: 2.88
       description: Represents a part used for the repair of a line item.
+    EstimateLineItemParty:
+      type: string
+      description: |+
+        The party that is responsible for the cost of this repair
+
+         `O` - Owner
+
+         `U` - Customer
+
+         `I` - Insurance
+
+         `W` - Warranty
+
+         `S` - Special
+
+         `D` - Depot
+
+         `X` - Deleted
+
+         `T` - Third Party
+
+      enum:
+      - O
+      - U
+      - I
+      - W
+      - S
+      - D
+      - X
+      - T
     EstimateLineItemPhoto:
       required:
       - url
@@ -2160,18 +2160,14 @@ components:
           nullable: false
           example: https://www.example.com/photo.png
         status:
-          maxLength: 8
-          required:
-          - "false"
-          type: string
           description: "indicator of when this photo applies\n\n`REPAIRED` - Photo\
             \ is after repair \n\n`BEFORE` - Photo is before repair"
           nullable: true
           example: BEFORE
+          allOf:
+          - $ref: "#/components/schemas/EstimatePhotoStatus"
+          - maxLength: 8
           default: BEFORE
-          enum:
-          - REPAIRED
-          - BEFORE
       description: Links to a photo for a single instance of damage for a shipping
         container.
     EstimatePhoto:
@@ -2188,19 +2184,54 @@ components:
           nullable: false
           example: https://www.example.com/photo.png
         status:
-          maxLength: 8
-          required:
-          - "false"
-          type: string
           description: "indicator of when this photo applies\n\n`REPAIRED` - Photo\
             \ is after repair \n\n`BEFORE` - Photo is before repair"
           nullable: true
           example: BEFORE
+          allOf:
+          - $ref: "#/components/schemas/EstimatePhotoStatus"
+          - maxLength: 8
           default: BEFORE
-          enum:
-          - REPAIRED
-          - BEFORE
       description: Links to a photo for a damage estimate.
+    EstimatePhotoStatus:
+      type: string
+      description: "indicator of when this photo applies\n\n`REPAIRED` - Photo is\
+        \ after repair \n\n`BEFORE` - Photo is before repair"
+      example: BEFORE
+      default: BEFORE
+      enum:
+      - BEFORE
+      - REPAIR
+    EstimateType:
+      type: string
+      description: |-
+        delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision
+
+        `R` - Primary (Unknown Estimation Standard)
+
+        `RI` - Primary (IICL)
+
+        `RC` - Primary (CWCA)
+
+        `SC` - Secondary (CWCA)
+
+        `SU` - Secondary Upgrade
+
+        `AS` - Sell Upgrade
+
+        `AU` - Ancillary Upgrade
+
+        `AR` - Ancillary Repair
+      default: R
+      enum:
+      - R
+      - RI
+      - RC
+      - SC
+      - SU
+      - AS
+      - AU
+      - AR
     GateCreateRequest:
       required:
       - activityTime
@@ -2220,9 +2251,9 @@ components:
           nullable: false
           example: AHAMG000000
         depot:
+          description: the storage location for the given advice number
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the storage location for the given advice number
         unitNumber:
           maxLength: 11
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
@@ -2233,10 +2264,6 @@ components:
           nullable: false
           example: CONU1234561
         status:
-          maxLength: 1
-          required:
-          - "true"
-          type: string
           description: |-
             an indicator of the shipping container's status
 
@@ -2245,12 +2272,9 @@ components:
             `D` - Damaged
 
             `S` - Sold
-          nullable: false
           example: D
-          enum:
-          - A
-          - D
-          - S
+          allOf:
+          - $ref: "#/components/schemas/GateRequestStatus"
         activityTime:
           required:
           - "true"
@@ -2261,21 +2285,16 @@ components:
           format: date-time
           nullable: false
         type:
-          maxLength: 3
-          required:
-          - "true"
-          type: string
           description: |-
             gate type indicator
 
             `IN` - Gate In
 
             `OUT` - Gate Out
-          nullable: false
           example: IN
-          enum:
-          - IN
-          - OUT
+          allOf:
+          - $ref: "#/components/schemas/GateRequestType"
+          - maxLength: 3
         photos:
           required:
           - "false"
@@ -2299,6 +2318,34 @@ components:
           nullable: false
           example: https://www.example.com/photo.png
       description: Links to a photo for a shipping container for gate records.
+    GateRequestStatus:
+      type: string
+      description: |-
+        an indicator of the shipping container's status
+
+        `A` - Non-damaged
+
+        `D` - Damaged
+
+        `S` - Sold
+      example: D
+      enum:
+      - A
+      - D
+      - S
+    GateRequestType:
+      maxLength: 3
+      type: string
+      description: |-
+        gate type indicator
+
+        `IN` - Gate In
+
+        `OUT` - Gate Out
+      example: IN
+      enum:
+      - IN
+      - OUT
     GateResponse:
       required:
       - adviceNumber
@@ -2323,7 +2370,7 @@ components:
         adviceNumber:
           maxLength: 16
           required:
-          - "true"
+          - "false"
           type: string
           description: either the submitted advice number for the gate record or the
             adjusted one
@@ -2358,10 +2405,10 @@ components:
           nullable: true
           example: 10102561
         insuranceCoverage:
+          description: The applicable insurance coverage for damage estimate purposes
           nullable: true
           allOf:
           - $ref: "#/components/schemas/InsuranceCoverage"
-          - description: The applicable insurance coverage for damage estimate purposes
         currentExchangeRate:
           required:
           - "false"
@@ -2378,11 +2425,7 @@ components:
           description: comments pertaining to this gate record
           nullable: false
           items:
-            required:
-            - "false"
             type: string
-            description: comments pertaining to this gate record
-            nullable: false
             example: ALL CLEANING MUST BE CODED TO 'O' FOR OWNER.
         currentInspectionCriteria:
           maxLength: 10
@@ -2423,9 +2466,9 @@ components:
           nullable: false
           example: AHAMG000000
         depot:
+          description: the storage location for the given advice number
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the storage location for the given advice number
         status:
           maxLength: 1
           required:
@@ -2456,10 +2499,10 @@ components:
           format: date-time
           nullable: false
         insuranceCoverage:
+          description: The applicable insurance coverage for damage estimate purposes
           nullable: true
           allOf:
           - $ref: "#/components/schemas/InsuranceCoverage"
-          - description: The applicable insurance coverage for damage estimate purposes
         currentExchangeRate:
           required:
           - "false"
@@ -2501,10 +2544,6 @@ components:
       type: object
       properties:
         status:
-          maxLength: 1
-          required:
-          - "false"
-          type: string
           description: |-
             a new indicator of the shipping container's status
 
@@ -2515,10 +2554,8 @@ components:
             `S` - Sold
           nullable: true
           example: D
-          enum:
-          - A
-          - D
-          - S
+          allOf:
+          - $ref: "#/components/schemas/GateRequestStatus"
         activityTime:
           required:
           - "false"
@@ -2529,10 +2566,6 @@ components:
           format: date-time
           nullable: true
         type:
-          maxLength: 3
-          required:
-          - "false"
-          type: string
           description: |-
             gate type indicator
 
@@ -2541,9 +2574,9 @@ components:
             `OUT` - Gate Out
           nullable: true
           example: IN
-          enum:
-          - IN
-          - OUT
+          allOf:
+          - $ref: "#/components/schemas/GateRequestType"
+          - maxLength: 3
         photos:
           required:
           - "false"
@@ -2554,78 +2587,6 @@ components:
             $ref: "#/components/schemas/GatePhoto"
       description: Data required to update a gate in or gate out record. Any data
         not provided will result in no update.
-    HttpStatus:
-      type: string
-      enum:
-      - CONTINUE
-      - SWITCHING_PROTOCOLS
-      - PROCESSING
-      - EARLY_HINTS
-      - OK
-      - CREATED
-      - ACCEPTED
-      - NON_AUTHORITATIVE_INFORMATION
-      - NO_CONTENT
-      - RESET_CONTENT
-      - PARTIAL_CONTENT
-      - MULTI_STATUS
-      - ALREADY_IMPORTED
-      - IM_USED
-      - MULTIPLE_CHOICES
-      - MOVED_PERMANENTLY
-      - FOUND
-      - SEE_OTHER
-      - NOT_MODIFIED
-      - USE_PROXY
-      - SWITCH_PROXY
-      - TEMPORARY_REDIRECT
-      - PERMANENT_REDIRECT
-      - BAD_REQUEST
-      - UNAUTHORIZED
-      - PAYMENT_REQUIRED
-      - FORBIDDEN
-      - NOT_FOUND
-      - METHOD_NOT_ALLOWED
-      - NOT_ACCEPTABLE
-      - PROXY_AUTHENTICATION_REQUIRED
-      - REQUEST_TIMEOUT
-      - CONFLICT
-      - GONE
-      - LENGTH_REQUIRED
-      - PRECONDITION_FAILED
-      - REQUEST_ENTITY_TOO_LARGE
-      - REQUEST_URI_TOO_LONG
-      - UNSUPPORTED_MEDIA_TYPE
-      - REQUESTED_RANGE_NOT_SATISFIABLE
-      - EXPECTATION_FAILED
-      - I_AM_A_TEAPOT
-      - ENHANCE_YOUR_CALM
-      - MISDIRECTED_REQUEST
-      - UNPROCESSABLE_ENTITY
-      - LOCKED
-      - FAILED_DEPENDENCY
-      - TOO_EARLY
-      - UPGRADE_REQUIRED
-      - PRECONDITION_REQUIRED
-      - TOO_MANY_REQUESTS
-      - REQUEST_HEADER_FIELDS_TOO_LARGE
-      - NO_RESPONSE
-      - BLOCKED_BY_WINDOWS_PARENTAL_CONTROLS
-      - UNAVAILABLE_FOR_LEGAL_REASONS
-      - REQUEST_HEADER_TOO_LARGE
-      - INTERNAL_SERVER_ERROR
-      - NOT_IMPLEMENTED
-      - BAD_GATEWAY
-      - SERVICE_UNAVAILABLE
-      - GATEWAY_TIMEOUT
-      - HTTP_VERSION_NOT_SUPPORTED
-      - VARIANT_ALSO_NEGOTIATES
-      - INSUFFICIENT_STORAGE
-      - LOOP_DETECTED
-      - BANDWIDTH_LIMIT_EXCEEDED
-      - NOT_EXTENDED
-      - NETWORK_AUTHENTICATION_REQUIRED
-      - CONNECTION_TIMED_OUT
     InsuranceCoverage:
       type: object
       properties:
@@ -2931,23 +2892,15 @@ components:
           format: date-time
           nullable: true
         status:
-          required:
-          - "true"
-          type: string
           description: "Describes the status for this redelivery: \n\n`PENDING` -\
             \ redelivery is pending and not yet valid for turn in\n\n`APPROVED` -\
             \ redelivery is approved\n\n`COMPLETE` - all units are turned in and no\
             \ more may be turned in\n\n`EXPIRED` - the redelivery is now expired and\
             \ any remaining units are no longer valid for turn in\n\n`CANCELLED` -\
             \ the redelivery is cancelled and not valid for turn in"
-          nullable: false
           example: APPROVED
-          enum:
-          - PENDING
-          - APPROVED
-          - COMPLETE
-          - EXPIRED
-          - CANCELLED
+          allOf:
+          - $ref: "#/components/schemas/RedeliveryStatus"
         estimateEmailRecipients:
           required:
           - "false"
@@ -2955,11 +2908,7 @@ components:
           description: list of emails to notify for an estimate revision
           nullable: false
           items:
-            required:
-            - "false"
             type: string
-            description: list of emails to notify for an estimate revision
-            nullable: false
             example: customer@example.com
         comments:
           required:
@@ -2969,25 +2918,20 @@ components:
             of this message
           nullable: false
           items:
-            required:
-            - "false"
             type: string
-            description: comments pertaining to this unit for the intended recipient
-              of this message
-            nullable: false
             example: An example redelivery level comment.
         depot:
+          description: The location for this redelivery
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: The location for this redelivery
         owner:
+          description: the shipping container's owner
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the shipping container's owner
         recipient:
+          description: The intended recipient for this message representing a redelivery
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: The intended recipient for this message representing a redelivery
         quantity:
           minimum: 0
           required:
@@ -2998,7 +2942,7 @@ components:
           nullable: false
           example: 1
         details:
-          minLength: 1
+          minItems: 1
           required:
           - "true"
           type: array
@@ -3016,9 +2960,9 @@ components:
       type: object
       properties:
         customer:
+          description: The customer for the contract on this detail.
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: The customer for the contract on this detail.
         contract:
           maxLength: 16
           required:
@@ -3037,10 +2981,10 @@ components:
           nullable: false
           example: 22G1
         insuranceCoverage:
+          description: the insurance coverage for damage repairs
           nullable: true
           allOf:
           - $ref: "#/components/schemas/InsuranceCoverage"
-          - description: the insurance coverage for damage repairs
         grade:
           maxLength: 10
           required:
@@ -3051,12 +2995,8 @@ components:
           nullable: true
           example: IICL
         upgradeType:
-          maxLength: 2
-          required:
-          - "false"
-          type: string
           description: |-
-            an indicator for the upgrades applied to units on this detail.
+            the type of secondary upgrade this estimate represents.
 
             `FG` - Food grade
 
@@ -3087,21 +3027,8 @@ components:
             `FT` - Flexitank
           nullable: true
           example: AM
-          enum:
-          - FG
-          - ML
-          - DB
-          - EV
-          - WH
-          - SU
-          - CF
-          - TB
-          - MC
-          - MP
-          - AM
-          - CH
-          - TE
-          - FT
+          allOf:
+          - $ref: "#/components/schemas/UpgradeType"
         units:
           required:
           - "false"
@@ -3129,14 +3056,24 @@ components:
             of this message
           nullable: false
           items:
-            required:
-            - "false"
             type: string
-            description: comments pertaining to this unit for the intended recipient
-              of this message
-            nullable: false
             example: An example detail level comment.
       description: unit criteria that groups similar units on a redelivery
+    RedeliveryStatus:
+      type: string
+      description: "Describes the status for this redelivery: \n\n`PENDING` - redelivery\
+        \ is pending and not yet valid for turn in\n\n`APPROVED` - redelivery is approved\n\
+        \n`COMPLETE` - all units are turned in and no more may be turned in\n\n`EXPIRED`\
+        \ - the redelivery is now expired and any remaining units are no longer valid\
+        \ for turn in\n\n`CANCELLED` - the redelivery is cancelled and not valid for\
+        \ turn in"
+      example: APPROVED
+      enum:
+      - PENDING
+      - APPROVED
+      - COMPLETE
+      - EXPIRED
+      - CANCELLED
     RedeliveryUnit:
       required:
       - billingParty
@@ -3177,25 +3114,19 @@ components:
           nullable: true
           example: 2001-07-21
         lastOnHireLocation:
+          description: The location this unit was last on-hired.
           nullable: true
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: The location this unit was last on-hired.
         status:
-          required:
-          - "true"
-          type: string
           description: "Describes the state of the shipping container for this redelivery:\
             \ \n\n`TIED` - shipping container is assigned to this redelivery and ready\
             \ to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery,\
             \ but is no longer valid for redelivery.\n\n`TIN` - shipping container\
             \ has turned into the storage location of this redelivery."
-          nullable: false
           example: TIED
-          enum:
-          - REMOVED
-          - TIED
-          - TIN
+          allOf:
+          - $ref: "#/components/schemas/RedeliveryUnitStatus"
         comments:
           required:
           - "false"
@@ -3204,12 +3135,7 @@ components:
             of this message
           nullable: false
           items:
-            required:
-            - "false"
             type: string
-            description: comments pertaining to this unit for the intended recipient
-              of this message
-            nullable: false
             example: An example unit level comment.
         lastCargo:
           maxLength: 255
@@ -3250,18 +3176,13 @@ components:
             \ this be fixed identifiers, codes, or urls"
           nullable: false
           items:
-            required:
-            - "false"
             type: string
-            description: "list of technical bulletins associated to this unit - we\
-              \ suggest this be fixed identifiers, codes, or urls"
-            nullable: false
             example: https://technical.example.com/bulletin/1234
         billingParty:
+          description: The party that will handle any repair (estimate & work order)
+            billing for units associated with this detail.
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: The party that will handle any repair (estimate & work order)
-              billing for units associated with this detail.
         inspectionCriteria:
           maxLength: 10
           required:
@@ -3273,12 +3194,24 @@ components:
           nullable: true
           example: IICL
         machineryInfo:
+          description: "if this detail is for a reefer shipping container, then this\
+            \ details the cooling machinery information"
           nullable: true
           allOf:
           - $ref: "#/components/schemas/MachineryInfo"
-          - description: "if this detail is for a reefer shipping container, then\
-              \ this details the cooling machinery information"
       description: information for a specific unit on a redelivery
+    RedeliveryUnitStatus:
+      type: string
+      description: "Describes the state of the shipping container for this redelivery:\
+        \ \n\n`TIED` - shipping container is assigned to this redelivery and ready\
+        \ to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery,\
+        \ but is no longer valid for redelivery.\n\n`TIN` - shipping container has\
+        \ turned into the storage location of this redelivery."
+      example: TIED
+      enum:
+      - TIED
+      - REMOVED
+      - TIN
     Release:
       required:
       - approvalDate
@@ -3303,36 +3236,22 @@ components:
           nullable: false
           example: AHAMG33141
         status:
-          required:
-          - "true"
-          type: string
           description: "Describes the status for this release: \n\n`PENDING` - release\
             \ is pending and not yet valid\n\n`APPROVED` - release is approved for\
             \ leaving the storage location\n\n`COMPLETE` - all containers have left\
             \ the depot and no more may be processed\n\n`EXPIRED` - the release is\
             \ now expired and any remaining units are no longer valid\n\n`CANCELLED`\
             \ - the release is cancelled and not valid"
-          nullable: false
           example: APPROVED
-          enum:
-          - PENDING
-          - APPROVED
-          - COMPLETE
-          - EXPIRED
-          - CANCELLED
+          allOf:
+          - $ref: "#/components/schemas/ReleaseStatus"
         type:
-          required:
-          - "true"
-          type: string
           description: "Describes the intended purpose of the release: \n\n`SALE`\
             \ - shipping containers are being sold\n\n`BOOK` - shipping containers\
             \ are being leased to a customer\n\n`REPO` - shipping containers are being\
             \ relocated by the owner to another storage location"
-          nullable: false
-          enum:
-          - SALE
-          - BOOK
-          - REPO
+          allOf:
+          - $ref: "#/components/schemas/ReleaseType"
         approvalDate:
           required:
           - "true"
@@ -3361,25 +3280,20 @@ components:
             of this message
           nullable: false
           items:
-            required:
-            - "false"
             type: string
-            description: comments pertaining to this unit for the intended recipient
-              of this message
-            nullable: false
             example: An example release level comment.
         depot:
+          description: The location for this release
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: The location for this release
         owner:
+          description: The owner of the shipping container that approved the release
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: The owner of the shipping container that approved the release
         recipient:
+          description: The intended recipient for this message representing a release
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: The intended recipient for this message representing a release
         onHireSurveyRequired:
           type: boolean
           description: indicates if an on-hire survey is required for units associated
@@ -3393,7 +3307,7 @@ components:
           format: int32
           example: 1
         details:
-          minLength: 1
+          minItems: 1
           required:
           - "true"
           type: array
@@ -3412,9 +3326,9 @@ components:
       type: object
       properties:
         customer:
+          description: The customer for the contract on this detail.
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: The customer for the contract on this detail.
         contract:
           maxLength: 16
           required:
@@ -3441,12 +3355,8 @@ components:
           nullable: false
           example: IICL
         upgradeType:
-          maxLength: 2
-          required:
-          - "false"
-          type: string
           description: |-
-            an indicator for the upgrades applied to units on this detail.
+            the type of secondary upgrade this estimate represents.
 
             `FG` - Food grade
 
@@ -3477,21 +3387,8 @@ components:
             `FT` - Flexitank
           nullable: true
           example: AM
-          enum:
-          - FG
-          - ML
-          - DB
-          - EV
-          - WH
-          - SU
-          - CF
-          - TB
-          - MC
-          - MP
-          - AM
-          - CH
-          - TE
-          - FT
+          allOf:
+          - $ref: "#/components/schemas/UpgradeType"
         units:
           required:
           - "false"
@@ -3519,12 +3416,7 @@ components:
             of this message
           nullable: false
           items:
-            required:
-            - "false"
             type: string
-            description: comments pertaining to this unit for the intended recipient
-              of this message
-            nullable: false
             example: An example detail level comment.
         quantity:
           minimum: 0
@@ -3601,6 +3493,31 @@ components:
           nullable: false
           example: "30"
       description: represents unit criteria to restrict units on a given detail
+    ReleaseStatus:
+      type: string
+      description: "Describes the status for this release: \n\n`PENDING` - release\
+        \ is pending and not yet valid\n\n`APPROVED` - release is approved for leaving\
+        \ the storage location\n\n`COMPLETE` - all containers have left the depot\
+        \ and no more may be processed\n\n`EXPIRED` - the release is now expired and\
+        \ any remaining units are no longer valid\n\n`CANCELLED` - the release is\
+        \ cancelled and not valid"
+      example: APPROVED
+      enum:
+      - PENDING
+      - APPROVED
+      - COMPLETE
+      - EXPIRED
+      - CANCELLED
+    ReleaseType:
+      type: string
+      description: "Describes the intended purpose of the release: \n\n`SALE` - shipping\
+        \ containers are being sold\n\n`BOOK` - shipping containers are being leased\
+        \ to a customer\n\n`REPO` - shipping containers are being relocated by the\
+        \ owner to another storage location"
+      enum:
+      - SALE
+      - BOOK
+      - REPO
     ReleaseUnit:
       required:
       - status
@@ -3624,30 +3541,18 @@ components:
             of this message
           nullable: false
           items:
-            required:
-            - "false"
             type: string
-            description: comments pertaining to this unit for the intended recipient
-              of this message
-            nullable: false
             example: An example unit level comment.
         status:
-          required:
-          - "true"
-          type: string
           description: "Describes the state of the shipping container for this release:\
             \ \n\n`TIED` - shipping container is assigned to this release and ready\
             \ to lease out.\n\n`REMOVED` - shipping container was attached to this\
             \ release, but is no longer valid for release.\n\n`LOT` - shipping container\
             \ has left the storage location.\n\n`CANDIDATE` - this container is eligible\
             \ for this release but not currently assigned."
-          nullable: false
           example: TIED
-          enum:
-          - REMOVED
-          - TIED
-          - LOT
-          - CANDIDATE
+          allOf:
+          - $ref: "#/components/schemas/ReleaseUnitStatus"
         carbCompliant:
           required:
           - "false"
@@ -3667,6 +3572,20 @@ components:
           nullable: true
           example: 2001-07-21
       description: information for a specific unit on a release
+    ReleaseUnitStatus:
+      type: string
+      description: "Describes the state of the shipping container for this release:\
+        \ \n\n`TIED` - shipping container is assigned to this release and ready to\
+        \ lease out.\n\n`REMOVED` - shipping container was attached to this release,\
+        \ but is no longer valid for release.\n\n`LOT` - shipping container has left\
+        \ the storage location.\n\n`CANDIDATE` - this container is eligible for this\
+        \ release but not currently assigned."
+      example: TIED
+      enum:
+      - REMOVED
+      - TIED
+      - LOT
+      - CANDIDATE
     RepairComplete:
       required:
       - completionDate
@@ -3685,10 +3604,10 @@ components:
           nullable: false
           example: WHAMG46019
         depot:
+          description: the storage location where the shipping container is being
+            repaired
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the storage location where the shipping container is being
-              repaired
         completionDate:
           required:
           - "true"
@@ -3711,6 +3630,54 @@ components:
           example: CONU1234561
       description: Necessary information to mark a specific unit under a work order
         repaired
+    UpgradeType:
+      type: string
+      description: |-
+        an indicator for the upgrades applied to units on this detail.
+
+        `FG` - Food grade
+
+        `ML` - Malt
+
+        `DB` - Dairy Board
+
+        `EV` - Evian
+
+        `WH` - Whiskey
+
+        `SU` - Sugar
+
+        `CF` - Coffee
+
+        `TB` - Tobacco
+
+        `MC` - Milk cartons
+
+        `MP` - Milk powder
+
+        `AM` - Ammunition
+
+        `CH` - Cotton/Hay
+
+        `TE` - Tea
+
+        `FT` - Flexitank
+      example: AM
+      enum:
+      - FG
+      - ML
+      - DB
+      - EV
+      - WH
+      - SU
+      - CF
+      - TB
+      - MC
+      - MP
+      - AM
+      - CH
+      - TE
+      - FT
     WorkOrder:
       required:
       - approvalDate
@@ -3743,20 +3710,20 @@ components:
           nullable: false
           example: WHAMG46019
         depot:
+          description: the storage location where the shipping container is being
+            repaired
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the storage location where the shipping container is being
-              repaired
         owner:
+          description: the owner of the shipping container
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the owner of the shipping container
         billingParty:
+          description: the party that will bill the customer portion of damages for
+            this repair
           nullable: true
           allOf:
           - $ref: "#/components/schemas/Party"
-          - description: the party that will bill the customer portion of damages
-              for this repair
         type:
           maxLength: 11
           required:
@@ -3812,8 +3779,8 @@ components:
           nullable: true
           example: CWCA repairs for unit TCKU3456654 total 175.00 EUR per DEHAMCE1856373.1
         lineItems:
-          maxLength: 200
-          minLength: 1
+          maxItems: 200
+          minItems: 1
           required:
           - "true"
           type: array
@@ -3873,10 +3840,6 @@ components:
           description: the Release approved for gate out after repair
           nullable: true
         status:
-          maxLength: 8
-          required:
-          - "true"
-          type: string
           description: |-
             an indicator of the unit state on this work order
 
@@ -3885,22 +3848,29 @@ components:
             `REMOVED` - shipping container is removed from this work order
 
             `REPAIRED` - shipping container is considered repaired
-          nullable: false
           example: TIED
-          enum:
-          - TIED
-          - REMOVED
-          - REPAIRED
+          allOf:
+          - $ref: "#/components/schemas/WorkOrderUnitStatus"
       description: information for a specific unit on a work order
+    WorkOrderUnitStatus:
+      type: string
+      description: |-
+        an indicator of the unit state on this work order
+
+        `TIED` - shipping container is considered under repair on this work order
+
+        `REMOVED` - shipping container is removed from this work order
+
+        `REPAIRED` - shipping container is considered repaired
+      example: TIED
+      enum:
+      - TIED
+      - REMOVED
+      - REPAIRED
   securitySchemes:
-    Dynamic_Token:
+    JWT_TOKEN:
       type: http
-      description: Dynamic JWT Bearer Authentication
-      scheme: bearer
-      bearerFormat: JWT
-    Static_Token:
-      type: http
-      description: Static JWT Bearer Authentication
+      description: JWT Bearer Authentication
       scheme: bearer
       bearerFormat: JWT
 x-tagGroups:

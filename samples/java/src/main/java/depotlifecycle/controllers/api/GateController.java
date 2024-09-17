@@ -5,10 +5,7 @@ import depotlifecycle.ErrorResponse;
 import depotlifecycle.GateResponse;
 import depotlifecycle.GateStatus;
 import depotlifecycle.PendingResponse;
-import depotlifecycle.domain.GateCreateRequest;
-import depotlifecycle.domain.GateDeleteRequest;
-import depotlifecycle.domain.GateUpdateRequest;
-import depotlifecycle.domain.Party;
+import depotlifecycle.domain.*;
 import depotlifecycle.repositories.GateCreateRequestRepository;
 import depotlifecycle.repositories.GateDeleteRequestRepository;
 import depotlifecycle.repositories.GateUpdateRequestRepository;
@@ -188,7 +185,7 @@ public class GateController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully delete the gate record"),
+        @ApiResponse(responseCode = "200", description = "successfully delete the gate record", content = {@Content(schema = @Schema())}),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "delete a gate record is disallowed by security"),
         @ApiResponse(responseCode = "404", description = "the shipping container or depot could not be found"),
@@ -206,8 +203,8 @@ public class GateController {
                 return HttpResponse.notFound();
             }
 
-            if(!gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, "IN") ||
-               !gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, "OUT")) {
+            if(!gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, GateRequestType.IN) ||
+               !gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, GateRequestType.OUT)) {
                 return HttpResponse.notFound();
             }
 

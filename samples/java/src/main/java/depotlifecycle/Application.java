@@ -1,18 +1,10 @@
 package depotlifecycle;
 
-import depotlifecycle.domain.InsuranceCoverage;
-import depotlifecycle.domain.Party;
-import depotlifecycle.domain.Redelivery;
-import depotlifecycle.domain.RedeliveryDetail;
-import depotlifecycle.domain.RedeliveryUnit;
-import depotlifecycle.domain.Release;
-import depotlifecycle.domain.ReleaseDetail;
-import depotlifecycle.domain.ReleaseUnit;
+import depotlifecycle.domain.*;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import depotlifecycle.repositories.ReleaseRepository;
 import io.micronaut.context.event.StartupEvent;
-import io.micronaut.core.annotation.Introspected;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -28,7 +20,6 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.Entity;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 @OpenAPIDefinition(
     info = @Info(
@@ -304,15 +296,8 @@ import java.util.Arrays;
 @SecuritySchemes (
     value = {
             @SecurityScheme(
-                    name = "Dynamic_Token",
-                    description = "Dynamic JWT Bearer Authentication",
-                    type = SecuritySchemeType.HTTP,
-                    bearerFormat = "JWT",
-                    scheme = "bearer"
-            ),
-            @SecurityScheme(
-                    name = "Static_Token",
-                    description = "Static JWT Bearer Authentication",
+                    name = "JWT_TOKEN",
+                    description = "JWT Bearer Authentication",
                     type = SecuritySchemeType.HTTP,
                     bearerFormat = "JWT",
                     scheme = "bearer"
@@ -380,12 +365,12 @@ public class Application {
 
     private void buildReleases(Party depot1, Party depot2, Party customer, Party owner) {
         Release release = new Release();
-        release.setStatus("APPROVED");
+        release.setStatus(ReleaseStatus.APPROVED);
         release.setReleaseNumber("RHAMG134512");
-        release.setType("BOOK");
+        release.setType(ReleaseType.BOOK);
         release.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
         release.setExpirationDate(getLocal(LocalDateTime.now().plusMonths(4)));
-        release.setComments(Arrays.asList("an example release level comment"));
+        release.setComments(List.of("an example release level comment"));
         release.setDepot(depot1);
         release.setOwner(owner);
         release.setRecipient(depot1);
@@ -407,13 +392,13 @@ public class Application {
 
         ReleaseUnit unit1 = new ReleaseUnit();
         unit1.setUnitNumber("CONU1234561");
-        unit1.setComments(Arrays.asList("Example unit comment #1."));
-        unit1.setStatus("TIED");
+        unit1.setComments(List.of("Example unit comment #1."));
+        unit1.setStatus(ReleaseUnitStatus.TIED);
 
         ReleaseUnit unit2 = new ReleaseUnit();
         unit2.setUnitNumber("CONU1234526");
-        unit2.setComments(Arrays.asList("Example unit comment #2."));
-        unit2.setStatus("TIED");
+        unit2.setComments(List.of("Example unit comment #2."));
+        unit2.setStatus(ReleaseUnitStatus.TIED);
         unit2.setManufactureDate(LocalDate.of(2012, 1, 1));
 
         release.getDetails().add(blanketDetail);
@@ -426,11 +411,11 @@ public class Application {
 
     private void buildRedeliveries(Party depot1, Party depot2, Party customer, Party owner) {
         Redelivery redelivery = new Redelivery();
-        redelivery.setStatus("APPROVED");
+        redelivery.setStatus(RedeliveryStatus.APPROVED);
         redelivery.setRedeliveryNumber("AHAMG33141");
         redelivery.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
         redelivery.setExpirationDate(getLocal(LocalDateTime.now().plusMonths(4)));
-        redelivery.setComments(Arrays.asList("an example redelivery level comment"));
+        redelivery.setComments(List.of("an example redelivery level comment"));
         redelivery.setDepot(depot1);
         redelivery.setRecipient(depot1);
         redelivery.setOwner(owner);
@@ -443,7 +428,7 @@ public class Application {
         noInsuranceDetail.setQuantity(1);
 
         InsuranceCoverage coverage = new InsuranceCoverage();
-        coverage.setAmountCovered(new BigDecimal(2000.0));
+        coverage.setAmountCovered(new BigDecimal("2000.0"));
         coverage.setAmountCurrency("USD");
         coverage.setAllOrNothing(false);
         coverage.setExceptions(Arrays.asList("Exception #1", "Exception #2"));
@@ -463,18 +448,18 @@ public class Application {
         unit1.setManufactureDate(LocalDate.of(2012, 1, 1));
         unit1.setLastOnHireDate(LocalDate.of(2012, 2, 1));
         unit1.setLastOnHireLocation(depot2);
-        unit1.setComments(Arrays.asList("Example unit comment #1."));
+        unit1.setComments(List.of("Example unit comment #1."));
         unit1.setBillingParty(depot1);
         unit1.setInspectionCriteria("IICL");
-        unit1.setStatus("TIED");
+        unit1.setStatus(RedeliveryUnitStatus.TIED);
 
         RedeliveryUnit unit2 = new RedeliveryUnit();
         unit2.setUnitNumber("CONU1234526");
         unit2.setManufactureDate(LocalDate.of(2012, 1, 1));
-        unit2.setComments(Arrays.asList("Example unit comment #2."));
+        unit2.setComments(List.of("Example unit comment #2."));
         unit2.setBillingParty(depot1);
         unit2.setInspectionCriteria("CWCA");
-        unit2.setStatus("TIED");
+        unit2.setStatus(RedeliveryUnitStatus.TIED);
 
         redelivery.getDetails().add(insuranceDetail);
         redelivery.getDetails().add(noInsuranceDetail);

@@ -6,26 +6,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,35 +47,34 @@ public class Redelivery {
     @Column
     ZonedDateTime expirationDate;
 
-    @Schema(required = true, nullable = false, description = "Describes the status for this redelivery: \n\n`PENDING` - redelivery is pending and not yet valid for turn in\n\n`APPROVED` - redelivery is approved\n\n`COMPLETE` - all units are turned in and no more may be turned in\n\n`EXPIRED` - the redelivery is now expired and any remaining units are no longer valid for turn in\n\n`CANCELLED` - the redelivery is cancelled and not valid for turn in", allowableValues = {"PENDING", "APPROVED", "COMPLETE", "EXPIRED", "CANCELLED"}, example = "APPROVED")
+    @Schema(required = true, nullable = false, description = "Describes the status for this redelivery: \n\n`PENDING` - redelivery is pending and not yet valid for turn in\n\n`APPROVED` - redelivery is approved\n\n`COMPLETE` - all units are turned in and no more may be turned in\n\n`EXPIRED` - the redelivery is now expired and any remaining units are no longer valid for turn in\n\n`CANCELLED` - the redelivery is cancelled and not valid for turn in", example = "APPROVED", implementation = RedeliveryStatus.class)
     @Column(nullable = false, length = 9)
-    String status;
+    @Enumerated(EnumType.STRING)
+    RedeliveryStatus status;
 
-    @ArraySchema(schema = @Schema(description = "list of emails to notify for an estimate revision", example = "customer@example.com", required = false, nullable = false))
+    @ArraySchema(schema = @Schema(example = "customer@example.com"))
     @Schema(description = "list of emails to notify for an estimate revision", required = false, nullable = false)
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> estimateEmailRecipients;
 
+    @ArraySchema(schema = @Schema(example = "An example redelivery level comment."))
     @Schema(description = "comments pertaining to this unit for the intended recipient of this message", required = false, nullable = false)
-    @ArraySchema(schema = @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "An example redelivery level comment.", required = false, nullable = false))
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
-    @Schema(description = "The location for this redelivery", required = true, nullable = false)
+    @Schema(description = "The location for this redelivery", required = true, nullable = false, implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party depot;
 
-    @Schema(description = "the shipping container's owner", required = true, nullable = false)
+    @Schema(description = "the shipping container's owner", required = true, nullable = false, implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party owner;
 
-    @Schema(description = "The intended recipient for this message representing a redelivery", required = true, nullable = false)
+    @Schema(description = "The intended recipient for this message representing a redelivery", required = true, nullable = false, implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party recipient;
 
@@ -97,7 +82,8 @@ public class Redelivery {
     @Column(nullable = false)
     Integer quantity;
 
-    @Schema(description = "groups of like-criteria units", required = true, nullable = false, minLength = 1)
+    @ArraySchema(minItems = 1, schema = @Schema(implementation = RedeliveryDetail.class))
+    @Schema(description = "groups of like-criteria units", required = true, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<RedeliveryDetail> details = new ArrayList<>();
 }

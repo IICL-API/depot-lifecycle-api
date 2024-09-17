@@ -5,29 +5,14 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import java.time.LocalDate;
 import java.util.List;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 
 @Data
 @JsonView
@@ -56,20 +41,20 @@ public class RedeliveryUnit {
     @Column
     LocalDate lastOnHireDate;
 
-    @Schema(description = "The location this unit was last on-hired.", required = false, nullable = true)
+    @Schema(description = "The location this unit was last on-hired.", required = false, nullable = true, implementation = Party.class)
     @ManyToOne(fetch = FetchType.EAGER)
     Party lastOnHireLocation;
 
-    @Schema(description = "Describes the state of the shipping container for this redelivery: \n\n`TIED` - shipping container is assigned to this redelivery and ready to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery, but is no longer valid for redelivery.\n\n`TIN` - shipping container has turned into the storage location of this redelivery.", allowableValues = {"REMOVED", "TIED", "TIN"}, example = "TIED", required = true, nullable = false)
+    @Schema(description = "Describes the state of the shipping container for this redelivery: \n\n`TIED` - shipping container is assigned to this redelivery and ready to turn in.\n\n`REMOVED` - shipping container was attached to this redelivery, but is no longer valid for redelivery.\n\n`TIN` - shipping container has turned into the storage location of this redelivery.", example = "TIED", required = true, nullable = false)
     @Column(nullable = false, length = 7)
-    String status;
+    @Enumerated(EnumType.STRING)
+    RedeliveryUnitStatus status;
 
-    @ArraySchema(schema = @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "An example unit level comment.", required = false, nullable = false))
+    @ArraySchema(schema = @Schema(example = "An example unit level comment."))
     @Schema(description = "comments pertaining to this unit for the intended recipient of this message", required = false, nullable = false)
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
     @Schema(description = "a description of the last cargo this shipping container carried", maxLength = 255, example = "Aroset PS 5191", required = false, nullable = true)
@@ -84,15 +69,14 @@ public class RedeliveryUnit {
     @Column(length = 1)
     String tankGrade;
 
-    @ArraySchema(schema = @Schema(description = "list of technical bulletins associated to this unit - we suggest this be fixed identifiers, codes, or urls", example = "https://technical.example.com/bulletin/1234", required = false, nullable = false))
+    @ArraySchema(schema = @Schema(example = "https://technical.example.com/bulletin/1234"))
     @Schema(description = "list of technical bulletins associated to this unit - we suggest this be fixed identifiers, codes, or urls", required = false, nullable = false)
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> technicalBulletins;
 
-    @Schema(description = "The party that will handle any repair (estimate & work order) billing for units associated with this detail.", required = true, nullable = false)
+    @Schema(description = "The party that will handle any repair (estimate & work order) billing for units associated with this detail.", required = true, nullable = false, implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party billingParty;
 
@@ -101,6 +85,6 @@ public class RedeliveryUnit {
     String inspectionCriteria;
 
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-    @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information", required = false, nullable = true)
+    @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information", required = false, nullable = true, implementation = MachineryInfo.class)
     MachineryInfo machineryInfo;
 }

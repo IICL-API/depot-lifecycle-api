@@ -39,7 +39,7 @@ public class RepairComplete {
     @Column(nullable = false, length = 16)
     String workOrderNumber;
 
-    @Schema(required = true, nullable = false, description = "the storage location where the shipping container is being repaired")
+    @Schema(required = true, nullable = false, description = "the storage location where the shipping container is being repaired", implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party depot;
 

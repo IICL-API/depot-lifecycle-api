@@ -58,7 +58,7 @@ public class EstimatePhotoController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully uploaded an estimate photo"),
+        @ApiResponse(responseCode = "200", description = "successfully uploaded an estimate photo", content = {@Content(schema = @Schema())}),
         @ApiResponse(responseCode = "202", description = "photo accepted for processing, but not created due to manual processing requirement", content = {@Content(schema = @Schema(implementation = PendingResponse.class))}),
         @ApiResponse(responseCode = "400", description = "an invalid request was provided", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "uploading an estimate photo is disallowed by security"),

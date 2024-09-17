@@ -4,11 +4,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.FetchType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
@@ -29,12 +28,11 @@ public class ErrorResponse {
     String message;
 
     @ArraySchema(schema =
-    @Schema(description = "details for the descriptive error message", example = "Customer may turn in unit, but will continued to be billed.", required = false, nullable = false)
+        @Schema(example = "Customer may turn in unit, but will continued to be billed.")
     )
     @Schema(description = "details for the descriptive error message", required = false, nullable = false)
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> details;
 }

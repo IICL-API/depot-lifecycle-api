@@ -40,7 +40,7 @@ public class EstimateLineItemPart {
     @Column(length = 64, nullable = false)
     String number;
 
-    @Schema(description = "the number of parts used", required = true, nullable = false, type = "number", format = "int32", example = "1", minimum = "1")
+    @Schema(description = "the number of parts used", required = true, nullable = false, type = "integer", format = "int32", example = "1", minimum = "1")
     @Column(nullable = false)
     Integer quantity;
 
