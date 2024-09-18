@@ -3,11 +3,12 @@ package depotlifecycle.controllers.client;
 import depotlifecycle.DepotLifecycleConfiguration;
 import depotlifecycle.clients.EstimateClient;
 import depotlifecycle.commands.EstimateCancelCommand;
+import depotlifecycle.commands.EstimateCustomerApproveCommand;
 import depotlifecycle.commands.EstimateFetchCommand;
 import depotlifecycle.commands.EstimateSearchCommand;
 import depotlifecycle.domain.Estimate;
+import depotlifecycle.domain.EstimateCustomerApproval;
 import depotlifecycle.view.HtmlStatusException;
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
@@ -18,7 +19,6 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import io.micronaut.validation.Validated;
 import io.micronaut.views.View;
-import io.micronaut.views.ViewsRenderer;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -53,6 +53,42 @@ public class EstimateController {
                 Map.entry("projectConfig", projectConfig)
         );
         return Mono.just(model);
+    }
+
+    @ExecuteOn(TaskExecutors.BLOCKING)
+    @Post("/customerApprove")
+    @View("estimateList")
+    Mono<Map<String, Object>> customerApprove(@Body EstimateCustomerApproveCommand cmd) {
+        LOG.info("Client - Estimate - Customer Approve");
+
+        Set<ConstraintViolation<EstimateCustomerApproveCommand>> violations = validator.validate(cmd);
+        if (!violations.isEmpty()) {
+            ConstraintViolation<EstimateCustomerApproveCommand> violation = violations.iterator().next();
+            String errorMessage = String.join(" ", violation.getPropertyPath().toString(), violation.getMessage());
+            throw new HtmlStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        }
+
+        EstimateCustomerApproval customerApproval = new EstimateCustomerApproval();
+        customerApproval.setApprovalNumber(cmd.getApprovalNumber());
+        customerApproval.setApprovalDateTime(cmd.getApprovalDateTime());
+        customerApproval.setApprovalUser(cmd.getApprovalUser());
+        customerApproval.setApprovalTotal(cmd.getApprovalTotal());
+        Publisher<Estimate> estimatePublisher = estimateClient.customerApprove(cmd.getEstimateNumber(), cmd.getDepot(), customerApproval);
+
+        return Mono.from(estimatePublisher)
+                .onErrorMap(HttpClientResponseException.class, e -> {
+                    String responseBody = e.getResponse().getBody(String.class).orElse("No response body");
+                    String responseHeaders = e.getResponse().getHeaders().toString();
+                    int statusCode = e.getStatus().getCode();
+
+                    String errorMessage = String.format(
+                            "HttpClientResponseException: %s\nStatus Code: %d\nResponse Body: %s\nResponse Headers: %s",
+                            e.getMessage(), statusCode, responseBody, responseHeaders
+                    );
+
+                    String message = String.join(": ", "Unexpected Error Calling API", errorMessage);
+                    throw new HtmlStatusException(e.getStatus(), message);
+                }).map(estimates -> Map.of("estimates", estimates));
     }
 
     @ExecuteOn(TaskExecutors.BLOCKING)

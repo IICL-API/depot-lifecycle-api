@@ -20,6 +20,7 @@
                     <li><a href="#estimateSearch">Estimate - Search</a></li>
                     <li><a href="#estimateFetch">Estimate - Fetch</a></li>
                     <li><a href="#estimateCancel">Estimate - Cancel</a></li>
+                    <li><a href="#estimateApprove">Estimate - Customer Approve</a></li>
                 </ul>
             </div>
         </div>
@@ -106,9 +107,44 @@
                         <label for="cancelDepot" class="form-label">Depot</label>
                         <input type="text" class="form-control" id="cancelDepot" name="depot" required maxlength="9" pattern="^[A-Z0-9]{9}$">
                     </div>
+            </div>
+            <div class="card-footer">
+                <input type="submit" value="Submit" class="btn btn-primary"/>
+            </div>
+            </form>
+        </div>
+    </div>
+    <hr/>
+    <div>
+        <div class="card" id="estimateApprove">
+            <form action="/client/estimate/customerApprove" method="POST">
+            <div class="card-header">
+                <h5 class="card-title">Estimate Customer Approve</h5>
+            </div>
+            <div class="card-body">
                     <div class="mb-3">
-                        <label for="cancelRevision" class="form-label">Revision</label>
-                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="cancelRevision" name="revision">
+                        <label for="customerApproveEstimateNumber" class="form-label">Estimate Number</label>
+                        <input type="text" class="form-control" id="customerApproveEstimateNumber" required maxlength="16" name="estimateNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerApproveDepot" class="form-label">Depot</label>
+                        <input type="text" class="form-control" id="customerApproveDepot" name="depot" required maxlength="9" pattern="^[A-Z0-9]{9}$">
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerApproveApprovalNumber" class="form-label">Approval Number</label>
+                        <input type="text" class="form-control" id="customerApproveApprovalNumber" name="approvalNumber" required maxlength="128">
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerApproveApprovalDateTime" class="form-label">Approval Date Time</label>
+                        <input type="text" class="form-control" id="customerApproveApprovalDateTime" name="approvalDateTime" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerApproveApprovalUser" class="form-label">Approval User</label>
+                        <input type="text" class="form-control" id="customerApproveApprovalUser" name="approvalUser" maxlength="64">
+                    </div>
+                    <div class="mb-3">
+                        <label for="customerApproveApprovalTotal" class="form-label">Approval Total</label>
+                        <input type="number" step="0.01" class="form-control" id="customerApproveApprovalTotal" name="approvalTotal" min="0.0">
                     </div>
             </div>
             <div class="card-footer">
@@ -118,5 +154,18 @@
         </div>
     </div>
 </div>
+<script type="text/javascript" defer>
+    $(document).ready(function() {
+        $('#customerApproveApprovalDateTime').datetimepicker({
+            format: 'yyyy-mm-ddThh:ii:ss+00:00',
+            autoclose: true,
+            todayBtn: true,
+            todayHighlight: true,
+            showMeridian: true,
+            pickerPosition: 'bottom-left',
+            minuteStep: 1
+        });
+    });
+</script>
 </body>
 </html>

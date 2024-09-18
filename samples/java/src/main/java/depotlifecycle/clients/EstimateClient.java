@@ -3,10 +3,12 @@ package depotlifecycle.clients;
 import depotlifecycle.DepotLifecycleConfiguration;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.Estimate;
+import depotlifecycle.domain.EstimateCustomerApproval;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.annotation.Client;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.reactivestreams.Publisher;
 
 import java.util.List;
@@ -33,5 +35,9 @@ public interface EstimateClient {
     @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
     @Delete("/api/v2/estimate/{estimateNumber}")
     void delete(@PathVariable @NonNull String estimateNumber, @QueryValue @NonNull String depot);
+
+    @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
+    @Put("/api/v2/estimate/{estimateNumber}")
+    Publisher<Estimate> customerApprove(@PathVariable @NonNull String estimateNumber, @QueryValue @NonNull String depot, @RequestBody @NonNull EstimateCustomerApproval customerApproval);
 
 }
