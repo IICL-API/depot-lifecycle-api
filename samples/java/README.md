@@ -6,9 +6,8 @@ This is an example java application that implements the various Depot Lifecycle 
 
 The only required software to run this sample is java 17.  To start the application: run './gradlew run'
 
-
 # Software Used
-## Micronaut 4.4.2 Documentation
+## Micronaut 4.6.2 Documentation
 
 - [User Guide](https://docs.micronaut.io/4.4.2/guide/index.html)
 - [API Reference](https://docs.micronaut.io/4.4.2/api/index.html)
@@ -66,5 +65,4 @@ The only required software to run this sample is java 17.  To start the applicat
 ## Feature annotation-api documentation
 
 - [https://jakarta.ee/specifications/annotations/](https://jakarta.ee/specifications/annotations/)
-
 

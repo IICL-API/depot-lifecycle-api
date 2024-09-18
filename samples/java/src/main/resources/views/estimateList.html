@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layouts/main :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Estimate Search Results</title>
+</head>
+<body th:fragment="section">
+<div class="align-middle flex-column">
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Results:</h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(estimates)}" class="alert alert-warning" role="alert">
+                    No estimates found.
+                </div>
+
+                <table class="table" th:if="${!#lists.isEmpty(estimates)}">
+                    <thead>
+                        <tr>
+                            <th>Estimate Number</th>
+                            <th>Unit Number</th>
+                            <th>Condition</th>
+                            <th>Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="estimate : ${estimates}">
+                            <td th:text="${estimate.estimateNumber}"></td>
+                            <td th:text="${estimate.unitNumber}"></td>
+                            <td th:text="${estimate.condition}"></td>
+                            <td th:text="${estimate.comments}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

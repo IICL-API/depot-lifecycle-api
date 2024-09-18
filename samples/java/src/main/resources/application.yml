@@ -1,3 +1,7 @@
+depotlifecycle:
+  client:
+    url: "${LIFECYCLE_ENDPOINT:`http://localhost:8086/`}"
+    authorization: "${LIFECYCLE_AUTHORIZATION:`Basic bm92YWxpZGF0ZTpub3ZhbGlkYXRl`}" # no validate defaults
 micronaut:
   application:
     name: depotlifecycle

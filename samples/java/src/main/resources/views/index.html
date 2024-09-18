@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layouts/main :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Index</title>
+</head>
+<body th:fragment="section">
+    <div class="align-middle flex-column">
+        <div>
+            <h4>Depot Life Cycle</h4>
+        </div>
+        <div>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Client Links:</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+<!--                        <li><a href="client/redelivery">Redelivery</a></li>-->
+<!--                        <li><a href="client/release">Release</a></li>-->
+<!--                        <li><a href="client/gate">Gate</a></li>-->
+                        <li><a href="client/estimate">Estimate</a></li>
+<!--                        <li><a href="client/workOrder">Work Order</a></li>-->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

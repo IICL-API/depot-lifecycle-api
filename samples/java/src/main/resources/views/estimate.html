@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layouts/main :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Estimate Client</title>
+</head>
+<body th:fragment="section">
+<div class="align-middle flex-column">
+    <div>
+        <div class="mb-3">
+            <p><span class="fw-bold">Configured Environment:</span> <span class="fst-italic" th:text="${projectConfig.url}"></span></p>
+        </div>
+    </div>
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Index:</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li><a href="#estimateSearch">Estimate - Search</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div>
+        <div class="card" id="estimateSearch">
+            <form action="/client/estimate/list" method="POST">
+            <div class="card-header">
+                <h5 class="card-title">Estimate Search</h5>
+            </div>
+            <div class="card-body">
+                    <div class="mb-3">
+                        <label for="searchEstimateNumber" class="form-label">Estimate Number</label>
+                        <input type="text" class="form-control" id="searchEstimateNumber" maxlength="16" name="estimateNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label for="searchUnitNumber" class="form-label">Unit Number</label>
+                        <input type="text" class="form-control" id="searchUnitNumber" maxlength="11" pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" name="unitNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label for="searchDepot" class="form-label">Depot</label>
+                        <input type="text" class="form-control" id="searchDepot" name="depot" maxlength="9" pattern="^[A-Z0-9]{9}$">
+                    </div>
+                    <div class="mb-3">
+                        <label for="searchLessee" class="form-label">Lessee</label>
+                        <input type="text" class="form-control" id="searchLessee" name="lessee" maxlength="9" pattern="^[A-Z0-9]{9}$">
+                    </div>
+                    <div class="mb-3">
+                        <label for="searchRevision" class="form-label">Revision</label>
+                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="searchRevision" name="revision">
+                    </div>
+                    <div class="mb-3">
+                        <label for="searchEquipment" class="form-label">Equipment Code</label>
+                        <input type="text" class="form-control" id="searchEquipment" name="equipmentCode" maxlength="10">
+                    </div>
+            </div>
+            <div class="card-footer">
+                <input type="submit" value="Submit" class="btn btn-primary"/>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
