@@ -2,6 +2,7 @@ package depotlifecycle.controllers.client;
 
 import depotlifecycle.DepotLifecycleConfiguration;
 import depotlifecycle.clients.EstimateClient;
+import depotlifecycle.commands.EstimateFetchCommand;
 import depotlifecycle.commands.EstimateSearchCommand;
 import depotlifecycle.domain.Estimate;
 import depotlifecycle.view.HtmlStatusException;
@@ -36,7 +37,6 @@ import java.util.Set;
 @Hidden
 public class EstimateController {
     private static final Logger LOG = LoggerFactory.getLogger(EstimateController.class);
-    private final ViewsRenderer viewsRenderer;
     private final DepotLifecycleConfiguration projectConfig;
     private final Validator validator;
     private final EstimateClient estimateClient;
@@ -48,6 +48,35 @@ public class EstimateController {
                 Map.entry("projectConfig", projectConfig)
         );
         return Mono.just(model);
+    }
+
+    @Post("/fetch")
+    @View("estimateList")
+    Mono<Map<String, Object>> fetch(@Body EstimateFetchCommand cmd) {
+        LOG.info("Client - Estimate - Fetch");
+        Set<ConstraintViolation<EstimateFetchCommand>> violations = validator.validate(cmd);
+        if (!violations.isEmpty()) {
+            ConstraintViolation<EstimateFetchCommand> violation = violations.iterator().next();
+            String errorMessage = String.join(" ", violation.getPropertyPath().toString(), violation.getMessage());
+            throw new HtmlStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        }
+
+        Publisher<Estimate> estimatePublisher = estimateClient.get(cmd.getEstimateNumber(), cmd.getDepot(), cmd.getRevision());
+
+        return Mono.from(estimatePublisher)
+                .onErrorMap(HttpClientResponseException.class, e -> {
+                    String responseBody = e.getResponse().getBody(String.class).orElse("No response body");
+                    String responseHeaders = e.getResponse().getHeaders().toString();
+                    int statusCode = e.getStatus().getCode();
+
+                    String errorMessage = String.format(
+                            "HttpClientResponseException: %s\nStatus Code: %d\nResponse Body: %s\nResponse Headers: %s",
+                            e.getMessage(), statusCode, responseBody, responseHeaders
+                    );
+
+                    String message = String.join(": ", "Unexpected Error Calling API", errorMessage);
+                    throw new HtmlStatusException(e.getStatus(), message);
+                }).map(estimates -> Map.of("estimates", estimates));
     }
 
     @Post("/list")

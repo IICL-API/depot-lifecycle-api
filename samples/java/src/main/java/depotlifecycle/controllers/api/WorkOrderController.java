@@ -6,18 +6,18 @@ import depotlifecycle.domain.WorkOrder;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.WorkOrderRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
+import depotlifecycle.system.ApiErrorHandling;
 import io.micronaut.core.convert.ConversionService;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
-import io.micronaut.http.MediaType;
+import io.micronaut.http.*;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
+import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.AuthorizationException;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -122,21 +122,14 @@ public class WorkOrderController {
     }
 
     @Error(status = HttpStatus.NOT_FOUND)
-    public HttpResponse notFound(HttpRequest request) {
+    public HttpResponse<JsonError> notFound(HttpRequest request) {
         LOG.info("\tError - 404 - Not Found");
-        JsonError error = new JsonError("Not Found");
-
-        return HttpResponse.<JsonError>notFound()
-            .body(error);
+        return ApiErrorHandling.notFound(request);
     }
 
     @Error
-    public HttpResponse onSavedFailed(HttpRequest request, Throwable ex) {
+    public HttpResponse<ErrorResponse> onSavedFailed(HttpRequest request, Throwable ex) {
         LOG.info("\tError - 400 - Bad Request", ex);
-        ErrorResponse error = new ErrorResponse();
-        error.setCode("ERR000");
-        error.setMessage(ex.getMessage());
-
-        return HttpResponse.badRequest().body(error);
+        return ApiErrorHandling.onSavedFailed(request, ex);
     }
 }

@@ -18,6 +18,7 @@
             <div class="card-body">
                 <ul>
                     <li><a href="#estimateSearch">Estimate - Search</a></li>
+                    <li><a href="#estimateFetch">Estimate - Fetch</a></li>
                 </ul>
             </div>
         </div>
@@ -53,6 +54,33 @@
                     <div class="mb-3">
                         <label for="searchEquipment" class="form-label">Equipment Code</label>
                         <input type="text" class="form-control" id="searchEquipment" name="equipmentCode" maxlength="10">
+                    </div>
+            </div>
+            <div class="card-footer">
+                <input type="submit" value="Submit" class="btn btn-primary"/>
+            </div>
+            </form>
+        </div>
+    </div>
+    <hr/>
+    <div>
+        <div class="card" id="estimateFetch">
+            <form action="/client/estimate/fetch" method="POST">
+            <div class="card-header">
+                <h5 class="card-title">Estimate Fetch</h5>
+            </div>
+            <div class="card-body">
+                    <div class="mb-3">
+                        <label for="fetchEstimateNumber" class="form-label">Estimate Number</label>
+                        <input type="text" class="form-control" id="fetchEstimateNumber" required maxlength="16" name="estimateNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fetchDepot" class="form-label">Depot</label>
+                        <input type="text" class="form-control" id="fetchDepot" name="depot" required maxlength="9" pattern="^[A-Z0-9]{9}$">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fetchRevision" class="form-label">Revision</label>
+                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="fetchRevision" name="revision">
                     </div>
             </div>
             <div class="card-footer">

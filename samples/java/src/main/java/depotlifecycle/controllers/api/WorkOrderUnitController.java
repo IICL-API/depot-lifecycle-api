@@ -6,16 +6,17 @@ import depotlifecycle.domain.*;
 import depotlifecycle.repositories.WorkOrderRepository;
 import depotlifecycle.repositories.WorkOrderUnitRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
+import depotlifecycle.system.ApiErrorHandling;
 import io.micronaut.core.convert.ConversionService;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
-import io.micronaut.http.MediaType;
+import io.micronaut.http.*;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Put;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.AuthorizationException;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -98,13 +99,15 @@ public class WorkOrderUnitController {
         return HttpResponse.ok();
     }
 
+    @Error(status = HttpStatus.NOT_FOUND)
+    public HttpResponse<JsonError> notFound(HttpRequest request) {
+        LOG.info("\tError - 404 - Not Found");
+        return ApiErrorHandling.notFound(request);
+    }
+
     @Error
     public HttpResponse<ErrorResponse> onSavedFailed(HttpRequest request, Throwable ex) {
         LOG.info("\tError - 400 - Bad Request", ex);
-        ErrorResponse error = new ErrorResponse();
-        error.setCode("ERR000");
-        error.setMessage(ex.getMessage());
-
-        return HttpResponse.<ErrorResponse>badRequest().body(error);
+        return ApiErrorHandling.onSavedFailed(request, ex);
     }
 }

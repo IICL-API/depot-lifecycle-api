@@ -6,24 +6,16 @@ import depotlifecycle.domain.*;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.repositories.*;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
+import depotlifecycle.system.ApiErrorHandling;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.convert.ConversionService;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpResponseFactory;
-import io.micronaut.http.HttpStatus;
-import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.Body;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.*;
+import io.micronaut.http.annotation.*;
 import io.micronaut.http.annotation.Error;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Patch;
-import io.micronaut.http.annotation.Post;
-import io.micronaut.http.annotation.Put;
-import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.AuthorizationException;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,7 +30,6 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +79,7 @@ public class EstimateController {
             depotParty = partyRepository.findByCompanyId(depot);
             if(depotParty.isEmpty()) {
                 ErrorResponse error = new ErrorResponse();
+                error.setCode("ERR001");
                 error.setMessage(String.format("Depot Party %s does not exist", depot));
                 throw new HttpStatusException(HttpStatus.BAD_REQUEST, error);
             }
@@ -98,6 +90,7 @@ public class EstimateController {
             customerParty = partyRepository.findByCompanyId(lessee);
             if(customerParty.isEmpty()) {
                 ErrorResponse error = new ErrorResponse();
+                error.setCode("ERR002");
                 error.setMessage(String.format("Lessee Party %s does not exist", depot));
                 throw new HttpStatusException(HttpStatus.BAD_REQUEST, error);
             }
@@ -105,6 +98,7 @@ public class EstimateController {
 
         if(!Objects.isNull(equipmentCode)) {
             ErrorResponse error = new ErrorResponse();
+            error.setCode("ERR003");
             error.setMessage("Equipment Type searching is not implemented");
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, error);
         }
@@ -199,11 +193,22 @@ public class EstimateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> get(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
+    public Estimate get(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
                                         @QueryValue("depot") @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
-                                        @QueryValue("revision") @Parameter(name = "revision", description = "the revision number to show for the estimate; when not specified the current revision will be returned.", in = ParameterIn.QUERY, required = false, schema = @Schema(required = false, type = "integer", format = "int32", example = "0")) Integer revision
+                                        @Nullable @QueryValue("revision") @Parameter(name = "revision", description = "the revision number to show for the estimate; when not specified the current revision will be returned.", in = ParameterIn.QUERY, required = false, schema = @Schema(required = false, type = "integer", format = "int32", example = "0")) Integer revision
     ) {
-        return HttpResponseFactory.INSTANCE.status(HttpStatus.NOT_IMPLEMENTED);
+        Optional<Party> depotParty = Optional.empty();
+        if(!Objects.isNull(depot)) {
+            depotParty = partyRepository.findByCompanyId(depot);
+            if(depotParty.isEmpty()) {
+                ErrorResponse error = new ErrorResponse();
+                error.setCode("ERR001");
+                error.setMessage(String.format("Depot Party %s does not exist", depot));
+                throw new HttpStatusException(HttpStatus.BAD_REQUEST, error);
+            }
+        }
+
+        return estimateRepository.searchEstimates(estimateNumber, depotParty.orElse(null), null, null, revision).stream().findFirst().orElse(null);
     }
 
     @Put(uri = "/{estimateNumber}", produces = MediaType.APPLICATION_JSON)
@@ -363,19 +368,12 @@ public class EstimateController {
     @Error(status = HttpStatus.NOT_FOUND)
     public HttpResponse<JsonError> notFound(HttpRequest request) {
         LOG.info("\tError - 404 - Not Found");
-        JsonError error = new JsonError("Not Found");
-
-        return HttpResponse.<JsonError>notFound()
-            .body(error);
+        return ApiErrorHandling.notFound(request);
     }
 
     @Error
     public HttpResponse<ErrorResponse> onSavedFailed(HttpRequest request, Throwable ex) {
         LOG.info("\tError - 400 - Bad Request", ex);
-        ErrorResponse error = new ErrorResponse();
-        error.setCode("ERR000");
-        error.setMessage(ex.getMessage());
-
-        return HttpResponse.<ErrorResponse>badRequest().body(error);
+        return ApiErrorHandling.onSavedFailed(request, ex);
     }
 }

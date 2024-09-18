@@ -8,6 +8,7 @@ import depotlifecycle.domain.RedeliveryUnit;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
+import depotlifecycle.system.ApiErrorHandling;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.HttpHeaders;
@@ -23,8 +24,10 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.AuthorizationException;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -183,19 +186,12 @@ public class RedeliveryController {
     @Error(status = HttpStatus.NOT_FOUND)
     public HttpResponse<JsonError> notFound(HttpRequest request) {
         LOG.info("\tError - 404 - Not Found");
-        JsonError error = new JsonError("Not Found");
-
-        return HttpResponse.<JsonError>notFound()
-            .body(error);
+        return ApiErrorHandling.notFound(request);
     }
 
     @Error
     public HttpResponse<ErrorResponse> onSavedFailed(HttpRequest request, Throwable ex) {
         LOG.info("\tError - 400 - Bad Request", ex);
-        ErrorResponse error = new ErrorResponse();
-        error.setCode("ERR000");
-        error.setMessage(ex.getMessage());
-
-        return HttpResponse.<ErrorResponse>badRequest().body(error);
+        return ApiErrorHandling.onSavedFailed(request, ex);
     }
 }
