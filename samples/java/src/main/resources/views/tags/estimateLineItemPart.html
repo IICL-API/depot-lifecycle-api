@@ -1,0 +1,26 @@
+<div class="card lineItemPart mb-2">
+    <div class="card-header">
+        <div class="d-flex flex-row justify-content-between">
+            <h5 class="card-title" th:text="${title}"></h5>
+            <button type="button" class="btn-close" onclick="$(this).closest('div.lineItemPart').remove();"></button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'description'" class="form-label">Description</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'description', name=${propertyPath} + 'description'" maxlength="500">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'number'" class="form-label">Number</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'number', name=${propertyPath} + 'number'" maxlength="50" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'quantity'" class="form-label">Quantity</label>
+            <input type="number" class="form-control" th:attr="id=${id} + 'quantity', name=${propertyPath} + 'quantity'" min="1">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'price'" class="form-label">Price</label>
+            <input type="number" step="0.01" class="form-control" th:attr="id=${id} + 'price', name=${propertyPath} + 'price'" required>
+        </div>
+    </div>
+</div>

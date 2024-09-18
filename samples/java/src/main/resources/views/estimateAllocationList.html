@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layouts/main :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Estimate Allocation Results</title>
+</head>
+<body th:fragment="section">
+<div class="align-middle flex-column">
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Results:</h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(estimates)}" class="alert alert-warning" role="alert">
+                    No estimate allocations were found.
+                </div>
+
+                <table class="table" th:if="${!#lists.isEmpty(estimates)}">
+                    <thead>
+                        <tr>
+                            <th>Related Id</th>
+                            <th>Estimate Number</th>
+                            <th>Revision</th>
+                            <th>Depot Company Id</th>
+                            <th>Total</th>
+                            <th>Owner Total</th>
+                            <th>Customer Total</th>
+                            <th>Insurance Total</th>
+                            <th>CTL</th>
+                            <th>Comments</th>
+                            <th>Preliminary Decision - Recommendation</th>
+                            <th>Preliminary Decision - Reason</th>
+                            <th>Preliminary Decision - Difference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="estimate : ${estimates}">
+                            <td th:text="${estimate.relatedId}"></td>
+                            <td th:text="${estimate.estimateNumber}"></td>
+                            <td th:text="${estimate.revision}"></td>
+                            <td th:text="${estimate.depot.companyId}"></td>
+                            <td th:text="${estimate.total}"></td>
+                            <td th:text="${estimate.ownerTotal}"></td>
+                            <td th:text="${estimate.customerTotal}"></td>
+                            <td th:text="${estimate.insuranceTotal}"></td>
+                            <td th:text="${estimate.ctl}"></td>
+                            <td th:text="${estimate.comments}"></td>
+                            <td th:text="${estimate.preliminaryDecision.recommendation}"></td>
+                            <td th:text="${estimate.preliminaryDecision.reason}"></td>
+                            <td th:text="${estimate.preliminaryDecision.difference}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

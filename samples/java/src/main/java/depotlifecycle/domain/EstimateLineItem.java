@@ -68,9 +68,10 @@ public class EstimateLineItem {
     @Column
     Integer height;
 
-    @Schema(description = "the measurement of the damage dimensions for this line item\n\n`CMT` - \"Centimeters\"\n\n `FOT` - \"Feet\"\n\n `GRM` - \"Grams\"\n\n `INH` - \"Inches\"\n\n `KGM` - \"Kilograms\"\n\n `MTR` - \"Meters\"\n\n `TON` - \"Tons\"\n\n `MTT` - \"Metric Tons\"\n\n `MMT` - \"Millimeters\"\n\n", required = false,  nullable = true, allowableValues = {"CMT", "FOT", "GRM", "INH", "KGM", "MTR", "TON", "MTT", "MMT"}, maxLength = 3)
+    @Schema(description = "the measurement of the damage dimensions for this line item\n\n`CMT` - \"Centimeters\"\n\n `FOT` - \"Feet\"\n\n `GRM` - \"Grams\"\n\n `INH` - \"Inches\"\n\n `KGM` - \"Kilograms\"\n\n `MTR` - \"Meters\"\n\n `TON` - \"Tons\"\n\n `MTT` - \"Metric Tons\"\n\n `MMT` - \"Millimeters\"\n\n", required = false,  nullable = true, implementation = UnitOfMeasure.class)
     @Column(length = 3)
-    String unitOfMeasure;
+    @Enumerated(EnumType.STRING)
+    UnitOfMeasure unitOfMeasure;
 
     @Schema(description = "the number of hours to repair this damage", required = true, nullable = false, type = "number", format = "double", minimum = "0.00", example = "9.95")
     @Column(nullable = false)
@@ -93,9 +94,10 @@ public class EstimateLineItem {
     @Column(length = 256)
     String comments;
 
-    @Schema(description = "which amount should taxes apply\n\n`B` - Both Labor Cost & Material Cost\n\n`N` - Neither\n\n`L` - Labor Cost\n\n`M` - Material Cost", required = false, nullable = true, allowableValues = {"B", "N", "L", "M"}, example = "B", maxLength = 1)
+    @Schema(description = "which amount should taxes apply\n\n`B` - Both Labor Cost & Material Cost\n\n`N` - Neither\n\n`L` - Labor Cost\n\n`M` - Material Cost", required = false, nullable = true, example = "B", implementation = EstimateTaxRule.class)
     @Column(length = 1)
-    String taxRule;
+    @Enumerated(EnumType.STRING)
+    EstimateTaxRule taxRule;
 
     @Schema(description = "the number of damages", required = false, nullable = true, type = "integer", format = "int32", example = "1", minimum = "1")
     @Column

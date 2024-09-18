@@ -2,7 +2,9 @@ package depotlifecycle.clients;
 
 import depotlifecycle.DepotLifecycleConfiguration;
 import depotlifecycle.ErrorResponse;
+import depotlifecycle.commands.EstimateCreateCommand;
 import depotlifecycle.domain.Estimate;
+import depotlifecycle.domain.EstimateAllocation;
 import depotlifecycle.domain.EstimateCustomerApproval;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
@@ -38,6 +40,9 @@ public interface EstimateClient {
 
     @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
     @Put("/api/v2/estimate/{estimateNumber}")
-    Publisher<Estimate> customerApprove(@PathVariable @NonNull String estimateNumber, @QueryValue @NonNull String depot, @RequestBody @NonNull EstimateCustomerApproval customerApproval);
+    Publisher<EstimateAllocation> customerApprove(@PathVariable @NonNull String estimateNumber, @QueryValue @NonNull String depot, @RequestBody @NonNull EstimateCustomerApproval customerApproval);
 
+    @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
+    @Post("/api/v2/estimate")
+    Publisher<EstimateAllocation> create(@NonNull @Body EstimateCreateCommand cmd);
 }

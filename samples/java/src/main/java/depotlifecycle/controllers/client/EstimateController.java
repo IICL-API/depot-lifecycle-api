@@ -2,12 +2,8 @@ package depotlifecycle.controllers.client;
 
 import depotlifecycle.DepotLifecycleConfiguration;
 import depotlifecycle.clients.EstimateClient;
-import depotlifecycle.commands.EstimateCancelCommand;
-import depotlifecycle.commands.EstimateCustomerApproveCommand;
-import depotlifecycle.commands.EstimateFetchCommand;
-import depotlifecycle.commands.EstimateSearchCommand;
-import depotlifecycle.domain.Estimate;
-import depotlifecycle.domain.EstimateCustomerApproval;
+import depotlifecycle.commands.*;
+import depotlifecycle.domain.*;
 import depotlifecycle.view.HtmlStatusException;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
@@ -50,14 +46,17 @@ public class EstimateController {
     @Get
     Mono<Map<String, Object>> index() {
         Map<String, Object> model = Map.ofEntries(
-                Map.entry("projectConfig", projectConfig)
+                Map.entry("projectConfig", projectConfig),
+                Map.entry("conditions", EstimateCondition.values()),
+                Map.entry("upgradeTypes", UpgradeType.values()),
+                Map.entry("estimateTypes", EstimateType.values())
         );
         return Mono.just(model);
     }
 
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/customerApprove")
-    @View("estimateList")
+    @View("estimateAllocationList")
     Mono<Map<String, Object>> customerApprove(@Body EstimateCustomerApproveCommand cmd) {
         LOG.info("Client - Estimate - Customer Approve");
 
@@ -73,7 +72,7 @@ public class EstimateController {
         customerApproval.setApprovalDateTime(cmd.getApprovalDateTime());
         customerApproval.setApprovalUser(cmd.getApprovalUser());
         customerApproval.setApprovalTotal(cmd.getApprovalTotal());
-        Publisher<Estimate> estimatePublisher = estimateClient.customerApprove(cmd.getEstimateNumber(), cmd.getDepot(), customerApproval);
+        Publisher<EstimateAllocation> estimatePublisher = estimateClient.customerApprove(cmd.getEstimateNumber(), cmd.getDepot(), customerApproval);
 
         return Mono.from(estimatePublisher)
                 .onErrorMap(HttpClientResponseException.class, e -> {
@@ -88,7 +87,7 @@ public class EstimateController {
 
                     String message = String.join(": ", "Unexpected Error Calling API", errorMessage);
                     throw new HtmlStatusException(e.getStatus(), message);
-                }).map(estimates -> Map.of("estimates", estimates));
+                }).map(estimate -> Map.of("estimates", List.of(estimate)));
     }
 
     @ExecuteOn(TaskExecutors.BLOCKING)
@@ -111,6 +110,39 @@ public class EstimateController {
         results.put("message", "Estimate Deleted");
         return Mono.just(results);
     }
+
+    @ExecuteOn(TaskExecutors.BLOCKING)
+    @Post("/create")
+    @View("estimateAllocationList")
+    Mono<Map<String, Object>> create(@Body EstimateCreateCommand cmd) {
+        LOG.info("Client - Estimate - Create");
+        Set<ConstraintViolation<EstimateCreateCommand>> violations = validator.validate(cmd);
+        if (!violations.isEmpty()) {
+            ConstraintViolation<EstimateCreateCommand> violation = violations.iterator().next();
+            String errorMessage = String.join(" ", violation.getPropertyPath().toString(), violation.getMessage());
+            throw new HtmlStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        }
+
+        Publisher<EstimateAllocation> estimatePublisher = estimateClient.create(cmd);
+
+        return Mono.from(estimatePublisher)
+                .onErrorMap(HttpClientResponseException.class, e -> {
+                    String responseBody = e.getResponse().getBody(String.class).orElse("No response body");
+                    String responseHeaders = e.getResponse().getHeaders().toString();
+                    int statusCode = e.getStatus().getCode();
+
+                    String errorMessage = String.format(
+                            "HttpClientResponseException: %s\nStatus Code: %d\nResponse Body: %s\nResponse Headers: %s",
+                            e.getMessage(), statusCode, responseBody, responseHeaders
+                    );
+
+                    String message = String.join(": ", "Unexpected Error Calling API", errorMessage);
+                    throw new HtmlStatusException(e.getStatus(), message);
+                }).map(estimate ->
+                        Map.of("estimates", List.of(estimate))
+                );
+    }
+
 
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/fetch")
@@ -139,7 +171,7 @@ public class EstimateController {
 
                     String message = String.join(": ", "Unexpected Error Calling API", errorMessage);
                     throw new HtmlStatusException(e.getStatus(), message);
-                }).map(estimates -> Map.of("estimates", estimates));
+                }).map(estimate -> Map.of("estimates", List.of(estimate)));
     }
 
     @ExecuteOn(TaskExecutors.BLOCKING)

@@ -1,0 +1,34 @@
+<div class="card" th:attr="id=${cardId}">
+    <div class="card-header">
+        <h5 class="card-title" th:text="${cardTitle}"></h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3" th:if="${footerSubmit}">
+            <label th:attr="for=${id} + 'estimateNumber'" class="form-label">Estimate Number</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'estimateNumber', name=${propertyPath} + 'estimateNumber'" required maxlength="16">
+        </div>
+        <div class="mb-3" th:if="${footerSubmit}">
+            <label th:attr="for=${id} + 'depot'" class="form-label">Depot</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'depot', name=${propertyPath} + 'depot'" required maxlength="9" pattern="^[A-Z0-9]{9}$">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'approvalNumber'" class="form-label">Approval Number</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'approvalNumber', name=${propertyPath} + 'approvalNumber'" required maxlength="128">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'approvalDateTime'" class="form-label">Approval Date Time</label>
+            <input type="text" class="form-control datetimepicker" th:attr="id=${id} + 'approvalDateTime', name=${propertyPath} + 'approvalDateTime'" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'approvalUser'" class="form-label">Approval User</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'approvalUser', name=${propertyPath} + 'approvalUser'" maxlength="64">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'approvalTotal'" class="form-label">Approval Total</label>
+            <input type="number" step="0.01" class="form-control" th:attr="id=${id} + 'approvalTotal', name=${propertyPath} + 'approvalTotal'" min="0.0" required>
+        </div>
+    </div>
+    <div class="card-footer" th:if="${footerSubmit}">
+        <input type="submit" value="Submit" class="btn btn-primary"/>
+    </div>
+</div>

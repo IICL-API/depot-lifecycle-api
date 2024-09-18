@@ -67,6 +67,7 @@ jackson:
     writeDatesAsTimestamps: false
     writeDatesWithZoneId: false
   deserialization:
+    READ_UNKNOWN_ENUM_VALUES_AS_NULL: true
 #    useBigIntegerForInts: true
 #    failOnUnknownProperties: false
 datasources:

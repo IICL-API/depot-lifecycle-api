@@ -19,6 +19,7 @@
                 <ul>
                     <li><a href="#estimateSearch">Estimate - Search</a></li>
                     <li><a href="#estimateFetch">Estimate - Fetch</a></li>
+                    <li><a href="#estimateCreate">Estimate - Create</a></li>
                     <li><a href="#estimateCancel">Estimate - Cancel</a></li>
                     <li><a href="#estimateApprove">Estimate - Customer Approve</a></li>
                 </ul>
@@ -93,6 +94,89 @@
     </div>
     <hr/>
     <div>
+        <div class="card" id="estimateCreate">
+            <form action="/client/estimate/create" method="POST">
+            <div class="card-header">
+                <h5 class="card-title">Estimate Create</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="createEstimateNumber" class="form-label">Estimate Number</label>
+                    <input type="text" class="form-control" id="createEstimateNumber" required maxlength="16" name="estimateNumber">
+                </div>
+                <div class="mb-3">
+                    <label for="createUnitNumber" class="form-label">Unit Number</label>
+                    <input type="text" class="form-control" id="createUnitNumber" maxlength="11" pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" required name="unitNumber">
+                </div>
+                <div class="mb-3">
+                    <label for="createCondition" class="form-label">Condition</label>
+                    <select class="form-select" required name="condition" id="createCondition">
+                        <option th:each="condition : ${conditions}" th:attr="value=${condition.name()}" th:text="${condition.name()}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="createEstimateTime" class="form-label">Estimate Time</label>
+                    <input type="text" class="form-control datetimepicker" id="createEstimateTime" name="estimateTime" required>
+                </div>
+                <div class="mb-3">
+                    <label for="createComments" class="form-label">Comments</label>
+                    <input type="text" class="form-control" id="createComments" name="comments" maxlength="500">
+                </div>
+                <div class="mb-3" id="requesterContainer">
+                    <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Requester&id=requester" hx-target="#requesterContainer" hx-swap="innerHtml">Add Requester</a>
+                </div>
+                <div class="mb-3" id="depotContainer" th:insert="~{tags/party}" th:with="title='Depot', id='depot'">
+                </div>
+                <div class="mb-3" id="ownerContainer">
+                    <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Owner&id=owner" hx-target="#ownerContainer" hx-swap="innerHtml">Add Owner</a>
+                </div>
+                <div class="mb-3" id="customerContainer">
+                    <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Customer&id=customer" hx-target="#customerContainer" hx-swap="innerHtml">Add Customer</a>
+                </div>
+                <div class="mb-3">
+                    <label for="createCurrency" class="form-label">Currency</label>
+                    <input type="text" class="form-control" id="createCurrency" name="currency" maxlength="3" pattern="^[A-Z]{3}$">
+                </div>
+                <div class="mb-3">
+                    <label for="createTotal" class="form-label">Total</label>
+                    <input type="number" step="0.01" class="form-control" id="createTotal" name="total" min="0.0" required>
+                </div>
+                <div class="mb-3" id="customerApprovalContainer">
+                    <a href="#" class="btn btn-success" hx-get="/client/tag/addCustomerApproval?id=estimateCreateCustomerApproval&cardTitle=Customer Approval&propertyPath=customerApproval.&footerSubmit=false" hx-target="#customerApprovalContainer" hx-swap="innerHtml">Add Customer Approval</a>
+                </div>
+                <div class="mb-3">
+                    <label for="createType" class="form-label">Type</label>
+                    <select class="form-select" name="type" id="createType">
+                        <option></option>
+                        <option th:each="estimateType : ${estimateTypes}" th:attr="value=${estimateType.name()}" th:text="${estimateType.name()}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="createUpgradeType" class="form-label">Upgrade Type</label>
+                    <select class="form-select" name="upgradeType" id="createUpgradeType">
+                        <option></option>
+                        <option th:each="upgradeType : ${upgradeTypes}" th:attr="value=${upgradeType.name()}" th:text="${upgradeType.name()}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="createRevision" class="form-label">Revision</label>
+                    <input type="number" step="1" pattern="[0-9]*" class="form-control" id="createRevision" name="revision">
+                </div>
+                <div class="mb-3" id="createLineItemContainer">
+                    <a href="#" class="btn btn-success mb-2" hx-get="/client/tag/addLineItem" hx-target="#createLineItemContainer" hx-swap="beforeend" hx-vals="js:{count: $('#estimateCreate').find('.lineItem').length}">Add Line Item</a>
+                </div>
+                <div class="mb-3" id="createPhotoContainer">
+                    <a href="#" class="btn btn-success mb-2" hx-get='/client/tag/addPhoto' hx-target='#createPhotoContainer' hx-vals="js:{count: $('#createPhotoContainer').find('.photo').length }" hx-swap="beforeend">Add Photo</a>
+                </div>
+            </div>
+            <div class="card-footer">
+                <input type="submit" value="Submit" class="btn btn-primary"/>
+            </div>
+            </form>
+        </div>
+    </div>
+    <hr/>
+    <div>
         <div class="card" id="estimateCancel">
             <form action="/client/estimate/cancel" method="POST">
             <div class="card-header">
@@ -116,56 +200,45 @@
     </div>
     <hr/>
     <div>
-        <div class="card" id="estimateApprove">
-            <form action="/client/estimate/customerApprove" method="POST">
-            <div class="card-header">
-                <h5 class="card-title">Estimate Customer Approve</h5>
-            </div>
-            <div class="card-body">
-                    <div class="mb-3">
-                        <label for="customerApproveEstimateNumber" class="form-label">Estimate Number</label>
-                        <input type="text" class="form-control" id="customerApproveEstimateNumber" required maxlength="16" name="estimateNumber">
-                    </div>
-                    <div class="mb-3">
-                        <label for="customerApproveDepot" class="form-label">Depot</label>
-                        <input type="text" class="form-control" id="customerApproveDepot" name="depot" required maxlength="9" pattern="^[A-Z0-9]{9}$">
-                    </div>
-                    <div class="mb-3">
-                        <label for="customerApproveApprovalNumber" class="form-label">Approval Number</label>
-                        <input type="text" class="form-control" id="customerApproveApprovalNumber" name="approvalNumber" required maxlength="128">
-                    </div>
-                    <div class="mb-3">
-                        <label for="customerApproveApprovalDateTime" class="form-label">Approval Date Time</label>
-                        <input type="text" class="form-control" id="customerApproveApprovalDateTime" name="approvalDateTime" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="customerApproveApprovalUser" class="form-label">Approval User</label>
-                        <input type="text" class="form-control" id="customerApproveApprovalUser" name="approvalUser" maxlength="64">
-                    </div>
-                    <div class="mb-3">
-                        <label for="customerApproveApprovalTotal" class="form-label">Approval Total</label>
-                        <input type="number" step="0.01" class="form-control" id="customerApproveApprovalTotal" name="approvalTotal" min="0.0">
-                    </div>
-            </div>
-            <div class="card-footer">
-                <input type="submit" value="Submit" class="btn btn-primary"/>
-            </div>
-            </form>
-        </div>
+        <form action="/client/estimate/customerApprove" method="POST" th:insert="~{tags/estimateCustomerApprove}" th:with="id='estimateApprove', cardTitle='Estimate Customer Approve', propertyPath='', footerSubmit = true">
+        </form>
     </div>
 </div>
 <script type="text/javascript" defer>
     $(document).ready(function() {
-        $('#customerApproveApprovalDateTime').datetimepicker({
-            format: 'yyyy-mm-ddThh:ii:ss+00:00',
-            autoclose: true,
-            todayBtn: true,
-            todayHighlight: true,
-            showMeridian: true,
-            pickerPosition: 'bottom-left',
-            minuteStep: 1
+        function initDatePickers(parent = null) {
+            const $parent = $(parent || document);
+            $parent.find('input.datetimepicker').datetimepicker({
+                format: 'yyyy-mm-ddThh:ii:ss+00:00',
+                autoclose: true,
+                todayBtn: true,
+                todayHighlight: true,
+                showMeridian: true,
+                pickerPosition: 'bottom-left',
+                minuteStep: 1
+            });
+        }
+
+        initDatePickers();
+
+        document.body.addEventListener('htmx:load', function(evt) {
+            const target = evt.detail.elt;
+            if(target.localName === "body") {
+                //Initial load; let the normal scripts handle this for now
+                return
+            }
+
+            if (target.localName === "script") {
+                // Script instead of html, so process it instead of adding it to the dom
+                eval(target.innerHTML);
+            }
+            else {
+                initDatePickers(target);
+            }
         });
     });
+
+
 </script>
 </body>
 </html>

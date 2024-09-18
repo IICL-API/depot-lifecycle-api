@@ -1,0 +1,75 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" th:text="${title}"></h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'companyId'" class="form-label">Company Id</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'companyId', name=${id} + '.companyId'" maxlength="9" required pattern="^[A-Z0-9]{9}$">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'userCode'" class="form-label">User Code</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'userCode', name=${id} + '.userCode'" maxlength="16">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'userName'" class="form-label">User Name</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'userName', name=${id} + '.userName'" maxlength="70">
+        </div>
+        <div class="mb-3">
+            <a href="#" class="btn btn-success mb-2" th:attr="hx-target='#' + ${id} + 'faxNumber', hx-get='/client/tag/addTextInput?fieldName=' + ${id} + '.faxNumber&fieldLabel=Fax&id=' + ${id}" hx-swap="beforeend">Add Fax Number</a>
+            <div class="mb-3" th:attr="id=${id} + 'faxNumber'">
+
+            </div>
+        </div>
+        <div class="mb-3">
+            <a href="#" class="btn btn-success mb-2" th:attr="hx-target='#' + ${id} + 'phoneNumber', hx-get='/client/tag/addTextInput?fieldName=' + ${id} + '.phoneNumber&fieldLabel=Phone&id=' + ${id}" hx-swap="beforeend">Add Phone Number</a>
+            <div class="mb-3" th:attr="id=${id} + 'phoneNumber'">
+
+            </div>
+        </div>
+        <div class="mb-3">
+            <a href="#" class="btn btn-success mb-2" th:attr="hx-target='#' + ${id} + 'emailAddress', hx-get='/client/tag/addTextInput?fieldName=' + ${id} + '.emailAddress&fieldLabel=Email&id=' + ${id}" hx-swap="beforeend">Add Email Address</a>
+            <div class="mb-3" th:attr="id=${id} + 'emailAddress'">
+
+            </div>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'name'" class="form-label">Name</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'name', name=${id} + '.name'" maxlength="150">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'code'" class="form-label">Code</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'code', name=${id} + '.code'" maxlength="10">
+        </div>
+        <div class="mb-3">
+            <a href="#" class="btn btn-success mb-2" th:attr="hx-target='#' + ${id} + 'streetAddress', hx-get='/client/tag/addTextInput?fieldName=' + ${id} + '.streetAddress&fieldLabel=Line&id=' + ${id}" hx-swap="beforeend">Add Street Address Line</a>
+            <div class="mb-3" th:attr="id=${id} + 'streetAddress'">
+
+            </div>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'city'" class="form-label">City</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'city', name=${id} + '.city'" maxlength="28">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'country'" class="form-label">Country</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'country', name=${id} + '.country'" maxlength="2">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'postalCode'" class="form-label">Postal Code</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'postalCode', name=${id} + '.postalCode'" maxlength="20">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'stateProvince'" class="form-label">State / Province</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'stateProvince', name=${id} + '.stateProvince'" maxlength="20">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'latitude'" class="form-label">Latitude</label>
+            <input type="number" step="0.000000000000001" class="form-control" th:attr="id=${id} + 'latitude', name=${id} + '.latitude'">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'longitude'" class="form-label">Longitude</label>
+            <input type="number" step="0.000000000000001" class="form-control" th:attr="id=${id} + 'longitude', name=${id} + '.longitude'">
+        </div>
+    </div>
+</div>
