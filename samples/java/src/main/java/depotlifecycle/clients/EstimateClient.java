@@ -30,4 +30,8 @@ public interface EstimateClient {
     @Get("/api/v2/estimate/{estimateNumber}")
     Publisher<Estimate> get(@PathVariable @NonNull String estimateNumber, @QueryValue @NonNull String depot, @QueryValue @Nullable Integer revision);
 
+    @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
+    @Delete("/api/v2/estimate/{estimateNumber}")
+    void delete(@PathVariable @NonNull String estimateNumber, @QueryValue @NonNull String depot);
+
 }

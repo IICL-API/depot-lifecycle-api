@@ -2,14 +2,18 @@ package depotlifecycle.controllers.client;
 
 import depotlifecycle.DepotLifecycleConfiguration;
 import depotlifecycle.clients.EstimateClient;
+import depotlifecycle.commands.EstimateCancelCommand;
 import depotlifecycle.commands.EstimateFetchCommand;
 import depotlifecycle.commands.EstimateSearchCommand;
 import depotlifecycle.domain.Estimate;
 import depotlifecycle.view.HtmlStatusException;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import io.micronaut.validation.Validated;
@@ -24,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +55,28 @@ public class EstimateController {
         return Mono.just(model);
     }
 
+    @ExecuteOn(TaskExecutors.BLOCKING)
+    @Post("/cancel")
+    @View("estimateMessage")
+    Mono<Map<String, Object>> delete(@Body EstimateCancelCommand cmd) {
+        LOG.info("Client - Estimate - Cancel");
+
+        Set<ConstraintViolation<EstimateCancelCommand>> violations = validator.validate(cmd);
+        if (!violations.isEmpty()) {
+            ConstraintViolation<EstimateCancelCommand> violation = violations.iterator().next();
+            String errorMessage = String.join(" ", violation.getPropertyPath().toString(), violation.getMessage());
+            throw new HtmlStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        }
+
+        estimateClient.delete(cmd.getEstimateNumber(), cmd.getDepot());
+
+        Map<String, Object> results = new HashMap<>();
+        results.put("title", "Estimate Cancel Results");
+        results.put("message", "Estimate Deleted");
+        return Mono.just(results);
+    }
+
+    @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/fetch")
     @View("estimateList")
     Mono<Map<String, Object>> fetch(@Body EstimateFetchCommand cmd) {
@@ -79,6 +106,7 @@ public class EstimateController {
                 }).map(estimates -> Map.of("estimates", estimates));
     }
 
+    @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/list")
     @View("estimateList")
     Mono<Map<String, Object>> list(@Body EstimateSearchCommand cmd) {

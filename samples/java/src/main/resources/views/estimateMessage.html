@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layouts/main :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${title}">Estimate Results</title>
+</head>
+<body th:fragment="section">
+<div class="align-middle flex-column">
+    <div>
+        <div class="alert alert-success" role="alert" th:text="${message}">
+        </div>
+    </div>
+</div>
+</body>
+</html>

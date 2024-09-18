@@ -19,6 +19,7 @@
                 <ul>
                     <li><a href="#estimateSearch">Estimate - Search</a></li>
                     <li><a href="#estimateFetch">Estimate - Fetch</a></li>
+                    <li><a href="#estimateCancel">Estimate - Cancel</a></li>
                 </ul>
             </div>
         </div>
@@ -81,6 +82,33 @@
                     <div class="mb-3">
                         <label for="fetchRevision" class="form-label">Revision</label>
                         <input type="number" step="1" pattern="[0-9]*" class="form-control" id="fetchRevision" name="revision">
+                    </div>
+            </div>
+            <div class="card-footer">
+                <input type="submit" value="Submit" class="btn btn-primary"/>
+            </div>
+            </form>
+        </div>
+    </div>
+    <hr/>
+    <div>
+        <div class="card" id="estimateCancel">
+            <form action="/client/estimate/cancel" method="POST">
+            <div class="card-header">
+                <h5 class="card-title">Estimate Cancel</h5>
+            </div>
+            <div class="card-body">
+                    <div class="mb-3">
+                        <label for="cancelEstimateNumber" class="form-label">Estimate Number</label>
+                        <input type="text" class="form-control" id="cancelEstimateNumber" required maxlength="16" name="estimateNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cancelDepot" class="form-label">Depot</label>
+                        <input type="text" class="form-control" id="cancelDepot" name="depot" required maxlength="9" pattern="^[A-Z0-9]{9}$">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cancelRevision" class="form-label">Revision</label>
+                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="cancelRevision" name="revision">
                     </div>
             </div>
             <div class="card-footer">
