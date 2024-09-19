@@ -10,8 +10,6 @@ import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.scheduling.annotation.ExecuteOn;
-import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.rules.SecurityRule;
 import io.micronaut.validation.Validated;
 import io.micronaut.views.View;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -29,7 +27,6 @@ import java.util.Map;
 @Validated
 @Controller("/client/estimate")
 @RequiredArgsConstructor
-@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 @Produces(MediaType.TEXT_HTML)
 @Hidden
 public class EstimateController {
@@ -38,6 +35,7 @@ public class EstimateController {
     private final Validator validator;
     private final EstimateClient estimateClient;
 
+    @Consumes(MediaType.ALL)
     @View("estimate")
     @Get
     Mono<Map<String, Object>> index() {
@@ -50,6 +48,7 @@ public class EstimateController {
         return Mono.just(model);
     }
 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/updateTotals")
     @View("estimateMessage")
@@ -63,6 +62,7 @@ public class EstimateController {
         return Mono.just(Map.of("title", "Estimate Totals", "message", "Totals Updated"));
     }
 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/customerApprove")
     @View("estimateAllocationList")
@@ -83,6 +83,7 @@ public class EstimateController {
                 .map(estimate -> Map.of("estimates", List.of(estimate)));
     }
 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/cancel")
     @View("estimateMessage")
@@ -103,6 +104,7 @@ public class EstimateController {
         return Mono.just(results);
     }
 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/create")
     @View("estimateAllocationList")
@@ -136,6 +138,7 @@ public class EstimateController {
                 .map(estimate -> Map.of("estimates", List.of(estimate)));
     }
 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/list")
     @View("estimateList")

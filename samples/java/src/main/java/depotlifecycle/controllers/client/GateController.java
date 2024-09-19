@@ -15,8 +15,6 @@ import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.scheduling.annotation.ExecuteOn;
-import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.rules.SecurityRule;
 import io.micronaut.validation.Validated;
 import io.micronaut.views.View;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -34,7 +32,6 @@ import java.util.Map;
 @Validated
 @Controller("/client/gate")
 @RequiredArgsConstructor
-@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 @Produces(MediaType.TEXT_HTML)
 @Hidden
 public class GateController {
@@ -43,6 +40,7 @@ public class GateController {
     private final Validator validator;
     private final GateClient gateClient;
 
+    @Consumes(MediaType.ALL)
     @View("gate")
     @Get
     Mono<Map<String, Object>> index() {
@@ -54,6 +52,7 @@ public class GateController {
         return Mono.just(model);
     }
 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/fetch")
     @View("gateStatusList")
@@ -68,6 +67,7 @@ public class GateController {
                 .onErrorMap(HttpClientResponseException.class, ClientErrorHandling::handleError).map(gate -> Map.of("gates", List.of(gate)));
     }
 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/delete")
     @View("gateMessage")
@@ -88,6 +88,7 @@ public class GateController {
         return Mono.just(results);
     }
 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/update")
     @View("gateResponseList")
@@ -115,6 +116,7 @@ public class GateController {
                 .map(gate -> Map.of("gates", List.of(gate)));
     }
 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/create")
     @View("gateResponseList")
