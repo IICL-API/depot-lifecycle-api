@@ -4,260 +4,255 @@
     <title>Estimate Client</title>
 </head>
 <body th:fragment="section">
-<div class="align-middle flex-column">
-    <div>
-        <div class="mb-3">
-            <p><span class="fw-bold">Configured Environment:</span> <span class="fst-italic" th:text="${projectConfig.url}"></span></p>
+<div class="d-flex justify-content-center">
+    <h1>Estimate Client Actions</h1>
+</div>
+<div class="d-flex align-items-start">
+    <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+        <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">Home</button>
+        <div class="d-flex justify-content-center mt-2">
+            <h5 class="text-decoration-underline">Estimate APIs</h5>
         </div>
+        <button class="nav-link" id="v-estimate-search-tab" data-bs-toggle="pill" data-bs-target="#v-estimate-search-content" type="button" role="tab" aria-controls="v-estimate-search-content" aria-selected="true">Search</button>
+        <button class="nav-link" id="v-estimate-fetch-tab" data-bs-toggle="pill" data-bs-target="#v-estimate-fetch-content" type="button" role="tab" aria-controls="v-estimate-fetch-content" aria-selected="true">Fetch</button>
+        <button class="nav-link" id="v-estimate-create-tab" data-bs-toggle="pill" data-bs-target="#v-estimate-create-content" type="button" role="tab" aria-controls="v-estimate-create-content" aria-selected="true">Create</button>
+        <button class="nav-link" id="v-estimate-cancel-tab" data-bs-toggle="pill" data-bs-target="#v-estimate-cancel-content" type="button" role="tab" aria-controls="v-estimate-cancel-content" aria-selected="true">Cancel</button>
+        <button class="nav-link" id="v-estimate-approve-tab" data-bs-toggle="pill" data-bs-target="#v-estimate-approve-content" type="button" role="tab" aria-controls="v-estimate-approve-content" aria-selected="true">Customer Approve</button>
+        <button class="nav-link" id="v-estimate-totals-tab" data-bs-toggle="pill" data-bs-target="#v-estimate-totals-content" type="button" role="tab" aria-controls="v-estimate-totals-content" aria-selected="true">Update Totals</button>
+
     </div>
-    <div>
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Index:</h5>
-            </div>
-            <div class="card-body">
-                <ul>
-                    <li><a href="#estimateSearch">Estimate - Search</a></li>
-                    <li><a href="#estimateFetch">Estimate - Fetch</a></li>
-                    <li><a href="#estimateCreate">Estimate - Create</a></li>
-                    <li><a href="#estimateCancel">Estimate - Cancel</a></li>
-                    <li><a href="#estimateApprove">Estimate - Customer Approve</a></li>
-                    <li><a href="#estimateTotals">Estimate - Update Totals</a></li>
-                </ul>
+    <div class="tab-content w-100" id="v-pills-tabContent">
+        <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab" tabindex="0">
+            <div class="mb-3 d-flex justify-content-center">
+                <p><span class="fw-bold">Configured Environment:</span> <span class="fst-italic" th:text="${projectConfig.url}"></span></p>
             </div>
         </div>
-    </div>
-    <hr/>
-    <div>
-        <div class="card" id="estimateSearch">
-            <form action="/client/estimate/list" method="POST">
-            <div class="card-header">
-                <h5 class="card-title">Estimate Search</h5>
+        <div class="tab-pane fade" id="v-estimate-search-content" role="tabpanel" aria-labelledby="v-estimate-search-tab" tabindex="0">
+            <div class="card" id="estimateSearch">
+                <form action="/client/estimate/list" method="POST">
+                    <div class="card-header">
+                        <h5 class="card-title">Estimate Search</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="searchEstimateNumber" class="form-label">Estimate Number</label>
+                            <input type="text" class="form-control" id="searchEstimateNumber" maxlength="16" name="estimateNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label for="searchUnitNumber" class="form-label">Unit Number</label>
+                            <input type="text" class="form-control" id="searchUnitNumber" maxlength="11" pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" name="unitNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label for="searchDepot" class="form-label">Depot</label>
+                            <input type="text" class="form-control" id="searchDepot" name="depot" maxlength="9" pattern="^[A-Z0-9]{9}$">
+                        </div>
+                        <div class="mb-3">
+                            <label for="searchLessee" class="form-label">Lessee</label>
+                            <input type="text" class="form-control" id="searchLessee" name="lessee" maxlength="9" pattern="^[A-Z0-9]{9}$">
+                        </div>
+                        <div class="mb-3">
+                            <label for="searchRevision" class="form-label">Revision</label>
+                            <input type="number" step="1" pattern="[0-9]*" class="form-control" id="searchRevision" name="revision">
+                        </div>
+                        <div class="mb-3">
+                            <label for="searchEquipment" class="form-label">Equipment Code</label>
+                            <input type="text" class="form-control" id="searchEquipment" name="equipmentCode" maxlength="10">
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
+                    </div>
+                </form>
             </div>
-            <div class="card-body">
-                    <div class="mb-3">
-                        <label for="searchEstimateNumber" class="form-label">Estimate Number</label>
-                        <input type="text" class="form-control" id="searchEstimateNumber" maxlength="16" name="estimateNumber">
+        </div>
+        <div class="tab-pane fade" id="v-estimate-fetch-content" role="tabpanel" aria-labelledby="v-estimate-fetch-tab" tabindex="0">
+            <div class="card" id="estimateFetch">
+                <form action="/client/estimate/fetch" method="POST">
+                    <div class="card-header">
+                        <h5 class="card-title">Estimate Fetch</h5>
                     </div>
-                    <div class="mb-3">
-                        <label for="searchUnitNumber" class="form-label">Unit Number</label>
-                        <input type="text" class="form-control" id="searchUnitNumber" maxlength="11" pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" name="unitNumber">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="fetchEstimateNumber" class="form-label">Estimate Number</label>
+                            <input type="text" class="form-control" id="fetchEstimateNumber" required maxlength="16" name="estimateNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label for="fetchDepot" class="form-label">Depot</label>
+                            <input type="text" class="form-control" id="fetchDepot" name="depot" required maxlength="9" pattern="^[A-Z0-9]{9}$">
+                        </div>
+                        <div class="mb-3">
+                            <label for="fetchRevision" class="form-label">Revision</label>
+                            <input type="number" step="1" pattern="[0-9]*" class="form-control" id="fetchRevision" name="revision">
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="searchDepot" class="form-label">Depot</label>
-                        <input type="text" class="form-control" id="searchDepot" name="depot" maxlength="9" pattern="^[A-Z0-9]{9}$">
+                    <div class="card-footer">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
                     </div>
-                    <div class="mb-3">
-                        <label for="searchLessee" class="form-label">Lessee</label>
-                        <input type="text" class="form-control" id="searchLessee" name="lessee" maxlength="9" pattern="^[A-Z0-9]{9}$">
-                    </div>
-                    <div class="mb-3">
-                        <label for="searchRevision" class="form-label">Revision</label>
-                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="searchRevision" name="revision">
-                    </div>
-                    <div class="mb-3">
-                        <label for="searchEquipment" class="form-label">Equipment Code</label>
-                        <input type="text" class="form-control" id="searchEquipment" name="equipmentCode" maxlength="10">
-                    </div>
+                </form>
             </div>
-            <div class="card-footer">
-                <input type="submit" value="Submit" class="btn btn-primary"/>
+        </div>
+        <div class="tab-pane fade" id="v-estimate-create-content" role="tabpanel" aria-labelledby="v-estimate-create-tab" tabindex="0">
+            <div class="card" id="estimateCreate">
+                <form action="/client/estimate/create" method="POST">
+                    <div class="card-header">
+                        <h5 class="card-title">Estimate Create</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="createEstimateNumber" class="form-label">Estimate Number</label>
+                            <input type="text" class="form-control" id="createEstimateNumber" required maxlength="16" name="estimateNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label for="createUnitNumber" class="form-label">Unit Number</label>
+                            <input type="text" class="form-control" id="createUnitNumber" maxlength="11" pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" required name="unitNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label for="createCondition" class="form-label">Condition</label>
+                            <select class="form-select" required name="condition" id="createCondition">
+                                <option th:each="condition : ${conditions}" th:attr="value=${condition.name()}" th:text="${condition.name()}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createEstimateTime" class="form-label">Estimate Time</label>
+                            <input type="text" class="form-control datetimepicker" id="createEstimateTime" name="estimateTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createComments" class="form-label">Comments</label>
+                            <input type="text" class="form-control" id="createComments" name="comments" maxlength="500">
+                        </div>
+                        <div class="mb-3" id="requesterContainer">
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Requester&id=requester" hx-target="#requesterContainer" hx-swap="innerHtml">Add Requester</a>
+                        </div>
+                        <div class="mb-3" id="depotContainer" th:insert="~{tags/party}" th:with="title='Depot', id='depot'">
+                        </div>
+                        <div class="mb-3" id="ownerContainer">
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Owner&id=owner" hx-target="#ownerContainer" hx-swap="innerHtml">Add Owner</a>
+                        </div>
+                        <div class="mb-3" id="customerContainer">
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Customer&id=customer" hx-target="#customerContainer" hx-swap="innerHtml">Add Customer</a>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createCurrency" class="form-label">Currency</label>
+                            <input type="text" class="form-control" id="createCurrency" name="currency" maxlength="3" pattern="^[A-Z]{3}$">
+                        </div>
+                        <div class="mb-3">
+                            <label for="createTotal" class="form-label">Total</label>
+                            <input type="number" step="0.01" class="form-control" id="createTotal" name="total" min="0.0" required>
+                        </div>
+                        <div class="mb-3" id="customerApprovalContainer">
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addCustomerApproval?id=estimateCreateCustomerApproval&cardTitle=Customer Approval&propertyPath=customerApproval.&footerSubmit=false" hx-target="#customerApprovalContainer" hx-swap="innerHtml">Add Customer Approval</a>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createType" class="form-label">Type</label>
+                            <select class="form-select" name="type" id="createType">
+                                <option></option>
+                                <option th:each="estimateType : ${estimateTypes}" th:attr="value=${estimateType.name()}" th:text="${estimateType.name()}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createUpgradeType" class="form-label">Upgrade Type</label>
+                            <select class="form-select" name="upgradeType" id="createUpgradeType">
+                                <option></option>
+                                <option th:each="upgradeType : ${upgradeTypes}" th:attr="value=${upgradeType.name()}" th:text="${upgradeType.name()}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createRevision" class="form-label">Revision</label>
+                            <input type="number" step="1" pattern="[0-9]*" class="form-control" id="createRevision" name="revision">
+                        </div>
+                        <div class="mb-3" id="createLineItemContainer">
+                            <a href="#" class="btn btn-success mb-2" hx-get="/client/tag/addLineItem" hx-target="#createLineItemContainer" hx-swap="beforeend" hx-vals="js:{count: $('#estimateCreate').find('.lineItem').length}">Add Line Item</a>
+                        </div>
+                        <div class="mb-3" id="createPhotoContainer">
+                            <a href="#" class="btn btn-success mb-2" hx-get='/client/tag/addPhoto' hx-target='#createPhotoContainer' hx-vals="js:{count: $('#createPhotoContainer').find('.photo').length }" hx-swap="beforeend">Add Photo</a>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
+                    </div>
+                </form>
             </div>
+        </div>
+        <div class="tab-pane fade" id="v-estimate-cancel-content" role="tabpanel" aria-labelledby="v-estimate-cancel-tab" tabindex="0">
+            <div class="card" id="estimateCancel">
+                <form action="/client/estimate/cancel" method="POST">
+                    <div class="card-header">
+                        <h5 class="card-title">Estimate Cancel</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="cancelEstimateNumber" class="form-label">Estimate Number</label>
+                            <input type="text" class="form-control" id="cancelEstimateNumber" required maxlength="16" name="estimateNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label for="cancelDepot" class="form-label">Depot</label>
+                            <input type="text" class="form-control" id="cancelDepot" name="depot" required maxlength="9" pattern="^[A-Z0-9]{9}$">
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="v-estimate-approve-content" role="tabpanel" aria-labelledby="v-estimate-approve-tab" tabindex="0">
+            <form action="/client/estimate/customerApprove" method="POST" th:insert="~{tags/estimateCustomerApprove}" th:with="id='estimateApprove', cardTitle='Estimate Customer Approve', propertyPath='', footerSubmit = true">
             </form>
         </div>
-    </div>
-    <hr/>
-    <div>
-        <div class="card" id="estimateFetch">
-            <form action="/client/estimate/fetch" method="POST">
-            <div class="card-header">
-                <h5 class="card-title">Estimate Fetch</h5>
+        <div class="tab-pane fade" id="v-estimate-totals-content" role="tabpanel" aria-labelledby="v-estimate-totals-tab" tabindex="0">
+            <div class="card" id="estimateTotals">
+                <form action="/client/estimate/updateTotals" method="POST">
+                    <div class="card-header">
+                        <h5 class="card-title">Estimate Update Totals</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="updateTotalsRelatedId" class="form-label">Related Id</label>
+                            <input type="number" class="form-control" id="updateTotalsRelatedId" name="relatedId">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateTotalsEstimateNumber" class="form-label">Estimate Number</label>
+                            <input type="text" class="form-control" id="updateTotalsEstimateNumber" required maxlength="16" name="estimateNumber">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateTotalsRevision" class="form-label">Revision</label>
+                            <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsRevision" name="revision">
+                        </div>
+                        <div class="mb-3" id="updateTotalsDepot" th:insert="~{tags/party}" th:with="title='Depot', id='depot'">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateTotalsTotal" class="form-label">Total</label>
+                            <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsTotal" name="total" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateTotalsOwnerTotal" class="form-label">Owner Total</label>
+                            <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsOwnerTotal" name="ownerTotal" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateTotalsCustomerTotal" class="form-label">Customer Total</label>
+                            <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsCustomerTotal" name="customerTotal" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateTotalsInsuranceTotal" class="form-label">Insurance Total</label>
+                            <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsInsuranceTotal" name="insuranceTotal" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateTotalsCtl" class="form-label">CTL</label>
+                            <input type="checkbox" class="form-check" id="updateTotalsCtl" name="ctl">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateTotalsComments" class="form-label">Comments</label>
+                            <input type="text" class="form-control" id="updateTotalsComments" name="comments" maxlength="500">
+                        </div>
+                        <div class="mb-3" id="preliminaryDecision">
+                            <a href="#" class="btn btn-success mb-2" hx-get="/client/tag/addPreliminaryDecision" hx-target="#preliminaryDecision" hx-swap="innerHTML">Add Preliminary Decision</a>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
+                    </div>
+                </form>
             </div>
-            <div class="card-body">
-                    <div class="mb-3">
-                        <label for="fetchEstimateNumber" class="form-label">Estimate Number</label>
-                        <input type="text" class="form-control" id="fetchEstimateNumber" required maxlength="16" name="estimateNumber">
-                    </div>
-                    <div class="mb-3">
-                        <label for="fetchDepot" class="form-label">Depot</label>
-                        <input type="text" class="form-control" id="fetchDepot" name="depot" required maxlength="9" pattern="^[A-Z0-9]{9}$">
-                    </div>
-                    <div class="mb-3">
-                        <label for="fetchRevision" class="form-label">Revision</label>
-                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="fetchRevision" name="revision">
-                    </div>
-            </div>
-            <div class="card-footer">
-                <input type="submit" value="Submit" class="btn btn-primary"/>
-            </div>
-            </form>
-        </div>
-    </div>
-    <hr/>
-    <div>
-        <div class="card" id="estimateCreate">
-            <form action="/client/estimate/create" method="POST">
-            <div class="card-header">
-                <h5 class="card-title">Estimate Create</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label for="createEstimateNumber" class="form-label">Estimate Number</label>
-                    <input type="text" class="form-control" id="createEstimateNumber" required maxlength="16" name="estimateNumber">
-                </div>
-                <div class="mb-3">
-                    <label for="createUnitNumber" class="form-label">Unit Number</label>
-                    <input type="text" class="form-control" id="createUnitNumber" maxlength="11" pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" required name="unitNumber">
-                </div>
-                <div class="mb-3">
-                    <label for="createCondition" class="form-label">Condition</label>
-                    <select class="form-select" required name="condition" id="createCondition">
-                        <option th:each="condition : ${conditions}" th:attr="value=${condition.name()}" th:text="${condition.name()}"></option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="createEstimateTime" class="form-label">Estimate Time</label>
-                    <input type="text" class="form-control datetimepicker" id="createEstimateTime" name="estimateTime" required>
-                </div>
-                <div class="mb-3">
-                    <label for="createComments" class="form-label">Comments</label>
-                    <input type="text" class="form-control" id="createComments" name="comments" maxlength="500">
-                </div>
-                <div class="mb-3" id="requesterContainer">
-                    <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Requester&id=requester" hx-target="#requesterContainer" hx-swap="innerHtml">Add Requester</a>
-                </div>
-                <div class="mb-3" id="depotContainer" th:insert="~{tags/party}" th:with="title='Depot', id='depot'">
-                </div>
-                <div class="mb-3" id="ownerContainer">
-                    <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Owner&id=owner" hx-target="#ownerContainer" hx-swap="innerHtml">Add Owner</a>
-                </div>
-                <div class="mb-3" id="customerContainer">
-                    <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Customer&id=customer" hx-target="#customerContainer" hx-swap="innerHtml">Add Customer</a>
-                </div>
-                <div class="mb-3">
-                    <label for="createCurrency" class="form-label">Currency</label>
-                    <input type="text" class="form-control" id="createCurrency" name="currency" maxlength="3" pattern="^[A-Z]{3}$">
-                </div>
-                <div class="mb-3">
-                    <label for="createTotal" class="form-label">Total</label>
-                    <input type="number" step="0.01" class="form-control" id="createTotal" name="total" min="0.0" required>
-                </div>
-                <div class="mb-3" id="customerApprovalContainer">
-                    <a href="#" class="btn btn-success" hx-get="/client/tag/addCustomerApproval?id=estimateCreateCustomerApproval&cardTitle=Customer Approval&propertyPath=customerApproval.&footerSubmit=false" hx-target="#customerApprovalContainer" hx-swap="innerHtml">Add Customer Approval</a>
-                </div>
-                <div class="mb-3">
-                    <label for="createType" class="form-label">Type</label>
-                    <select class="form-select" name="type" id="createType">
-                        <option></option>
-                        <option th:each="estimateType : ${estimateTypes}" th:attr="value=${estimateType.name()}" th:text="${estimateType.name()}"></option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="createUpgradeType" class="form-label">Upgrade Type</label>
-                    <select class="form-select" name="upgradeType" id="createUpgradeType">
-                        <option></option>
-                        <option th:each="upgradeType : ${upgradeTypes}" th:attr="value=${upgradeType.name()}" th:text="${upgradeType.name()}"></option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="createRevision" class="form-label">Revision</label>
-                    <input type="number" step="1" pattern="[0-9]*" class="form-control" id="createRevision" name="revision">
-                </div>
-                <div class="mb-3" id="createLineItemContainer">
-                    <a href="#" class="btn btn-success mb-2" hx-get="/client/tag/addLineItem" hx-target="#createLineItemContainer" hx-swap="beforeend" hx-vals="js:{count: $('#estimateCreate').find('.lineItem').length}">Add Line Item</a>
-                </div>
-                <div class="mb-3" id="createPhotoContainer">
-                    <a href="#" class="btn btn-success mb-2" hx-get='/client/tag/addPhoto' hx-target='#createPhotoContainer' hx-vals="js:{count: $('#createPhotoContainer').find('.photo').length }" hx-swap="beforeend">Add Photo</a>
-                </div>
-            </div>
-            <div class="card-footer">
-                <input type="submit" value="Submit" class="btn btn-primary"/>
-            </div>
-            </form>
-        </div>
-    </div>
-    <hr/>
-    <div>
-        <div class="card" id="estimateCancel">
-            <form action="/client/estimate/cancel" method="POST">
-            <div class="card-header">
-                <h5 class="card-title">Estimate Cancel</h5>
-            </div>
-            <div class="card-body">
-                    <div class="mb-3">
-                        <label for="cancelEstimateNumber" class="form-label">Estimate Number</label>
-                        <input type="text" class="form-control" id="cancelEstimateNumber" required maxlength="16" name="estimateNumber">
-                    </div>
-                    <div class="mb-3">
-                        <label for="cancelDepot" class="form-label">Depot</label>
-                        <input type="text" class="form-control" id="cancelDepot" name="depot" required maxlength="9" pattern="^[A-Z0-9]{9}$">
-                    </div>
-            </div>
-            <div class="card-footer">
-                <input type="submit" value="Submit" class="btn btn-primary"/>
-            </div>
-            </form>
-        </div>
-    </div>
-    <hr/>
-    <div>
-        <form action="/client/estimate/customerApprove" method="POST" th:insert="~{tags/estimateCustomerApprove}" th:with="id='estimateApprove', cardTitle='Estimate Customer Approve', propertyPath='', footerSubmit = true">
-        </form>
-    </div>
-    <hr/>
-    <div>
-        <div class="card" id="estimateTotals">
-            <form action="/client/estimate/updateTotals" method="POST">
-                <div class="card-header">
-                    <h5 class="card-title">Estimate Update Totals</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="updateTotalsRelatedId" class="form-label">Related Id</label>
-                        <input type="number" class="form-control" id="updateTotalsRelatedId" name="relatedId">
-                    </div>
-                    <div class="mb-3">
-                        <label for="updateTotalsEstimateNumber" class="form-label">Estimate Number</label>
-                        <input type="text" class="form-control" id="updateTotalsEstimateNumber" required maxlength="16" name="estimateNumber">
-                    </div>
-                    <div class="mb-3">
-                        <label for="updateTotalsRevision" class="form-label">Revision</label>
-                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsRevision" name="revision">
-                    </div>
-                    <div class="mb-3" id="updateTotalsDepot" th:insert="~{tags/party}" th:with="title='Depot', id='depot'">
-                    </div>
-                    <div class="mb-3">
-                        <label for="updateTotalsTotal" class="form-label">Total</label>
-                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsTotal" name="total" min="0">
-                    </div>
-                    <div class="mb-3">
-                        <label for="updateTotalsOwnerTotal" class="form-label">Owner Total</label>
-                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsOwnerTotal" name="ownerTotal" min="0">
-                    </div>
-                    <div class="mb-3">
-                        <label for="updateTotalsCustomerTotal" class="form-label">Customer Total</label>
-                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsCustomerTotal" name="customerTotal" min="0">
-                    </div>
-                    <div class="mb-3">
-                        <label for="updateTotalsInsuranceTotal" class="form-label">Insurance Total</label>
-                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsInsuranceTotal" name="insuranceTotal" min="0">
-                    </div>
-                    <div class="mb-3">
-                        <label for="updateTotalsCtl" class="form-label">CTL</label>
-                        <input type="checkbox" class="form-check" id="updateTotalsCtl" name="ctl">
-                    </div>
-                    <div class="mb-3">
-                        <label for="updateTotalsComments" class="form-label">Comments</label>
-                        <input type="text" class="form-control" id="updateTotalsComments" name="comments" maxlength="500">
-                    </div>
-                    <div class="mb-3" id="preliminaryDecision">
-                        <a href="#" class="btn btn-success mb-2" hx-get="/client/tag/addPreliminaryDecision" hx-target="#preliminaryDecision" hx-swap="innerHTML">Add Preliminary Decision</a>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <input type="submit" value="Submit" class="btn btn-primary"/>
-                </div>
-            </form>
         </div>
     </div>
 </div>
