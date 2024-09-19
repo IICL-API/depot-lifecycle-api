@@ -118,8 +118,8 @@ import java.util.List;
             "        - Added identifier field, `relatedId`, to `GateResponse` to use to upload photos\n\n" +
             " * 2.2.5\n\n" +
             "    - Share the same Gate Photo model between Create & Update since they are the same.\n\n" +
-                " * 2.2.6\n\n" +
-                "    - No intentional API changes.  Added Estimate & Gate clients for easier testing.\n\n" +
+            " * 2.2.6\n\n" +
+            "    - No intentional API changes.  Added Estimate & Gate clients for easier testing.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
