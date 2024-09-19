@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Secured(SecurityRule.IS_ANONYMOUS)
 @Validated
 @Controller("/client/gate")
 @RequiredArgsConstructor
@@ -78,7 +77,7 @@ public class GateController {
         ClientErrorHandling.validate(cmd, validator);
 
         try {
-            gateClient.delete(cmd.getAdviceNumber(), cmd.getUnitNumber(), cmd.getDepot());
+            gateClient.delete(cmd.getDepot(), cmd.getAdviceNumber(), cmd.getUnitNumber());
         } catch (HttpClientResponseException e) {
             throw ClientErrorHandling.handleError(e);
         }

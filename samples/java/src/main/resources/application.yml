@@ -45,6 +45,9 @@ micronaut:
         httpMethod: GET
         access:
           - isAnonymous()
+      - pattern: /client/**
+        access:
+          - isAnonymous()
     endpoints:
       login:
         enabled: true

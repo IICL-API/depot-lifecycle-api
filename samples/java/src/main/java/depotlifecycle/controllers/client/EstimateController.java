@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Secured(SecurityRule.IS_ANONYMOUS)
 @Validated
 @Controller("/client/estimate")
 @RequiredArgsConstructor
