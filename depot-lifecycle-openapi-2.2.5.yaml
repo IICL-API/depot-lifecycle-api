@@ -427,12 +427,12 @@ paths:
         in: query
         description: the revision number to show for the estimate; when not specified
           the current revision will be returned.
-        required: false
         schema:
           required:
           - "false"
           type: integer
           format: int32
+          nullable: true
           example: 0
       responses:
         "200":
@@ -1934,10 +1934,6 @@ components:
           nullable: true
           example: 1
         unitOfMeasure:
-          maxLength: 3
-          required:
-          - "false"
-          type: string
           description: |+
             the measurement of the damage dimensions for this line item
 
@@ -1960,16 +1956,8 @@ components:
              `MMT` - "Millimeters"
 
           nullable: true
-          enum:
-          - CMT
-          - FOT
-          - GRM
-          - INH
-          - KGM
-          - MTR
-          - TON
-          - MTT
-          - MMT
+          allOf:
+          - $ref: "#/components/schemas/UnitOfMeasure"
         hours:
           minimum: 0
           required:
@@ -2027,10 +2015,6 @@ components:
           description: comments concerning this line item repair
           nullable: true
         taxRule:
-          maxLength: 1
-          required:
-          - "false"
-          type: string
           description: |-
             which amount should taxes apply
 
@@ -2043,11 +2027,8 @@ components:
             `M` - Material Cost
           nullable: true
           example: B
-          enum:
-          - B
-          - "N"
-          - L
-          - M
+          allOf:
+          - $ref: "#/components/schemas/EstimateTaxRule"
         quantity:
           minimum: 1
           required:
@@ -2202,6 +2183,23 @@ components:
       enum:
       - BEFORE
       - REPAIR
+    EstimateTaxRule:
+      type: string
+      description: |-
+        which amount should taxes apply
+
+        `B` - Both Labor Cost & Material Cost
+
+        `N` - Neither
+
+        `L` - Labor Cost
+
+        `M` - Material Cost
+      enum:
+      - B
+      - "N"
+      - L
+      - M
     EstimateType:
       type: string
       description: |-
@@ -3630,6 +3628,39 @@ components:
           example: CONU1234561
       description: Necessary information to mark a specific unit under a work order
         repaired
+    UnitOfMeasure:
+      type: string
+      description: |+
+        the measurement of the damage dimensions for this line item
+
+        `CMT` - "Centimeters"
+
+         `FOT` - "Feet"
+
+         `GRM` - "Grams"
+
+         `INH` - "Inches"
+
+         `KGM` - "Kilograms"
+
+         `MTR` - "Meters"
+
+         `TON` - "Tons"
+
+         `MTT` - "Metric Tons"
+
+         `MMT` - "Millimeters"
+
+      enum:
+      - CMT
+      - FOT
+      - GRM
+      - INH
+      - KGM
+      - MTR
+      - TON
+      - MTT
+      - MMT
     UpgradeType:
       type: string
       description: |-

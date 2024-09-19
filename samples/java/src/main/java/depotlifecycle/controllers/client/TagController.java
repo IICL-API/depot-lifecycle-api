@@ -76,9 +76,9 @@ public class TagController {
         ));
     }
 
-    @Get("/addPhoto")
-    @View("tags/photo")
-    Mono<Map<String, Object>> addPhoto(@Nullable @Parameter String propertyPath, @NonNull @Parameter Integer count) {
+    @Get("/addEstimatePhoto")
+    @View("tags/estimatePhoto")
+    Mono<Map<String, Object>> addEstimatePhoto(@Nullable @Parameter String propertyPath, @NonNull @Parameter Integer count) {
         if(propertyPath == null) {
             propertyPath = "";
         }
@@ -92,6 +92,15 @@ public class TagController {
                 "propertyPath", propertyPath + "photos[" + count + "].",
                 "id", "estimateCreatePhoto" + (lineItemCount.length() > 1 ? "LineItem" : "") + lineItemCount + count,
                 "photoStatuses", EstimatePhotoStatus.values()
+        ));
+    }
+
+    @Get("/addGatePhoto")
+    @View("tags/gatePhoto")
+    Mono<Map<String, Object>> addGatePhoto(@NonNull @Parameter String id, @NonNull @Parameter Integer count) {
+        return Mono.just(Map.of("title", "Photo #" + (count + 1),
+                "propertyPath", "photos[" + count + "].",
+                "id", id + "GatePhoto" + count
         ));
     }
 

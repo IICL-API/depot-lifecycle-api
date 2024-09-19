@@ -1,6 +1,8 @@
 package depotlifecycle.commands;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import depotlifecycle.domain.Party;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
@@ -68,4 +70,25 @@ public class PartyCommand {
 
     @Nullable
     BigDecimal longitude;
+
+    @JsonIgnore
+    public Party toParty() {
+        Party party = new Party();
+        party.setCompanyId(companyId);
+        party.setUserCode(userCode);
+        party.setUserName(userName);
+        party.setFaxNumber(faxNumber);
+        party.setPhoneNumber(phoneNumber);
+        party.setEmailAddress(emailAddress);
+        party.setName(name);
+        party.setCode(code);
+        party.setStreetAddress(streetAddress);
+        party.setCity(city);
+        party.setCountry(country);
+        party.setPostalCode(postalCode);
+        party.setStateProvince(stateProvince);
+        party.setLatitude(latitude);
+        party.setLongitude(longitude);
+        return party;
+    }
 }

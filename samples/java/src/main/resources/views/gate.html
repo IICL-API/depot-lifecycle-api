@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layouts/main :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gate Client</title>
+</head>
+<body th:fragment="section">
+<div class="d-flex justify-content-center">
+    <h1>Gate Client Actions</h1>
+</div>
+<div class="d-flex align-items-start">
+    <div class="nav flex-column nav-pills me-3 w-25" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+        <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill" data-bs-target="#v-pills-home"
+                type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">Home
+        </button>
+        <div class="d-flex justify-content-center mt-2">
+            <h5 class="text-decoration-underline">Production APIs</h5>
+        </div>
+        <button class="nav-link" id="v-gate-fetch-tab" data-bs-toggle="pill" data-bs-target="#v-gate-fetch-content"
+                type="button" role="tab" aria-controls="v-gate-fetch-content" aria-selected="true">Fetch
+        </button>
+        <button class="nav-link" id="v-gate-delete-tab" data-bs-toggle="pill" data-bs-target="#v-gate-delete-content"
+                type="button" role="tab" aria-controls="v-gate-delete-content" aria-selected="true">Delete
+        </button>
+        <button class="nav-link" id="v-gate-update-tab" data-bs-toggle="pill" data-bs-target="#v-gate-update-content"
+                type="button" role="tab" aria-controls="v-gate-update-content" aria-selected="true">Update
+        </button>
+        <button class="nav-link" id="v-gate-create-tab" data-bs-toggle="pill" data-bs-target="#v-gate-create-content"
+                type="button" role="tab" aria-controls="v-gate-create-content" aria-selected="true">Create
+        </button>
+
+    </div>
+    <div class="tab-content w-100" id="v-pills-tabContent">
+        <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab"
+             tabindex="0">
+            <div class="mb-3 d-flex justify-content-center">
+                <p><span class="fw-bold">Configured Environment:</span> <span class="fst-italic"
+                                                                              th:text="${projectConfig.url}"></span></p>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="v-gate-fetch-content" role="tabpanel" aria-labelledby="v-gate-fetch-tab"
+             tabindex="0">
+            <div class="card" id="gateFetch">
+                <form action="/client/gate/fetch" method="POST">
+                    <div class="card-header">
+                        <h5 class="card-title">Gate Fetch</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="fetchUnitNumber" class="form-label">Unit Number</label>
+                            <input type="text" class="form-control" id="fetchUnitNumber" maxlength="11"
+                                   pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" name="unitNumber" required>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="v-gate-delete-content" role="tabpanel" aria-labelledby="v-gate-delete-tab"
+             tabindex="0">
+            <div class="card" id="gateDelete">
+                <form action="/client/gate/delete" method="POST">
+                    <div class="card-header">
+                        <h5 class="card-title">Gate Delete</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="deleteAdviceNumber" class="form-label">Advice Number</label>
+                            <input type="text" class="form-control" id="deleteAdviceNumber" minlength="1" maxlength="16"
+                                   name="adviceNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="deleteUnitNumber" class="form-label">Unit Number</label>
+                            <input type="text" class="form-control" id="deleteUnitNumber" maxlength="11"
+                                   pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" name="unitNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="deleteDepot" class="form-label">Depot</label>
+                            <input type="text" class="form-control" id="deleteDepot" name="depot" required maxlength="9"
+                                   pattern="^[A-Z0-9]{9}$">
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="v-gate-update-content" role="tabpanel" aria-labelledby="v-gate-update-tab"
+             tabindex="0">
+            <div class="card" id="gateUpdate">
+                <form action="/client/gate/update" method="POST">
+                    <div class="card-header">
+                        <h5 class="card-title">Gate Update</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="updateAdviceNumber" class="form-label">Advice Number</label>
+                            <input type="text" class="form-control" id="updateAdviceNumber" minlength="1" maxlength="16"
+                                   name="adviceNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateUnitNumber" class="form-label">Unit Number</label>
+                            <input type="text" class="form-control" id="updateUnitNumber" maxlength="11"
+                                   pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" name="unitNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateDepot" class="form-label">Depot</label>
+                            <input type="text" class="form-control" id="updateDepot" name="depot" required maxlength="9"
+                                   pattern="^[A-Z0-9]{9}$">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateStatus" class="form-label">Status</label>
+                            <select class="form-select" name="status" id="updateStatus">
+                                <option></option>
+                                <option th:each="gateStatus : ${gateStatuses}" th:attr="value=${gateStatus.name()}"
+                                        th:text="${gateStatus.name()}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateActivityTime" class="form-label">Activity Time</label>
+                            <input type="text" class="form-control datetimepicker" id="updateActivityTime"
+                                   name="activityTime">
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateType" class="form-label">Type</label>
+                            <select class="form-select" name="type" id="updateType">
+                                <option></option>
+                                <option th:each="gateType : ${gateTypes}" th:attr="value=${gateType.name()}"
+                                        th:text="${gateType.name()}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="updatePhotoContainer">
+                            <a href="#" class="btn btn-success mb-2" hx-get='/client/tag/addGatePhoto?id=update'
+                               hx-target='#updatePhotoContainer'
+                               hx-vals="js:{count: $('#updatePhotoContainer').find('.photo').length }"
+                               hx-swap="beforeend">Add Photo</a>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="v-gate-create-content" role="tabpanel" aria-labelledby="v-gate-create-tab"
+             tabindex="0">
+            <div class="card" id="gateCreate">
+                <form action="/client/gate/create" method="POST">
+                    <div class="card-header">
+                        <h5 class="card-title">Gate Create</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="createAdviceNumber" class="form-label">Advice Number</label>
+                            <input type="text" class="form-control" id="createAdviceNumber" minlength="1" maxlength="16"
+                                   name="adviceNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createUnitNumber" class="form-label">Unit Number</label>
+                            <input type="text" class="form-control" id="createUnitNumber" maxlength="11"
+                                   pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" name="unitNumber" required>
+                        </div>
+                        <div class="mb-3" id="updateTotalsDepot" th:insert="~{tags/party}"
+                             th:with="title='Depot', id='depot'">
+                        </div>
+                        <div class="mb-3">
+                            <label for="createStatus" class="form-label">Status</label>
+                            <select class="form-select" name="status" id="createStatus" required>
+                                <option th:each="gateStatus : ${gateStatuses}" th:attr="value=${gateStatus.name()}"
+                                        th:text="${gateStatus.name()}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createActivityTime" class="form-label">Activity Time</label>
+                            <input type="text" class="form-control datetimepicker" id="createActivityTime"
+                                   name="activityTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createType" class="form-label">Type</label>
+                            <select class="form-select" name="type" id="createType" required>
+                                <option th:each="gateType : ${gateTypes}" th:attr="value=${gateType.name()}"
+                                        th:text="${gateType.name()}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="createPhotoContainer">
+                            <a href="#" class="btn btn-success mb-2" hx-get='/client/tag/addGatePhoto?id=create'
+                               hx-target='#createPhotoContainer'
+                               hx-vals="js:{count: $('#createPhotoContainer').find('.photo').length }"
+                               hx-swap="beforeend">Add Photo</a>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" defer>
+    $(document).ready(function () {
+        function initDatePickers(parent = null) {
+            const $parent = $(parent || document);
+            $parent.find('input.datetimepicker').datetimepicker({
+                format: 'yyyy-mm-ddThh:ii:ss+00:00',
+                autoclose: true,
+                todayBtn: true,
+                todayHighlight: true,
+                showMeridian: true,
+                pickerPosition: 'bottom-left',
+                minuteStep: 1
+            });
+        }
+
+        initDatePickers();
+
+        document.body.addEventListener('htmx:load', function (evt) {
+            const target = evt.detail.elt;
+            if (target.localName === "body") {
+                //Initial load; let the normal scripts handle this for now
+                return
+            }
+
+            if (target.localName === "script") {
+                // Script instead of html, so process it instead of adding it to the dom
+                eval(target.innerHTML);
+            } else {
+                initDatePickers(target);
+            }
+        });
+    });
+
+
+</script>
+</body>
+</html>

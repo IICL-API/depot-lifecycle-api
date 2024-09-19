@@ -86,7 +86,9 @@
             <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addEstimateLineItemPart?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'PartContainer', hx-vals='js:{count: $(\'#' + ${id} + 'PartContainer\').find(\'.lineItemPart\').length}'" hx-swap="beforeend">Add Part</a>
         </div>
         <div class="mb-3" th:attr="id=${id} + 'PhotoContainer'">
-            <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addPhoto?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'PhotoContainer', hx-vals='js:{count: $(\'#' + ${id} + 'PhotoContainer\').find(\'.photo\').length}'" hx-swap="beforeend">Add Photo</a>
+            <a href="#" class="btn btn-success mb-2"
+               th:attr="hx-get='/client/tag/addEstimatePhoto?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'PhotoContainer', hx-vals='js:{count: $(\'#' + ${id} + 'PhotoContainer\').find(\'.photo\').length}'"
+               hx-swap="beforeend">Add Photo</a>
         </div>
     </div>
 </div>

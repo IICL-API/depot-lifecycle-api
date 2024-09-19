@@ -13,22 +13,11 @@ import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
 import io.micronaut.core.convert.ConversionService;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpResponseFactory;
-import io.micronaut.http.HttpStatus;
-import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.Body;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.*;
 import io.micronaut.http.annotation.Error;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Post;
-import io.micronaut.http.annotation.Put;
-import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.http.annotation.*;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.AuthorizationException;
 import io.micronaut.security.utils.SecurityService;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -80,7 +69,7 @@ public class GateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<Object> create(@Body @RequestBody(description = "gate object to create a new gate in or gate out record", required = true, content = {@Content(schema = @Schema(implementation = GateCreateRequest.class))}) GateCreateRequest gateCreateRequest) {
+    public HttpResponse<GateResponse> create(@Body @RequestBody(description = "gate object to create a new gate in or gate out record", required = true, content = {@Content(schema = @Schema(implementation = GateCreateRequest.class))}) GateCreateRequest gateCreateRequest) {
         LOG.info("Received Gate Create");
         conversionService.convert(gateCreateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
@@ -146,14 +135,16 @@ public class GateController {
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<Object> update(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number for the gate record", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
+    public HttpResponse<GateResponse> update(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number for the gate record", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
                                @Parameter(name = "unitNumber", description = "the current unit number of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
                                @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot,
                                @Body @RequestBody(description = "gate object to update an existing record", required = true, content = {@Content(schema = @Schema(implementation = GateUpdateRequest.class))}) GateUpdateRequest gateUpdateRequest) {
         LOG.info("Received Gate Update");
         conversionService.convert(gateUpdateRequest, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
 
-        if(!gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, gateUpdateRequest.getType())) {
+        boolean gateExists = gateUpdateRequest.getType() == null ? gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, GateRequestType.IN) ||
+                gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, GateRequestType.OUT) : gateCreateRequestRepository.existsByAdviceNumberAndUnitNumberAndType(adviceNumber, unitNumber, gateUpdateRequest.getType());
+        if (!gateExists) {
             if (securityService.username().equals(AuthenticationProviderUserPassword.VALIDATE_USER_NAME)) {
                 throw new IllegalArgumentException("Gate does not exist.");
             }
