@@ -20,11 +20,10 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.inject.Singleton;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -37,7 +36,7 @@ import java.util.List;
 @OpenAPIDefinition(
     info = @Info(
         title = "Depot Life Cycle",
-        version = "2.2.5",
+            version = "2.2.6",
         description = "# Purpose\n\n" +
             " A depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to facilitate real time communication between systems instead of traditional EDI files.\n" +
             "\n\n\n" +
@@ -119,6 +118,8 @@ import java.util.List;
             "        - Added identifier field, `relatedId`, to `GateResponse` to use to upload photos\n\n" +
             " * 2.2.5\n\n" +
             "    - Share the same Gate Photo model between Create & Update since they are the same.\n\n" +
+                " * 2.2.6\n\n" +
+                "    - No intentional API changes.  Added Estimate & Gate clients for easier testing.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
