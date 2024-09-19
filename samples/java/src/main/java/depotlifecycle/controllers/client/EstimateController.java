@@ -55,6 +55,23 @@ public class EstimateController {
     }
 
     @ExecuteOn(TaskExecutors.BLOCKING)
+    @Post("/updateTotals")
+    @View("estimateMessage")
+    Mono<Map<String, Object>> updateTotals(@Body EstimateTotalsCommand cmd) {
+        LOG.info("Client - Estimate - Update Totals");
+        Set<ConstraintViolation<EstimateTotalsCommand>> violations = validator.validate(cmd);
+        if (!violations.isEmpty()) {
+            ConstraintViolation<EstimateTotalsCommand> violation = violations.iterator().next();
+            String errorMessage = String.join(" ", violation.getPropertyPath().toString(), violation.getMessage());
+            throw new HtmlStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        }
+
+        estimateClient.update(cmd.getEstimateNumber(), cmd);
+
+        return Mono.just(Map.of("title", "Estimate Totals", "message", "Totals Updated"));
+    }
+
+    @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/customerApprove")
     @View("estimateAllocationList")
     Mono<Map<String, Object>> customerApprove(@Body EstimateCustomerApproveCommand cmd) {

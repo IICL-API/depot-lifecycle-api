@@ -22,6 +22,7 @@
                     <li><a href="#estimateCreate">Estimate - Create</a></li>
                     <li><a href="#estimateCancel">Estimate - Cancel</a></li>
                     <li><a href="#estimateApprove">Estimate - Customer Approve</a></li>
+                    <li><a href="#estimateTotals">Estimate - Update Totals</a></li>
                 </ul>
             </div>
         </div>
@@ -202,6 +203,62 @@
     <div>
         <form action="/client/estimate/customerApprove" method="POST" th:insert="~{tags/estimateCustomerApprove}" th:with="id='estimateApprove', cardTitle='Estimate Customer Approve', propertyPath='', footerSubmit = true">
         </form>
+    </div>
+    <hr/>
+    <div>
+        <div class="card" id="estimateTotals">
+            <form action="/client/estimate/updateTotals" method="POST">
+                <div class="card-header">
+                    <h5 class="card-title">Estimate Update Totals</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="updateTotalsRelatedId" class="form-label">Related Id</label>
+                        <input type="number" class="form-control" id="updateTotalsRelatedId" name="relatedId">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateTotalsEstimateNumber" class="form-label">Estimate Number</label>
+                        <input type="text" class="form-control" id="updateTotalsEstimateNumber" required maxlength="16" name="estimateNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateTotalsRevision" class="form-label">Revision</label>
+                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsRevision" name="revision">
+                    </div>
+                    <div class="mb-3" id="updateTotalsDepot" th:insert="~{tags/party}" th:with="title='Depot', id='depot'">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateTotalsTotal" class="form-label">Total</label>
+                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsTotal" name="total" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateTotalsOwnerTotal" class="form-label">Owner Total</label>
+                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsOwnerTotal" name="ownerTotal" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateTotalsCustomerTotal" class="form-label">Customer Total</label>
+                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsCustomerTotal" name="customerTotal" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateTotalsInsuranceTotal" class="form-label">Insurance Total</label>
+                        <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsInsuranceTotal" name="insuranceTotal" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateTotalsCtl" class="form-label">CTL</label>
+                        <input type="checkbox" class="form-check" id="updateTotalsCtl" name="ctl">
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateTotalsComments" class="form-label">Comments</label>
+                        <input type="text" class="form-control" id="updateTotalsComments" name="comments" maxlength="500">
+                    </div>
+                    <div class="mb-3" id="preliminaryDecision">
+                        <a href="#" class="btn btn-success mb-2" hx-get="/client/tag/addPreliminaryDecision" hx-target="#preliminaryDecision" hx-swap="innerHTML">Add Preliminary Decision</a>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <input type="submit" value="Submit" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 <script type="text/javascript" defer>

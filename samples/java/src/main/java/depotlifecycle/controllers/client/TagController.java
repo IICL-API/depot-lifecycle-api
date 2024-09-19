@@ -101,4 +101,10 @@ public class TagController {
         return Mono.just(Map.of("id", id, "cardTitle", cardTitle, "propertyPath", propertyPath, "footerSubmit", footerSubmit));
     }
 
+    @Get("/addPreliminaryDecision")
+    @View("tags/preliminaryDecision")
+    Mono<Map<String, Object>> addPreliminaryDecision() {
+        return Mono.just(Map.of("id", "createEstimatePreliminary", "propertyPath", "preliminaryDecision."));
+    }
+
 }
