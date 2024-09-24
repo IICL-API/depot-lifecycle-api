@@ -9,6 +9,7 @@ import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.convert.ConversionService;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -105,7 +106,7 @@ public class EstimateController {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, error);
         }
 
-        return estimateRepository.searchEstimates(estimateNumber, depotParty.orElse(null), unitNumber, customerParty.orElse(null), revision);
+        return estimateRepository.searchEstimates(estimateNumber, depotParty.orElse(null), unitNumber, customerParty.orElse(null), revision, Pageable.from(0, 10));
     }
 
     @Post(produces = MediaType.APPLICATION_JSON)
@@ -210,7 +211,7 @@ public class EstimateController {
             }
         }
 
-        return estimateRepository.searchEstimates(estimateNumber, depotParty.orElse(null), null, null, revision).stream().findFirst().orElse(null);
+        return estimateRepository.searchEstimates(estimateNumber, depotParty.orElse(null), null, null, revision, Pageable.from(0, 10)).stream().findFirst().orElse(null);
     }
 
     @Put(uri = "/{estimateNumber}", produces = MediaType.APPLICATION_JSON)
