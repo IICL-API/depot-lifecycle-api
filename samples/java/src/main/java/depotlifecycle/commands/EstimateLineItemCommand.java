@@ -62,6 +62,9 @@ public class EstimateLineItemCommand {
     @NotNull
     BigDecimal hours;
 
+    @Nullable
+    BigDecimal tax;
+
     @NotNull
     BigDecimal materialCost;
 

@@ -85,6 +85,10 @@ public class EstimateLineItem {
     @Column(nullable = false)
     BigDecimal laborRate;
 
+    @Schema(description = "the tax amount for this line item", required = false, nullable = true, type = "number", format = "double", example = "0.00")
+    @Column(nullable = true)
+    BigDecimal tax;
+
     @Schema(description = "The party that is responsible for the cost of this repair\n\n `O` - Owner\n\n `U` - Customer\n\n `I` - Insurance\n\n `W` - Warranty\n\n `S` - Special\n\n `D` - Depot\n\n `X` - Deleted\n\n `T` - Third Party\n\n", required = true, nullable = false, implementation = EstimateLineItemParty.class)
     @Column(nullable = false, length = 1)
     @Enumerated(EnumType.STRING)
