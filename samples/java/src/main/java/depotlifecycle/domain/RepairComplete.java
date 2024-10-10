@@ -10,14 +10,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.ZonedDateTime;
 
 @Data
@@ -39,7 +39,7 @@ public class RepairComplete {
     @Column(nullable = false, length = 16)
     String workOrderNumber;
 
-    @Schema(required = true, nullable = false, description = "the storage location where the shipping container is being repaired")
+    @Schema(required = true, nullable = false, description = "the storage location where the shipping container is being repaired", implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party depot;
 

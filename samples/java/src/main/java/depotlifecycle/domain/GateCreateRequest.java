@@ -4,22 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +35,7 @@ public class GateCreateRequest {
     @Column(nullable = false, length = 16)
     String adviceNumber;
 
-    @Schema(description = "the storage location for the given advice number", required = true, nullable = false)
+    @Schema(description = "the storage location for the given advice number", required = true, nullable = false, implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party depot;
 
@@ -51,9 +43,10 @@ public class GateCreateRequest {
     @Column(nullable = false, length = 11)
     String unitNumber;
 
-    @Schema(allowableValues = {"A", "D", "S"}, example = "D", maxLength = 1, description = "an indicator of the shipping container's status\n\n`A` - Non-damaged\n\n`D` - Damaged\n\n`S` - Sold", required = true, nullable = false)
+    @Schema(description = "an indicator of the shipping container's status\n\n`A` - Non-damaged\n\n`D` - Damaged\n\n`S` - Sold", example = "D", required = true, nullable = false, implementation = GateRequestStatus.class)
     @Column(nullable = false, length = 1)
-    String status;
+    @Enumerated(EnumType.STRING)
+    GateRequestStatus status;
 
     //Issue #124 micronaut-openapi - example is represented wrong, so example is not listed here. example = "2019-04-10T19:37:04Z"
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
@@ -61,11 +54,13 @@ public class GateCreateRequest {
     @Column(nullable = false)
     ZonedDateTime activityTime;
 
-    @Schema(description = "gate type indicator\n\n`IN` - Gate In\n\n`OUT` - Gate Out", maxLength = 3, example = "IN", allowableValues = {"IN", "OUT"}, required = true, nullable = false)
+    @Schema(description = "gate type indicator\n\n`IN` - Gate In\n\n`OUT` - Gate Out", maxLength = 3, example = "IN", required = true, nullable = false, implementation = GateRequestType.class)
     @Column(nullable = false, length = 3)
-    String type;
+    @Enumerated(EnumType.STRING)
+    GateRequestType type;
 
+    @ArraySchema(schema = @Schema(implementation = GatePhoto.class))
     @Schema(description = "An optional photo list of the shipping container at gate creation", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL})
-    List<GateCreatePhoto> photos = new ArrayList<>();
+    List<GatePhoto> photos = new ArrayList<>();
 }

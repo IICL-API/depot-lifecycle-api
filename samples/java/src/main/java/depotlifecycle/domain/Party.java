@@ -4,22 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -52,23 +42,20 @@ public class Party {
 
     @Schema(description = "the contact fax number(s) for this party", required = false, nullable = false)
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> faxNumber;
 
     @Schema(description = "the contact phone number(s) for this party", required = false, nullable = false)
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> phoneNumber;
 
     @Schema(description = "the contact email address(es) for this party", required = false, nullable = false)
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> emailAddress;
 
     @Schema(description = "the name of this company", example = "CMR Container Maintenance Rep.", maxLength = 150, required = false, nullable = true)
@@ -82,9 +69,8 @@ public class Party {
     // Address Information
     @Schema(description = "the street address lines", required = false, nullable = false)
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> streetAddress;
 
     @Schema(description = "the city for the address", maxLength = 28, required = false, nullable = true)

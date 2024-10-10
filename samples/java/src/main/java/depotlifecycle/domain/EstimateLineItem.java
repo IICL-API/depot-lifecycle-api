@@ -3,21 +3,14 @@ package depotlifecycle.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -63,21 +56,22 @@ public class EstimateLineItem {
     @Column(length = 4)
     String location;
 
-    @Schema(description = "the length dimension of the damage", type = "number", format = "int32", required = false, nullable = true, example = "15", minimum = "0")
+    @Schema(description = "the length dimension of the damage", type = "integer", format = "int32", required = false, nullable = true, example = "15", minimum = "0")
     @Column
     Integer length;
 
-    @Schema(description = "the width dimension of the damage", type = "number", format = "int32", required = false, nullable = true, example = "1", minimum = "0")
+    @Schema(description = "the width dimension of the damage", type = "integer", format = "int32", required = false, nullable = true, example = "1", minimum = "0")
     @Column
     Integer width;
 
-    @Schema(description = "the height dimension of the damage", type = "number", format = "int32", required = false, nullable = true, example = "1", minimum = "0")
+    @Schema(description = "the height dimension of the damage", type = "integer", format = "int32", required = false, nullable = true, example = "1", minimum = "0")
     @Column
     Integer height;
 
-    @Schema(description = "the measurement of the damage dimensions for this line item\n\n`CMT` - \"Centimeters\"\n\n `FOT` - \"Feet\"\n\n `GRM` - \"Grams\"\n\n `INH` - \"Inches\"\n\n `KGM` - \"Kilograms\"\n\n `MTR` - \"Meters\"\n\n `TON` - \"Tons\"\n\n `MTT` - \"Metric Tons\"\n\n `MMT` - \"Millimeters\"\n\n", required = false,  nullable = true, allowableValues = {"CMT", "FOT", "GRM", "INH", "KGM", "MTR", "TON", "MTT", "MMT"}, maxLength = 3)
+    @Schema(description = "the measurement of the damage dimensions for this line item\n\n`CMT` - \"Centimeters\"\n\n `FOT` - \"Feet\"\n\n `GRM` - \"Grams\"\n\n `INH` - \"Inches\"\n\n `KGM` - \"Kilograms\"\n\n `MTR` - \"Meters\"\n\n `TON` - \"Tons\"\n\n `MTT` - \"Metric Tons\"\n\n `MMT` - \"Millimeters\"\n\n", required = false,  nullable = true, implementation = UnitOfMeasure.class)
     @Column(length = 3)
-    String unitOfMeasure;
+    @Enumerated(EnumType.STRING)
+    UnitOfMeasure unitOfMeasure;
 
     @Schema(description = "the number of hours to repair this damage", required = true, nullable = false, type = "number", format = "double", minimum = "0.00", example = "9.95")
     @Column(nullable = false)
@@ -91,26 +85,30 @@ public class EstimateLineItem {
     @Column(nullable = false)
     BigDecimal laborRate;
 
-    @Schema(description = "The party that is responsible for the cost of this repair\n\n `O` - Owner\n\n `U` - Customer\n\n `I` - Insurance\n\n `W` - Warranty\n\n `S` - Special\n\n `D` - Depot\n\n `X` - Deleted\n\n `T` - Third Party\n\n", required = true, nullable = false, allowableValues = {"O", "U", "I", "W", "S", "D", "X", "T"}, maxLength = 1)
+    @Schema(description = "The party that is responsible for the cost of this repair\n\n `O` - Owner\n\n `U` - Customer\n\n `I` - Insurance\n\n `W` - Warranty\n\n `S` - Special\n\n `D` - Depot\n\n `X` - Deleted\n\n `T` - Third Party\n\n", required = true, nullable = false, implementation = EstimateLineItemParty.class)
     @Column(nullable = false, length = 1)
-    String party;
+    @Enumerated(EnumType.STRING)
+    EstimateLineItemParty party;
 
     @Schema(description = "comments concerning this line item repair", required = false, nullable = true, maxLength = 256)
     @Column(length = 256)
     String comments;
 
-    @Schema(description = "which amount should taxes apply\n\n`B` - Both Labor Cost & Material Cost\n\n`N` - Neither\n\n`L` - Labor Cost\n\n`M` - Material Cost", required = false, nullable = true, allowableValues = {"B", "N", "L", "M"}, example = "B", maxLength = 1)
+    @Schema(description = "which amount should taxes apply\n\n`B` - Both Labor Cost & Material Cost\n\n`N` - Neither\n\n`L` - Labor Cost\n\n`M` - Material Cost", required = false, nullable = true, example = "B", implementation = EstimateTaxRule.class)
     @Column(length = 1)
-    String taxRule;
+    @Enumerated(EnumType.STRING)
+    EstimateTaxRule taxRule;
 
-    @Schema(description = "the number of damages", required = false, nullable = true, type = "number", format = "int32", example = "1", minimum = "1")
+    @Schema(description = "the number of damages", required = false, nullable = true, type = "integer", format = "int32", example = "1", minimum = "1")
     @Column
     Integer quantity;
 
+    @ArraySchema(schema = @Schema(implementation = EstimateLineItemPart.class))
     @Schema(description = "An optional, detailed part list used to repair this line item", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimateLineItemPart> parts = new ArrayList<>();
 
+    @ArraySchema(schema = @Schema(implementation = EstimateLineItemPhoto.class))
     @Schema(description = "An optional photo list showing the damage of this line item", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL})
     List<EstimateLineItemPhoto> photos = new ArrayList<>();

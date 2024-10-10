@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layouts/main :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gate Results</title>
+</head>
+<body th:fragment="section">
+<div class="align-middle flex-column">
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Results:</h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(gates)}" class="alert alert-warning" role="alert">
+                    No Gate Status was found.
+                </div>
+
+                <table class="table" th:if="${!#lists.isEmpty(gates)}">
+                    <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Message</th>
+                        <th>Advice Number</th>
+                        <th>Customer Reference</th>
+                        <th>Transaction Reference</th>
+                        <th>Related Id</th>
+                        <th>Insurance Coverage - Amount Covered</th>
+                        <th>Insurance Coverage - Amount Currency</th>
+                        <th>Insurance Coverage - Applies to CTL</th>
+                        <th>Insurance Coverage - All or Nothing</th>
+                        <th>Insurance Coverage - Exceptions</th>
+                        <th>Insurance Coverage - Exclusions</th>
+                        <th>Insurance Coverage - Inclusions</th>
+                        <th>Current Exchange Rate</th>
+                        <th>Comments</th>
+                        <th>Current Inspection Criteria</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="gate : ${gates}">
+                        <td th:text="${gate.code}"></td>
+                        <td th:text="${gate.message}"></td>
+                        <td th:text="${gate.adviceNumber}"></td>
+                        <td th:text="${gate.customerReference}"></td>
+                        <td th:text="${gate.transactionReference}"></td>
+                        <td th:text="${gate.relatedId}"></td>
+                        <td th:text="${gate.insuranceCoverage ? gate.insuranceCoverage.amountCovered : null}"></td>
+                        <td th:text="${gate.insuranceCoverage ? gate.insuranceCoverage.amountCurrency : null}"></td>
+                        <td th:text="${gate.insuranceCoverage ? gate.insuranceCoverage.appliesToCTL : null}"></td>
+                        <td th:text="${gate.insuranceCoverage ? gate.insuranceCoverage.allOrNothing : null}"></td>
+                        <td th:text="${gate.insuranceCoverage ? gate.insuranceCoverage.exceptions : null}"></td>
+                        <td th:text="${gate.insuranceCoverage ? gate.insuranceCoverage.exclusions : null}"></td>
+                        <td th:text="${gate.insuranceCoverage ? gate.insuranceCoverage.inclusions : null}"></td>
+                        <td th:text="${gate.currentExchangeRate}"></td>
+                        <td th:text="${gate.comments}"></td>
+                        <td th:text="${gate.currentInspectionCriteria}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -9,17 +9,17 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 
 @Data
@@ -48,7 +48,7 @@ public class EstimateAllocation {
     @Column(nullable = false)
     Integer revision;
 
-    @Schema(description = "the location of the estimate", required = true, nullable = false)
+    @Schema(description = "the location of the estimate", required = true, nullable = false, implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "depot_id", nullable = false)
     Party depot;
@@ -77,7 +77,7 @@ public class EstimateAllocation {
     @Column(length = 500)
     String comments;
 
-    @Schema(type = "object", description = "when possible, this is set to an expected sell/fix decision to indicate the likely estimate owner approval action", required = false, nullable = true)
+    @Schema(type = "object", description = "when possible, this is set to an expected sell/fix decision to indicate the likely estimate owner approval action", required = false, nullable = true, implementation = PreliminaryDecision.class)
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     PreliminaryDecision preliminaryDecision;
 }

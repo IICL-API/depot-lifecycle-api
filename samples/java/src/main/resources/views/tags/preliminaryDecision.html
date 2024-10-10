@@ -1,0 +1,22 @@
+<div class="card preliminaryDecision mb-2">
+    <div class="card-header">
+        <div class="d-flex flex-row justify-content-between">
+            <h5 class="card-title">Preliminary Decision</h5>
+            <button type="button" class="btn-close" onclick="$(this).closest('div.preliminaryDecision').remove();"></button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'recommendation'" class="form-label">Recommendation</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'recommendation', name=${propertyPath} + 'recommendation'" required minlength="1">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'reason'" class="form-label">Reason</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'reason', name=${propertyPath} + 'reason'">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'difference'" class="form-label">Difference</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'difference', name=${propertyPath} + 'difference'">
+        </div>
+    </div>
+</div>

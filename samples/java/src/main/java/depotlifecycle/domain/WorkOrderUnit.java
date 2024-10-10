@@ -9,12 +9,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Data
 @JsonView
@@ -51,7 +51,7 @@ public class WorkOrderUnit {
     @Column(length = 16)
     String releaseNumber;
 
-    @Schema(description = "an indicator of the unit state on this work order\n\n`TIED` - shipping container is considered under repair on this work order\n\n`REMOVED` - shipping container is removed from this work order\n\n`REPAIRED` - shipping container is considered repaired", required = true, nullable = false, maxLength = 8, allowableValues = {"TIED", "REMOVED", "REPAIRED"}, example = "TIED")
+    @Schema(description = "an indicator of the unit state on this work order\n\n`TIED` - shipping container is considered under repair on this work order\n\n`REMOVED` - shipping container is removed from this work order\n\n`REPAIRED` - shipping container is considered repaired", required = true, nullable = false, example = "TIED", implementation = WorkOrderUnitStatus.class)
     @Column(nullable = false, length = 8)
-    String status = "TIED";
+    WorkOrderUnitStatus status;
 }

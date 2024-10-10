@@ -1,0 +1,94 @@
+<div class="card lineItem mb-2">
+    <div class="card-header">
+        <div class="d-flex flex-row justify-content-between">
+            <h5 class="card-title" th:text="${title}"></h5>
+            <button type="button" class="btn-close" onclick="$(this).closest('div.lineItem').remove();"></button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'line'" class="form-label">Line</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'line', name=${propertyPath} + 'line', value=${count}" required readonly>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'repair'" class="form-label">Repair</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'repair', name=${propertyPath} + 'repair'" maxlength="2" pattern="^[A-Z0-9]{2}$" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'damage'" class="form-label">Damage</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'damage', name=${propertyPath} + 'damage'" maxlength="2" pattern="^[A-Z0-9]{2}$" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'material'" class="form-label">Material</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'material', name=${propertyPath} + 'material'" maxlength="2" pattern="^[A-Z0-9]{2}$" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'component'" class="form-label">Component</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'component', name=${propertyPath} + 'component'" maxlength="3" pattern="^[A-Z0-9]{3}$" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'location'" class="form-label">Location</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'location', name=${propertyPath} + 'location'" maxlength="4" pattern="^[A-Z0-9]{4}$">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'length'" class="form-label">Length</label>
+            <input type="number" class="form-control" th:attr="id=${id} + 'length', name=${propertyPath} + 'length'" min="0">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'width'" class="form-label">Width</label>
+            <input type="number" class="form-control" th:attr="id=${id} + 'width', name=${propertyPath} + 'width'" min="0">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'height'" class="form-label">Height</label>
+            <input type="number" class="form-control" th:attr="id=${id} + 'height', name=${propertyPath} + 'height'" min="0">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'unitOfMeasure'" class="form-label">Unit of Measure</label>
+            <select class="form-select" th:attr="id=${id} + 'unitOfMeasure', name=${propertyPath} + 'unitOfMeasure'">
+                <option></option>
+                <option th:each="unitOfMeasure : ${unitOfMeasures}" th:attr="value=${unitOfMeasure.name()}" th:text="${unitOfMeasure.name()}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'hours'" class="form-label">Hours</label>
+            <input type="number" step="0.01" class="form-control" th:attr="id=${id} + 'hours', name=${propertyPath} + 'hours'" min="0" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'materialCost'" class="form-label">Material Cost</label>
+            <input type="number" step="0.01" class="form-control" th:attr="id=${id} + 'materialCost', name=${propertyPath} + 'materialCost'" min="0" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'laborRate'" class="form-label">Labor Rate</label>
+            <input type="number" step="0.01" class="form-control" th:attr="id=${id} + 'laborRate', name=${propertyPath} + 'laborRate'" min="0" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'party'" class="form-label">Party</label>
+            <select class="form-select" th:attr="id=${id} + 'party', name=${propertyPath} + 'party'" required>
+                <option th:each="party : ${parties}" th:attr="value=${party.name()}" th:text="${party.name()}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'comments'" class="form-label">Comments</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'comments', name=${propertyPath} + 'comments'" maxlength="500">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'taxRule'" class="form-label">Tax Rule</label>
+            <select class="form-select" th:attr="id=${id} + 'taxRule', name=${propertyPath} + 'taxRule'">
+                <option></option>
+                <option th:each="taxRule : ${taxRules}" th:attr="value=${taxRule.name()}" th:text="${taxRule.name()}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'quantity'" class="form-label">Quantity</label>
+            <input type="number" class="form-control" th:attr="id=${id} + 'quantity', name=${propertyPath} + 'quantity'" min="1">
+        </div>
+        <div class="mb-3" th:attr="id=${id} + 'PartContainer'">
+            <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addEstimateLineItemPart?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'PartContainer', hx-vals='js:{count: $(\'#' + ${id} + 'PartContainer\').find(\'.lineItemPart\').length}'" hx-swap="beforeend">Add Part</a>
+        </div>
+        <div class="mb-3" th:attr="id=${id} + 'PhotoContainer'">
+            <a href="#" class="btn btn-success mb-2"
+               th:attr="hx-get='/client/tag/addEstimatePhoto?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'PhotoContainer', hx-vals='js:{count: $(\'#' + ${id} + 'PhotoContainer\').find(\'.photo\').length}'"
+               hx-swap="beforeend">Add Photo</a>
+        </div>
+    </div>
+</div>

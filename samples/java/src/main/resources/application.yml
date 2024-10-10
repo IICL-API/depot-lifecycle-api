@@ -1,3 +1,7 @@
+depotlifecycle:
+  client:
+    url: "${LIFECYCLE_ENDPOINT:`http://localhost:8086/`}"
+    authorization: "${LIFECYCLE_AUTHORIZATION:`Basic bm92YWxpZGF0ZTpub3ZhbGlkYXRl`}" # no validate defaults
 micronaut:
   application:
     name: depotlifecycle
@@ -41,6 +45,9 @@ micronaut:
         httpMethod: GET
         access:
           - isAnonymous()
+      - pattern: /client/**
+        access:
+          - isAnonymous()
     endpoints:
       login:
         enabled: true
@@ -55,6 +62,7 @@ micronaut:
             generator:
               secret: pleaseChangeThisSecretForANewOne
 jackson:
+  trim-strings: true
   bean-introspection-module: true
   always-serialize-errors-as-list: false
   serialization:
@@ -62,6 +70,7 @@ jackson:
     writeDatesAsTimestamps: false
     writeDatesWithZoneId: false
   deserialization:
+    READ_UNKNOWN_ENUM_VALUES_AS_NULL: true
 #    useBigIntegerForInts: true
 #    failOnUnknownProperties: false
 datasources:
@@ -74,10 +83,10 @@ datasources:
     dialect: H2
 jpa:
   default:
+    entity-scan:
+      packages: 'depotlifecycle.domain'
     properties:
       hibernate:
-        bytecode:
-          provider: none
         hbm2ddl:
           auto: update
         show_sql: false

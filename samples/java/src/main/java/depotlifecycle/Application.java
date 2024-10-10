@@ -1,13 +1,6 @@
 package depotlifecycle;
 
-import depotlifecycle.domain.InsuranceCoverage;
-import depotlifecycle.domain.Party;
-import depotlifecycle.domain.Redelivery;
-import depotlifecycle.domain.RedeliveryDetail;
-import depotlifecycle.domain.RedeliveryUnit;
-import depotlifecycle.domain.Release;
-import depotlifecycle.domain.ReleaseDetail;
-import depotlifecycle.domain.ReleaseUnit;
+import depotlifecycle.domain.*;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import depotlifecycle.repositories.ReleaseRepository;
@@ -27,11 +20,10 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.inject.Singleton;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -39,11 +31,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 @OpenAPIDefinition(
     info = @Info(
         title = "Depot Life Cycle",
-        version = "2.2.4",
+            version = "2.2.6",
         description = "# Purpose\n\n" +
             " A depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to facilitate real time communication between systems instead of traditional EDI files.\n" +
             "\n\n\n" +
@@ -123,6 +116,10 @@ import java.util.Arrays;
             "    - Gate Photo Upload Proposal:\n\n" +
             "        - Gate Photo Upload endpoint\n\n" +
             "        - Added identifier field, `relatedId`, to `GateResponse` to use to upload photos\n\n" +
+            " * 2.2.5\n\n" +
+            "    - Share the same Gate Photo model between Create & Update since they are the same.\n\n" +
+            " * 2.2.6\n\n" +
+            "    - No intentional API changes.  Added Estimate & Gate clients for easier testing.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
@@ -270,11 +267,10 @@ import java.util.Arrays;
         @Tag(name="m_release_detail_criteria", description="<SchemaDefinition schemaRef=\"#/components/schemas/ReleaseDetailCriteria\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="ReleaseDetailCriteria")})}),
         @Tag(name="m_release_unit", description="<SchemaDefinition schemaRef=\"#/components/schemas/ReleaseUnit\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="ReleaseUnit")})}),
         @Tag(name="m_gate_create", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateCreateRequest\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateCreateRequest")})}),
-        @Tag(name="m_gate_create_photo", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateCreatePhoto\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateCreatePhoto")})}),
+        @Tag(name="m_gate_photo", description="<SchemaDefinition schemaRef=\"#/components/schemas/GatePhoto\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GatePhoto")})}),
         @Tag(name="m_gate_response", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateResponse\"/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateResponse")})}),
         @Tag(name="m_gate_status", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateStatus\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateStatus")})}),
         @Tag(name="m_gate_update_request", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateUpdateRequest\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateUpdateRequest")})}),
-        @Tag(name="m_gate_update_photo", description="<SchemaDefinition schemaRef=\"#/components/schemas/GateUpdatePhoto\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="GateUpdatePhoto")})}),
         @Tag(name="m_estimate", description="<SchemaDefinition schemaRef=\"#/components/schemas/Estimate\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="Estimate")})}),
         @Tag(name="m_estimate_photo", description="<SchemaDefinition schemaRef=\"#/components/schemas/EstimatePhoto\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="EstimatePhoto")})}),
         @Tag(name="m_estimate_line_item", description="<SchemaDefinition schemaRef=\"#/components/schemas/EstimateLineItem\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="EstimateLineItem")})}),
@@ -288,7 +284,7 @@ import java.util.Arrays;
         @Tag(name="m_repair_complete", description="<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="RepairComplete")})})
     },
     extensions = {
-        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Proposals (Alpha)\", \"tags\": [ \"estimate proposals\", \"gate proposals\" ] }, { \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_create_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_gate_update_photo\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_allocation\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\" ] }]", parseValue = true)})
+        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Proposals (Alpha)\", \"tags\": [ \"estimate proposals\", \"gate proposals\" ] }, { \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_allocation\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\" ] }]", parseValue = true)})
     },
     servers = {
         @Server(url = "https://api.example.com/examplecontextpath")
@@ -301,15 +297,8 @@ import java.util.Arrays;
 @SecuritySchemes (
     value = {
             @SecurityScheme(
-                    name = "Dynamic_Token",
-                    description = "Dynamic JWT Bearer Authentication",
-                    type = SecuritySchemeType.HTTP,
-                    bearerFormat = "JWT",
-                    scheme = "bearer"
-            ),
-            @SecurityScheme(
-                    name = "Static_Token",
-                    description = "Static JWT Bearer Authentication",
+                    name = "JWT_TOKEN",
+                    description = "JWT Bearer Authentication",
                     type = SecuritySchemeType.HTTP,
                     bearerFormat = "JWT",
                     scheme = "bearer"
@@ -318,6 +307,7 @@ import java.util.Arrays;
 )
 @Singleton
 @RequiredArgsConstructor
+//@Introspected(packages="depotlifecycle.domain", includedAnnotations=Entity.class)
 public class Application {
 
     private static final Logger LOG = LoggerFactory.getLogger(Application.class);
@@ -376,12 +366,12 @@ public class Application {
 
     private void buildReleases(Party depot1, Party depot2, Party customer, Party owner) {
         Release release = new Release();
-        release.setStatus("APPROVED");
+        release.setStatus(ReleaseStatus.APPROVED);
         release.setReleaseNumber("RHAMG134512");
-        release.setType("BOOK");
+        release.setType(ReleaseType.BOOK);
         release.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
         release.setExpirationDate(getLocal(LocalDateTime.now().plusMonths(4)));
-        release.setComments(Arrays.asList("an example release level comment"));
+        release.setComments(List.of("an example release level comment"));
         release.setDepot(depot1);
         release.setOwner(owner);
         release.setRecipient(depot1);
@@ -403,13 +393,13 @@ public class Application {
 
         ReleaseUnit unit1 = new ReleaseUnit();
         unit1.setUnitNumber("CONU1234561");
-        unit1.setComments(Arrays.asList("Example unit comment #1."));
-        unit1.setStatus("TIED");
+        unit1.setComments(List.of("Example unit comment #1."));
+        unit1.setStatus(ReleaseUnitStatus.TIED);
 
         ReleaseUnit unit2 = new ReleaseUnit();
         unit2.setUnitNumber("CONU1234526");
-        unit2.setComments(Arrays.asList("Example unit comment #2."));
-        unit2.setStatus("TIED");
+        unit2.setComments(List.of("Example unit comment #2."));
+        unit2.setStatus(ReleaseUnitStatus.TIED);
         unit2.setManufactureDate(LocalDate.of(2012, 1, 1));
 
         release.getDetails().add(blanketDetail);
@@ -422,11 +412,11 @@ public class Application {
 
     private void buildRedeliveries(Party depot1, Party depot2, Party customer, Party owner) {
         Redelivery redelivery = new Redelivery();
-        redelivery.setStatus("APPROVED");
+        redelivery.setStatus(RedeliveryStatus.APPROVED);
         redelivery.setRedeliveryNumber("AHAMG33141");
         redelivery.setApprovalDate(getLocal(LocalDateTime.now().minusDays(5)));
         redelivery.setExpirationDate(getLocal(LocalDateTime.now().plusMonths(4)));
-        redelivery.setComments(Arrays.asList("an example redelivery level comment"));
+        redelivery.setComments(List.of("an example redelivery level comment"));
         redelivery.setDepot(depot1);
         redelivery.setRecipient(depot1);
         redelivery.setOwner(owner);
@@ -439,7 +429,7 @@ public class Application {
         noInsuranceDetail.setQuantity(1);
 
         InsuranceCoverage coverage = new InsuranceCoverage();
-        coverage.setAmountCovered(new BigDecimal(2000.0));
+        coverage.setAmountCovered(new BigDecimal("2000.0"));
         coverage.setAmountCurrency("USD");
         coverage.setAllOrNothing(false);
         coverage.setExceptions(Arrays.asList("Exception #1", "Exception #2"));
@@ -459,18 +449,18 @@ public class Application {
         unit1.setManufactureDate(LocalDate.of(2012, 1, 1));
         unit1.setLastOnHireDate(LocalDate.of(2012, 2, 1));
         unit1.setLastOnHireLocation(depot2);
-        unit1.setComments(Arrays.asList("Example unit comment #1."));
+        unit1.setComments(List.of("Example unit comment #1."));
         unit1.setBillingParty(depot1);
         unit1.setInspectionCriteria("IICL");
-        unit1.setStatus("TIED");
+        unit1.setStatus(RedeliveryUnitStatus.TIED);
 
         RedeliveryUnit unit2 = new RedeliveryUnit();
         unit2.setUnitNumber("CONU1234526");
         unit2.setManufactureDate(LocalDate.of(2012, 1, 1));
-        unit2.setComments(Arrays.asList("Example unit comment #2."));
+        unit2.setComments(List.of("Example unit comment #2."));
         unit2.setBillingParty(depot1);
         unit2.setInspectionCriteria("CWCA");
-        unit2.setStatus("TIED");
+        unit2.setStatus(RedeliveryUnitStatus.TIED);
 
         redelivery.getDetails().add(insuranceDetail);
         redelivery.getDetails().add(noInsuranceDetail);

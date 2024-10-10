@@ -1,0 +1,6 @@
+<div class="mb-3 row">
+    <label th:attr="for=${id} + ${fieldName}" class="form-label col-sm-3 col-form-label" th:text="${fieldLabel}">Field Label</label>
+    <div class="col-sm-9">
+    <input type="text" class="form-control" th:attr="id=${id} + ${fieldName}, name=${fieldName}">
+    </div>
+</div>

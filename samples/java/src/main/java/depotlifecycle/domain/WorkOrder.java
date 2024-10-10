@@ -4,22 +4,23 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -41,21 +42,22 @@ public class WorkOrder {
     Long id;
 
     @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nAn internal system identifier to be used to upload Estimate Photos or compare related activities.", type = "integer", format = "int64", example = "10102561", required = false, nullable = true)
+    @Column(nullable = true)
     Long relatedId;
 
     @Schema(description = "the identifier for this work order; this will be the approval number for repairs", example = "WHAMG46019", minLength = 1, maxLength = 16, required = true, nullable = false)
     @Column(nullable = false, length = 16)
     String workOrderNumber;
 
-    @Schema(required = true, nullable = false, description = "the storage location where the shipping container is being repaired")
+    @Schema(required = true, nullable = false, description = "the storage location where the shipping container is being repaired", implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party depot;
 
-    @Schema(required = true, nullable = false, description = "the owner of the shipping container")
+    @Schema(required = true, nullable = false, description = "the owner of the shipping container", implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party owner;
 
-    @Schema(required = false, nullable = true, description = "the party that will bill the customer portion of damages for this repair")
+    @Schema(required = false, nullable = true, description = "the party that will bill the customer portion of damages for this repair", implementation = Party.class)
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     Party billingParty;
 
@@ -87,7 +89,8 @@ public class WorkOrder {
     @Column(length = 500)
     String comments;
 
-    @Schema(description = "units associated to this work order", required = true, nullable = false, minLength = 1, maxLength = 200)
+    @ArraySchema(minItems = 1, maxItems = 200, schema = @Schema(implementation = WorkOrderUnit.class))
+    @Schema(description = "units associated to this work order", required = true, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<WorkOrderUnit> lineItems = new ArrayList<>();
 }

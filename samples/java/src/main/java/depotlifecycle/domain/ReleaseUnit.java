@@ -5,22 +5,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -43,17 +33,17 @@ public class ReleaseUnit {
     @Column(nullable = false, length = 11)
     String unitNumber;
 
-    @ArraySchema(schema = @Schema(description = "comments pertaining to this unit for the intended recipient of this message", example = "An example unit level comment.", required = false, nullable = false))
+    @ArraySchema(schema = @Schema(example = "An example unit level comment."))
     @Schema(description = "comments pertaining to this unit for the intended recipient of this message", required = false, nullable = false)
     @Lob
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
-    @LazyCollection(LazyCollectionOption.FALSE)
     List<String> comments;
 
-    @Schema(required = true, nullable = false, description = "Describes the state of the shipping container for this release: \n\n`TIED` - shipping container is assigned to this release and ready to lease out.\n\n`REMOVED` - shipping container was attached to this release, but is no longer valid for release.\n\n`LOT` - shipping container has left the storage location.\n\n`CANDIDATE` - this container is eligible for this release but not currently assigned.", allowableValues = {"REMOVED", "TIED", "LOT", "CANDIDATE"}, example = "TIED")
+    @Schema(required = true, nullable = false, description = "Describes the state of the shipping container for this release: \n\n`TIED` - shipping container is assigned to this release and ready to lease out.\n\n`REMOVED` - shipping container was attached to this release, but is no longer valid for release.\n\n`LOT` - shipping container has left the storage location.\n\n`CANDIDATE` - this container is eligible for this release but not currently assigned.", example = "TIED", implementation = ReleaseUnitStatus.class)
     @Column(nullable = false, length = 9)
-    String status;
+    @Enumerated(EnumType.STRING)
+    ReleaseUnitStatus status;
 
     @Schema(description = "specific to Genset equipment, indicator for California Air Resources Board compliance", required = false, nullable = true)
     @Column

@@ -1,0 +1,14 @@
+<div class="card photo mb-2">
+    <div class="card-header">
+        <div class="d-flex flex-row justify-content-between">
+            <h5 class="card-title" th:text="${title}"></h5>
+            <button type="button" class="btn-close" onclick="$(this).closest('div.photo').remove();"></button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'url'" class="form-label">URL</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'url', name=${propertyPath} + 'url'" required>
+        </div>
+    </div>
+</div>
