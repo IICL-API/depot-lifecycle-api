@@ -38,7 +38,7 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
-@Tag(name = "gate proposals")
+@Tag(name = "gate photos")
 @Validated
 @Secured("isAuthenticated()")
 @Controller("/api/v2/gatePhoto")

@@ -122,6 +122,7 @@ import java.util.List;
             "    - No intentional API changes.  Added Estimate & Gate clients for easier testing.\n\n" +
             " * 2.2.7\n\n" +
             "    - Add optional `tax` field to Estimate Line Item; typically used for total verification & for systems that do not store the tax rate of the depot.\n\n" +
+            "    - Move binary estimate & gate photo upload apis from alpha to beta.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
@@ -250,8 +251,8 @@ import java.util.List;
     ),
     externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/IICL-API/depot-lifecycle-api"),
     tags = {
-        @Tag(name = "estimate proposals", description = "*new estimate apis that are being considered*"),
-        @Tag(name = "gate proposals", description = "*new gate apis that are being considered*"),
+        @Tag(name = "estimate photos", description = "*estimate photo uploads*"),
+        @Tag(name = "gate photos", description = "*gate photo uploads*"),
         @Tag(name = "redelivery", description = "*turn in approval for shipping containers*"),
         @Tag(name = "release", description = "*lease out approval for shipping containers*"),
         @Tag(name = "gate", description = "*manage gate ins and gate outs of shipping containers*"),
@@ -286,7 +287,7 @@ import java.util.List;
         @Tag(name="m_repair_complete", description="<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="RepairComplete")})})
     },
     extensions = {
-        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Proposals (Alpha)\", \"tags\": [ \"estimate proposals\", \"gate proposals\" ] }, { \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_allocation\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\" ] }]", parseValue = true)})
+        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\", \"estimate photos\", \"gate photos\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_allocation\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\" ] }]", parseValue = true)})
     },
     servers = {
         @Server(url = "https://api.example.com/examplecontextpath")

@@ -82,29 +82,30 @@ info:
     \n    - No intentional API changes.  Added Estimate & Gate clients for easier\
     \ testing.\n\n * 2.2.7\n\n    - Add optional `tax` field to Estimate Line Item;\
     \ typically used for total verification & for systems that do not store the tax\
-    \ rate of the depot.\n\n\n\n\n # Security & Authentication\n\n To ensure secure\
-    \ communication, all endpoints of this API should use the https protocol instead\
-    \ of http.  Authentication methods will differ between systems, but two popular\
-    \ methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n\
-    \n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/), is used for\
-    \ stateless authentication.  Since all requests are sent using https, tokens are\
-    \ not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
-    \ format.\n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\"\
-    ,\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\
-    \n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n\n\n\n\n An access_token is provided\
-    \ for authentication to API endpoints and a refresh_token is provided to generate\
-    \ a new access_token when one expires.\n\n\n\n\n\n ### 2. Obtaining an access\
-    \ token\n\n Issuing a POST request to `/api/login` with a username and password\
-    \ payload will cause a JWT token to be issued in the response.\n\n ```\n\n POST\
-    \ /api/login HTTP/1.1\n\n Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\
-    \n\n\n\n\n {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n\
-    \ }\n\n ```\n\n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created\
-    \ by invoking the login endpoint expire after a determined period.  Issuing a\
-    \ POST request to `/oauth/access_token` with: the refresh_token from the JWT token\
-    \ previously issued and a grant_type of refresh_token will reissue a new JWT token.\n\
-    \n ```\n\n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
+    \ rate of the depot.\n\n    - Move binary estimate & gate photo upload apis from\
+    \ alpha to beta.\n\n\n\n\n # Security & Authentication\n\n To ensure secure communication,\
+    \ all endpoints of this API should use the https protocol instead of http.  Authentication\
+    \ methods will differ between systems, but two popular methods are JSON Web Tokens\
+    \ and Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\
+    \n [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
+    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
+    \n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
+    : [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"\
+    j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    ,\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    \n\n }\n\n ```\n\n\n\n\n\n An access_token is provided for authentication to API\
+    \ endpoints and a refresh_token is provided to generate a new access_token when\
+    \ one expires.\n\n\n\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
+    \ request to `/api/login` with a username and password payload will cause a JWT\
+    \ token to be issued in the response.\n\n ```\n\n POST /api/login HTTP/1.1\n\n\
+    \ Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\n\n\n\n\n\
+    \ {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n }\n\n ```\n\
+    \n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created by invoking the\
+    \ login endpoint expire after a determined period.  Issuing a POST request to\
+    \ `/oauth/access_token` with: the refresh_token from the JWT token previously\
+    \ issued and a grant_type of refresh_token will reissue a new JWT token.\n\n ```\n\
+    \n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
     \ application/x-www-form-urlencoded\n\n\n\n\n\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
     \n ```\n\n\n\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked\
     \ if it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n\n\
@@ -137,10 +138,10 @@ security:
 - Dynamic_Token: []
 - Static_Token: []
 tags:
-- name: estimate proposals
-  description: '*new estimate apis that are being considered*'
-- name: gate proposals
-  description: '*new gate apis that are being considered*'
+- name: estimate photos
+  description: '*estimate photo uploads*'
+- name: gate photos
+  description: '*gate photo uploads*'
 - name: redelivery
   description: '*turn in approval for shipping containers*'
 - name: release
@@ -632,7 +633,7 @@ paths:
   /api/v2/estimatePhoto/{relatedId}:
     post:
       tags:
-      - estimate proposals
+      - estimate photos
       summary: upload an estimate photo
       description: "Instead of using a link, upload a photo for a previously allocated\
         \ estimate"
@@ -941,7 +942,7 @@ paths:
   /api/v2/gatePhoto/{relatedId}:
     post:
       tags:
-      - gate proposals
+      - gate photos
       summary: upload a gate photo
       description: "Instead of using a link, upload a photo for a previously created\
         \ gate record"
@@ -3916,14 +3917,12 @@ components:
       scheme: bearer
       bearerFormat: JWT
 x-tagGroups:
-- name: "API: Proposals (Alpha)"
-  tags:
-  - estimate proposals
-  - gate proposals
 - name: "API: Under Development (Beta)"
   tags:
   - redelivery
   - release
+  - estimate photos
+  - gate photos
 - name: "API: Production Ready"
   tags:
   - gate
