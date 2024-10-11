@@ -5,6 +5,7 @@ import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.Redelivery;
 import depotlifecycle.domain.RedeliveryDetail;
 import depotlifecycle.domain.RedeliveryUnit;
+import depotlifecycle.repositories.ExternalPartyRepository;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
@@ -62,6 +63,7 @@ public class RedeliveryController {
     private final RedeliveryRepository redeliveryRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
+    private final ExternalPartyRepository externalPartyRepository;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a redelivery",
@@ -157,7 +159,12 @@ public class RedeliveryController {
     private void saveParties(Redelivery redelivery) {
         for (RedeliveryDetail detail : redelivery.getDetails()) {
             if (detail.getCustomer() != null) {
-                detail.setCustomer(partyRepository.save(detail.getCustomer()));
+                try {
+                    detail.setCustomer(externalPartyRepository.save(detail.getCustomer()));
+                }
+                catch(Exception e) {
+                    throw new IllegalArgumentException(String.format("Customer - %s", e.getMessage()));
+                }
             }
 
             for (RedeliveryUnit unit : detail.getUnits()) {
@@ -179,7 +186,12 @@ public class RedeliveryController {
         }
 
         if (redelivery.getRecipient() != null) {
-            redelivery.setRecipient(partyRepository.save(redelivery.getRecipient()));
+            try {
+                redelivery.setRecipient(externalPartyRepository.save(redelivery.getRecipient()));
+            }
+            catch(Exception e) {
+                throw new IllegalArgumentException(String.format("Recipient - %s", e.getMessage()));
+            }
         }
     }
 

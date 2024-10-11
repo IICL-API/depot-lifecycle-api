@@ -29,9 +29,9 @@ public class ReleaseDetail {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "The customer for the contract on this detail.", required = true, nullable = false, implementation = Party.class)
+    @Schema(description = "The customer for the contract on this detail.", required = true, nullable = false, implementation = ExternalParty.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    Party customer;
+    ExternalParty customer;
 
     @Schema(description = "the contract code for the given shipping containers", required = true, nullable = false, example = "CNCX05-100000", maxLength = 16)
     @Column(nullable = false, length = 16)

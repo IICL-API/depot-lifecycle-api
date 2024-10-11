@@ -31,7 +31,7 @@ public class RedeliveryDetail {
 
     @Schema(description = "The customer for the contract on this detail.", required = true, nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    Party customer;
+    ExternalParty customer;
 
     @Schema(description = "the contract code for the given shipping containers", required = true, nullable = false, example = "CNCX05-100000", maxLength = 16)
     @Column(nullable = false, length = 16)

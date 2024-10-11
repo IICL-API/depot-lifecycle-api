@@ -74,9 +74,9 @@ public class Redelivery {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party owner;
 
-    @Schema(description = "The intended recipient for this message representing a redelivery", required = true, nullable = false, implementation = Party.class)
+    @Schema(description = "The intended recipient for this message representing a redelivery", required = true, nullable = false, implementation = ExternalParty.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    Party recipient;
+    ExternalParty recipient;
 
     @Schema(description = "the number of shipping containers assigned to this redelivery.", required = true, nullable = false, minimum = "0", example = "1")
     @Column(nullable = false)

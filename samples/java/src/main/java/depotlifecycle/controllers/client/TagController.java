@@ -39,7 +39,13 @@ public class TagController {
     @Get("/addParty")
     @View("tags/party")
     Mono<Map<String, Object>> addParty(@NonNull @Parameter String title, @NonNull @Parameter String id) {
-        return Mono.just(Map.of("title", title, "id", id));
+        return Mono.just(Map.of("title", title, "id", id, "isExternalParty", false));
+    }
+
+    @Get("/addExternalParty")
+    @View("tags/party")
+    Mono<Map<String, Object>> addExternalParty(@NonNull @Parameter String title, @NonNull @Parameter String id) {
+        return Mono.just(Map.of("title", title, "id", id, "isExternalParty", true));
     }
 
     @Get("/addTextInput")

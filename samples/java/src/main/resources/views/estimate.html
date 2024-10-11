@@ -121,7 +121,7 @@
                             <input type="text" class="form-control" id="createComments" name="comments" maxlength="500">
                         </div>
                         <div class="mb-3" id="requesterContainer">
-                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Requester&id=requester" hx-target="#requesterContainer" hx-swap="innerHtml">Add Requester</a>
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addExternalParty?title=Requester&id=requester" hx-target="#requesterContainer" hx-swap="innerHtml">Add Requester</a>
                         </div>
                         <div class="mb-3" id="depotContainer" th:insert="~{tags/party}" th:with="title='Depot', id='depot'">
                         </div>
@@ -129,11 +129,11 @@
                             <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Owner&id=owner" hx-target="#ownerContainer" hx-swap="innerHtml">Add Owner</a>
                         </div>
                         <div class="mb-3" id="customerContainer">
-                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Customer&id=customer" hx-target="#customerContainer" hx-swap="innerHtml">Add Customer</a>
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addExternalParty?title=Customer&id=customer" hx-target="#customerContainer" hx-swap="innerHtml">Add Customer</a>
                         </div>
                         <div class="mb-3">
                             <label for="createCurrency" class="form-label">Currency</label>
-                            <input type="text" class="form-control" id="createCurrency" name="currency" maxlength="3" pattern="^[A-Z]{3}$">
+                            <input type="text" class="form-control" id="createCurrency" name="currency" maxlength="3" pattern="^[A-Z]{3}$" required>
                         </div>
                         <div class="mb-3">
                             <label for="createTotal" class="form-label">Total</label>

@@ -2,6 +2,8 @@ package depotlifecycle.commands;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import depotlifecycle.domain.BaseParty;
+import depotlifecycle.domain.ExternalParty;
 import depotlifecycle.domain.Party;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
@@ -18,8 +20,7 @@ import java.util.List;
 @JsonView
 @Introspected
 public class PartyCommand {
-    @NotNull
-    @NotBlank
+    @Nullable
     @Pattern(regexp = "^[A-Z0-9]{9}$", message = "CompanyId must be a valid EDI Address.")
     String companyId;
 
@@ -75,13 +76,27 @@ public class PartyCommand {
     public Party toParty() {
         Party party = new Party();
         party.setCompanyId(companyId);
+        party.setCode(code);
+        fillParty(party);
+        return party;
+    }
+
+    @JsonIgnore
+    public ExternalParty toExternalParty() {
+        ExternalParty party = new ExternalParty();
+        party.setCompanyId(companyId);
+        party.setCode(code);
+        fillParty(party);
+        return party;
+    }
+
+    private <T extends BaseParty> void fillParty(T party) {
         party.setUserCode(userCode);
         party.setUserName(userName);
         party.setFaxNumber(faxNumber);
         party.setPhoneNumber(phoneNumber);
         party.setEmailAddress(emailAddress);
         party.setName(name);
-        party.setCode(code);
         party.setStreetAddress(streetAddress);
         party.setCity(city);
         party.setCountry(country);
@@ -89,6 +104,5 @@ public class PartyCommand {
         party.setStateProvince(stateProvince);
         party.setLatitude(latitude);
         party.setLongitude(longitude);
-        return party;
     }
 }

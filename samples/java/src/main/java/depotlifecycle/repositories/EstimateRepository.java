@@ -1,6 +1,7 @@
 package depotlifecycle.repositories;
 
 import depotlifecycle.domain.Estimate;
+import depotlifecycle.domain.ExternalParty;
 import depotlifecycle.domain.Party;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.data.annotation.Query;
@@ -25,5 +26,5 @@ public interface EstimateRepository extends CrudRepository<Estimate, Long> {
             "(:unitNumber IS NULL OR e.unitNumber = :unitNumber) AND " +
             "(:customer IS NULL OR e.customer = :customer) AND " +
             "(:revision IS NULL OR e.revision = :revision)")
-    List<Estimate> searchEstimates(@Nullable String estimateNumber, @Nullable Party depot, @Nullable String unitNumber, @Nullable Party customer, @Nullable Integer revision, Pageable pageable);
+    List<Estimate> searchEstimates(@Nullable String estimateNumber, @Nullable Party depot, @Nullable String unitNumber, @Nullable ExternalParty customer, @Nullable Integer revision, Pageable pageable);
 }

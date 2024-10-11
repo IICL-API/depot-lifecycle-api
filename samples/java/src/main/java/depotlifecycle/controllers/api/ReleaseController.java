@@ -5,6 +5,7 @@ import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.Release;
 import depotlifecycle.domain.ReleaseDetail;
 import depotlifecycle.domain.ReleaseDetailCriteria;
+import depotlifecycle.repositories.ExternalPartyRepository;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.ReleaseRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
@@ -60,6 +61,7 @@ public class ReleaseController {
     private final ReleaseRepository releaseRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
+    private final ExternalPartyRepository externalPartyRepository;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a release",
@@ -137,7 +139,12 @@ public class ReleaseController {
     private void saveParties(Release release) {
         for (ReleaseDetail detail : release.getDetails()) {
             if (detail.getCustomer() != null) {
-                detail.setCustomer(partyRepository.save(detail.getCustomer()));
+                try {
+                    detail.setCustomer(externalPartyRepository.save(detail.getCustomer()));
+                }
+                catch(Exception e) {
+                    throw new IllegalArgumentException(String.format("Customer - %s", e.getMessage()));
+                }
             }
 
             if(!Objects.isNull(detail.getCriteria())) {
@@ -156,7 +163,12 @@ public class ReleaseController {
         }
 
         if (release.getRecipient() != null) {
-            release.setRecipient(partyRepository.save(release.getRecipient()));
+            try {
+                release.setRecipient(externalPartyRepository.save(release.getRecipient()));
+            }
+            catch(Exception e) {
+                throw new IllegalArgumentException(String.format("Recipient - %s", e.getMessage()));
+            }
         }
     }
 

@@ -125,6 +125,7 @@ import java.util.List;
             "    - (api) Add optional `tax` field to Estimate Line Item; typically used for total verification & for systems that do not store the tax rate of the depot.\n\n" +
             "    - (api) Move binary estimate & gate photo upload apis from alpha to beta.\n\n" +
             "    - (client) Minor fetch fixes to support estimate & gate searches.\n\n" +
+            "    - (api) Change Customer, Recipient, and Requester party references to an external party - a party that supports either the `companyId` or `code` for identification.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +

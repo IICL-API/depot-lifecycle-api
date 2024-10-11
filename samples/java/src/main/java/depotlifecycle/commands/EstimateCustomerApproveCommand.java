@@ -7,10 +7,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @JsonView
 @Introspected
+@EqualsAndHashCode(callSuper = true)
 public class EstimateCustomerApproveCommand extends BaseCustomerApprovalCommand {
     @NotNull
     @NotBlank

@@ -72,9 +72,9 @@ public class Release {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party owner;
 
-    @Schema(description = "The intended recipient for this message representing a release", required = true, implementation = Party.class)
+    @Schema(description = "The intended recipient for this message representing a release", required = true, implementation = ExternalParty.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    Party recipient;
+    ExternalParty recipient;
 
     @Schema(description = "indicates if an on-hire survey is required for units associated to this release")
     @Column

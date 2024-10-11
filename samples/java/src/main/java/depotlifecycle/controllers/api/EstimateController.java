@@ -49,6 +49,7 @@ import java.util.Optional;
 public class EstimateController {
     private static final Logger LOG = LoggerFactory.getLogger(EstimateController.class);
     private final PartyRepository partyRepository;
+    private final ExternalPartyRepository externalPartyRepository;
     private final EstimateRepository estimateRepository;
     private final EstimateCancelRequestRepository estimateCancelRequestRepository;
     private final EstimateAllocationRepository estimateAllocationRepository;
@@ -73,7 +74,7 @@ public class EstimateController {
     public List<Estimate> index(@Nullable @QueryValue("estimateNumber") @Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16, required = false, nullable = true)) String estimateNumber,
                                 @Nullable @QueryValue("unitNumber") @Parameter(name = "unitNumber", description = "the unit number of the shipping container at the time of estimate creation", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", maxLength = 11, pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561", required = false, nullable = true)) String unitNumber,
                                 @Nullable @QueryValue("depot") @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9, required = false, nullable = true)) String depot,
-                                @Nullable @QueryValue("lessee") @Parameter(name = "lessee", description = "the identifier of the lessee", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "SGSINONEA", maxLength = 9, required = false, nullable = true)) String lessee,
+                                @Nullable @QueryValue("lessee") @Parameter(name = "lessee", description = "the identifier of the lessee; may be a companyId or internal code", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "SGSINONEA", maxLength = 9, required = false, nullable = true)) String lessee,
                                 @Nullable @QueryValue("revision") @Parameter(name = "revision", description = "the revision number of the estimate", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "integer", format = "int32", example = "0", required = false, nullable = true)) Integer revision,
                                 @Nullable @QueryValue("equipmentCode") @Parameter(name = "equipmentCode", description = "the ISO equipment code of the shipping container", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", example = "22G1", maxLength = 10, required = false, nullable = true)) String equipmentCode
     ) {
@@ -88,9 +89,9 @@ public class EstimateController {
             }
         }
 
-        Optional<Party> customerParty = Optional.empty();
+        Optional<ExternalParty> customerParty = Optional.empty();
         if(!Objects.isNull(depot)) {
-            customerParty = partyRepository.findByCompanyId(lessee);
+            customerParty = externalPartyRepository.findByCompanyIdOrCode(lessee, lessee);
             if(customerParty.isEmpty()) {
                 ErrorResponse error = new ErrorResponse();
                 error.setCode("ERR002");
@@ -163,7 +164,12 @@ public class EstimateController {
         }
 
         if (estimate.getRequester() != null) {
-            estimate.setRequester(partyRepository.save(estimate.getRequester()));
+            try {
+                estimate.setRequester(externalPartyRepository.save(estimate.getRequester()));
+            }
+            catch(Exception e) {
+                throw new IllegalArgumentException(String.format("Requester - %s", e.getMessage()));
+            }
         }
 
         if (estimate.getOwner() != null) {
@@ -171,7 +177,12 @@ public class EstimateController {
         }
 
         if (estimate.getCustomer() != null) {
-            estimate.setCustomer(partyRepository.save(estimate.getCustomer()));
+            try {
+                estimate.setCustomer(externalPartyRepository.save(estimate.getCustomer()));
+            }
+            catch(Exception e) {
+                throw new IllegalArgumentException(String.format("Customer - %s", e.getMessage()));
+            }
         }
 
         if (estimate.getAllocation() != null) {

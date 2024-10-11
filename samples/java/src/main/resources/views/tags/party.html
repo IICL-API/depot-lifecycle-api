@@ -5,7 +5,11 @@
     <div class="card-body">
         <div class="mb-3">
             <label th:attr="for=${id} + 'companyId'" class="form-label">Company Id</label>
-            <input type="text" class="form-control" th:attr="id=${id} + 'companyId', name=${id} + '.companyId'" maxlength="9" required pattern="^[A-Z0-9]{9}$">
+            <input type="text" class="form-control" th:attr="id=${id} + 'companyId', name=${id} + '.companyId'" th:required="${!isExternalParty} ? 'required' : null" maxlength="9" pattern="^[A-Z0-9]{9}$">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'code'" class="form-label">Code</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'code', name=${id} + '.code'" maxlength="10">
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'userCode'" class="form-label">User Code</label>
@@ -36,10 +40,6 @@
         <div class="mb-3">
             <label th:attr="for=${id} + 'name'" class="form-label">Name</label>
             <input type="text" class="form-control" th:attr="id=${id} + 'name', name=${id} + '.name'" maxlength="150">
-        </div>
-        <div class="mb-3">
-            <label th:attr="for=${id} + 'code'" class="form-label">Code</label>
-            <input type="text" class="form-control" th:attr="id=${id} + 'code', name=${id} + '.code'" maxlength="10">
         </div>
         <div class="mb-3">
             <a href="#" class="btn btn-success mb-2" th:attr="hx-target='#' + ${id} + 'streetAddress', hx-get='/client/tag/addTextInput?fieldName=' + ${id} + '.streetAddress&fieldLabel=Line&id=' + ${id}" hx-swap="beforeend">Add Street Address Line</a>
