@@ -1,6 +1,7 @@
 package depotlifecycle;
 
 import depotlifecycle.domain.*;
+import depotlifecycle.repositories.ExternalPartyRepository;
 import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.RedeliveryRepository;
 import depotlifecycle.repositories.ReleaseRepository;
@@ -75,54 +76,54 @@ import java.util.List;
             "\n\n\n" +
             " # Change Log\n\n" +
             " * 2.2.1\n\n" +
-            "    - Estimate Photo support for line items and the overall estimate (header).\n\n" +
+            "    - (api) Estimate Photo support for line items and the overall estimate (header).\n\n" +
             " * 2.2.2\n\n" +
-            "    - Estimate Line Items are optional.\n\n" +
-            "    - Error Responses optionally support multiple messages via a details field.\n\n" +
-            "    - Various improvements for BETA APIs.\n\n" +
+            "    - (api) Estimate Line Items are optional.\n\n" +
+            "    - (api) Error Responses optionally support multiple messages via a details field.\n\n" +
+            "    - (api) Various improvements for BETA APIs.\n\n" +
             " * 2.2.3\n\n" +
-            "    - Party model (optional):\n\n" +
+            "    - (api) Party model (optional):\n\n" +
             "        - Latitude & Longitude\n\n" +
             "        - Physical Address\n\n" +
             "        - Contact Phone, Fax, & Phone Number fields\n\n" +
-            "    - Insurance Coverage model:\n\n" +
+            "    - (api) Insurance Coverage model:\n\n" +
             "         - Add indicator for insurance coverage applicable to CTL scenarios\n\n" +
-            "    - Release & Redelivery models - Status field\n\n" +
-            "    - Redelivery model - Add field to store estimate recipient emails\n\n" +
-            "    - RedeliveryUnit model - Add cargo # to identify type of cargo by UN or other standard numbers\n\n" +
-            "    - RedeliveryUnit model - Add technical bulletins field\n\n" +
-            "    - Release search - Add search flag to find candidate units\n\n" +
+            "    - (api) Release & Redelivery models - Status field\n\n" +
+            "    - (api) Redelivery model - Add field to store estimate recipient emails\n\n" +
+            "    - (api) RedeliveryUnit model - Add cargo # to identify type of cargo by UN or other standard numbers\n\n" +
+            "    - (api) RedeliveryUnit model - Add technical bulletins field\n\n" +
+            "    - (api) Release search - Add search flag to find candidate units\n\n" +
             " * 2.2.4\n\n" +
-            "    - Added separate section for shared models to documentation (show the request based version where possible to avoid confusion).\n\n" +
-            "    - Documented suggested security schemes for easier adoption with API importing tools.\n\n" +
-            "    - Clarified best practices for JSON produced or consumed by this API.\n\n" +
+            "    - (api) Added separate section for shared models to documentation (show the request based version where possible to avoid confusion).\n\n" +
+            "    - (doc) Documented suggested security schemes for easier adoption with API importing tools.\n\n" +
+            "    - (doc) Clarified best practices for JSON produced or consumed by this API.\n\n" +
             "        - Clarified Default Value handling.\n\n" +
             "        - Clarified Null vs Absent Value handling.\n\n" +
             "        - Documented forward compatability best practices.\n\n" +
-            "    - Fixed type definitions for query parameters - `string` will now show instead of `object`.\n\n" +
-            "    - Fixed type definitions for path parameters - `string` will now show instead of `object`.\n\n" +
-            "    - Fixed minimum length documentation for damage location code on Estimate Line Item.\n\n" +
-            "    - Add `type` to Gate Status API.\n\n" +
-            "    - Change `currentInspectionCriteria` on Gate Status & Create APIs to optional since Estimates are not always required.\n\n" +
-            "    - Add `gateCheck` option to Redelivery & Release search APIs, defaulted so previous query behavior is the same.\n\n" +
-            "    - Clarify that the reefer set point temperature is in Celsius on the ReleaseDetail model.\n\n" +
-            "    - Clarify `inspectionCriteria` field on `RedeliveryUnit` is meant to convey the estimation instructions.\n\n" +
-            "    - Fix array string examples.\n\n" +
-            "    - Estimate Photo Upload Proposal:\n\n" +
+            "    - (doc) Fixed type definitions for query parameters - `string` will now show instead of `object`.\n\n" +
+            "    - (doc) Fixed type definitions for path parameters - `string` will now show instead of `object`.\n\n" +
+            "    - (doc) Fixed minimum length documentation for damage location code on Estimate Line Item.\n\n" +
+            "    - (api) Add `type` to Gate Status API.\n\n" +
+            "    - (api) Change `currentInspectionCriteria` on Gate Status & Create APIs to optional since Estimates are not always required.\n\n" +
+            "    - (api) Add `gateCheck` option to Redelivery & Release search APIs, defaulted so previous query behavior is the same.\n\n" +
+            "    - (doc) Clarify that the reefer set point temperature is in Celsius on the ReleaseDetail model.\n\n" +
+            "    - (doc) Clarify `inspectionCriteria` field on `RedeliveryUnit` is meant to convey the estimation instructions.\n\n" +
+            "    - (doc) Fix array string examples.\n\n" +
+            "    - (api) Estimate Photo Upload Proposal:\n\n" +
             "        - For all photo APIs, assume a default status of `BEFORE` so that it is not required.\n\n" +
             "        - Estimate Photo Upload endpoint\n\n" +
             "        - Added identifier field, `relatedId`, to `EstimateAllocation` to use to upload photos\n\n" +
             "        - Added identifier field, `relatedId`, to `WorkOrder` to use to upload photos\n\n" +
-            "    - Gate Photo Upload Proposal:\n\n" +
+            "    - (api) Gate Photo Upload Proposal:\n\n" +
             "        - Gate Photo Upload endpoint\n\n" +
             "        - Added identifier field, `relatedId`, to `GateResponse` to use to upload photos\n\n" +
             " * 2.2.5\n\n" +
-            "    - Share the same Gate Photo model between Create & Update since they are the same.\n\n" +
+            "    - (api) Share the same Gate Photo model between Create & Update since they are the same.\n\n" +
             " * 2.2.6\n\n" +
-            "    - No intentional API changes.  Added Estimate & Gate clients for easier testing.\n\n" +
+            "    - (client, server) No intentional API changes.  Added Estimate & Gate clients for easier testing.\n\n" +
             " * 2.2.7\n\n" +
-            "    - Add optional `tax` field to Estimate Line Item; typically used for total verification & for systems that do not store the tax rate of the depot.\n\n" +
-            "    - Move binary estimate & gate photo upload apis from alpha to beta.\n\n" +
+            "    - (api) Add optional `tax` field to Estimate Line Item; typically used for total verification & for systems that do not store the tax rate of the depot.\n\n" +
+            "    - (api) Move binary estimate & gate photo upload apis from alpha to beta.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
@@ -318,6 +319,7 @@ public class Application {
     private final RedeliveryRepository redeliveryRepository;
     private final ReleaseRepository releaseRepository;
     private final PartyRepository partyRepository;
+    private final ExternalPartyRepository externalPartyRepository;
 
     public static void main(String[] args) {
         Micronaut.run(Application.class);
@@ -347,7 +349,7 @@ public class Application {
         depot2.setCode("HAMB");
         depot2.setName("Depot Operator #2");
 
-        Party customer = new Party();
+        ExternalParty customer = new ExternalParty();
         customer.setCompanyId("GBLONCUST");
         customer.setUserCode("JD");
         customer.setUserName("Jane Doe");
@@ -361,13 +363,14 @@ public class Application {
         owner.setCode("EXAM");
         owner.setName("Example Lessor Name");
 
-        partyRepository.saveAll(Arrays.asList(depot1, depot2, customer, owner));
+        externalPartyRepository.save(customer);
+        partyRepository.saveAll(Arrays.asList(depot1, depot2, owner));
 
         buildRedeliveries(depot1, depot2, customer, owner);
         buildReleases(depot1, depot2, customer, owner);
     }
 
-    private void buildReleases(Party depot1, Party depot2, Party customer, Party owner) {
+    private void buildReleases(Party depot1, Party depot2, ExternalParty customer, Party owner) {
         Release release = new Release();
         release.setStatus(ReleaseStatus.APPROVED);
         release.setReleaseNumber("RHAMG134512");
@@ -413,7 +416,7 @@ public class Application {
         releaseRepository.save(release);
     }
 
-    private void buildRedeliveries(Party depot1, Party depot2, Party customer, Party owner) {
+    private void buildRedeliveries(Party depot1, Party depot2, ExternalParty customer, Party owner) {
         Redelivery redelivery = new Redelivery();
         redelivery.setStatus(RedeliveryStatus.APPROVED);
         redelivery.setRedeliveryNumber("AHAMG33141");
