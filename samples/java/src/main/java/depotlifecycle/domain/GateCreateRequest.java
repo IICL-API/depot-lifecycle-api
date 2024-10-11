@@ -61,6 +61,6 @@ public class GateCreateRequest {
 
     @ArraySchema(schema = @Schema(implementation = GatePhoto.class))
     @Schema(description = "An optional photo list of the shipping container at gate creation", required = false, nullable = false)
-    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL})
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<GatePhoto> photos = new ArrayList<>();
 }

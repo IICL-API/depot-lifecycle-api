@@ -114,7 +114,7 @@ public class EstimateLineItem {
 
     @ArraySchema(schema = @Schema(implementation = EstimateLineItemPhoto.class))
     @Schema(description = "An optional photo list showing the damage of this line item", required = false, nullable = false)
-    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL})
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimateLineItemPhoto> photos = new ArrayList<>();
 
     @JsonIgnore

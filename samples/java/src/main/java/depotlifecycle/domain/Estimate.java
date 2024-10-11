@@ -109,7 +109,7 @@ public class Estimate {
 
     @ArraySchema(schema = @Schema(implementation = EstimatePhoto.class))
     @Schema(description = "An optional photo list for the shipping container damages.", required = false, nullable = false)
-    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL})
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimatePhoto> photos = new ArrayList<>();
 
     // https://github.com/swagger-api/swagger-ui/issues/5418 prevents the read only access from correctly working so explicitly mention this in the description
