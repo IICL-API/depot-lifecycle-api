@@ -43,69 +43,74 @@ info:
     \ more information please refer to [https://www.bic-code.org/bic-facility-codes](https://www.bic-code.org/bic-facility-codes/).\n\
     \n\n\n # Deprecation\n\n If this API version were to be discontinued, a minimum\
     \ of 6 months time would pass before it's removal.\n\n\n\n # Change Log\n\n *\
-    \ 2.2.1\n\n    - Estimate Photo support for line items and the overall estimate\
-    \ (header).\n\n * 2.2.2\n\n    - Estimate Line Items are optional.\n\n    - Error\
-    \ Responses optionally support multiple messages via a details field.\n\n    -\
-    \ Various improvements for BETA APIs.\n\n * 2.2.3\n\n    - Party model (optional):\n\
-    \n        - Latitude & Longitude\n\n        - Physical Address\n\n        - Contact\
-    \ Phone, Fax, & Phone Number fields\n\n    - Insurance Coverage model:\n\n   \
-    \      - Add indicator for insurance coverage applicable to CTL scenarios\n\n\
-    \    - Release & Redelivery models - Status field\n\n    - Redelivery model -\
-    \ Add field to store estimate recipient emails\n\n    - RedeliveryUnit model -\
-    \ Add cargo # to identify type of cargo by UN or other standard numbers\n\n  \
-    \  - RedeliveryUnit model - Add technical bulletins field\n\n    - Release search\
-    \ - Add search flag to find candidate units\n\n * 2.2.4\n\n    - Added separate\
-    \ section for shared models to documentation (show the request based version where\
-    \ possible to avoid confusion).\n\n    - Documented suggested security schemes\
-    \ for easier adoption with API importing tools.\n\n    - Clarified best practices\
+    \ 2.2.1\n\n    - (api) Estimate Photo support for line items and the overall estimate\
+    \ (header).\n\n * 2.2.2\n\n    - (api) Estimate Line Items are optional.\n\n \
+    \   - (api) Error Responses optionally support multiple messages via a details\
+    \ field.\n\n    - (api) Various improvements for BETA APIs.\n\n * 2.2.3\n\n  \
+    \  - (api) Party model (optional):\n\n        - Latitude & Longitude\n\n     \
+    \   - Physical Address\n\n        - Contact Phone, Fax, & Phone Number fields\n\
+    \n    - (api) Insurance Coverage model:\n\n         - Add indicator for insurance\
+    \ coverage applicable to CTL scenarios\n\n    - (api) Release & Redelivery models\
+    \ - Status field\n\n    - (api) Redelivery model - Add field to store estimate\
+    \ recipient emails\n\n    - (api) RedeliveryUnit model - Add cargo # to identify\
+    \ type of cargo by UN or other standard numbers\n\n    - (api) RedeliveryUnit\
+    \ model - Add technical bulletins field\n\n    - (api) Release search - Add search\
+    \ flag to find candidate units\n\n * 2.2.4\n\n    - (api) Added separate section\
+    \ for shared models to documentation (show the request based version where possible\
+    \ to avoid confusion).\n\n    - (doc) Documented suggested security schemes for\
+    \ easier adoption with API importing tools.\n\n    - (doc) Clarified best practices\
     \ for JSON produced or consumed by this API.\n\n        - Clarified Default Value\
     \ handling.\n\n        - Clarified Null vs Absent Value handling.\n\n        -\
-    \ Documented forward compatability best practices.\n\n    - Fixed type definitions\
+    \ Documented forward compatability best practices.\n\n    - (doc) Fixed type definitions\
     \ for query parameters - `string` will now show instead of `object`.\n\n    -\
-    \ Fixed type definitions for path parameters - `string` will now show instead\
-    \ of `object`.\n\n    - Fixed minimum length documentation for damage location\
-    \ code on Estimate Line Item.\n\n    - Add `type` to Gate Status API.\n\n    -\
-    \ Change `currentInspectionCriteria` on Gate Status & Create APIs to optional\
-    \ since Estimates are not always required.\n\n    - Add `gateCheck` option to\
-    \ Redelivery & Release search APIs, defaulted so previous query behavior is the\
-    \ same.\n\n    - Clarify that the reefer set point temperature is in Celsius on\
-    \ the ReleaseDetail model.\n\n    - Clarify `inspectionCriteria` field on `RedeliveryUnit`\
-    \ is meant to convey the estimation instructions.\n\n    - Fix array string examples.\n\
-    \n    - Estimate Photo Upload Proposal:\n\n        - For all photo APIs, assume\
-    \ a default status of `BEFORE` so that it is not required.\n\n        - Estimate\
-    \ Photo Upload endpoint\n\n        - Added identifier field, `relatedId`, to `EstimateAllocation`\
-    \ to use to upload photos\n\n        - Added identifier field, `relatedId`, to\
-    \ `WorkOrder` to use to upload photos\n\n    - Gate Photo Upload Proposal:\n\n\
-    \        - Gate Photo Upload endpoint\n\n        - Added identifier field, `relatedId`,\
-    \ to `GateResponse` to use to upload photos\n\n * 2.2.5\n\n    - Share the same\
-    \ Gate Photo model between Create & Update since they are the same.\n\n * 2.2.6\n\
-    \n    - No intentional API changes.  Added Estimate & Gate clients for easier\
-    \ testing.\n\n * 2.2.7\n\n    - Add optional `tax` field to Estimate Line Item;\
-    \ typically used for total verification & for systems that do not store the tax\
-    \ rate of the depot.\n\n    - Move binary estimate & gate photo upload apis from\
-    \ alpha to beta.\n\n\n\n\n # Security & Authentication\n\n To ensure secure communication,\
-    \ all endpoints of this API should use the https protocol instead of http.  Authentication\
-    \ methods will differ between systems, but two popular methods are JSON Web Tokens\
-    \ and Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\
-    \n [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
-    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
-    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
-    \n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
-    : [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"\
-    j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
-    ,\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
-    \n\n }\n\n ```\n\n\n\n\n\n An access_token is provided for authentication to API\
-    \ endpoints and a refresh_token is provided to generate a new access_token when\
-    \ one expires.\n\n\n\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
-    \ request to `/api/login` with a username and password payload will cause a JWT\
-    \ token to be issued in the response.\n\n ```\n\n POST /api/login HTTP/1.1\n\n\
-    \ Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\n\n\n\n\n\
-    \ {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n }\n\n ```\n\
-    \n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created by invoking the\
-    \ login endpoint expire after a determined period.  Issuing a POST request to\
-    \ `/oauth/access_token` with: the refresh_token from the JWT token previously\
-    \ issued and a grant_type of refresh_token will reissue a new JWT token.\n\n ```\n\
-    \n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
+    \ (doc) Fixed type definitions for path parameters - `string` will now show instead\
+    \ of `object`.\n\n    - (doc) Fixed minimum length documentation for damage location\
+    \ code on Estimate Line Item.\n\n    - (api) Add `type` to Gate Status API.\n\n\
+    \    - (api) Change `currentInspectionCriteria` on Gate Status & Create APIs to\
+    \ optional since Estimates are not always required.\n\n    - (api) Add `gateCheck`\
+    \ option to Redelivery & Release search APIs, defaulted so previous query behavior\
+    \ is the same.\n\n    - (doc) Clarify that the reefer set point temperature is\
+    \ in Celsius on the ReleaseDetail model.\n\n    - (doc) Clarify `inspectionCriteria`\
+    \ field on `RedeliveryUnit` is meant to convey the estimation instructions.\n\n\
+    \    - (doc) Fix array string examples.\n\n    - (api) Estimate Photo Upload Proposal:\n\
+    \n        - For all photo APIs, assume a default status of `BEFORE` so that it\
+    \ is not required.\n\n        - Estimate Photo Upload endpoint\n\n        - Added\
+    \ identifier field, `relatedId`, to `EstimateAllocation` to use to upload photos\n\
+    \n        - Added identifier field, `relatedId`, to `WorkOrder` to use to upload\
+    \ photos\n\n    - (api) Gate Photo Upload Proposal:\n\n        - Gate Photo Upload\
+    \ endpoint\n\n        - Added identifier field, `relatedId`, to `GateResponse`\
+    \ to use to upload photos\n\n * 2.2.5\n\n    - (api) Share the same Gate Photo\
+    \ model between Create & Update since they are the same.\n\n * 2.2.6\n\n    -\
+    \ (client, server) No intentional API changes.  Added Estimate & Gate clients\
+    \ for easier testing.\n\n * 2.2.7\n\n    - (api) Add optional `tax` field to Estimate\
+    \ Line Item; typically used for total verification & for systems that do not store\
+    \ the tax rate of the depot.\n\n    - (api) Move binary estimate & gate photo\
+    \ upload apis from alpha to beta.\n\n    - (client) Minor fetch fixes to support\
+    \ estimate & gate searches.\n\n    - (api) Change Customer & Recipient party references\
+    \ on Release/Redelivery to an external party - a party that supports either the\
+    \ `companyId` or `code` for identification.\n\n\n\n\n # Security & Authentication\n\
+    \n To ensure secure communication, all endpoints of this API should use the https\
+    \ protocol instead of http.  Authentication methods will differ between systems,\
+    \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
+    \ both of these follow.\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
+    \ is used for stateless authentication.  Since all requests are sent using https,\
+    \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
+    \ format.\n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\"\
+    ,\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\
+    \n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\"\
+    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
+    :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n\n\n\n\n An access_token is provided\
+    \ for authentication to API endpoints and a refresh_token is provided to generate\
+    \ a new access_token when one expires.\n\n\n\n\n\n ### 2. Obtaining an access\
+    \ token\n\n Issuing a POST request to `/api/login` with a username and password\
+    \ payload will cause a JWT token to be issued in the response.\n\n ```\n\n POST\
+    \ /api/login HTTP/1.1\n\n Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\
+    \n\n\n\n\n {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n\
+    \ }\n\n ```\n\n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created\
+    \ by invoking the login endpoint expire after a determined period.  Issuing a\
+    \ POST request to `/oauth/access_token` with: the refresh_token from the JWT token\
+    \ previously issued and a grant_type of refresh_token will reissue a new JWT token.\n\
+    \n ```\n\n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
     \ application/x-www-form-urlencoded\n\n\n\n\n\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
     \n ```\n\n\n\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked\
     \ if it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n\n\
@@ -1414,6 +1419,107 @@ paths:
       x-iicl-purpose: activity
 components:
   schemas:
+    BaseParty:
+      type: object
+      properties:
+        userCode:
+          maxLength: 16
+          required:
+          - "false"
+          type: string
+          description: the user identifier at this company that concerns this message
+          nullable: true
+          example: JDOE
+        userName:
+          maxLength: 70
+          required:
+          - "false"
+          type: string
+          description: the full name for the user identified by `userCode`
+          nullable: true
+          example: John Doe
+        faxNumber:
+          required:
+          - "false"
+          type: array
+          description: the contact fax number(s) for this party
+          nullable: false
+          items:
+            type: string
+        phoneNumber:
+          required:
+          - "false"
+          type: array
+          description: the contact phone number(s) for this party
+          nullable: false
+          items:
+            type: string
+        emailAddress:
+          required:
+          - "false"
+          type: array
+          description: the contact email address(es) for this party
+          nullable: false
+          items:
+            type: string
+        name:
+          maxLength: 150
+          required:
+          - "false"
+          type: string
+          description: the name of this company
+          nullable: true
+          example: CMR Container Maintenance Rep.
+        streetAddress:
+          required:
+          - "false"
+          type: array
+          description: the street address lines
+          nullable: false
+          items:
+            type: string
+        city:
+          maxLength: 28
+          required:
+          - "false"
+          type: string
+          description: the city for the address
+          nullable: true
+        country:
+          maxLength: 2
+          required:
+          - "false"
+          type: string
+          description: the 2 digit ISO country code for the address
+          nullable: true
+        postalCode:
+          maxLength: 20
+          required:
+          - "false"
+          type: string
+          description: the postal code for the address
+          nullable: true
+        stateProvince:
+          maxLength: 20
+          required:
+          - "false"
+          type: string
+          description: the optional state or province code for the address
+          nullable: true
+        latitude:
+          required:
+          - "false"
+          type: number
+          description: "Instead of an address, provides the latitude of this party"
+          format: double
+          nullable: true
+        longitude:
+          required:
+          - "false"
+          type: number
+          description: "Instead of an address, provides the longitude of this party"
+          format: double
+          nullable: true
     ErrorResponse:
       type: object
       properties:
@@ -2242,6 +2348,34 @@ components:
       - AS
       - AU
       - AR
+    ExternalParty:
+      type: object
+      properties:
+        companyId:
+          maxLength: 9
+          pattern: "^[A-Z0-9]{9}$"
+          required:
+          - "false"
+          type: string
+          description: "a possible identifier for this party, often referred to as\
+            \ an EDI Address"
+          nullable: true
+          example: DEHAMCMRA
+        code:
+          maxLength: 10
+          required:
+          - "false"
+          type: string
+          description: "a possible identifier for this party using the internal system\
+            \ code for this company, will be system specific to the system delivering\
+            \ or receiving this message"
+          nullable: true
+          example: HAMG
+      description: represents a company (or location) involving shipping containers
+        that may not have a companyId.  Either companyId or code is required to identify
+        the party
+      allOf:
+      - $ref: "#/components/schemas/BaseParty"
     GateCreateRequest:
       required:
       - activityTime
@@ -2698,54 +2832,6 @@ components:
             \ Address"
           nullable: false
           example: DEHAMCMRA
-        userCode:
-          maxLength: 16
-          required:
-          - "false"
-          type: string
-          description: the user identifier at this company that concerns this message
-          nullable: true
-          example: JDOE
-        userName:
-          maxLength: 70
-          required:
-          - "false"
-          type: string
-          description: the full name for the user identified by `userCode`
-          nullable: true
-          example: John Doe
-        faxNumber:
-          required:
-          - "false"
-          type: array
-          description: the contact fax number(s) for this party
-          nullable: false
-          items:
-            type: string
-        phoneNumber:
-          required:
-          - "false"
-          type: array
-          description: the contact phone number(s) for this party
-          nullable: false
-          items:
-            type: string
-        emailAddress:
-          required:
-          - "false"
-          type: array
-          description: the contact email address(es) for this party
-          nullable: false
-          items:
-            type: string
-        name:
-          maxLength: 150
-          required:
-          - "false"
-          type: string
-          description: the name of this company
-          nullable: true
-          example: CMR Container Maintenance Rep.
         code:
           maxLength: 10
           required:
@@ -2755,57 +2841,10 @@ components:
             \ specific to the system delivering or receiving this message"
           nullable: true
           example: HAMG
-        streetAddress:
-          required:
-          - "false"
-          type: array
-          description: the street address lines
-          nullable: false
-          items:
-            type: string
-        city:
-          maxLength: 28
-          required:
-          - "false"
-          type: string
-          description: the city for the address
-          nullable: true
-        country:
-          maxLength: 2
-          required:
-          - "false"
-          type: string
-          description: the 2 digit ISO country code for the address
-          nullable: true
-        postalCode:
-          maxLength: 20
-          required:
-          - "false"
-          type: string
-          description: the postal code for the address
-          nullable: true
-        stateProvince:
-          maxLength: 20
-          required:
-          - "false"
-          type: string
-          description: the optional state or province code for the address
-          nullable: true
-        latitude:
-          required:
-          - "false"
-          type: number
-          description: "Instead of an address, provides the latitude of this party"
-          format: double
-          nullable: true
-        longitude:
-          required:
-          - "false"
-          type: number
-          description: "Instead of an address, provides the longitude of this party"
-          format: double
-          nullable: true
       description: represents a company (or location) involving shipping containers
+      allOf:
+      - $ref: "#/components/schemas/ExternalParty"
+      - $ref: "#/components/schemas/BaseParty"
     PendingResponse:
       type: object
       properties:
@@ -2941,7 +2980,7 @@ components:
         recipient:
           description: The intended recipient for this message representing a redelivery
           allOf:
-          - $ref: "#/components/schemas/Party"
+          - $ref: "#/components/schemas/ExternalParty"
         quantity:
           minimum: 0
           required:
@@ -2972,7 +3011,7 @@ components:
         customer:
           description: The customer for the contract on this detail.
           allOf:
-          - $ref: "#/components/schemas/Party"
+          - $ref: "#/components/schemas/ExternalParty"
         contract:
           maxLength: 16
           required:
@@ -3303,7 +3342,7 @@ components:
         recipient:
           description: The intended recipient for this message representing a release
           allOf:
-          - $ref: "#/components/schemas/Party"
+          - $ref: "#/components/schemas/ExternalParty"
         onHireSurveyRequired:
           type: boolean
           description: indicates if an on-hire survey is required for units associated
@@ -3338,7 +3377,7 @@ components:
         customer:
           description: The customer for the contract on this detail.
           allOf:
-          - $ref: "#/components/schemas/Party"
+          - $ref: "#/components/schemas/ExternalParty"
         contract:
           maxLength: 16
           required:

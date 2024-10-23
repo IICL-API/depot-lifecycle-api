@@ -57,7 +57,7 @@ public class Estimate {
 
     @Schema(description = "the party submitting this estimate", required = false, nullable = true, implementation = Party.class)
     @ManyToOne(fetch = FetchType.EAGER)
-    ExternalParty requester;
+    Party requester;
 
     @Schema(description = "the location of this estimate", required = true, nullable = false, implementation = Party.class)
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
@@ -68,9 +68,9 @@ public class Estimate {
     @ManyToOne(fetch = FetchType.EAGER)
     Party owner;
 
-    @Schema(description = "the lessee of the shipping container to whom customer line items should apply.", required = false, nullable = true, implementation = ExternalParty.class)
+    @Schema(description = "the lessee of the shipping container to whom customer line items should apply.", required = false, nullable = true, implementation = Party.class)
     @ManyToOne(fetch = FetchType.EAGER)
-    ExternalParty customer;
+    Party customer;
 
     @Schema(description = "the currency of amounts entered on this estimate", required = true, nullable = false, example = "EUR", pattern = "^[A-Z]{3}$", maxLength = 3)
     @Column(length = 3, nullable = false)
