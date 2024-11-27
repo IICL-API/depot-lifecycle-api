@@ -102,10 +102,15 @@ public class Estimate {
     @Column(nullable = true)
     Integer revision;
 
-    @ArraySchema(minItems = 0, schema = @Schema( implementation = EstimateLineItem.class))
-    @Schema(description = "detailed damage descriptions that when combined represent the damages being repaired by this estimate", required = false, nullable = false)
+    @ArraySchema(schema = @Schema( implementation = EstimateLineItem.class))
+    @Schema(description = "detailed damage descriptions that when combined represent the damages being repaired by this estimate", required = false, nullable = true)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimateLineItem> lineItems = new ArrayList<>();
+
+    @ArraySchema(schema = @Schema( implementation = EstimateTaxRate.class))
+    @Schema(description = "optional estimate tax rates to share tax rate data between systems", required = false, nullable = true)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    List<EstimateTaxRate> taxRates = new ArrayList<>();
 
     @ArraySchema(schema = @Schema(implementation = EstimatePhoto.class))
     @Schema(description = "An optional photo list for the shipping container damages.", required = false, nullable = false)

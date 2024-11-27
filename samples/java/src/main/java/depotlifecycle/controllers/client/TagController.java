@@ -66,6 +66,16 @@ public class TagController {
                 "taxRules", EstimateTaxRule.values()));
     }
 
+    @Get("/addTaxRate")
+    @View("tags/taxRate")
+    Mono<Map<String, Object>> addTaxRate(@NonNull @Parameter Integer count) {
+        return Mono.just(Map.of("title", "Tax Rate #" + (count + 1),
+                "propertyPath", "taxRates[" + count + "].",
+                "id", "estimateCreateTaxRate" + count,
+                "count", count + 1,
+                "taxRules", EstimateTaxRule.getTaxRateRules()));
+    }
+
     @Get("/addEstimateLineItemPart")
     @View("tags/estimateLineItemPart")
     Mono<Map<String, Object>> addEstimateLineItemPart(@NonNull @Parameter String propertyPath, @NonNull @Parameter Integer count) {

@@ -158,6 +158,18 @@ public class EstimateController {
     }
 
     private void saveParties(Estimate estimate) {
+        List<EstimateTaxRate> estimateTaxRates = Objects.requireNonNullElse(estimate.getTaxRates(), List.of());
+        for (EstimateTaxRate taxRate : estimateTaxRates) {
+            taxRate.setEstimate(estimate);
+
+            if(taxRate.getRule() == EstimateTaxRule.N) {
+                ErrorResponse error = new ErrorResponse();
+                error.setCode("ERR011");
+                error.setMessage("Tax Rule `N` is not allowed for tax rate definitions");
+                throw new HttpStatusException(HttpStatus.BAD_REQUEST, error);
+            }
+        }
+
         if (estimate.getDepot() != null) {
             estimate.setDepot(partyRepository.save(estimate.getDepot()));
         }

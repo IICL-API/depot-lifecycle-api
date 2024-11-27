@@ -79,4 +79,7 @@ public class EstimateCreateCommand {
 
     @Nullable
     List<EstimateLineItemCommand> lineItems;
+
+    @Nullable
+    List<EstimateTaxRateCommand> taxRates;
 }

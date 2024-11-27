@@ -84,17 +84,19 @@ info:
     \ (client, server) No intentional API changes.  Added Estimate & Gate clients\
     \ for easier testing.\n\n * 2.2.7\n\n    - (api) Add optional `tax` field to Estimate\
     \ Line Item; typically used for total verification & for systems that do not store\
-    \ the tax rate of the depot.\n\n    - (api) Move binary estimate & gate photo\
-    \ upload apis from alpha to beta.\n\n    - (client) Minor fetch fixes to support\
-    \ estimate & gate searches.\n\n    - (api) Change Customer & Recipient party references\
-    \ on Release/Redelivery to an external party - a party that supports either the\
-    \ `companyId` or `code` for identification.\n\n\n\n\n # Security & Authentication\n\
-    \n To ensure secure communication, all endpoints of this API should use the https\
-    \ protocol instead of http.  Authentication methods will differ between systems,\
-    \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
-    \ both of these follow.\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
-    \ is used for stateless authentication.  Since all requests are sent using https,\
-    \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
+    \ the tax rate of the depot.\n\n    - (api) Add optional `taxRates` field to Estimate;\
+    \ typically used for systems that do not store the tax rate of the depot.\n\n\
+    \    - (api) Move binary estimate & gate photo upload apis from alpha to beta.\n\
+    \n    - (client) Minor fetch fixes to support estimate & gate searches.\n\n  \
+    \  - (api) Change Customer & Recipient party references on Release/Redelivery\
+    \ to an external party - a party that supports either the `companyId` or `code`\
+    \ for identification.\n\n\n\n\n # Security & Authentication\n\n To ensure secure\
+    \ communication, all endpoints of this API should use the https protocol instead\
+    \ of http.  Authentication methods will differ between systems, but two popular\
+    \ methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n\
+    \n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/), is used for\
+    \ stateless authentication.  Since all requests are sent using https, tokens are\
+    \ not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
     \ format.\n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\"\
     ,\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\
     \n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\"\
@@ -232,6 +234,10 @@ tags:
   description: "<SchemaDefinition schemaRef=\"#/components/schemas/EstimateLineItemPhoto\"\
     \ showReadOnly={false}/>"
   x-displayName: EstimateLineItemPhoto
+- name: m_estimate_tax_rate
+  description: "<SchemaDefinition schemaRef=\"#/components/schemas/EstimateTaxRate\"\
+    \ showReadOnly={false}/>"
+  x-displayName: EstimateTaxRate
 - name: m_estimate_allocation
   description: <SchemaDefinition schemaRef="#/components/schemas/EstimateAllocation"/>
   x-displayName: EstimateAllocation
@@ -1736,15 +1742,23 @@ components:
           nullable: true
           example: 0
         lineItems:
-          minItems: 0
           required:
           - "false"
           type: array
           description: detailed damage descriptions that when combined represent the
             damages being repaired by this estimate
-          nullable: false
+          nullable: true
           items:
             $ref: "#/components/schemas/EstimateLineItem"
+        taxRates:
+          required:
+          - "false"
+          type: array
+          description: optional estimate tax rates to share tax rate data between
+            systems
+          nullable: true
+          items:
+            $ref: "#/components/schemas/EstimateTaxRate"
         photos:
           required:
           - "false"
@@ -2301,6 +2315,45 @@ components:
       enum:
       - BEFORE
       - REPAIR
+    EstimateTaxRate:
+      required:
+      - description
+      - rate
+      - rule
+      type: object
+      properties:
+        description:
+          maxLength: 255
+          required:
+          - "true"
+          type: string
+          description: "a unique, descriptive explanation for this tax rate"
+          nullable: false
+          example: PST Labor Tax Rate
+        rule:
+          description: |-
+            which amount should taxes apply
+
+            `B` - Both Labor Cost & Material Cost
+
+            `L` - Labor Cost
+
+            `M` - Material Cost
+
+            _Note: Neither(N) is not an allowed value on this domain_
+          example: B
+          allOf:
+          - $ref: "#/components/schemas/EstimateTaxRule"
+        rate:
+          minimum: 0
+          required:
+          - "true"
+          type: number
+          description: the tax rate as a percentage
+          format: double
+          nullable: false
+          example: 19.5
+      description: Represents a tax rate to be used on an estimate
     EstimateTaxRule:
       type: string
       description: |-
@@ -3990,6 +4043,7 @@ x-tagGroups:
   - m_estimate_line_item
   - m_estimate_line_item_part
   - m_estimate_line_item_photo
+  - m_estimate_tax_rate
   - m_estimate_allocation
   - m_preliminary_decision
   - m_estimate_customer_approval
