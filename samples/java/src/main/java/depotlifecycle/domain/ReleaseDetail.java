@@ -79,6 +79,10 @@ public class ReleaseDetail {
     @Column
     Integer desiredTemperature;
 
+    @Schema(example = "65", description = "the reefer desired humidity percentage", required = false, nullable = true)
+    @Column
+    Integer desiredHumidity;
+
     @Schema(description = "if the equipment has fresh air ventilation, the rate of the fresh air ventilation", example = "90 CBM", maxLength = 10, required = false, nullable = true)
     @Column(length = 10)
     String ventilation;

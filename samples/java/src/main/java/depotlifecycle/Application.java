@@ -124,6 +124,7 @@ import java.util.List;
             " * 2.2.7\n\n" +
             "    - (api) Add optional `tax` field to Estimate Line Item; typically used for total verification & for systems that do not store the tax rate of the depot.\n\n" +
             "    - (api) Add optional `taxRates` field to Estimate; typically used for systems that do not store the tax rate of the depot.\n\n" +
+            "    - (api) Add optional `desiredHumidity` field to the ReleaseDetail model.\n\n" +
             "    - (api) Move binary estimate & gate photo upload apis from alpha to beta.\n\n" +
             "    - (client) Minor fetch fixes to support estimate & gate searches.\n\n" +
             "    - (api) Change Customer & Recipient party references on Release/Redelivery to an external party - a party that supports either the `companyId` or `code` for identification.\n\n" +
