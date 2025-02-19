@@ -3,6 +3,7 @@ package depotlifecycle.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -12,6 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -58,9 +60,19 @@ public class InsuranceCoverage {
     @CollectionTable
     List<String> exclusions;
 
+    @ArraySchema(schema = @Schema(implementation = EstimateLineItemPart.class))
+    @Schema(description = "in lieu of a contractual description, this field can be used to describe specifically what repairs are excluded", required = false, nullable = false)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    List<InsuranceCoverageItem> exclusionItems = new ArrayList<>();
+
     @Schema(description = "reasons insurance coverage would include a repair", required = false, nullable = false)
     @Lob
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable
     List<String> inclusions;
+
+    @ArraySchema(schema = @Schema(implementation = EstimateLineItemPart.class))
+    @Schema(description = "in lieu of a contractual description, this field can be used to describe specifically what repairs are included", required = false, nullable = false)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    List<InsuranceCoverageItem> inclusionItems = new ArrayList<>();
 }
