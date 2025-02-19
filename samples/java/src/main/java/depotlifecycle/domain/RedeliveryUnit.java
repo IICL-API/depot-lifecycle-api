@@ -84,6 +84,10 @@ public class RedeliveryUnit {
     @Column(nullable = true, length = 10)
     String inspectionCriteria;
 
+    @Schema(description = "the grade / category to mark the unit when it arrives at the depot - often used in lieu of an estimate inspection criteria.", required = false, nullable = true, example = "IICL", maxLength = 10)
+    @Column(nullable = true, length = 10)
+    String targetGrade;
+
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information", required = false, nullable = true, implementation = MachineryInfo.class)
     MachineryInfo machineryInfo;

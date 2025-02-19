@@ -130,6 +130,7 @@ import java.util.List;
             "    - (api) Change Customer & Recipient party references on Release/Redelivery to an external party - a party that supports either the `companyId` or `code` for identification.\n\n" +
             " * 2.2.8\n\n" +
             "    - (api) Add InsuranceCoverageItem to indicate specific repair combinations that are or are not covered under insurance.\n\n" +
+            "    - (api) Add `targetGrade` to RedeliveryUnit to indicate the expected grade of the container upon arrival in a depot.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
