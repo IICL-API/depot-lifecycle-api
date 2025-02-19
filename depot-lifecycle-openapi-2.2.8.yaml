@@ -91,29 +91,35 @@ info:
     \n    - (client) Minor fetch fixes to support estimate & gate searches.\n\n  \
     \  - (api) Change Customer & Recipient party references on Release/Redelivery\
     \ to an external party - a party that supports either the `companyId` or `code`\
-    \ for identification.\n\n\n\n\n # Security & Authentication\n\n To ensure secure\
-    \ communication, all endpoints of this API should use the https protocol instead\
-    \ of http.  Authentication methods will differ between systems, but two popular\
-    \ methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n\
-    \n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/), is used for\
-    \ stateless authentication.  Since all requests are sent using https, tokens are\
-    \ not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
-    \ format.\n\n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\"\
-    ,\n\n \"roles\": [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\
-    \n \"email\":\"j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\n \"expires_in\":3600,        \n\n \"refresh_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\"\n\n }\n\n ```\n\n\n\n\n\n An access_token is provided\
-    \ for authentication to API endpoints and a refresh_token is provided to generate\
-    \ a new access_token when one expires.\n\n\n\n\n\n ### 2. Obtaining an access\
-    \ token\n\n Issuing a POST request to `/api/login` with a username and password\
-    \ payload will cause a JWT token to be issued in the response.\n\n ```\n\n POST\
-    \ /api/login HTTP/1.1\n\n Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\
-    \n\n\n\n\n {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n\
-    \ }\n\n ```\n\n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created\
-    \ by invoking the login endpoint expire after a determined period.  Issuing a\
-    \ POST request to `/oauth/access_token` with: the refresh_token from the JWT token\
-    \ previously issued and a grant_type of refresh_token will reissue a new JWT token.\n\
-    \n ```\n\n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
+    \ for identification.\n\n * 2.2.8\n\n    - (api) Add InsuranceCoverageItem to\
+    \ indicate specific repair combinations that are or are not covered under insurance.\n\
+    \n    - (api) Add `targetGrade` to RedeliveryUnit to indicate the expected grade\
+    \ of the container upon arrival in a depot.\n\n    - (api) Add `licensePlate`\
+    \ to Party and ExternalParty.\n\n    - (api) Add `trucker` as an external party\
+    \ to GateCreateRequest.\n\n    - (api) Add `trucker` as an external party to GateUpdateRequest.\n\
+    \n\n\n\n # Security & Authentication\n\n To ensure secure communication, all endpoints\
+    \ of this API should use the https protocol instead of http.  Authentication methods\
+    \ will differ between systems, but two popular methods are JSON Web Tokens and\
+    \ Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n\
+    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
+    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
+    \n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
+    : [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"\
+    j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    ,\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    \n\n }\n\n ```\n\n\n\n\n\n An access_token is provided for authentication to API\
+    \ endpoints and a refresh_token is provided to generate a new access_token when\
+    \ one expires.\n\n\n\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
+    \ request to `/api/login` with a username and password payload will cause a JWT\
+    \ token to be issued in the response.\n\n ```\n\n POST /api/login HTTP/1.1\n\n\
+    \ Content-Type: text/plain; charset=utf-8\n\n Host: www.example.com\n\n\n\n\n\n\
+    \ {\n\n \"username\": \"jdoe\",\n\n \"password\": \"jdoepassword\"\n\n }\n\n ```\n\
+    \n\n\n\n\n ### 3. Refreshing an expired token\n\n Tokens created by invoking the\
+    \ login endpoint expire after a determined period.  Issuing a POST request to\
+    \ `/oauth/access_token` with: the refresh_token from the JWT token previously\
+    \ issued and a grant_type of refresh_token will reissue a new JWT token.\n\n ```\n\
+    \n POST /oauth/access_token HTTP/1.1\n\n Host: www.example.com\n\n Content-Type:\
     \ application/x-www-form-urlencoded\n\n\n\n\n\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
     \n ```\n\n\n\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked\
     \ if it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n\n\
@@ -136,7 +142,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 2.2.7
+  version: 2.2.8
 externalDocs:
   description: Find out more about this api
   url: https://github.com/IICL-API/depot-lifecycle-api
@@ -1513,6 +1519,13 @@ components:
           type: string
           description: the optional state or province code for the address
           nullable: true
+        licensePlate:
+          maxLength: 14
+          required:
+          - "false"
+          type: string
+          description: the license plate for the person represented by this party
+          nullable: true
         latitude:
           required:
           - "false"
@@ -1970,54 +1983,6 @@ components:
           description: The line number
           format: int32
           nullable: false
-        repair:
-          maxLength: 2
-          pattern: "^[A-Z0-9]{2}$"
-          required:
-          - "true"
-          type: string
-          description: |-
-            repair code
-
-            [see IICL Preferred Repair Codes, Section 5.4](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
-          nullable: false
-          example: IT
-        damage:
-          maxLength: 2
-          pattern: "^[A-Z0-9]{2}$"
-          required:
-          - "true"
-          type: string
-          description: |-
-            damage code
-
-            [see IICL Preferred Damage Codes, Section 5.2](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
-          nullable: false
-          example: CK
-        material:
-          maxLength: 2
-          pattern: "^[A-Z0-9]{2}$"
-          required:
-          - "true"
-          type: string
-          description: |-
-            component material code
-
-            [see IICL Preferred Material Type Codes, Section 5.5](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
-          nullable: false
-          example: MU
-        component:
-          maxLength: 3
-          pattern: "^[A-Z0-9]{3}$"
-          required:
-          - "true"
-          type: string
-          description: |-
-            component code
-
-            [see IICL Preferred Component Codes, Section 5.1](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
-          nullable: false
-          example: CMA
         location:
           maxLength: 4
           minLength: 4
@@ -2031,6 +1996,54 @@ components:
             [see IICL Preferred Location Codes, Section 5.7](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
           nullable: true
           example: UR1N
+        component:
+          maxLength: 3
+          pattern: "^[A-Z0-9]{3}$"
+          required:
+          - "true"
+          type: string
+          description: |-
+            component code
+
+            [see IICL Preferred Component Codes, Section 5.1](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
+          nullable: false
+          example: CMA
+        damage:
+          maxLength: 2
+          pattern: "^[A-Z0-9]{2}$"
+          required:
+          - "true"
+          type: string
+          description: |-
+            damage code
+
+            [see IICL Preferred Damage Codes, Section 5.2](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
+          nullable: false
+          example: CK
+        repair:
+          maxLength: 2
+          pattern: "^[A-Z0-9]{2}$"
+          required:
+          - "true"
+          type: string
+          description: |-
+            repair code
+
+            [see IICL Preferred Repair Codes, Section 5.4](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
+          nullable: false
+          example: IT
+        material:
+          maxLength: 2
+          pattern: "^[A-Z0-9]{2}$"
+          required:
+          - "true"
+          type: string
+          description: |-
+            component material code
+
+            [see IICL Preferred Material Type Codes, Section 5.5](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)
+          nullable: false
+          example: MU
         length:
           minimum: 0
           required:
@@ -2501,6 +2514,11 @@ components:
           nullable: false
           items:
             $ref: "#/components/schemas/GatePhoto"
+        trucker:
+          description: the trucker delivering the shipping container
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/ExternalParty"
       description: data required to create a gate in or gate out record
     GatePhoto:
       required:
@@ -2783,6 +2801,11 @@ components:
           nullable: false
           items:
             $ref: "#/components/schemas/GatePhoto"
+        trucker:
+          description: the trucker delivering the shipping container
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/ExternalParty"
       description: Data required to update a gate in or gate out record. Any data
         not provided will result in no update.
     InsuranceCoverage:
@@ -2833,6 +2856,15 @@ components:
           nullable: false
           items:
             type: string
+        exclusionItems:
+          required:
+          - "false"
+          type: array
+          description: "in lieu of a contractual description, this field can be used\
+            \ to describe specifically what repairs are excluded"
+          nullable: false
+          items:
+            $ref: "#/components/schemas/EstimateLineItemPart"
         inclusions:
           required:
           - "false"
@@ -2841,6 +2873,15 @@ components:
           nullable: false
           items:
             type: string
+        inclusionItems:
+          required:
+          - "false"
+          type: array
+          description: "in lieu of a contractual description, this field can be used\
+            \ to describe specifically what repairs are included"
+          nullable: false
+          items:
+            $ref: "#/components/schemas/EstimateLineItemPart"
       description: describes the type of insurance coverage a given shipping container
         has for a damage repair
     MachineryInfo:
@@ -3294,6 +3335,15 @@ components:
           description: "conveys the estimate instructions to the depot; if the unit\
             \ is damaged on turn in, the estimate standard that the shipping container\
             \ should be estimated to and if it should not be estimated, then null"
+          nullable: true
+          example: IICL
+        targetGrade:
+          maxLength: 10
+          required:
+          - "false"
+          type: string
+          description: the grade / category to mark the unit when it arrives at the
+            depot - often used in lieu of an estimate inspection criteria.
           nullable: true
           example: IICL
         machineryInfo:

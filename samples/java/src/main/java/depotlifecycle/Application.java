@@ -37,7 +37,7 @@ import java.util.List;
 @OpenAPIDefinition(
     info = @Info(
         title = "Depot Life Cycle",
-            version = "2.2.7",
+            version = "2.2.8",
         description = "# Purpose\n\n" +
             " A depot centric API for managing the interchange activity & repair lifecycle of a shipping container.  The API is expected to be used by Customers, Depots, and Owners to facilitate real time communication between systems instead of traditional EDI files.\n" +
             "\n\n\n" +
