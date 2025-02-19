@@ -64,6 +64,10 @@
             <input type="text" class="form-control" th:attr="id=${id} + 'stateProvince', name=${id} + '.stateProvince'" maxlength="20">
         </div>
         <div class="mb-3">
+            <label th:attr="for=${id} + 'licensePlate'" class="form-label">License Plate</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'licensePlate', name=${id} + '.licensePlate'" maxlength="14">
+        </div>
+        <div class="mb-3">
             <label th:attr="for=${id} + 'latitude'" class="form-label">Latitude</label>
             <input type="number" step="0.000000000000001" class="form-control" th:attr="id=${id} + 'latitude', name=${id} + '.latitude'">
         </div>

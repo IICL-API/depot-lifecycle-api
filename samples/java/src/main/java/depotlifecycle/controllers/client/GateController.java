@@ -139,6 +139,9 @@ public class GateController {
                 return gatePhoto;
             }).toList());
         }
+        if(cmd.getTrucker() != null) {
+            gateRequest.setTrucker(cmd.getTrucker().toExternalParty());
+        }
 
         Publisher<GateResponse> gatePublisher = gateClient.create(gateRequest);
 

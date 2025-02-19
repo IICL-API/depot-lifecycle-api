@@ -2,9 +2,9 @@ package depotlifecycle.commands;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import depotlifecycle.domain.ExternalParty;
 import depotlifecycle.domain.Party;
 import io.micronaut.core.annotation.Introspected;
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -13,8 +13,8 @@ import lombok.Data;
 @Data
 @JsonView
 @Introspected
-public class PartyCommand extends BasePartyCommand {
-    @Nonnull
+public class ExternalPartyCommand extends BasePartyCommand {
+    @Nullable
     @Pattern(regexp = "^[A-Z0-9]{9}$", message = "CompanyId must be a valid EDI Address.")
     String companyId;
 
@@ -23,8 +23,8 @@ public class PartyCommand extends BasePartyCommand {
     String code;
 
     @JsonIgnore
-    public Party toParty() {
-        Party party = new Party();
+    public ExternalParty toExternalParty() {
+        ExternalParty party = new ExternalParty();
         party.setCompanyId(companyId);
         party.setCode(code);
         fillParty(party);

@@ -75,6 +75,10 @@ public abstract class BaseParty {
     @Column(length = 20)
     String stateProvince;
 
+    @Schema(description = "the license plate for the person represented by this party", maxLength = 14, required = false, nullable = true)
+    @Column(length = 14)
+    String licensePlate;
+
     @Schema(type = "number", format = "double", description = "Instead of an address, provides the latitude of this party", required = false, nullable = true)
     @Column
     BigDecimal latitude;

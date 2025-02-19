@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 @Produces(MediaType.TEXT_HTML)
 @Hidden
 public class TagController {
-    private static Pattern digitsBetweenBrackets = Pattern.compile("\\[(\\d+)\\]");
+    private static final Pattern digitsBetweenBrackets = Pattern.compile("\\[(\\d+)\\]");
     private static final Logger LOG = LoggerFactory.getLogger(TagController.class);
 
     @Get("/addParty")

@@ -1,6 +1,7 @@
 package depotlifecycle.commands;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import depotlifecycle.domain.ExternalParty;
 import depotlifecycle.domain.GateRequestStatus;
 import depotlifecycle.domain.GateRequestType;
 import io.micronaut.core.annotation.Introspected;
@@ -42,4 +43,7 @@ public class GateCreateCommand {
 
     @Nullable
     List<GatePhotoCommand> photos;
+
+    @Nullable
+    ExternalPartyCommand trucker;
 }

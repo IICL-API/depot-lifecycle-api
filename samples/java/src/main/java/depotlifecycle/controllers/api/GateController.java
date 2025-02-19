@@ -6,10 +6,7 @@ import depotlifecycle.GateResponse;
 import depotlifecycle.GateStatus;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.*;
-import depotlifecycle.repositories.GateCreateRequestRepository;
-import depotlifecycle.repositories.GateDeleteRequestRepository;
-import depotlifecycle.repositories.GateUpdateRequestRepository;
-import depotlifecycle.repositories.PartyRepository;
+import depotlifecycle.repositories.*;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
 import io.micronaut.core.convert.ConversionService;
@@ -47,6 +44,7 @@ import java.util.Optional;
 public class GateController {
     private static final Logger LOG = LoggerFactory.getLogger(GateController.class);
     private final PartyRepository partyRepository;
+    private final ExternalPartyRepository externalPartyRepository;
     private final GateCreateRequestRepository gateCreateRequestRepository;
     private final GateUpdateRequestRepository gateUpdateRequestRepository;
     private final GateDeleteRequestRepository gateDeleteRequestRepository;
@@ -79,6 +77,10 @@ public class GateController {
 
         if (gateCreateRequest.getDepot() != null) {
             gateCreateRequest.setDepot(partyRepository.save(gateCreateRequest.getDepot()));
+        }
+
+        if (gateCreateRequest.getTrucker() != null) {
+            gateCreateRequest.setTrucker(externalPartyRepository.save(gateCreateRequest.getTrucker()));
         }
 
         gateCreateRequest = gateCreateRequestRepository.save(gateCreateRequest);

@@ -63,4 +63,8 @@ public class GateCreateRequest {
     @Schema(description = "An optional photo list of the shipping container at gate creation", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<GatePhoto> photos = new ArrayList<>();
+
+    @Schema(description = "the trucker delivering the shipping container", required = false, nullable = true, implementation = ExternalParty.class)
+    @ManyToOne(fetch = FetchType.EAGER)
+    ExternalParty trucker;
 }

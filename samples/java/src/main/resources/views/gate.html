@@ -190,6 +190,9 @@
                                hx-vals="js:{count: $('#createPhotoContainer').find('.photo').length }"
                                hx-swap="beforeend">Add Photo</a>
                         </div>
+                        <div class="mb-3" id="truckerContainer">
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addExternalParty?title=Trucker&id=trucker" hx-target="#truckerContainer" hx-swap="innerHtml">Add Trucker</a>
+                        </div>
                     </div>
                     <div class="card-footer">
                         <input type="submit" value="Submit" class="btn btn-primary"/>
