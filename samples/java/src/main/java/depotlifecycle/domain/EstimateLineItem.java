@@ -36,25 +36,25 @@ public class EstimateLineItem {
     @Column(nullable = false)
     Integer line;
 
-    @Schema(description = "repair code\n\n[see IICL Preferred Repair Codes, Section 5.4](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "IT", maxLength = 2)
-    @Column(nullable = false, length = 2)
-    String repair;
-
-    @Schema(description = "damage code\n\n[see IICL Preferred Damage Codes, Section 5.2](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "CK", maxLength = 2)
-    @Column(nullable = false, length = 2)
-    String damage;
-
-    @Schema(description = "component material code\n\n[see IICL Preferred Material Type Codes, Section 5.5](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "MU", maxLength = 2)
-    @Column(nullable = false, length = 2)
-    String material;
+    @Schema(description = "specifies the damage location code on a container\n\n[see IICL Preferred Location Codes, Section 5.7](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = false, nullable = true, pattern = "^[A-Z0-9]{4}$", example = "UR1N", minLength = 4, maxLength = 4)
+    @Column(length = 4)
+    String location;
 
     @Schema(description = "component code\n\n[see IICL Preferred Component Codes, Section 5.1](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{3}$", example = "CMA", maxLength = 3)
     @Column(nullable = false, length = 3)
     String component;
 
-    @Schema(description = "specifies the damage location code on a container\n\n[see IICL Preferred Location Codes, Section 5.7](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = false, nullable = true, pattern = "^[A-Z0-9]{4}$", example = "UR1N", minLength = 4, maxLength = 4)
-    @Column(length = 4)
-    String location;
+    @Schema(description = "damage code\n\n[see IICL Preferred Damage Codes, Section 5.2](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "CK", maxLength = 2)
+    @Column(nullable = false, length = 2)
+    String damage;
+
+    @Schema(description = "repair code\n\n[see IICL Preferred Repair Codes, Section 5.4](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "IT", maxLength = 2)
+    @Column(nullable = false, length = 2)
+    String repair;
+
+    @Schema(description = "component material code\n\n[see IICL Preferred Material Type Codes, Section 5.5](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "MU", maxLength = 2)
+    @Column(nullable = false, length = 2)
+    String material;
 
     @Schema(description = "the length dimension of the damage", type = "integer", format = "int32", required = false, nullable = true, example = "15", minimum = "0")
     @Column
