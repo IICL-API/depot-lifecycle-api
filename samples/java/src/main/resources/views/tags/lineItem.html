@@ -11,24 +11,24 @@
             <input type="text" class="form-control" th:attr="id=${id} + 'line', name=${propertyPath} + 'line', value=${count}" required readonly>
         </div>
         <div class="mb-3">
-            <label th:attr="for=${id} + 'repair'" class="form-label">Repair</label>
-            <input type="text" class="form-control" th:attr="id=${id} + 'repair', name=${propertyPath} + 'repair'" maxlength="2" pattern="^[A-Z0-9]{2}$" required>
-        </div>
-        <div class="mb-3">
-            <label th:attr="for=${id} + 'damage'" class="form-label">Damage</label>
-            <input type="text" class="form-control" th:attr="id=${id} + 'damage', name=${propertyPath} + 'damage'" maxlength="2" pattern="^[A-Z0-9]{2}$" required>
-        </div>
-        <div class="mb-3">
-            <label th:attr="for=${id} + 'material'" class="form-label">Material</label>
-            <input type="text" class="form-control" th:attr="id=${id} + 'material', name=${propertyPath} + 'material'" maxlength="2" pattern="^[A-Z0-9]{2}$" required>
+            <label th:attr="for=${id} + 'location'" class="form-label">Location</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'location', name=${propertyPath} + 'location'" maxlength="4" pattern="^[A-Z0-9]{4}$">
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'component'" class="form-label">Component</label>
             <input type="text" class="form-control" th:attr="id=${id} + 'component', name=${propertyPath} + 'component'" maxlength="3" pattern="^[A-Z0-9]{3}$" required>
         </div>
         <div class="mb-3">
-            <label th:attr="for=${id} + 'location'" class="form-label">Location</label>
-            <input type="text" class="form-control" th:attr="id=${id} + 'location', name=${propertyPath} + 'location'" maxlength="4" pattern="^[A-Z0-9]{4}$">
+            <label th:attr="for=${id} + 'damage'" class="form-label">Damage</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'damage', name=${propertyPath} + 'damage'" maxlength="2" pattern="^[A-Z0-9]{2}$" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'repair'" class="form-label">Repair</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'repair', name=${propertyPath} + 'repair'" maxlength="2" pattern="^[A-Z0-9]{2}$" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'material'" class="form-label">Material</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'material', name=${propertyPath} + 'material'" maxlength="2" pattern="^[A-Z0-9]{2}$" required>
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'length'" class="form-label">Length</label>

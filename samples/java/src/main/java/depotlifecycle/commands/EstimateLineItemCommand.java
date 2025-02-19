@@ -20,10 +20,14 @@ public class EstimateLineItemCommand {
     @NotBlank
     Integer line;
 
+    @Nullable
+    @Pattern(regexp = "^[A-Z0-9]{4}$", message = "Invalid Location Code.")
+    String location;
+
     @NotNull
     @NotBlank
-    @Pattern(regexp = "^[A-Z0-9]{2}$", message = "Invalid Repair Code.")
-    String repair;
+    @Pattern(regexp = "^[A-Z0-9]{3}$", message = "Invalid Component Code.")
+    String component;
 
     @NotNull
     @NotBlank
@@ -32,17 +36,13 @@ public class EstimateLineItemCommand {
 
     @NotNull
     @NotBlank
-    @Pattern(regexp = "^[A-Z0-9]{2}$", message = "Invalid Material Code.")
-    String material;
+    @Pattern(regexp = "^[A-Z0-9]{2}$", message = "Invalid Repair Code.")
+    String repair;
 
     @NotNull
     @NotBlank
-    @Pattern(regexp = "^[A-Z0-9]{3}$", message = "Invalid Component Code.")
-    String component;
-
-    @Nullable
-    @Pattern(regexp = "^[A-Z0-9]{4}$", message = "Invalid Location Code.")
-    String location;
+    @Pattern(regexp = "^[A-Z0-9]{2}$", message = "Invalid Material Code.")
+    String material;
 
     @Nullable
     @Min(0)
