@@ -133,6 +133,7 @@ import java.util.List;
             "    - (api) Add `targetGrade` to RedeliveryUnit to indicate the expected grade of the container upon arrival in a depot.\n\n" +
             "    - (api) Add `licensePlate` to Party and ExternalParty.\n\n" +
             "    - (api) Add `trucker` as an external party to GateCreateRequest.\n\n" +
+            "    - (api) Add `trucker` as an external party to GateUpdateRequest.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +

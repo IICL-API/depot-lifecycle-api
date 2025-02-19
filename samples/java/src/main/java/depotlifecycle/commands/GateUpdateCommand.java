@@ -45,4 +45,7 @@ public class GateUpdateCommand {
 
     @Nullable
     List<GatePhotoCommand> photos;
+
+    @Nullable
+    ExternalPartyCommand trucker;
 }

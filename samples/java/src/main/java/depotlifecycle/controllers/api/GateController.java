@@ -154,6 +154,10 @@ public class GateController {
             LOG.info("Gate DNE -> Writing to Gate Update");
         }
 
+        if (gateUpdateRequest.getTrucker() != null) {
+            gateUpdateRequest.setTrucker(externalPartyRepository.save(gateUpdateRequest.getTrucker()));
+        }
+
         gateUpdateRequest = gateUpdateRequestRepository.save(gateUpdateRequest);
 
         //Generate an example gate for the purposes of this demo
