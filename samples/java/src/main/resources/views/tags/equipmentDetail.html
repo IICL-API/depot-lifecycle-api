@@ -8,7 +8,7 @@
             <input type="text" class="form-control" th:attr="id=${id} + 'equipment', name=${propertyPath} + 'equipment'" required maxlength="10">
         </div>
         <div class="mb-3" th:attr="id=${id} + 'MachineryInfoContainer'">
-            <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addMachineryInfo?title=Machinery Info&propertyPath=' + ${propertyPath} + 'machineryInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'MachineryInfoContainer'" hx-target="#machineryInfoContainer" hx-swap="innerHtml">Add Machinery Info</a>
+            <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addMachineryInfo?title=Machinery Info&propertyPath=' + ${propertyPath} + 'machineryInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'MachineryInfoContainer'" hx-swap="innerHtml">Add Machinery Info</a>
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'manufacturerDate'" class="form-label">Manufacturer Date</label>
@@ -26,7 +26,10 @@
             <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addRegulatoryInspection?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'RegulatoryInspectionContainer', hx-vals='js:{count: $(\'#' + ${id} + 'RegulatoryInspectionContainer\').find(\'.regulatoryInspection\').length}'" hx-swap="beforeend">Add Inspection</a>
         </div>
         <div class="mb-3" th:attr="id=${id} + 'ChassisInfoContainer'">
-            <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addChassisInfo?title=Chassis Info&propertyPath=' + ${propertyPath} + 'chassisInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'ChassisInfoContainer'" hx-target="#chassisInfoContainer" hx-swap="innerHtml">Add Chassis Info</a>
+            <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addChassisInfo?title=Chassis Info&propertyPath=' + ${propertyPath} + 'chassisInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'ChassisInfoContainer'" hx-swap="innerHtml">Add Chassis Info</a>
+        </div>
+        <div class="mb-3" th:attr="id=${id} + 'GensetInfoContainer'">
+            <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addGensetInfo?title=Genset Info&propertyPath=' + ${propertyPath} + 'gensetInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'GensetInfoContainer'" hx-swap="innerHtml">Add Genset Info</a>
         </div>
     </div>
 </div>

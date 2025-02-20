@@ -84,6 +84,17 @@ public class TagController {
         ));
     }
 
+    @Get("/addGensetInfo")
+    @View("tags/gensetInfo")
+    Mono<Map<String, Object>> addGensetInfo(@NonNull @Parameter String title, @NonNull @Parameter String id, @NonNull @Parameter String propertyPath) {
+        return Mono.just(Map.of(
+                "title", title,
+                "id", id,
+                "propertyPath", propertyPath,
+                "attachmentTypes", AttachmentType.values()
+        ));
+    }
+
     @Get("/addRegulatoryInspection")
     @View("tags/regulatoryInspection")
     Mono<Map<String, Object>> addRegulatoryInspection(@Nullable @Parameter String propertyPath, @NonNull @Parameter Integer count) {

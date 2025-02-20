@@ -58,4 +58,8 @@ public class EquipmentDetail {
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @Schema(description = "if this detail is for a Chassis, then this details specific Chassis information", required = false, nullable = true, implementation = ChassisInfo.class)
     ChassisInfo chassisInfo;
+
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @Schema(description = "if this detail is for a Genset, then this details specific Genset information", required = false, nullable = true, implementation = GensetInfo.class)
+    GensetInfo gensetInfo;
 }

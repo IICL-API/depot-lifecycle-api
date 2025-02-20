@@ -35,4 +35,7 @@ public class EquipmentDetailCommand {
 
     @Nullable
     ChassisInfoCommand chassisInfo;
+
+    @Nullable
+    GensetInfoCommand gensetInfo;
 }
