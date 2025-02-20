@@ -17,7 +17,10 @@
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'approvalDateTime'" class="form-label">Approval Date Time</label>
-            <input type="text" class="form-control datetimepicker" th:attr="id=${id} + 'approvalDateTime', name=${propertyPath} + 'approvalDateTime'" required>
+            <input type="datetime-local" class="form-control" th:attr="id=${id} + 'approvalDateTime', name=${propertyPath} + 'approvalDateTime'" required>
+            <div class="form-text">
+                Times are set to UTC timezone by default. API supports offsets or UTC (Z representation). Most systems should assume the time transmitted is local time and associate expected time zone for system implementations that have poor timezone support.
+            </div>
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'approvalUser'" class="form-label">Approval User</label>

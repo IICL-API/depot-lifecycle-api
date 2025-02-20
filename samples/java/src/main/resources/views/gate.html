@@ -120,8 +120,11 @@
                         </div>
                         <div class="mb-3">
                             <label for="updateActivityTime" class="form-label">Activity Time</label>
-                            <input type="text" class="form-control datetimepicker" id="updateActivityTime"
+                            <input type="datetime-local" class="form-control" id="updateActivityTime"
                                    name="activityTime">
+                            <div class="form-text">
+                                Times are set to UTC timezone by default. API supports offsets or UTC (Z representation). Most systems should assume the time transmitted is local time and associate expected time zone for system implementations that have poor timezone support.
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="updateType" class="form-label">Type</label>
@@ -138,7 +141,10 @@
                                hx-swap="beforeend">Add Photo</a>
                         </div>
                         <div class="mb-3" id="updateTruckerContainer">
-                            <a href="#" class="btn btn-success" hx-get="/client/tag/addExternalParty?title=Trucker&id=trucker" hx-target="#updateTruckerContainer" hx-swap="innerHtml">Add Trucker</a>
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addExternalParty?title=Trucker&id=updateTrucker&propertyPath=trucker." hx-target="#updateTruckerContainer" hx-swap="innerHtml">Add Trucker</a>
+                        </div>
+                        <div class="mb-3" id="updateEquipmentDetailContainer">
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addEquipmentDetail?title=Equipment Detail&id=updateEquipmentDetail&propertyPath=equipmentDetail." hx-target="#updateEquipmentDetailContainer" hx-swap="innerHtml">Add Equipment Detail</a>
                         </div>
                     </div>
                     <div class="card-footer">
@@ -166,7 +172,7 @@
                                    pattern="^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$" name="unitNumber" required>
                         </div>
                         <div class="mb-3" id="updateTotalsDepot" th:insert="~{tags/party}"
-                             th:with="title='Depot', id='depot'">
+                             th:with="title='Depot', id='gateCreateDepot', propertyPath='depot.'">
                         </div>
                         <div class="mb-3">
                             <label for="createStatus" class="form-label">Status</label>
@@ -177,8 +183,11 @@
                         </div>
                         <div class="mb-3">
                             <label for="createActivityTime" class="form-label">Activity Time</label>
-                            <input type="text" class="form-control datetimepicker" id="createActivityTime"
+                            <input type="datetime-local" class="form-control" id="createActivityTime"
                                    name="activityTime" required>
+                            <div class="form-text">
+                                Times are set to UTC timezone by default. API supports offsets or UTC (Z representation). Most systems should assume the time transmitted is local time and associate expected time zone for system implementations that have poor timezone support.
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="createType" class="form-label">Type</label>
@@ -194,7 +203,10 @@
                                hx-swap="beforeend">Add Photo</a>
                         </div>
                         <div class="mb-3" id="createTruckerContainer">
-                            <a href="#" class="btn btn-success" hx-get="/client/tag/addExternalParty?title=Trucker&id=trucker" hx-target="#createTruckerContainer" hx-swap="innerHtml">Add Trucker</a>
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addExternalParty?title=Trucker&id=createTrucker&propertyPath=trucker." hx-target="#createTruckerContainer" hx-swap="innerHtml">Add Trucker</a>
+                        </div>
+                        <div class="mb-3" id="createEquipmentDetailContainer">
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addEquipmentDetail?title=Equipment Detail&&id=createEquipmentDetail&propertyPath=equipmentDetail." hx-target="#createEquipmentDetailContainer" hx-swap="innerHtml">Add Equipment Detail</a>
                         </div>
                     </div>
                     <div class="card-footer">
@@ -207,21 +219,6 @@
 </div>
 <script type="text/javascript" defer>
     $(document).ready(function () {
-        function initDatePickers(parent = null) {
-            const $parent = $(parent || document);
-            $parent.find('input.datetimepicker').datetimepicker({
-                format: 'yyyy-mm-ddThh:ii:ss+00:00',
-                autoclose: true,
-                todayBtn: true,
-                todayHighlight: true,
-                showMeridian: true,
-                pickerPosition: 'bottom-left',
-                minuteStep: 1
-            });
-        }
-
-        initDatePickers();
-
         document.body.addEventListener('htmx:load', function (evt) {
             const target = evt.detail.elt;
             if (target.localName === "body") {
@@ -232,8 +229,6 @@
             if (target.localName === "script") {
                 // Script instead of html, so process it instead of adding it to the dom
                 eval(target.innerHTML);
-            } else {
-                initDatePickers(target);
             }
         });
     });

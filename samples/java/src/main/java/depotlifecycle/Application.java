@@ -74,6 +74,12 @@ import java.util.List;
             " # Deprecation\n\n" +
             " If this API version were to be discontinued, a minimum of 6 months time would pass before it's removal.\n" +
             "\n\n\n" +
+            " # Change Log Types\n\n" +
+            " * api - a backend api change that will require development to support\n\n" +
+            " * doc - a documentation only change, no implementation impact\n\n" +
+            " * server - a change (or implementation) to the example server implementation\n\n" +
+            " * client - a change (or implementation) to the example client implementation\n\n" +
+            " \n\n" +
             " # Change Log\n\n" +
             " * 2.2.1\n\n" +
             "    - (api) Estimate Photo support for line items and the overall estimate (header).\n\n" +
@@ -122,8 +128,8 @@ import java.util.List;
             " * 2.2.6\n\n" +
             "    - (client, server) No intentional API changes.  Added Estimate & Gate clients for easier testing.\n\n" +
             " * 2.2.7\n\n" +
-            "    - (api) Add optional `tax` field to Estimate Line Item; typically used for total verification & for systems that do not store the tax rate of the depot.\n\n" +
-            "    - (api) Add optional `taxRates` field to Estimate; typically used for systems that do not store the tax rate of the depot.\n\n" +
+            "    - (api) Add optional `tax` field to Estimate Line Item; typically used for total verification & for system implementations that do not store the tax rate of the depot.\n\n" +
+            "    - (api) Add optional `taxRates` field to Estimate; typically used for system implementations that do not store the tax rate of the depot.\n\n" +
             "    - (api) Add optional `desiredHumidity` field to the ReleaseDetail model.\n\n" +
             "    - (api) Move binary estimate & gate photo upload apis from alpha to beta.\n\n" +
             "    - (client) Minor fetch fixes to support estimate & gate searches.\n\n" +
@@ -135,6 +141,14 @@ import java.util.List;
             "    - (api) Add `trucker` as an external party to GateCreateRequest.\n\n" +
             "    - (api) Add `trucker` as an external party to GateUpdateRequest.\n\n" +
             "    - (doc) Reorder field definitions on EstimateLineItem to reflect entry order.  Should only affect documentation since json order does not matter.\n\n" +
+            "    - (api) Add EquipmentDetail model to store various information about the shipping container.\n\n" +
+            "    - (api) Add ChassisInfo model for EquipmentDetail to store information specific to chassis.\n\n" +
+            "    - (api) Add RegulatoryInspection model to capture regulatory inspection results.\n\n" +
+            "    - (api) Add TireTreadMeasurement model to capture tire tread measurements for chassis.\n\n" +
+            "    - (doc) Add MachineryInfo model to model list in documentation.\n\n" +
+            "    - (api) Add optional `equipmentDetail` to GateCreateRequest model to submit optional data between depots and shipping lines.\n\n" +
+            "    - (api) Add optional `equipmentDetail` to GateUpdateRequest model to submit optional data between depots and shipping lines.\n\n" +
+            "    - (client) Switch to built in date and datetime-local controls for easier data entry.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
@@ -297,10 +311,15 @@ import java.util.List;
         @Tag(name="m_estimate_customer_approval", description="<SchemaDefinition schemaRef=\"#/components/schemas/EstimateCustomerApproval\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="EstimateCustomerApproval")})}),
         @Tag(name="m_work_order", description="<SchemaDefinition schemaRef=\"#/components/schemas/WorkOrder\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="WorkOrder")})}),
         @Tag(name="m_work_order_unit", description="<SchemaDefinition schemaRef=\"#/components/schemas/WorkOrderUnit\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="WorkOrderUnit")})}),
-        @Tag(name="m_repair_complete", description="<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="RepairComplete")})})
+        @Tag(name="m_repair_complete", description="<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="RepairComplete")})}),
+        @Tag(name="m_chassis_info", description="<SchemaDefinition schemaRef=\"#/components/schemas/ChassisInfo\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="ChassisInfo")})}),
+        @Tag(name="m_regulatory_inspection", description="<SchemaDefinition schemaRef=\"#/components/schemas/RegulatoryInspection\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="RegulatoryInspection")})}),
+        @Tag(name="m_tire_tread_measurement", description="<SchemaDefinition schemaRef=\"#/components/schemas/TireTreadMeasurement\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="TireTreadMeasurement")})}),
+        @Tag(name="m_machinery_info", description="<SchemaDefinition schemaRef=\"#/components/schemas/MachineryInfo\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="MachineryInfo")})}),
+        @Tag(name="m_equipment_detail", description="<SchemaDefinition schemaRef=\"#/components/schemas/EquipmentDetail\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="EquipmentDetail")})}),
     },
     extensions = {
-        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\", \"estimate photos\", \"gate photos\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_tax_rate\", \"m_estimate_allocation\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\" ] }]", parseValue = true)})
+        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\", \"estimate photos\", \"gate photos\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_tax_rate\", \"m_estimate_allocation\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\", \"m_chassis_info\", \"m_regulatory_inspection\", \"m_tire_tread_measurement\", \"m_equipment_detail\", \"m_machinery_info\" ] }]", parseValue = true)})
     },
     servers = {
         @Server(url = "https://api.example.com/examplecontextpath")

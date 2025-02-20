@@ -114,22 +114,25 @@
                         </div>
                         <div class="mb-3">
                             <label for="createEstimateTime" class="form-label">Estimate Time</label>
-                            <input type="text" class="form-control datetimepicker" id="createEstimateTime" name="estimateTime" required>
+                            <input type="datetime-local" class="form-control" id="createEstimateTime" name="estimateTime" required>
+                            <div class="form-text">
+                                Times are set to UTC timezone by default. API supports offsets or UTC (Z representation). Most systems should assume the time transmitted is local time and associate expected time zone for system implementations that have poor timezone support.
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="createComments" class="form-label">Comments</label>
                             <input type="text" class="form-control" id="createComments" name="comments" maxlength="500">
                         </div>
                         <div class="mb-3" id="requesterContainer">
-                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Requester&id=requester" hx-target="#requesterContainer" hx-swap="innerHtml">Add Requester</a>
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Requester&id=estimateRequester&propertyPath=requester." hx-target="#requesterContainer" hx-swap="innerHtml">Add Requester</a>
                         </div>
-                        <div class="mb-3" id="depotContainer" th:insert="~{tags/party}" th:with="title='Depot', id='depot'">
+                        <div class="mb-3" id="depotContainer" th:insert="~{tags/party}" th:with="title='Depot', id='estimateDepot', propertyPath='depot.'">
                         </div>
                         <div class="mb-3" id="ownerContainer">
-                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Owner&id=owner" hx-target="#ownerContainer" hx-swap="innerHtml">Add Owner</a>
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Owner&id=estimateOwner&propertyPath=owner." hx-target="#ownerContainer" hx-swap="innerHtml">Add Owner</a>
                         </div>
                         <div class="mb-3" id="customerContainer">
-                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Customer&id=customer" hx-target="#customerContainer" hx-swap="innerHtml">Add Customer</a>
+                            <a href="#" class="btn btn-success" hx-get="/client/tag/addParty?title=Customer&id=estimateCustomer&propertyPath=customer." hx-target="#customerContainer" hx-swap="innerHtml">Add Customer</a>
                         </div>
                         <div class="mb-3">
                             <label for="createCurrency" class="form-label">Currency</label>
@@ -224,7 +227,7 @@
                             <label for="updateTotalsRevision" class="form-label">Revision</label>
                             <input type="number" step="1" pattern="[0-9]*" class="form-control" id="updateTotalsRevision" name="revision">
                         </div>
-                        <div class="mb-3" id="updateTotalsDepot" th:insert="~{tags/party}" th:with="title='Depot', id='depot'">
+                        <div class="mb-3" id="updateTotalsDepot" th:insert="~{tags/party}" th:with="title='Depot', id='allocationDepot', propertyPath='depot.'">
                         </div>
                         <div class="mb-3">
                             <label for="updateTotalsTotal" class="form-label">Total</label>
@@ -264,21 +267,6 @@
 </div>
 <script type="text/javascript" defer>
     $(document).ready(function() {
-        function initDatePickers(parent = null) {
-            const $parent = $(parent || document);
-            $parent.find('input.datetimepicker').datetimepicker({
-                format: 'yyyy-mm-ddThh:ii:ss+00:00',
-                autoclose: true,
-                todayBtn: true,
-                todayHighlight: true,
-                showMeridian: true,
-                pickerPosition: 'bottom-left',
-                minuteStep: 1
-            });
-        }
-
-        initDatePickers();
-
         document.body.addEventListener('htmx:load', function(evt) {
             const target = evt.detail.elt;
             if(target.localName === "body") {
@@ -289,9 +277,6 @@
             if (target.localName === "script") {
                 // Script instead of html, so process it instead of adding it to the dom
                 eval(target.innerHTML);
-            }
-            else {
-                initDatePickers(target);
             }
         });
     });

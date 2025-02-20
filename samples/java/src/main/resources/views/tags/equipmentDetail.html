@@ -1,0 +1,32 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title" th:text="${title}"></h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'equipment'" class="form-label">Equipment</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'equipment', name=${propertyPath} + 'equipment'" required maxlength="10">
+        </div>
+        <div class="mb-3" th:attr="id=${id} + 'MachineryInfoContainer'">
+            <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addMachineryInfo?title=Machinery Info&propertyPath=' + ${propertyPath} + 'machineryInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'MachineryInfoContainer'" hx-target="#machineryInfoContainer" hx-swap="innerHtml">Add Machinery Info</a>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'manufacturerDate'" class="form-label">Manufacturer Date</label>
+            <input type="date" class="form-control" th:attr="id=${id} + 'manufacturerDate', name=${propertyPath} + 'manufacturerDate'" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'desiredTemperature'" class="form-label">Desired Temperature</label>
+            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'desiredTemperature', name=${propertyPath} + 'desiredTemperature'">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'desiredHumidity'" class="form-label">Desired Humidity</label>
+            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'desiredHumidity', name=${propertyPath} + 'desiredHumidity'">
+        </div>
+        <div class="mb-3" th:attr="id=${id} + 'RegulatoryInspectionContainer'">
+            <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addRegulatoryInspection?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'RegulatoryInspectionContainer', hx-vals='js:{count: $(\'#' + ${id} + 'RegulatoryInspectionContainer\').find(\'.regulatoryInspection\').length}'" hx-swap="beforeend">Add Inspection</a>
+        </div>
+        <div class="mb-3" th:attr="id=${id} + 'ChassisInfoContainer'">
+            <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addChassisInfo?title=Chassis Info&propertyPath=' + ${propertyPath} + 'chassisInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'ChassisInfoContainer'" hx-target="#chassisInfoContainer" hx-swap="innerHtml">Add Chassis Info</a>
+        </div>
+    </div>
+</div>

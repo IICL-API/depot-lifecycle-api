@@ -35,7 +35,7 @@ public class GateCreateCommand {
     GateRequestStatus status;
 
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Z")
     ZonedDateTime activityTime;
 
     @NotNull
@@ -46,4 +46,7 @@ public class GateCreateCommand {
 
     @Nullable
     ExternalPartyCommand trucker;
+
+    @Nullable
+    EquipmentDetailCommand equipmentDetail;
 }

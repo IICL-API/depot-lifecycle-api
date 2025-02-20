@@ -1,0 +1,39 @@
+<div class="card regulatoryInspection">
+    <div class="card-header">
+        <h5 class="card-title" th:text="${title}"></h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'scope'" class="form-label">Scope</label>
+            <select class="form-select" th:attr="id=${id} + 'scope', name=${propertyPath} + 'scope'" required>
+                <option></option>
+                <option th:each="regulatoryScope : ${regulatoryScopes}" th:attr="value=${regulatoryScope.name()}" th:text="${regulatoryScope.name() + ' - ' + regulatoryScope.description}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'name'" class="form-label">Name</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'name', name=${propertyPath} + 'name'" required maxlength="16">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'lastInspection'" class="form-label">Last Inspection</label>
+            <input type="date" class="form-control" th:attr="id=${id} + 'lastInspection', name=${propertyPath} + 'lastInspection'">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'validFor'" class="form-label">Valid For</label>
+            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'validFor', name=${propertyPath} + 'validFor'" min="0">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'status'" class="form-label">Status</label>
+            <select class="form-select" th:attr="id=${id} + 'status', name=${propertyPath} + 'status'" required>
+                <option></option>
+                <option th:each="regulatoryStatus : ${regulatoryStatuses}" th:attr="value=${regulatoryStatus.name()}" th:text="${regulatoryStatus.name() + ' - ' + regulatoryStatus.description}"></option>
+            </select>
+        </div>
+        <div class="mb-3" id="inspectorContainer" th:insert="~{tags/party}" th:with="title='Inspector', id='inspector', propertyPath=${propertyPath} + 'inspector.', isExternalParty=true">
+        </div>
+
+        <div class="mb-3" th:attr="id=${id} + 'CommentsContainer'">
+            <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addTextInput?fieldLabel=Comment&propertyPath=' + ${propertyPath} + 'comments', hx-target='#' + ${id} + 'CommentsContainer', hx-vals='js:{count: $(\'#' + ${id} + 'CommentsContainer\').find(\'.form-control\').length}'" hx-swap="beforeend">Add Comments</a>
+        </div>
+    </div>
+</div>

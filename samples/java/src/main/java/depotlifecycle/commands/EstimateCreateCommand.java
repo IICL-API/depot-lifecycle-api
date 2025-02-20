@@ -36,7 +36,7 @@ public class EstimateCreateCommand {
     EstimateCondition condition;
 
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Z")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Z")
     ZonedDateTime estimateTime;
 
     @Nullable

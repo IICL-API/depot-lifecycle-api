@@ -42,13 +42,17 @@ info:
     \ Containers (BIC) and officially known as the BIC Facility Code. For codes and\
     \ more information please refer to [https://www.bic-code.org/bic-facility-codes](https://www.bic-code.org/bic-facility-codes/).\n\
     \n\n\n # Deprecation\n\n If this API version were to be discontinued, a minimum\
-    \ of 6 months time would pass before it's removal.\n\n\n\n # Change Log\n\n *\
-    \ 2.2.1\n\n    - (api) Estimate Photo support for line items and the overall estimate\
-    \ (header).\n\n * 2.2.2\n\n    - (api) Estimate Line Items are optional.\n\n \
-    \   - (api) Error Responses optionally support multiple messages via a details\
-    \ field.\n\n    - (api) Various improvements for BETA APIs.\n\n * 2.2.3\n\n  \
-    \  - (api) Party model (optional):\n\n        - Latitude & Longitude\n\n     \
-    \   - Physical Address\n\n        - Contact Phone, Fax, & Phone Number fields\n\
+    \ of 6 months time would pass before it's removal.\n\n\n\n # Change Log Types\n\
+    \n * api - a backend api change that will require development to support\n\n *\
+    \ doc - a documentation only change, no implementation impact\n\n * server - a\
+    \ change (or implementation) to the example server implementation\n\n * client\
+    \ - a change (or implementation) to the example client implementation\n\n \n\n\
+    \ # Change Log\n\n * 2.2.1\n\n    - (api) Estimate Photo support for line items\
+    \ and the overall estimate (header).\n\n * 2.2.2\n\n    - (api) Estimate Line\
+    \ Items are optional.\n\n    - (api) Error Responses optionally support multiple\
+    \ messages via a details field.\n\n    - (api) Various improvements for BETA APIs.\n\
+    \n * 2.2.3\n\n    - (api) Party model (optional):\n\n        - Latitude & Longitude\n\
+    \n        - Physical Address\n\n        - Contact Phone, Fax, & Phone Number fields\n\
     \n    - (api) Insurance Coverage model:\n\n         - Add indicator for insurance\
     \ coverage applicable to CTL scenarios\n\n    - (api) Release & Redelivery models\
     \ - Status field\n\n    - (api) Redelivery model - Add field to store estimate\
@@ -83,20 +87,32 @@ info:
     \ model between Create & Update since they are the same.\n\n * 2.2.6\n\n    -\
     \ (client, server) No intentional API changes.  Added Estimate & Gate clients\
     \ for easier testing.\n\n * 2.2.7\n\n    - (api) Add optional `tax` field to Estimate\
-    \ Line Item; typically used for total verification & for systems that do not store\
-    \ the tax rate of the depot.\n\n    - (api) Add optional `taxRates` field to Estimate;\
-    \ typically used for systems that do not store the tax rate of the depot.\n\n\
-    \    - (api) Add optional `desiredHumidity` field to the ReleaseDetail model.\n\
-    \n    - (api) Move binary estimate & gate photo upload apis from alpha to beta.\n\
-    \n    - (client) Minor fetch fixes to support estimate & gate searches.\n\n  \
-    \  - (api) Change Customer & Recipient party references on Release/Redelivery\
-    \ to an external party - a party that supports either the `companyId` or `code`\
-    \ for identification.\n\n * 2.2.8\n\n    - (api) Add InsuranceCoverageItem to\
-    \ indicate specific repair combinations that are or are not covered under insurance.\n\
+    \ Line Item; typically used for total verification & for system implementations\
+    \ that do not store the tax rate of the depot.\n\n    - (api) Add optional `taxRates`\
+    \ field to Estimate; typically used for system implementations that do not store\
+    \ the tax rate of the depot.\n\n    - (api) Add optional `desiredHumidity` field\
+    \ to the ReleaseDetail model.\n\n    - (api) Move binary estimate & gate photo\
+    \ upload apis from alpha to beta.\n\n    - (client) Minor fetch fixes to support\
+    \ estimate & gate searches.\n\n    - (api) Change Customer & Recipient party references\
+    \ on Release/Redelivery to an external party - a party that supports either the\
+    \ `companyId` or `code` for identification.\n\n * 2.2.8\n\n    - (api) Add InsuranceCoverageItem\
+    \ to indicate specific repair combinations that are or are not covered under insurance.\n\
     \n    - (api) Add `targetGrade` to RedeliveryUnit to indicate the expected grade\
     \ of the container upon arrival in a depot.\n\n    - (api) Add `licensePlate`\
     \ to Party and ExternalParty.\n\n    - (api) Add `trucker` as an external party\
     \ to GateCreateRequest.\n\n    - (api) Add `trucker` as an external party to GateUpdateRequest.\n\
+    \n    - (doc) Reorder field definitions on EstimateLineItem to reflect entry order.\
+    \  Should only affect documentation since json order does not matter.\n\n    -\
+    \ (api) Add EquipmentDetail model to store various information about the shipping\
+    \ container.\n\n    - (api) Add ChassisInfo model for EquipmentDetail to store\
+    \ information specific to chassis.\n\n    - (api) Add RegulatoryInspection model\
+    \ to capture regulatory inspection results.\n\n    - (api) Add TireTreadMeasurement\
+    \ model to capture tire tread measurements for chassis.\n\n    - (doc) Add MachineryInfo\
+    \ model to model list in documentation.\n\n    - (api) Add optional `equipmentDetail`\
+    \ to GateCreateRequest model to submit optional data between depots and shipping\
+    \ lines.\n\n    - (api) Add optional `equipmentDetail` to GateUpdateRequest model\
+    \ to submit optional data between depots and shipping lines.\n\n    - (client)\
+    \ Switch to built in date and datetime-local controls for easier data entry.\n\
     \n\n\n\n # Security & Authentication\n\n To ensure secure communication, all endpoints\
     \ of this API should use the https protocol instead of http.  Authentication methods\
     \ will differ between systems, but two popular methods are JSON Web Tokens and\
@@ -266,6 +282,25 @@ tags:
   description: "<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\"\
     \ showReadOnly={false}/>"
   x-displayName: RepairComplete
+- name: m_chassis_info
+  description: "<SchemaDefinition schemaRef=\"#/components/schemas/ChassisInfo\" showReadOnly={false}/>"
+  x-displayName: ChassisInfo
+- name: m_regulatory_inspection
+  description: "<SchemaDefinition schemaRef=\"#/components/schemas/RegulatoryInspection\"\
+    \ showReadOnly={false}/>"
+  x-displayName: RegulatoryInspection
+- name: m_tire_tread_measurement
+  description: "<SchemaDefinition schemaRef=\"#/components/schemas/TireTreadMeasurement\"\
+    \ showReadOnly={false}/>"
+  x-displayName: TireTreadMeasurement
+- name: m_machinery_info
+  description: "<SchemaDefinition schemaRef=\"#/components/schemas/MachineryInfo\"\
+    \ showReadOnly={false}/>"
+  x-displayName: MachineryInfo
+- name: m_equipment_detail
+  description: "<SchemaDefinition schemaRef=\"#/components/schemas/EquipmentDetail\"\
+    \ showReadOnly={false}/>"
+  x-displayName: EquipmentDetail
 paths:
   /api/v2/estimate:
     get:
@@ -1983,6 +2018,7 @@ components:
           description: The line number
           format: int32
           nullable: false
+          example: 1
         location:
           maxLength: 4
           minLength: 4
@@ -4109,3 +4145,8 @@ x-tagGroups:
   - m_work_order
   - m_work_order_unit
   - m_repair_complete
+  - m_chassis_info
+  - m_regulatory_inspection
+  - m_tire_tread_measurement
+  - m_equipment_detail
+  - m_machinery_info

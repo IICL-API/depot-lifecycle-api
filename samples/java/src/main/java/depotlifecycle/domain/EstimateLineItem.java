@@ -32,7 +32,7 @@ public class EstimateLineItem {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "The line number", required = true, nullable = false)
+    @Schema(description = "The line number", required = true, nullable = false, type = "integer", format = "int32", example = "1")
     @Column(nullable = false)
     Integer line;
 
