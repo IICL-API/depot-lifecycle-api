@@ -67,4 +67,8 @@ public class GateCreateRequest {
     @Schema(description = "the trucker delivering the shipping container", required = false, nullable = true, implementation = ExternalParty.class)
     @ManyToOne(fetch = FetchType.EAGER)
     ExternalParty trucker;
+
+    @Schema(description = "provides various equipment information related to the shipping container", required = false, nullable = true, implementation = EquipmentDetail.class)
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    EquipmentDetail equipmentDetail;
 }

@@ -285,10 +285,6 @@ tags:
   description: "<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\"\
     \ showReadOnly={false}/>"
   x-displayName: RepairComplete
-- name: m_equipment_detail
-  description: "<SchemaDefinition schemaRef=\"#/components/schemas/EquipmentDetail\"\
-    \ showReadOnly={false}/>"
-  x-displayName: EquipmentDetail
 paths:
   /api/v2/estimate:
     get:
@@ -1455,6 +1451,18 @@ paths:
       x-iicl-purpose: activity
 components:
   schemas:
+    AttachmentType:
+      type: string
+      description: |-
+        the mechanism that a genset attaches to a container.
+
+        `CLIP` - Clip
+
+        `UNDER` - Under slung
+      example: CLIP
+      enum:
+      - CLIP
+      - UNDER
     BaseParty:
       type: object
       properties:
@@ -1563,6 +1571,134 @@ components:
           description: "Instead of an address, provides the longitude of this party"
           format: double
           nullable: true
+    BreakCondition:
+      type: string
+      description: |-
+        the status of the breaks on a Chassis.
+
+        `GOOD` - Good
+
+        `WARN` - Warn
+
+        `BAD` - Bad
+      example: GOOD
+      enum:
+      - GOOD
+      - WARN
+      - BAD
+    ChassisInfo:
+      required:
+      - breakCondition
+      - hubometer
+      type: object
+      properties:
+        licensePlate:
+          maxLength: 14
+          required:
+          - "false"
+          type: string
+          description: the license plate for the person represented by this party
+          nullable: true
+        treadMeasurements:
+          required:
+          - "false"
+          type: array
+          description: An optional list of tread depth measurements for this Chassis
+            tires
+          nullable: false
+          items:
+            $ref: "#/components/schemas/TireTreadMeasurement"
+        breakCondition:
+          description: |-
+            the condition of the breaks on this Chassis.
+
+            `GOOD` - Good
+
+            `WARN` - Warn
+
+            `BAD` - Bad
+          example: GOOD
+          allOf:
+          - $ref: "#/components/schemas/BreakCondition"
+        hubometer:
+          minimum: 0
+          required:
+          - "true"
+          type: integer
+          description: the current reading of the hubometer on the Chassis
+          format: int32
+          nullable: false
+          example: 15000
+      description: Provides Chassis specific information for a given shipping container
+    EquipmentDetail:
+      required:
+      - equipment
+      - manufactureDate
+      type: object
+      properties:
+        equipment:
+          maxLength: 10
+          required:
+          - "true"
+          type: string
+          description: the equipment type ISO code or an internal code if one does
+            not exist for this shipping container
+          nullable: false
+          example: 22G1
+        machineryInfo:
+          description: "if this detail is for a reefer shipping container, then this\
+            \ details the cooling machinery information"
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/MachineryInfo"
+        manufactureDate:
+          required:
+          - "true"
+          type: string
+          description: |-
+            date and month this unit was manufactured
+
+            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date
+          nullable: false
+          example: 2001-07-21
+        desiredTemperature:
+          required:
+          - "false"
+          type: integer
+          description: the reefer setpoint / desired temperature in Celsius
+          format: int32
+          nullable: true
+          example: -23
+        desiredHumidity:
+          required:
+          - "false"
+          type: integer
+          description: the reefer desired humidity percentage
+          format: int32
+          nullable: true
+          example: 65
+        inspections:
+          required:
+          - "false"
+          type: array
+          description: the regulatory inspections related to this shipping container
+          nullable: false
+          items:
+            $ref: "#/components/schemas/RegulatoryInspection"
+        chassisInfo:
+          description: "if this detail is for a Chassis, then this details specific\
+            \ Chassis information"
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/ChassisInfo"
+        gensetInfo:
+          description: "if this detail is for a Genset, then this details specific\
+            \ Genset information"
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/GensetInfo"
+      description: provides various equipment information related to a shipping container
     ErrorResponse:
       type: object
       properties:
@@ -2543,6 +2679,12 @@ components:
           nullable: true
           allOf:
           - $ref: "#/components/schemas/ExternalParty"
+        equipmentDetail:
+          description: provides various equipment information related to the shipping
+            container
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/EquipmentDetail"
       description: data required to create a gate in or gate out record
     GatePhoto:
       required:
@@ -2832,6 +2974,89 @@ components:
           - $ref: "#/components/schemas/ExternalParty"
       description: Data required to update a gate in or gate out record. Any data
         not provided will result in no update.
+    GensetInfo:
+      type: object
+      properties:
+        lastMaintenanceDate:
+          required:
+          - "false"
+          type: string
+          description: |-
+            the last date that maintenance was performed
+
+            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date
+          nullable: true
+          example: 2001-07-21
+        lastMaintenanceHours:
+          minimum: 0
+          required:
+          - "false"
+          type: integer
+          description: the number runtime hours at the last maintenance
+          format: int32
+          nullable: true
+          example: 12
+        lastBeltChangeDate:
+          required:
+          - "false"
+          type: string
+          description: |-
+            the last date that the belt was changed
+
+            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date
+          nullable: true
+          example: 2001-07-21
+        lastBeltChangeHours:
+          minimum: 0
+          required:
+          - "false"
+          type: integer
+          description: the number runtime hours at the last belt change
+          format: int32
+          nullable: true
+          example: 12
+        totalHours:
+          minimum: 0
+          required:
+          - "false"
+          type: integer
+          description: the total runtime hours
+          format: int32
+          nullable: true
+          example: 24
+        currentHours:
+          minimum: 0
+          required:
+          - "false"
+          type: integer
+          description: the current runtime hours
+          format: int32
+          nullable: true
+          example: 1
+        fuelLevel:
+          maximum: 100
+          minimum: 0
+          required:
+          - "false"
+          type: integer
+          description: the fuel level as a percentage
+          format: int32
+          nullable: true
+          example: 100
+        attachmentType:
+          description: |-
+            the mechanism that a genset attaches to a container.
+
+            `CLIP` - Clip
+
+            `UNDER` - Under slung
+          nullable: true
+          example: CLIP
+          allOf:
+          - $ref: "#/components/schemas/AttachmentType"
+      description: Provides Genset specific information related to a shipping container
     InsuranceCoverage:
       type: object
       properties:
@@ -3389,6 +3614,105 @@ components:
       - TIED
       - REMOVED
       - TIN
+    RegulatoryInspection:
+      required:
+      - name
+      - scope
+      type: object
+      properties:
+        scope:
+          description: |-
+            the grain the regulatory inspection applies.
+
+            `NATIONAL` - National
+
+            `REGIONAL` - Regional
+
+            `INDUSTRY` - Industry
+          example: NATIONAL
+          allOf:
+          - $ref: "#/components/schemas/RegulatoryScope"
+        name:
+          maxLength: 16
+          required:
+          - "true"
+          type: string
+          description: the name of the regulatory inspection
+          nullable: false
+          example: FMCSA
+        lastInspection:
+          required:
+          - "false"
+          type: string
+          description: |-
+            the date this inspection was last performed
+
+            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date
+          nullable: true
+          example: 2001-07-21
+        validFor:
+          minimum: 0
+          required:
+          - "false"
+          type: integer
+          description: the number of months this inspection is valid for
+          format: int32
+          nullable: true
+          example: 12
+        status:
+          description: |-
+            the result of the regulatory inspection.
+
+            `PASS` - Pass
+
+            `FAIL` - Fail
+          nullable: true
+          example: PASS
+          allOf:
+          - $ref: "#/components/schemas/RegulatoryStatus"
+        inspector:
+          description: the party performing this inspection
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/ExternalParty"
+        comments:
+          required:
+          - "false"
+          type: array
+          description: comments pertaining to this inspection
+          nullable: false
+          items:
+            type: string
+            example: An example inspection note.
+      description: Provides various equipment information related to a shipping container
+    RegulatoryScope:
+      type: string
+      description: |-
+        the grain the regulatory inspection applies.
+
+        `NATIONAL` - National
+
+        `REGIONAL` - Regional
+
+        `INDUSTRY` - Industry
+      example: INDUSTRY
+      enum:
+      - NATIONAL
+      - REGIONAL
+      - INDUSTRY
+    RegulatoryStatus:
+      type: string
+      description: |-
+        the result of the regulatory inspection.
+
+        `PASS` - Pass
+
+        `FAIL` - Fail
+      example: PASS
+      enum:
+      - PASS
+      - FAIL
     Release:
       required:
       - approvalDate
@@ -3815,6 +4139,99 @@ components:
           example: CONU1234561
       description: Necessary information to mark a specific unit under a work order
         repaired
+    TireTreadLocation:
+      type: string
+      description: |-
+        the tire location of the tread depth measurement.
+
+        `RFI` - Right Front Inner
+
+         `RFO` - Right Front Outer
+
+         `RRI` - Right Rear Inner
+
+         `RRO` - Right Rear Outer
+
+         `LFI` - Left Front Inner
+
+         `LFO` - Left Front Outer
+
+         `LRI` - Left Rear Inner
+
+         `LRO` - Left Rear Outer
+      example: RFI
+      enum:
+      - RFI
+      - RFO
+      - RRI
+      - RRO
+      - LFI
+      - LFO
+      - LRI
+      - LRO
+    TireTreadMeasurement:
+      required:
+      - depth
+      - location
+      - unitOfMeasure
+      type: object
+      properties:
+        location:
+          description: |-
+            the tire location of the tread depth measurement.
+
+            `RFI` - Right Front Inner
+
+             `RFO` - Right Front Outer
+
+             `RRI` - Right Rear Inner
+
+             `RRO` - Right Rear Outer
+
+             `LFI` - Left Front Inner
+
+             `LFO` - Left Front Outer
+
+             `LRI` - Left Rear Inner
+
+             `LRO` - Left Rear Outer
+          example: RFI
+          allOf:
+          - $ref: "#/components/schemas/TireTreadLocation"
+        unitOfMeasure:
+          description: |+
+            the measurement type of the tread depth
+
+            `CMT` - "Centimeters"
+
+             `FOT` - "Feet"
+
+             `GRM` - "Grams"
+
+             `INH` - "Inches"
+
+             `KGM` - "Kilograms"
+
+             `MTR` - "Meters"
+
+             `TON` - "Tons"
+
+             `MTT` - "Metric Tons"
+
+             `MMT` - "Millimeters"
+
+          allOf:
+          - $ref: "#/components/schemas/UnitOfMeasure"
+        depth:
+          minimum: 0
+          required:
+          - "true"
+          type: number
+          description: the measurement of the tire depth
+          format: double
+          nullable: false
+          example: 9.95
+      description: Provides a tire tread measurement in the indicated location
     UnitOfMeasure:
       type: string
       description: |+
@@ -4133,4 +4550,3 @@ x-tagGroups:
   - m_work_order
   - m_work_order_unit
   - m_repair_complete
-  - m_equipment_detail
