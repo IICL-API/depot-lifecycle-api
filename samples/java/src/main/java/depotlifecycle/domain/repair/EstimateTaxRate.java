@@ -32,7 +32,7 @@ public class EstimateTaxRate {
     @JoinColumn(name="estimate_id")
     Estimate estimate;
 
-    @Schema(description = "a unique, descriptive explanation for this tax rate", required = true, nullable = false, example = "PST Labor Tax Rate", maxLength = 255)
+    @Schema(description = "a unique, descriptive explanation for this tax rate", required = true, nullable = false, example = "PST Labor Tax Rate", minLength = 1, maxLength = 255)
     @Column(nullable = false, length = 255)
     String description;
 

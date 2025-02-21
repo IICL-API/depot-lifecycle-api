@@ -6,6 +6,7 @@ import depotlifecycle.domain.ExternalParty;
 import depotlifecycle.domain.Party;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class ExternalPartyCommand extends BasePartyCommand {
     String companyId;
 
     @Nullable
+    @NotBlank
     @Size(max = 10)
     String code;
 

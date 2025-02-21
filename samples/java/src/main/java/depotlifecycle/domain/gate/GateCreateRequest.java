@@ -34,7 +34,7 @@ public class GateCreateRequest {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the redelivery or release advice number for the gate record", example = "AHAMG000000", maxLength = 16, required = true, nullable = false)
+    @Schema(description = "the redelivery or release advice number for the gate record", example = "AHAMG000000", minLength = 1, maxLength = 16, required = true, nullable = false)
     @Column(nullable = false, length = 16)
     String adviceNumber;
 
@@ -42,7 +42,7 @@ public class GateCreateRequest {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party depot;
 
-    @Schema(description = "the unit number of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561", maxLength = 11, required = true, nullable = false)
+    @Schema(description = "the unit number of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", example = "CONU1234561", minLength = 1, maxLength = 11, required = true, nullable = false)
     @Column(nullable = false, length = 11)
     String unitNumber;
 

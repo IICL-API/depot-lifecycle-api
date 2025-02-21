@@ -30,7 +30,7 @@ public class EquipmentDetail {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the equipment type ISO code or an internal code if one does not exist for this shipping container", required = true, nullable = false, example = "22G1", maxLength = 10)
+    @Schema(description = "the equipment type ISO code or an internal code if one does not exist for this shipping container", required = true, nullable = false, example = "22G1", minLength = 1, maxLength = 10)
     @Column(nullable = false, length = 10)
     String equipment;
 

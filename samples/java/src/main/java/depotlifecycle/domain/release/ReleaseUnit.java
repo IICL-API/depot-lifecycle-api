@@ -29,7 +29,7 @@ public class ReleaseUnit {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the current unit number of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", maxLength = 11)
+    @Schema(description = "the current unit number of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", minLength = 1, maxLength = 11)
     @Column(nullable = false, length = 11)
     String unitNumber;
 

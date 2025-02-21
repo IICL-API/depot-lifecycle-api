@@ -34,7 +34,7 @@ public class EstimateCustomerApproval {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "The approval number from the customer", example = "RAMON ROUBAL", maxLength = 128, required = false, nullable = true)
+    @Schema(description = "The approval number from the customer", example = "RAMON ROUBAL", minLength = 1, maxLength = 128, required = false, nullable = true)
     @Column(length = 128)
     String approvalNumber;
 
@@ -44,7 +44,7 @@ public class EstimateCustomerApproval {
     @Column(nullable = false)
     ZonedDateTime approvalDateTime;
 
-    @Schema(description = "the user name or code who approved this estimate on behalf of the customer", example = "KAERTS", maxLength = 64, required = false, nullable = true)
+    @Schema(description = "the user name or code who approved this estimate on behalf of the customer", example = "KAERTS", minLength = 1, maxLength = 64, required = false, nullable = true)
     @Column(length = 64)
     String approvalUser;
 

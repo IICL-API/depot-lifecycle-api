@@ -29,7 +29,7 @@ public class EstimateCreateCommand {
 
     @NotNull
     @NotBlank
-    @Size(max = 11)
+    @Size(min = 10, max = 11)
     @Pattern(regexp = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", message = "Unit Number must match the Unit Number pattern.")
     String unitNumber;
 
@@ -41,6 +41,7 @@ public class EstimateCreateCommand {
     ZonedDateTime estimateTime;
 
     @Nullable
+    @NotBlank
     @Size(max = 500)
     String comments;
 
@@ -57,6 +58,7 @@ public class EstimateCreateCommand {
     PartyCommand customer;
 
     @NotNull
+    @NotBlank
     @Size(max = 3)
     String currency;
 

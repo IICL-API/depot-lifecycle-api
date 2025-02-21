@@ -21,6 +21,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+
 import java.math.BigDecimal;
 
 @Data
@@ -74,7 +75,7 @@ public class EstimateAllocation {
     @Column(nullable = false)
     Boolean ctl;
 
-    @Schema(maxLength = 500, description = "comments pertaining to the estimate creation", example = "Base Currency is: EUR; Based on estimate, user damages total: 0.00; Calculated DV (base): 1151.84; Coverage amount: 121.99; Damage exceeds DPP Coverage.; Damages exceed coverage amount. User pays excess.; Total paid by DPP Coverage: 121.99; Total owed by user: 422.96;", required = false, nullable = true)
+    @Schema(minLength = 1, maxLength = 500, description = "comments pertaining to the estimate creation", example = "Base Currency is: EUR; Based on estimate, user damages total: 0.00; Calculated DV (base): 1151.84; Coverage amount: 121.99; Damage exceeds DPP Coverage.; Damages exceed coverage amount. User pays excess.; Total paid by DPP Coverage: 121.99; Total owed by user: 422.96;", required = false, nullable = true)
     @Column(length = 500)
     String comments;
 

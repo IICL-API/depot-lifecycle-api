@@ -33,7 +33,7 @@ public class Redelivery {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the identifier for this redelivery, also referred to as the advice number or redelivery number", example = "AHAMG33141", maxLength = 16, required = true, nullable = false)
+    @Schema(description = "the identifier for this redelivery, also referred to as the advice number or redelivery number", example = "AHAMG33141", minLength = 1, maxLength = 16, required = true, nullable = false)
     @Column(nullable = false, length = 16)
     String redeliveryNumber;
 

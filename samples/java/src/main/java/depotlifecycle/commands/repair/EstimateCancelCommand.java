@@ -17,7 +17,7 @@ public class EstimateCancelCommand {
 
     @NotNull
     @NotBlank
-    @Size(max = 9)
+    @Size(min = 9, max = 9)
     @Pattern(regexp = "^[A-Z0-9]{9}$", message = "Depot must match the Company Id pattern.")
     String depot;
 }

@@ -31,7 +31,7 @@ public class RedeliveryUnit {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the current unit number of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", maxLength = 11)
+    @Schema(description = "the current unit number of the shipping container", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", minLength = 1, maxLength = 11)
     @Column(nullable = false, length = 11)
     String unitNumber;
 
@@ -59,7 +59,7 @@ public class RedeliveryUnit {
     @CollectionTable
     List<String> comments;
 
-    @Schema(description = "a description of the last cargo this shipping container carried", maxLength = 255, example = "Aroset PS 5191", required = false, nullable = true)
+    @Schema(description = "a description of the last cargo this shipping container carried", minLength = 1, maxLength = 255, example = "Aroset PS 5191", required = false, nullable = true)
     @Column(length = 255)
     String lastCargo;
 
@@ -67,7 +67,7 @@ public class RedeliveryUnit {
     @Column(length = 7)
     String lastCargoNumber;
 
-    @Schema(description = "if this is a tank, then this describes the type of liquids it can contain: \n\n`F` - Food\n\n`C` - Chemical ", maxLength = 1, example = "C", allowableValues = {"F", "C"}, required = false, nullable = true)
+    @Schema(description = "if this is a tank, then this describes the type of liquids it can contain: \n\n`F` - Food\n\n`C` - Chemical ", example = "C", allowableValues = {"F", "C"}, required = false, nullable = true)
     @Column(length = 1)
     String tankGrade;
 
@@ -82,11 +82,11 @@ public class RedeliveryUnit {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party billingParty;
 
-    @Schema(description = "conveys the estimate instructions to the depot; if the unit is damaged on turn in, the estimate standard that the shipping container should be estimated to and if it should not be estimated, then null", required = false, nullable = true, example = "IICL", maxLength = 10)
+    @Schema(description = "conveys the estimate instructions to the depot; if the unit is damaged on turn in, the estimate standard that the shipping container should be estimated to and if it should not be estimated, then null", required = false, nullable = true, example = "IICL", minLength = 1, maxLength = 10)
     @Column(nullable = true, length = 10)
     String inspectionCriteria;
 
-    @Schema(description = "the grade / category to mark the unit when it arrives at the depot - often used in lieu of an estimate inspection criteria.", required = false, nullable = true, example = "IICL", maxLength = 10)
+    @Schema(description = "the grade / category to mark the unit when it arrives at the depot - often used in lieu of an estimate inspection criteria.", required = false, nullable = true, example = "IICL", minLength = 1, maxLength = 10)
     @Column(nullable = true, length = 10)
     String targetGrade;
 

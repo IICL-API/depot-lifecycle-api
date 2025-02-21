@@ -38,7 +38,7 @@ public class Estimate {
     @Column(nullable = false, length = 16)
     String estimateNumber;
 
-    @Schema(description = "The current unit number of the shipping container.", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", maxLength = 11)
+    @Schema(description = "The current unit number of the shipping container.", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", minLength = 10, maxLength = 11)
     @Column(name = "unitNumber", nullable = false, length = 11)
     String unitNumber;
 
@@ -52,7 +52,7 @@ public class Estimate {
     @Column
     ZonedDateTime estimateTime;
 
-    @Schema(description = "the comments concerning this estimate", maxLength = 500, required = false, nullable = true)
+    @Schema(description = "the comments concerning this estimate", minLength = 1, maxLength = 500, required = false, nullable = true)
     @Column(length = 500)
     String comments;
 
@@ -73,7 +73,7 @@ public class Estimate {
     @ManyToOne(fetch = FetchType.EAGER)
     Party customer;
 
-    @Schema(description = "the currency of amounts entered on this estimate", required = true, nullable = false, example = "EUR", pattern = "^[A-Z]{3}$", maxLength = 3)
+    @Schema(description = "the currency of amounts entered on this estimate", required = true, nullable = false, example = "EUR", pattern = "^[A-Z]{3}$", minLength = 3, maxLength = 3)
     @Column(length = 3, nullable = false)
     String currency;
 

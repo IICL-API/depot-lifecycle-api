@@ -24,11 +24,11 @@ import static jakarta.persistence.InheritanceType.SINGLE_TABLE;
 @ToString(of = {"companyId", "code"})
 @Introspected
 public class ExternalParty extends BaseParty {
-    @Schema(description = "a possible identifier for this party, often referred to as an EDI Address", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9, required = false, nullable = true)
+    @Schema(description = "a possible identifier for this party, often referred to as an EDI Address", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", minLength = 9, maxLength = 9, required = false, nullable = true)
     @Column(length = 9)
     String companyId;
 
-    @Schema(description = "a possible identifier for this party using the internal system code for this company, will be system specific to the system delivering or receiving this message", example = "HAMG", maxLength = 10, required = false, nullable = true)
+    @Schema(description = "a possible identifier for this party using the internal system code for this company, will be system specific to the system delivering or receiving this message", example = "HAMG", minLength = 1, maxLength = 10, required = false, nullable = true)
     @Column(length = 10)
     String code;
 

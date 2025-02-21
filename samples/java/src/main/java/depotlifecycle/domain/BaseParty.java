@@ -22,11 +22,11 @@ public abstract class BaseParty {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the user identifier at this company that concerns this message", example = "JDOE", maxLength = 16, required = false, nullable = true)
+    @Schema(description = "the user identifier at this company that concerns this message", example = "JDOE", minLength = 1, maxLength = 16, required = false, nullable = true)
     @Column(length = 16)
     String userCode;
 
-    @Schema(description = "the full name for the user identified by `userCode`", example = "John Doe", maxLength = 70, required = false, nullable = true)
+    @Schema(description = "the full name for the user identified by `userCode`", example = "John Doe", minLength = 1, maxLength = 70, required = false, nullable = true)
     @Column(length = 70)
     String userName;
 
@@ -48,7 +48,7 @@ public abstract class BaseParty {
     @CollectionTable
     List<String> emailAddress;
 
-    @Schema(description = "the name of this company", example = "CMR Container Maintenance Rep.", maxLength = 150, required = false, nullable = true)
+    @Schema(description = "the name of this company", example = "CMR Container Maintenance Rep.", minLength = 1, maxLength = 150, required = false, nullable = true)
     @Column(length = 150)
     String name;
 
@@ -59,23 +59,23 @@ public abstract class BaseParty {
     @CollectionTable
     List<String> streetAddress;
 
-    @Schema(description = "the city for the address", maxLength = 28, required = false, nullable = true)
+    @Schema(description = "the city for the address", minLength = 1, maxLength = 28, required = false, nullable = true)
     @Column(length = 28)
     String city;
 
-    @Schema(description = "the 2 digit ISO country code for the address", maxLength = 2, required = false, nullable = true)
+    @Schema(description = "the 2 digit ISO country code for the address", minLength = 1, maxLength = 2, required = false, nullable = true)
     @Column(length = 2)
     String country;
 
-    @Schema(description = "the postal code for the address", maxLength = 20, required = false, nullable = true)
+    @Schema(description = "the postal code for the address", minLength = 1, maxLength = 20, required = false, nullable = true)
     @Column(length = 20)
     String postalCode;
 
-    @Schema(description = "the optional state or province code for the address", maxLength = 20, required = false, nullable = true)
+    @Schema(description = "the optional state or province code for the address", minLength = 1, maxLength = 20, required = false, nullable = true)
     @Column(length = 20)
     String stateProvince;
 
-    @Schema(description = "the license plate for the person represented by this party", maxLength = 14, required = false, nullable = true)
+    @Schema(description = "the license plate for the person represented by this party", minLength = 1, maxLength = 14, required = false, nullable = true)
     @Column(length = 14)
     String licensePlate;
 

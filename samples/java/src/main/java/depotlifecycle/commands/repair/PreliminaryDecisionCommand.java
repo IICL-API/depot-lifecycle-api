@@ -12,6 +12,7 @@ public class PreliminaryDecisionCommand {
     String recommendation;
 
     @Nullable
+    @NotBlank
     String reason;
 
     @Nullable

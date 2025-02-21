@@ -19,11 +19,11 @@ import lombok.ToString;
 @Introspected
 public class Party extends ExternalParty {
 
-    @Schema(description = "the identifier for this party, often referred to as an EDI Address", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9, required = true, nullable = false)
+    @Schema(description = "the identifier for this party, often referred to as an EDI Address", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", minLength = 9, maxLength = 9, required = true, nullable = false)
     @Column(nullable = false, length = 9)
     String companyId;
 
-    @Schema(description = "the internal system code for this company, will be system specific to the system delivering or receiving this message", example = "HAMG", maxLength = 10, required = false, nullable = true)
+    @Schema(description = "the internal system code for this company, will be system specific to the system delivering or receiving this message", example = "HAMG", minLength = 1, maxLength = 10, required = false, nullable = true)
     @Column(length = 10)
     String code;
 

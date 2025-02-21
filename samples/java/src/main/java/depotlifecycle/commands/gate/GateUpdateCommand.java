@@ -25,13 +25,13 @@ public class GateUpdateCommand {
     String adviceNumber;
 
     @NotNull
-    @Size(max = 11)
+    @Size(min = 10, max = 11)
     @Pattern(regexp = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", message = "Unit Number must match the Unit Number pattern.")
     String unitNumber;
 
     @NotNull
     @NotBlank
-    @Size(max = 9)
+    @Size(min = 9, max = 9)
     @Pattern(regexp = "^[A-Z0-9]{9}$", message = "Depot must match the Company Id pattern.")
     String depot;
 

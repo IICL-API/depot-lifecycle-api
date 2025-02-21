@@ -29,7 +29,7 @@ public class ChassisInfo {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the license plate for the person represented by this party", maxLength = 14, required = false, nullable = true)
+    @Schema(description = "the license plate for the person represented by this party", minLength = 1, maxLength = 14, required = false, nullable = true)
     @Column(length = 14)
     String licensePlate;
 

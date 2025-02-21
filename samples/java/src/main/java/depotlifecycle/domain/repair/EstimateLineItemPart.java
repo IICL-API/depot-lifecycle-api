@@ -32,11 +32,11 @@ public class EstimateLineItemPart {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "a description for this part", maxLength = 500, example = "Paint A", required = false, nullable = true)
+    @Schema(description = "a description for this part", minLength = 1, maxLength = 500, example = "Paint A", required = false, nullable = true)
     @Column(length = 500)
     String description;
 
-    @Schema(description = "ID number used to signify what part is being used", required = true, nullable = false, example = "108106", maxLength = 50)
+    @Schema(description = "ID number used to signify what part is being used", required = true, nullable = false, example = "108106", minLength = 1, maxLength = 50)
     @Column(length = 64, nullable = false)
     String number;
 

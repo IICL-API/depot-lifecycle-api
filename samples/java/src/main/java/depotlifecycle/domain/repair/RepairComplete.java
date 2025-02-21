@@ -50,7 +50,7 @@ public class RepairComplete {
     @Column(nullable = false)
     ZonedDateTime completionDate;
 
-    @Schema(description = "the unit number of the shipping container at the time of repair approval", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", maxLength = 11)
+    @Schema(description = "the unit number of the shipping container at the time of repair approval", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", minLength = 10, maxLength = 11)
     @Column(nullable = false, length = 11)
     String unitNumber;
 }

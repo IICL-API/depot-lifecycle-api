@@ -32,11 +32,11 @@ public class PreliminaryDecision {
     @JsonIgnore
     Long id;
 
-    @Schema(required = true, nullable = false, maxLength = 11, description = "a speculative repair decision code to indicate if a box will be repaired, sold, held for repair, could not determine a decision, requires a survey before proceeding, etc", example = "SELL")
+    @Schema(required = true, nullable = false, minLength = 1, maxLength = 11, description = "a speculative repair decision code to indicate if a box will be repaired, sold, held for repair, could not determine a decision, requires a survey before proceeding, etc", example = "SELL")
     @Column(nullable = false, length = 11)
     String recommendation;
 
-    @Schema(required = false, nullable = true, maxLength = 255, description = "in the event a decision could not be determined, or a prerequisite exists, a more descriptive message than the code provided by the `recommendation` field")
+    @Schema(required = false, nullable = true, minLength = 1, maxLength = 255, description = "in the event a decision could not be determined, or a prerequisite exists, a more descriptive message than the code provided by the `recommendation` field")
     @Column(length = 255)
     String reason;
 

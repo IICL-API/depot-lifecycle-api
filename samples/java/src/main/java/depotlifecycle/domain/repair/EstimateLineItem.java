@@ -41,19 +41,19 @@ public class EstimateLineItem {
     @Column(length = 4)
     String location;
 
-    @Schema(description = "component code\n\n[see IICL Preferred Component Codes, Section 5.1](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{3}$", example = "CMA", maxLength = 3)
+    @Schema(description = "component code\n\n[see IICL Preferred Component Codes, Section 5.1](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{3}$", example = "CMA", minLength = 3, maxLength = 3)
     @Column(nullable = false, length = 3)
     String component;
 
-    @Schema(description = "damage code\n\n[see IICL Preferred Damage Codes, Section 5.2](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "CK", maxLength = 2)
+    @Schema(description = "damage code\n\n[see IICL Preferred Damage Codes, Section 5.2](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "CK", minLength = 2, maxLength = 2)
     @Column(nullable = false, length = 2)
     String damage;
 
-    @Schema(description = "repair code\n\n[see IICL Preferred Repair Codes, Section 5.4](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "IT", maxLength = 2)
+    @Schema(description = "repair code\n\n[see IICL Preferred Repair Codes, Section 5.4](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "IT", minLength = 2, maxLength = 2)
     @Column(nullable = false, length = 2)
     String repair;
 
-    @Schema(description = "component material code\n\n[see IICL Preferred Material Type Codes, Section 5.5](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "MU", maxLength = 2)
+    @Schema(description = "component material code\n\n[see IICL Preferred Material Type Codes, Section 5.5](https://www.iicl.org/iiclforms/assets/File/public/bulletins/TB002_EDIS_February_2003.pdf)", required = true, nullable = false, pattern = "^[A-Z0-9]{2}$", example = "MU", minLength = 2, maxLength = 2)
     @Column(nullable = false, length = 2)
     String material;
 
@@ -95,7 +95,7 @@ public class EstimateLineItem {
     @Enumerated(EnumType.STRING)
     EstimateLineItemParty party;
 
-    @Schema(description = "comments concerning this line item repair", required = false, nullable = true, maxLength = 256)
+    @Schema(description = "comments concerning this line item repair", required = false, nullable = true, minLength = 1, maxLength = 256)
     @Column(length = 256)
     String comments;
 

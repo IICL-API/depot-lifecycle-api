@@ -35,19 +35,19 @@ public class WorkOrderUnit {
     @Column
     String estimateNumber;
 
-    @Schema(description = "the unit number of the shipping container at the time of repair approval", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", maxLength = 11)
+    @Schema(description = "the unit number of the shipping container at the time of repair approval", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = true, nullable = false, example = "CONU1234561", minLength = 10, maxLength = 11)
     @Column(nullable = false, length = 11)
     String unitNumber;
 
-    @Schema(description = "repair the shipping container to this grade or category standard", required = true, nullable = false, example = "CWCA-1", maxLength = 10)
+    @Schema(description = "repair the shipping container to this grade or category standard", required = true, nullable = false, example = "CWCA-1", minLength = 1, maxLength = 10)
     @Column(nullable = false, length = 10)
     String effectiveInspectionCriteria;
 
-    @Schema(description = "the unit number to remark the shipping container on repair", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = false, nullable = true, maxLength = 11)
+    @Schema(description = "the unit number to remark the shipping container on repair", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", required = false, nullable = true, minLength = 10, maxLength = 11)
     @Column(length = 11)
     String remark;
 
-    @Schema(description = "the Release approved for gate out after repair", required = false, nullable = true, maxLength = 16)
+    @Schema(description = "the Release approved for gate out after repair", required = false, nullable = true, minLength = 1, maxLength = 16)
     @Column(length = 16)
     String releaseNumber;
 

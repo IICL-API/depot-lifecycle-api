@@ -35,15 +35,15 @@ public class ReleaseDetail {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     ExternalParty customer;
 
-    @Schema(description = "the contract code for the given shipping containers", required = true, nullable = false, example = "CNCX05-100000", maxLength = 16)
+    @Schema(description = "the contract code for the given shipping containers", required = true, nullable = false, example = "CNCX05-100000", minLength = 1, maxLength = 16)
     @Column(nullable = false, length = 16)
     String contract;
 
-    @Schema(description = "the equipment type ISO code or an internal code if one does not exist for the given shipping containers", required = true, nullable = false, example = "22G1", maxLength = 10)
+    @Schema(description = "the equipment type ISO code or an internal code if one does not exist for the given shipping containers", required = true, nullable = false, example = "22G1", minLength = 1, maxLength = 10)
     @Column(nullable = false, length = 10)
     String equipment;
 
-    @Schema(description = "the current grade of the unit", required = true, nullable = false, example = "IICL", maxLength = 10)
+    @Schema(description = "the current grade of the unit", required = true, nullable = false, example = "IICL", minLength = 1, maxLength = 10)
     @Column(nullable = false, length = 10)
     String grade;
 
@@ -85,7 +85,7 @@ public class ReleaseDetail {
     @Column
     Integer desiredHumidity;
 
-    @Schema(description = "if the equipment has fresh air ventilation, the rate of the fresh air ventilation", example = "90 CBM", maxLength = 10, required = false, nullable = true)
+    @Schema(description = "if the equipment has fresh air ventilation, the rate of the fresh air ventilation", example = "90 CBM", minLength = 1, maxLength = 10, required = false, nullable = true)
     @Column(length = 10)
     String ventilation;
 }

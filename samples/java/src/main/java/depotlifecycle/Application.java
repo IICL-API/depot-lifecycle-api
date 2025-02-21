@@ -52,6 +52,8 @@ import java.util.List;
             " ## Null vs Absent\n\n" +
             " For all types other than arrays, nullable and absent are equivalent by this specification.  For example, if a non-array attribute is marked optional it may be excluded from the JSON or it may be explicitly set to null.  However, to keep request sizes small, it is recommended to prefer excluding attributes rather than sending an explicit null.\n\n" +
             " For arrays, null should be avoided.  For example, if the array is empty or there are no values expected for the array then either the field can be excluded from the JSON or an empty array should be transmitted.\n\n" +
+            " ## Blank Values\n\n" +
+            " Blank values should generally be avoided. Send a `null` value instead of blank. The API documentation represents blank as not allowed by setting the minimum length to 1 and allowing the field to be null. " +
             " ## Default Values\n\n" +
             " Anywhere a default value is defined in this API, if null is transmitted, it is assumed the default value will be used.\n\n" +
             " ## Forward Compatibility\n\n" +
@@ -153,6 +155,7 @@ import java.util.List;
             "    - (client) Switch to built in date and datetime-local controls for easier data entry.\n\n" +
             "    - (api, client, server) Add GensetInfo model for EquipmentDetail to store various information specific to gensets.\n\n" +
             "    - (client, server) Packaging cleanup for example implementation.\n\n" +
+            "    - (api, client, server) While fields can be null, they should generally not be blank.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +

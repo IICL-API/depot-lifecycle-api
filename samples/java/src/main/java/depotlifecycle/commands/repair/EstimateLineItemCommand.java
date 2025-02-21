@@ -75,6 +75,7 @@ public class EstimateLineItemCommand {
     EstimateLineItemParty party;
 
     @Nullable
+    @NotBlank
     @Size(max = 500)
     String comments;
 

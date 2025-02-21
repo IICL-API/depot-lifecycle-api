@@ -10,7 +10,7 @@ import lombok.Data;
 @Introspected
 public class GateFetchCommand {
     @NotNull
-    @Size(max = 11)
+    @Size(min = 10, max = 11)
     @Pattern(regexp = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", message = "Unit Number must match the Unit Number pattern.")
     String unitNumber;
 }

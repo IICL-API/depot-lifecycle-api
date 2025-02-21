@@ -62,7 +62,7 @@ public class WorkOrder {
     @ManyToOne(optional = true, fetch = FetchType.EAGER)
     Party billingParty;
 
-    @Schema(description = "the type of repair approved", example = "SELLCWCA", required = true, nullable = false, maxLength = 11)
+    @Schema(description = "the type of repair approved", example = "SELLCWCA", required = true, nullable = false, minLength = 1, maxLength = 11)
     @Column(nullable = false, length = 11)
     String type;
 
@@ -76,7 +76,7 @@ public class WorkOrder {
     @Column
     BigDecimal approvalTotal;
 
-    @Schema(description = "the currency of the approval total", required = false, nullable = true, example = "EUR", pattern = "^[A-Z]{3}$", maxLength = 3)
+    @Schema(description = "the currency of the approval total", required = false, nullable = true, example = "EUR", pattern = "^[A-Z]{3}$", minLength = 3, maxLength = 3)
     @Column(length = 3)
     String approvalCurrency;
 
@@ -86,7 +86,7 @@ public class WorkOrder {
     @Column
     ZonedDateTime expirationDate;
 
-    @Schema(description = "comments pertaining to this repair for the intended recipient of this message", maxLength = 500, example = "CWCA repairs for unit TCKU3456654 total 175.00 EUR per DEHAMCE1856373.1", required = false, nullable = true)
+    @Schema(description = "comments pertaining to this repair for the intended recipient of this message", minLength = 1, maxLength = 500, example = "CWCA repairs for unit TCKU3456654 total 175.00 EUR per DEHAMCE1856373.1", required = false, nullable = true)
     @Column(length = 500)
     String comments;
 

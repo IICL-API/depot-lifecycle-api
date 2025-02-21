@@ -36,7 +36,7 @@ public class InsuranceCoverage {
     @Column
     BigDecimal amountCovered;
 
-    @Schema(description = "The currency for the insurance coverage amount", pattern = "^[A-Z]{3}$", example = "EUR", required = false, nullable = true)
+    @Schema(description = "The currency for the insurance coverage amount", pattern = "^[A-Z]{3}$", example = "EUR", minLength = 3, maxLength = 3, required = false, nullable = true)
     @Column(length = 3)
     String amountCurrency;
 

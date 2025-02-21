@@ -35,7 +35,7 @@ public class RegulatoryInspection {
     @Enumerated(EnumType.STRING)
     RegulatoryScope scope;
 
-    @Schema(description = "the name of the regulatory inspection", required = true, nullable = false, example = "FMCSA", maxLength = 16)
+    @Schema(description = "the name of the regulatory inspection", required = true, nullable = false, example = "FMCSA", minLength = 1, maxLength = 16)
     @Column(nullable = false, length = 16)
     String name;
 
