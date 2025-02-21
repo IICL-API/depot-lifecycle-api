@@ -1,6 +1,10 @@
 package depotlifecycle.controllers.client;
 
 import depotlifecycle.domain.*;
+import depotlifecycle.domain.repair.EstimateLineItemParty;
+import depotlifecycle.domain.repair.EstimatePhotoStatus;
+import depotlifecycle.domain.repair.EstimateTaxRule;
+import depotlifecycle.domain.equipment.*;
 import io.micronaut.context.annotation.Parameter;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;

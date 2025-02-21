@@ -1,10 +1,13 @@
 package depotlifecycle;
 
 import depotlifecycle.domain.*;
+import depotlifecycle.domain.redelivery.*;
+import depotlifecycle.domain.release.*;
+import depotlifecycle.domain.repair.InsuranceCoverage;
 import depotlifecycle.repositories.ExternalPartyRepository;
 import depotlifecycle.repositories.PartyRepository;
-import depotlifecycle.repositories.RedeliveryRepository;
-import depotlifecycle.repositories.ReleaseRepository;
+import depotlifecycle.repositories.redelivery.RedeliveryRepository;
+import depotlifecycle.repositories.release.ReleaseRepository;
 import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
@@ -149,6 +152,7 @@ import java.util.List;
             "    - (api, client, server) Add optional `equipmentDetail` to GateUpdateRequest model to submit optional data between depots and shipping lines.\n\n" +
             "    - (client) Switch to built in date and datetime-local controls for easier data entry.\n\n" +
             "    - (api, client, server) Add GensetInfo model for EquipmentDetail to store various information specific to gensets.\n\n" +
+            "    - (client, server) Packaging cleanup for example implementation.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +
