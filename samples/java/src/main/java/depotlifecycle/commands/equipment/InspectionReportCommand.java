@@ -36,10 +36,10 @@ public class InspectionReportCommand {
     @Min(0)
     Integer validFor;
 
-    @NotNull
+    @Nullable
     InspectionResult result;
 
-    @NotNull
+    @Nullable
     ExternalPartyCommand inspector;
 
     @Nullable
