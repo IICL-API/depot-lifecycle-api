@@ -8,6 +8,7 @@ import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -43,7 +44,7 @@ public class GensetInfoCommand {
     @Max(100)
     Integer fuelLevel;
 
-    @Nullable
+    @NotNull
     MountType mountType;
 
     @JsonIgnore

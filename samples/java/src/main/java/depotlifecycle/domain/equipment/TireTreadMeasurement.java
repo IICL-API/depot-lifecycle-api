@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Provides a tire tread measurement in the indicated location")
+@Schema(description = "Provides a tire tread measurement in the indicated location", requiredProperties = {"location", "unitOfMeasure", "depth"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected

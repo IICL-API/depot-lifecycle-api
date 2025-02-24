@@ -33,7 +33,7 @@
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'mountType'" class="form-label">Mount Type</label>
-            <select class="form-select" th:attr="id=${id} + 'mountType', name=${propertyPath} + 'mountType'">
+            <select class="form-select" th:attr="id=${id} + 'mountType', name=${propertyPath} + 'mountType'" required>
                 <option></option>
                 <option th:each="mountType : ${mountTypes}" th:attr="value=${mountType.name()}" th:text="${mountType.name() + ' - ' + mountType.description}"></option>
             </select>

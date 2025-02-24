@@ -23,8 +23,8 @@
             <input type="number" step="1" class="form-control" th:attr="id=${id} + 'validFor', name=${propertyPath} + 'validFor'" min="0">
         </div>
         <div class="mb-3">
-            <label th:attr="for=${id} + 'status'" class="form-label">Status</label>
-            <select class="form-select" th:attr="id=${id} + 'status', name=${propertyPath} + 'status'" required>
+            <label th:attr="for=${id} + 'result'" class="form-label">Result</label>
+            <select class="form-select" th:attr="id=${id} + 'result', name=${propertyPath} + 'result'">
                 <option></option>
                 <option th:each="inspectionResult : ${inspectionResults}" th:attr="value=${inspectionResult.name()}" th:text="${inspectionResult.name() + ' - ' + inspectionResult.description}"></option>
             </select>

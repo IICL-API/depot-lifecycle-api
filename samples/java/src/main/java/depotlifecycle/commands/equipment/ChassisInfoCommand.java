@@ -20,7 +20,7 @@ import java.util.List;
 @JsonView
 @Introspected
 public class ChassisInfoCommand {
-    @Nullable
+    @NotNull
     @Max(14)
     @NotBlank
     String licensePlate;
@@ -28,10 +28,10 @@ public class ChassisInfoCommand {
     @Nullable
     List<TireTreadMeasurementCommand> treadMeasurements;
 
-    @NotNull
+    @Nullable
     BrakeCondition brakeCondition;
 
-    @NotNull
+    @Nullable
     @Min(0)
     Integer hubometer;
 
