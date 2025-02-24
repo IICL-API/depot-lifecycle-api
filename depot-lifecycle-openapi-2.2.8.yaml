@@ -1458,18 +1458,6 @@ paths:
       x-iicl-purpose: activity
 components:
   schemas:
-    AttachmentType:
-      type: string
-      description: |-
-        the mechanism that a genset attaches to a container.
-
-        `CLIP` - Clip
-
-        `UNDER` - Under slung
-      example: CLIP
-      enum:
-      - CLIP
-      - UNDER
     BaseParty:
       type: object
       properties:
@@ -3010,6 +2998,8 @@ components:
       description: Data required to update a gate in or gate out record. Any data
         not provided will result in no update.
     GensetInfo:
+      required:
+      - mountType
       type: object
       properties:
         lastMaintenanceDate:
@@ -3032,6 +3022,16 @@ components:
           format: int32
           nullable: true
           example: 12
+        currentMaintenanceHours:
+          minimum: 0
+          required:
+          - "false"
+          type: integer
+          description: the number of hours since the last maintenance; often referred
+            to as `Current Hours`
+          format: int32
+          nullable: true
+          example: 1
         lastBeltChangeDate:
           required:
           - "false"
@@ -3061,15 +3061,6 @@ components:
           format: int32
           nullable: true
           example: 24
-        currentHours:
-          minimum: 0
-          required:
-          - "false"
-          type: integer
-          description: the current runtime hours
-          format: int32
-          nullable: true
-          example: 1
         fuelLevel:
           maximum: 100
           minimum: 0
@@ -3080,17 +3071,16 @@ components:
           format: int32
           nullable: true
           example: 100
-        attachmentType:
+        mountType:
           description: |-
-            the mechanism that a genset attaches to a container.
+            the mechanism that a genset mounts to a container.
 
             `CLIP` - Clip
 
             `UNDER` - Under slung
-          nullable: true
           example: CLIP
           allOf:
-          - $ref: "#/components/schemas/AttachmentType"
+          - $ref: "#/components/schemas/MountType"
       description: Provides Genset specific information related to a shipping container
     InspectionReport:
       required:
@@ -3131,7 +3121,7 @@ components:
           nullable: true
           example: 2001-07-21
         validFor:
-          minimum: 0
+          minimum: 1
           required:
           - "false"
           type: integer
@@ -3301,6 +3291,18 @@ components:
       - NATIONAL
       - REGIONAL
       - INDUSTRY
+    MountType:
+      type: string
+      description: |-
+        the mechanism that a genset attaches to a container.
+
+        `CLIP` - Clip
+
+        `UNDER` - Under slung
+      example: CLIP
+      enum:
+      - CLIP
+      - UNDER
     Party:
       required:
       - companyId

@@ -43,7 +43,7 @@ public class InspectionReport {
     @Column
     LocalDate lastInspection;
 
-    @Schema(description = "the number of months this inspection is valid for", type = "integer", format = "int32", required = false, nullable = true, example = "12", minimum = "0")
+    @Schema(description = "the number of months this inspection is valid for", type = "integer", format = "int32", required = false, nullable = true, example = "12", minimum = "1")
     @Column(nullable = true)
     Integer validFor;
 

@@ -12,6 +12,10 @@
             <input type="number" step="1" class="form-control" th:attr="id=${id} + 'lastMaintenanceHours', name=${propertyPath} + 'lastMaintenanceHours'">
         </div>
         <div class="mb-3">
+            <label th:attr="for=${id} + 'currentMaintenanceHours'" class="form-label">Current Maintenance Hours</label>
+            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'currentMaintenanceHours', name=${propertyPath} + 'currentMaintenanceHours'">
+        </div>
+        <div class="mb-3">
             <label th:attr="for=${id} + 'lastBeltChangeDate'" class="form-label">Last Belt Change Date</label>
             <input type="date" class="form-control" th:attr="id=${id} + 'lastBeltChangeDate', name=${propertyPath} + 'lastBeltChangeDate'">
         </div>
@@ -24,18 +28,14 @@
             <input type="number" step="1" class="form-control" th:attr="id=${id} + 'totalHours', name=${propertyPath} + 'totalHours'">
         </div>
         <div class="mb-3">
-            <label th:attr="for=${id} + 'currentHours'" class="form-label">Current Hours</label>
-            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'currentHours', name=${propertyPath} + 'currentHours'">
-        </div>
-        <div class="mb-3">
             <label th:attr="for=${id} + 'fuelLevel'" class="form-label">Fuel Level</label>
             <input type="number" step="1" class="form-control" th:attr="id=${id} + 'fuelLevel', name=${propertyPath} + 'fuelLevel'" min="0" max="100">
         </div>
         <div class="mb-3">
-            <label th:attr="for=${id} + 'attachmentType'" class="form-label">Attachment Type</label>
-            <select class="form-select" th:attr="id=${id} + 'attachmentType', name=${propertyPath} + 'attachmentType'">
+            <label th:attr="for=${id} + 'mountType'" class="form-label">Mount Type</label>
+            <select class="form-select" th:attr="id=${id} + 'mountType', name=${propertyPath} + 'mountType'">
                 <option></option>
-                <option th:each="attachmentType : ${attachmentTypes}" th:attr="value=${attachmentType.name()}" th:text="${attachmentType.name() + ' - ' + attachmentType.description}"></option>
+                <option th:each="mountType : ${mountTypes}" th:attr="value=${mountType.name()}" th:text="${mountType.name() + ' - ' + mountType.description}"></option>
             </select>
         </div>
     </div>

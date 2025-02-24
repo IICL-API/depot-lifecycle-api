@@ -95,7 +95,7 @@ public class TagController {
                 "title", title,
                 "id", id,
                 "propertyPath", propertyPath,
-                "attachmentTypes", AttachmentType.values()
+                "mountTypes", MountType.values()
         ));
     }
 

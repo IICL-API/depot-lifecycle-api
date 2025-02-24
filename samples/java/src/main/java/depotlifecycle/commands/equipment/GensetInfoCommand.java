@@ -1,7 +1,7 @@
 package depotlifecycle.commands.equipment;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import depotlifecycle.domain.equipment.AttachmentType;
+import depotlifecycle.domain.equipment.MountType;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Max;
@@ -22,6 +22,10 @@ public class GensetInfoCommand {
     Integer lastMaintenanceHours;
 
     @Nullable
+    @Min(0)
+    Integer currentMaintenanceHours;
+
+    @Nullable
     LocalDate lastBeltChangeDate;
 
     @Nullable
@@ -34,13 +38,9 @@ public class GensetInfoCommand {
 
     @Nullable
     @Min(0)
-    Integer currentHours;
-
-    @Nullable
-    @Min(0)
     @Max(100)
     Integer fuelLevel;
 
     @Nullable
-    AttachmentType attachmentType;
+    MountType mountType;
 }
