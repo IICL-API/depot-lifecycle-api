@@ -124,15 +124,16 @@ info:
     \ be null, they should generally not be blank.\n\n    - (api) Add `gensetInfo`\
     \ to RedeliveryUnit model.\n\n    - (api) Add `chassisInfo` to RedeliveryUnit\
     \ model.\n\n    - (api, client, server) Add `loaded` to EquipmentDetail model.\n\
-    \n    - (api, client, server) Add `cargoSeals` to EquipmentDetail model.\n\n\n\
-    \n\n # Security & Authentication\n\n To ensure secure communication, all endpoints\
-    \ of this API should use the https protocol instead of http.  Authentication methods\
-    \ will differ between systems, but two popular methods are JSON Web Tokens and\
-    \ Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n\
-    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
-    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
-    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
-    \n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
+    \n    - (api, client, server) Add `cargoSeals` to EquipmentDetail model.\n\n \
+    \   - (doc) Clarify `adviceNumber` on GateCreateRequest.\n\n\n\n\n # Security\
+    \ & Authentication\n\n To ensure secure communication, all endpoints of this API\
+    \ should use the https protocol instead of http.  Authentication methods will\
+    \ differ between systems, but two popular methods are JSON Web Tokens and Static\
+    \ Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n [JSON Web\
+    \ Token, or JWT](https://jwt.io/), is used for stateless authentication.  Since\
+    \ all requests are sent using https, tokens are not encrypted.  Tokens follow\
+    \ the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\n\
+    ### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
     : [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"\
     j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
     ,\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
@@ -2657,7 +2658,8 @@ components:
           required:
           - "true"
           type: string
-          description: the redelivery or release advice number for the gate record
+          description: the approval number that allows this box to leave or enter
+            the depot (often a redelivery or release advice number)
           nullable: false
           example: AHAMG000000
         depot:

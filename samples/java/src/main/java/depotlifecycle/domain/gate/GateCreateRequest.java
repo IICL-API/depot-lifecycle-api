@@ -34,7 +34,7 @@ public class GateCreateRequest {
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the redelivery or release advice number for the gate record", example = "AHAMG000000", minLength = 1, maxLength = 16, required = true, nullable = false)
+    @Schema(description = "the approval number that allows this box to leave or enter the depot (often a redelivery or release advice number)", example = "AHAMG000000", minLength = 1, maxLength = 16, required = true, nullable = false)
     @Column(nullable = false, length = 16)
     String adviceNumber;
 
