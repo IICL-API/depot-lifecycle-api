@@ -1,7 +1,7 @@
 package depotlifecycle.commands.equipment;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import depotlifecycle.domain.equipment.BreakCondition;
+import depotlifecycle.domain.equipment.BrakeCondition;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Max;
@@ -25,7 +25,7 @@ public class ChassisInfoCommand {
     List<TireTreadMeasurementCommand> treadMeasurements;
 
     @NotNull
-    BreakCondition breakCondition;
+    BrakeCondition brakeCondition;
 
     @NotNull
     @Min(0)

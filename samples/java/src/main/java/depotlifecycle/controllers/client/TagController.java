@@ -84,7 +84,7 @@ public class TagController {
                 "title", title,
                 "id", id,
                 "propertyPath", propertyPath,
-                "breakConditions", BreakCondition.values()
+                "brakeConditions", BrakeCondition.values()
         ));
     }
 

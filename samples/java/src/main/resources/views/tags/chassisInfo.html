@@ -13,10 +13,10 @@
                hx-swap="beforeend">Add Tire Tread Measurement</a>
         </div>
         <div class="mb-3">
-            <label th:attr="for=${id} + 'breakCondition'" class="form-label">Break Condition</label>
-            <select class="form-select" th:attr="id=${id} + 'breakCondition', name=${propertyPath} + 'breakCondition'" required>
+            <label th:attr="for=${id} + 'brakeCondition'" class="form-label">Break Condition</label>
+            <select class="form-select" th:attr="id=${id} + 'brakeCondition', name=${propertyPath} + 'brakeCondition'" required>
                 <option></option>
-                <option th:each="breakCondition : ${breakConditions}" th:attr="value=${breakCondition.name()}" th:text="${breakCondition.name() + ' - ' + breakCondition.description}"></option>
+                <option th:each="brakeCondition : ${brakeConditions}" th:attr="value=${brakeCondition.name()}" th:text="${brakeCondition.name() + ' - ' + brakeCondition.description}"></option>
             </select>
         </div>
         <div class="mb-3">

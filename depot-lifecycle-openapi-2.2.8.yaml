@@ -1584,7 +1584,7 @@ components:
           description: "Instead of an address, provides the longitude of this party"
           format: double
           nullable: true
-    BreakCondition:
+    BrakeCondition:
       type: string
       description: |-
         the status of the breaks on a Chassis.
@@ -1601,18 +1601,17 @@ components:
       - BAD
     ChassisInfo:
       required:
-      - breakCondition
-      - hubometer
+      - licensePlate
       type: object
       properties:
         licensePlate:
           maxLength: 14
           minLength: 1
           required:
-          - "false"
+          - "true"
           type: string
           description: the license plate for the person represented by this party
-          nullable: true
+          nullable: false
         treadMeasurements:
           required:
           - "false"
@@ -1622,7 +1621,7 @@ components:
           nullable: false
           items:
             $ref: "#/components/schemas/TireTreadMeasurement"
-        breakCondition:
+        brakeCondition:
           description: |-
             the condition of the breaks on this Chassis.
 
@@ -1631,17 +1630,18 @@ components:
             `WARN` - Warn
 
             `BAD` - Bad
+          nullable: true
           example: GOOD
           allOf:
-          - $ref: "#/components/schemas/BreakCondition"
+          - $ref: "#/components/schemas/BrakeCondition"
         hubometer:
           minimum: 0
           required:
-          - "true"
+          - "false"
           type: integer
           description: the current reading of the hubometer on the Chassis
           format: int32
-          nullable: false
+          nullable: true
           example: 15000
       description: Provides Chassis specific information for a given shipping container
     EquipmentDetail:
