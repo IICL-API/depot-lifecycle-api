@@ -2,6 +2,8 @@ package depotlifecycle.domain.redelivery;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import depotlifecycle.domain.equipment.ChassisInfo;
+import depotlifecycle.domain.equipment.GensetInfo;
 import depotlifecycle.domain.equipment.MachineryInfo;
 import depotlifecycle.domain.Party;
 import io.micronaut.core.annotation.Introspected;
@@ -93,4 +95,12 @@ public class RedeliveryUnit {
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information", required = false, nullable = true, implementation = MachineryInfo.class)
     MachineryInfo machineryInfo;
+
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @Schema(description = "if this detail is for a Chassis, then this details specific Chassis information", required = false, nullable = true, implementation = ChassisInfo.class)
+    ChassisInfo chassisInfo;
+
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @Schema(description = "if this detail is for a Genset, then this details specific Genset information", required = false, nullable = true, implementation = GensetInfo.class)
+    GensetInfo gensetInfo;
 }

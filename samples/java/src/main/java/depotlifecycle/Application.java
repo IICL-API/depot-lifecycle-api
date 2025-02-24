@@ -156,6 +156,8 @@ import java.util.List;
             "    - (api, client, server) Add GensetInfo model for EquipmentDetail to store various information specific to gensets.\n\n" +
             "    - (client, server) Packaging cleanup for example implementation.\n\n" +
             "    - (api, client, server) While fields can be null, they should generally not be blank.\n\n" +
+            "    - (api) Add `gensetInfo` to RedeliveryUnit model.\n\n" +
+            "    - (api) Add `chassisInfo` to RedeliveryUnit model.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +

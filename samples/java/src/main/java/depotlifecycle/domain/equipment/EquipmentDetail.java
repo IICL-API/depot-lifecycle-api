@@ -34,10 +34,6 @@ public class EquipmentDetail {
     @Column(nullable = false, length = 10)
     String equipment;
 
-    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-    @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information", required = false, nullable = true, implementation = MachineryInfo.class)
-    MachineryInfo machineryInfo;
-
     @Schema(description = "date and month this unit was manufactured\n\n( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2001-07-21", type = "string", format = "date", required = true, nullable = false)
     @Column(nullable = false)
     LocalDate manufactureDate;
@@ -54,6 +50,10 @@ public class EquipmentDetail {
     @Schema(description = "the regulatory inspections related to this shipping container", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<RegulatoryInspection> inspections = new ArrayList<>();
+
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information", required = false, nullable = true, implementation = MachineryInfo.class)
+    MachineryInfo machineryInfo;
 
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @Schema(description = "if this detail is for a Chassis, then this details specific Chassis information", required = false, nullable = true, implementation = ChassisInfo.class)
