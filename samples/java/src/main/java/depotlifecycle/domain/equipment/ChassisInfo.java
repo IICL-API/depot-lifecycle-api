@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Provides Chassis specific information for a given shipping container")
+@Schema(description = "Provides Chassis specific information for a given shipping container", requiredProperties = {"licensePlate"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected

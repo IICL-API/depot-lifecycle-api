@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Holds key information and findings from an inspection")
+@Schema(description = "Holds key information and findings from an inspection", requiredProperties = {"name", "mandateLevel"})
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
@@ -48,7 +48,7 @@ public class InspectionReport {
     Integer validFor;
 
     @Schema(description = "the result of the inspection\n\n`PASS` - Pass\n\n`FAIL` - Fail", example = "PASS", required = false, nullable = true, implementation = InspectionResult.class)
-    @Column(nullable = false, length = 4)
+    @Column(nullable = true, length = 4)
     @Enumerated(EnumType.STRING)
     InspectionResult result;
 
