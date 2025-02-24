@@ -38,6 +38,17 @@ public class EquipmentDetail {
     @Column(nullable = false)
     LocalDate manufactureDate;
 
+    @Schema(description = "indicates if this container has cargo in it", required = false, nullable = false)
+    @Column(nullable = false)
+    Boolean loaded = false;
+
+    @ArraySchema(schema = @Schema(example = "An example Seal ID"))
+    @Schema(description = "the cargo seal identifiers", required = false, nullable = false)
+    @Lob
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable
+    List<String> cargoSeals;
+
     @Schema(example = "-23", description = "the reefer setpoint / desired temperature in Celsius", required = false, nullable = true)
     @Column
     Integer desiredTemperature;

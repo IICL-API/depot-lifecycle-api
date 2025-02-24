@@ -7,12 +7,16 @@
             <label th:attr="for=${id} + 'equipment'" class="form-label">Equipment</label>
             <input type="text" class="form-control" th:attr="id=${id} + 'equipment', name=${propertyPath} + 'equipment'" required maxlength="10">
         </div>
-        <div class="mb-3" th:attr="id=${id} + 'MachineryInfoContainer'">
-            <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addMachineryInfo?title=Machinery Info&propertyPath=' + ${propertyPath} + 'machineryInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'MachineryInfoContainer'" hx-swap="innerHtml">Add Machinery Info</a>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'manufactureDate'" class="form-label">Manufacture Date</label>
+            <input type="date" class="form-control" th:attr="id=${id} + 'manufactureDate', name=${propertyPath} + 'manufactureDate'" required>
         </div>
         <div class="mb-3">
-            <label th:attr="for=${id} + 'manufacturerDate'" class="form-label">Manufacturer Date</label>
-            <input type="date" class="form-control" th:attr="id=${id} + 'manufacturerDate', name=${propertyPath} + 'manufacturerDate'" required>
+            <label th:attr="for=${id} + 'loaded'" class="form-label">Loaded</label>
+            <input type="checkbox" class="form-check" th:attr="id=${id} + 'loaded', name=${propertyPath} + 'loaded'" value="true">
+        </div>
+        <div class="mb-3" th:attr="id=${id} + 'CargoSealsContainer'">
+            <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addTextInput?fieldLabel=Cargo Seal&propertyPath=' + ${propertyPath} + 'cargoSeals', hx-target='#' + ${id} + 'CargoSealsContainer', hx-vals='js:{count: $(\'#' + ${id} + 'CargoSealsContainer\').find(\'.form-control\').length}'" hx-swap="beforeend">Add Cargo Seal</a>
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'desiredTemperature'" class="form-label">Desired Temperature</label>
@@ -24,6 +28,9 @@
         </div>
         <div class="mb-3" th:attr="id=${id} + 'InspectionReportContainer'">
             <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addInspectionReport?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'InspectionReportContainer', hx-vals='js:{count: $(\'#' + ${id} + 'InspectionReportContainer\').find(\'.inspectionReport\').length}'" hx-swap="beforeend">Add Inspection</a>
+        </div>
+        <div class="mb-3" th:attr="id=${id} + 'MachineryInfoContainer'">
+            <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addMachineryInfo?title=Machinery Info&propertyPath=' + ${propertyPath} + 'machineryInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'MachineryInfoContainer'" hx-swap="innerHtml">Add Machinery Info</a>
         </div>
         <div class="mb-3" th:attr="id=${id} + 'ChassisInfoContainer'">
             <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addChassisInfo?title=Chassis Info&propertyPath=' + ${propertyPath} + 'chassisInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'ChassisInfoContainer'" hx-swap="innerHtml">Add Chassis Info</a>

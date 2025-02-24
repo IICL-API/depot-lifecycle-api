@@ -123,11 +123,13 @@ info:
     \ for example implementation.\n\n    - (api, client, server) While fields can\
     \ be null, they should generally not be blank.\n\n    - (api) Add `gensetInfo`\
     \ to RedeliveryUnit model.\n\n    - (api) Add `chassisInfo` to RedeliveryUnit\
-    \ model.\n\n\n\n\n # Security & Authentication\n\n To ensure secure communication,\
-    \ all endpoints of this API should use the https protocol instead of http.  Authentication\
-    \ methods will differ between systems, but two popular methods are JSON Web Tokens\
-    \ and Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\
-    \n [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \ model.\n\n    - (api, client, server) Add `loaded` to EquipmentDetail model.\n\
+    \n    - (api, client, server) Add `cargoSeals` to EquipmentDetail model.\n\n\n\
+    \n\n # Security & Authentication\n\n To ensure secure communication, all endpoints\
+    \ of this API should use the https protocol instead of http.  Authentication methods\
+    \ will differ between systems, but two popular methods are JSON Web Tokens and\
+    \ Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n\
+    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
     \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
     \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
     \n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
@@ -1661,6 +1663,21 @@ components:
           format: date
           nullable: false
           example: 2001-07-21
+        loaded:
+          required:
+          - "false"
+          type: boolean
+          description: indicates if this container has cargo in it
+          nullable: false
+        cargoSeals:
+          required:
+          - "false"
+          type: array
+          description: the cargo seal identifiers
+          nullable: false
+          items:
+            type: string
+            example: An example Seal ID
         desiredTemperature:
           required:
           - "false"

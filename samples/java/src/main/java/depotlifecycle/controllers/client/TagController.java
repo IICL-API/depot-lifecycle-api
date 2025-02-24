@@ -133,7 +133,7 @@ public class TagController {
         String id = propertyPath.replace('[', '_').replace(']', '_').replace('.', '_');
         return Mono.just(Map.of(
                 "fieldLabel", fieldLabel + " #" + (count + 1),
-                "propertyPath", propertyPath + "[" + count + "]",
+                "propertyPath", propertyPath,
                 "id", id + count
         ));
     }

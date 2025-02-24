@@ -158,6 +158,8 @@ import java.util.List;
             "    - (api, client, server) While fields can be null, they should generally not be blank.\n\n" +
             "    - (api) Add `gensetInfo` to RedeliveryUnit model.\n\n" +
             "    - (api) Add `chassisInfo` to RedeliveryUnit model.\n\n" +
+            "    - (api, client, server) Add `loaded` to EquipmentDetail model.\n\n" +
+            "    - (api, client, server) Add `cargoSeals` to EquipmentDetail model.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +

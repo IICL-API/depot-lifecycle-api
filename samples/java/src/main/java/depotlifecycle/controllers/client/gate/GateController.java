@@ -145,6 +145,9 @@ public class GateController {
         if(cmd.getTrucker() != null) {
             gateRequest.setTrucker(cmd.getTrucker().toExternalParty());
         }
+        if(cmd.getEquipmentDetail() != null) {
+            gateRequest.setEquipmentDetail(cmd.getEquipmentDetail().toEquipmentDetail());
+        }
 
         Publisher<GateResponse> gatePublisher = gateClient.create(gateRequest);
 

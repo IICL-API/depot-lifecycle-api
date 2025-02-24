@@ -1,7 +1,9 @@
 package depotlifecycle.commands.equipment;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import depotlifecycle.commands.ExternalPartyCommand;
+import depotlifecycle.domain.equipment.InspectionReport;
 import depotlifecycle.domain.equipment.MandateLevel;
 import depotlifecycle.domain.equipment.InspectionResult;
 import io.micronaut.core.annotation.Introspected;
@@ -42,4 +44,17 @@ public class InspectionReportCommand {
 
     @Nullable
     List<String> comments;
+
+    @JsonIgnore
+    public InspectionReport toInspectionReport() {
+        InspectionReport inspectionReport = new InspectionReport();
+        inspectionReport.setName(name);
+        inspectionReport.setMandateLevel(mandateLevel);
+        inspectionReport.setLastInspection(lastInspection);
+        inspectionReport.setValidFor(validFor);
+        inspectionReport.setResult(result);
+        inspectionReport.setInspector(inspector.toExternalParty());
+        inspectionReport.setComments(comments);
+        return inspectionReport;
+    }
 }

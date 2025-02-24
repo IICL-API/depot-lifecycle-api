@@ -1,6 +1,8 @@
 package depotlifecycle.commands.equipment;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import depotlifecycle.domain.equipment.GensetInfo;
 import depotlifecycle.domain.equipment.MountType;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
@@ -43,4 +45,18 @@ public class GensetInfoCommand {
 
     @Nullable
     MountType mountType;
+
+    @JsonIgnore
+    public GensetInfo toGensetInfo() {
+        GensetInfo gensetInfo = new GensetInfo();
+        gensetInfo.setLastMaintenanceDate(lastMaintenanceDate);
+        gensetInfo.setLastMaintenanceHours(lastMaintenanceHours);
+        gensetInfo.setCurrentMaintenanceHours(currentMaintenanceHours);
+        gensetInfo.setLastBeltChangeDate(lastBeltChangeDate);
+        gensetInfo.setLastBeltChangeHours(lastBeltChangeHours);
+        gensetInfo.setTotalHours(totalHours);
+        gensetInfo.setFuelLevel(fuelLevel);
+        gensetInfo.setMountType(mountType);
+        return gensetInfo;
+    }
 }
