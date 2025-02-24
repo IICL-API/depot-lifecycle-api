@@ -22,8 +22,8 @@
             <label th:attr="for=${id} + 'desiredHumidity'" class="form-label">Desired Humidity</label>
             <input type="number" step="1" class="form-control" th:attr="id=${id} + 'desiredHumidity', name=${propertyPath} + 'desiredHumidity'">
         </div>
-        <div class="mb-3" th:attr="id=${id} + 'RegulatoryInspectionContainer'">
-            <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addRegulatoryInspection?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'RegulatoryInspectionContainer', hx-vals='js:{count: $(\'#' + ${id} + 'RegulatoryInspectionContainer\').find(\'.regulatoryInspection\').length}'" hx-swap="beforeend">Add Inspection</a>
+        <div class="mb-3" th:attr="id=${id} + 'InspectionReportContainer'">
+            <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addInspectionReport?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'InspectionReportContainer', hx-vals='js:{count: $(\'#' + ${id} + 'InspectionReportContainer\').find(\'.inspectionReport\').length}'" hx-swap="beforeend">Add Inspection</a>
         </div>
         <div class="mb-3" th:attr="id=${id} + 'ChassisInfoContainer'">
             <a href="#" class="btn btn-success" th:attr="hx-get='/client/tag/addChassisInfo?title=Chassis Info&propertyPath=' + ${propertyPath} + 'chassisInfo.' + '&id=' + ${id}, hx-target='#' + ${id} + 'ChassisInfoContainer'" hx-swap="innerHtml">Add Chassis Info</a>

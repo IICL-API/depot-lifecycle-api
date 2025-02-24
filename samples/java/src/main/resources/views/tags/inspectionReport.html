@@ -1,18 +1,18 @@
-<div class="card regulatoryInspection">
+<div class="card inspectionReport">
     <div class="card-header">
         <h5 class="card-title" th:text="${title}"></h5>
     </div>
     <div class="card-body">
         <div class="mb-3">
-            <label th:attr="for=${id} + 'scope'" class="form-label">Scope</label>
-            <select class="form-select" th:attr="id=${id} + 'scope', name=${propertyPath} + 'scope'" required>
-                <option></option>
-                <option th:each="regulatoryScope : ${regulatoryScopes}" th:attr="value=${regulatoryScope.name()}" th:text="${regulatoryScope.name() + ' - ' + regulatoryScope.description}"></option>
-            </select>
-        </div>
-        <div class="mb-3">
             <label th:attr="for=${id} + 'name'" class="form-label">Name</label>
             <input type="text" class="form-control" th:attr="id=${id} + 'name', name=${propertyPath} + 'name'" required maxlength="16">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'mandateLevel'" class="form-label">Mandate Level</label>
+            <select class="form-select" th:attr="id=${id} + 'mandateLevel', name=${propertyPath} + 'mandateLevel'" required>
+                <option></option>
+                <option th:each="mandateLevel : ${mandateLevels}" th:attr="value=${mandateLevel.name()}" th:text="${mandateLevel.name() + ' - ' + mandateLevel.description}"></option>
+            </select>
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'lastInspection'" class="form-label">Last Inspection</label>
@@ -26,7 +26,7 @@
             <label th:attr="for=${id} + 'status'" class="form-label">Status</label>
             <select class="form-select" th:attr="id=${id} + 'status', name=${propertyPath} + 'status'" required>
                 <option></option>
-                <option th:each="regulatoryStatus : ${regulatoryStatuses}" th:attr="value=${regulatoryStatus.name()}" th:text="${regulatoryStatus.name() + ' - ' + regulatoryStatus.description}"></option>
+                <option th:each="inspectionResult : ${inspectionResults}" th:attr="value=${inspectionResult.name()}" th:text="${inspectionResult.name() + ' - ' + inspectionResult.description}"></option>
             </select>
         </div>
         <div class="mb-3" id="inspectorContainer" th:insert="~{tags/party}" th:with="title='Inspector', id='inspector', propertyPath=${propertyPath} + 'inspector.', isExternalParty=true">

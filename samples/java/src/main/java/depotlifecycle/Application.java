@@ -148,7 +148,7 @@ import java.util.List;
             "    - (doc) Reorder field definitions on EstimateLineItem to reflect entry order.  Should only affect documentation since json order does not matter.\n\n" +
             "    - (api, client, server) Add EquipmentDetail model to store various information about the shipping container.\n\n" +
             "    - (api, client, server) Add ChassisInfo model for EquipmentDetail to store information specific to chassis.\n\n" +
-            "    - (api, client, server) Add RegulatoryInspection model for EquipmentDetail to capture regulatory inspection results.\n\n" +
+            "    - (api, client, server) Add InspectionReport model for EquipmentDetail to capture inspection results.\n\n" +
             "    - (api, client, server) Add TireTreadMeasurement model for EquipmentDetail to capture tire tread measurements for chassis.\n\n" +
             "    - (api, client, server) Add optional `equipmentDetail` to GateCreateRequest model to submit optional data between depots and shipping lines.\n\n" +
             "    - (api, client, server) Add optional `equipmentDetail` to GateUpdateRequest model to submit optional data between depots and shipping lines.\n\n" +

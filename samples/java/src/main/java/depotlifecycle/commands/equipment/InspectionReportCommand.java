@@ -2,8 +2,8 @@ package depotlifecycle.commands.equipment;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import depotlifecycle.commands.ExternalPartyCommand;
-import depotlifecycle.domain.equipment.RegulatoryScope;
-import depotlifecycle.domain.equipment.RegulatoryStatus;
+import depotlifecycle.domain.equipment.MandateLevel;
+import depotlifecycle.domain.equipment.InspectionResult;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
@@ -18,14 +18,14 @@ import java.util.List;
 @Data
 @JsonView
 @Introspected
-public class RegulatoryInspectionCommand {
-    @NotNull
-    RegulatoryScope scope;
-
+public class InspectionReportCommand {
     @NotNull
     @NotBlank
     @Size(max = 16)
     String name;
+
+    @NotNull
+    MandateLevel mandateLevel;
 
     @Nullable
     LocalDate lastInspection;
@@ -35,7 +35,7 @@ public class RegulatoryInspectionCommand {
     Integer validFor;
 
     @NotNull
-    RegulatoryStatus regulatoryStatus;
+    InspectionResult result;
 
     @NotNull
     ExternalPartyCommand inspector;

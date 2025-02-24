@@ -33,7 +33,7 @@ public class EquipmentDetailCommand {
     Integer desiredHumidity;
 
     @Nullable
-    List<RegulatoryInspectionCommand> inspections;
+    List<InspectionReportCommand> inspections;
 
     @Nullable
     ChassisInfoCommand chassisInfo;

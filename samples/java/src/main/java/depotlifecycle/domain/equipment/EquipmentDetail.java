@@ -46,10 +46,10 @@ public class EquipmentDetail {
     @Column
     Integer desiredHumidity;
 
-    @ArraySchema(schema = @Schema(implementation = RegulatoryInspection.class))
-    @Schema(description = "the regulatory inspections related to this shipping container", required = false, nullable = false)
+    @ArraySchema(schema = @Schema(implementation = InspectionReport.class))
+    @Schema(description = "inspections related to this shipping container", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-    List<RegulatoryInspection> inspections = new ArrayList<>();
+    List<InspectionReport> inspections = new ArrayList<>();
 
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @Schema(description = "if this detail is for a reefer shipping container, then this details the cooling machinery information", required = false, nullable = true, implementation = MachineryInfo.class)

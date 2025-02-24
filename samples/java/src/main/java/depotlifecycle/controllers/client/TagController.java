@@ -99,15 +99,15 @@ public class TagController {
         ));
     }
 
-    @Get("/addRegulatoryInspection")
-    @View("tags/regulatoryInspection")
-    Mono<Map<String, Object>> addRegulatoryInspection(@Nullable @Parameter String propertyPath, @NonNull @Parameter Integer count) {
+    @Get("/addInspectionReport")
+    @View("tags/inspectionReport")
+    Mono<Map<String, Object>> addInspectionReport(@Nullable @Parameter String propertyPath, @NonNull @Parameter Integer count) {
         String id = propertyPath.replace('[', '_').replace(']', '_').replace('.', '_');
         return Mono.just(Map.of("title", "Inspection #" + (count + 1),
                 "propertyPath", propertyPath + "inspections[" + count + "].",
-                "id", id + "RegulatoryInspection" + count,
-                "regulatoryScopes", RegulatoryScope.values(),
-                "regulatoryStatuses", RegulatoryStatus.values()
+                "id", id + "InspectionReport" + count,
+                "mandateLevels", MandateLevel.values(),
+                "inspectionResults", InspectionResult.values()
         ));
     }
 

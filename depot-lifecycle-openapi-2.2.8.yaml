@@ -110,8 +110,8 @@ info:
     \ (api, client, server) Add EquipmentDetail model to store various information\
     \ about the shipping container.\n\n    - (api, client, server) Add ChassisInfo\
     \ model for EquipmentDetail to store information specific to chassis.\n\n    -\
-    \ (api, client, server) Add RegulatoryInspection model for EquipmentDetail to\
-    \ capture regulatory inspection results.\n\n    - (api, client, server) Add TireTreadMeasurement\
+    \ (api, client, server) Add InspectionReport model for EquipmentDetail to capture\
+    \ inspection results.\n\n    - (api, client, server) Add TireTreadMeasurement\
     \ model for EquipmentDetail to capture tire tread measurements for chassis.\n\n\
     \    - (api, client, server) Add optional `equipmentDetail` to GateCreateRequest\
     \ model to submit optional data between depots and shipping lines.\n\n    - (api,\
@@ -1693,10 +1693,10 @@ components:
           required:
           - "false"
           type: array
-          description: the regulatory inspections related to this shipping container
+          description: inspections related to this shipping container
           nullable: false
           items:
-            $ref: "#/components/schemas/RegulatoryInspection"
+            $ref: "#/components/schemas/InspectionReport"
         machineryInfo:
           description: "if this detail is for a reefer shipping container, then this\
             \ details the cooling machinery information"
@@ -3092,6 +3092,91 @@ components:
           allOf:
           - $ref: "#/components/schemas/AttachmentType"
       description: Provides Genset specific information related to a shipping container
+    InspectionReport:
+      required:
+      - mandateLevel
+      - name
+      type: object
+      properties:
+        name:
+          maxLength: 16
+          minLength: 1
+          required:
+          - "true"
+          type: string
+          description: a descriptive name to identify this inspection
+          nullable: false
+          example: FMCSA
+        mandateLevel:
+          description: |-
+            how or by whom the inspection was mandated
+
+            `NATIONAL` - National
+
+            `REGIONAL` - Regional
+
+            `INDUSTRY` - Industry
+          example: NATIONAL
+          allOf:
+          - $ref: "#/components/schemas/MandateLevel"
+        lastInspection:
+          required:
+          - "false"
+          type: string
+          description: |-
+            the date this inspection was last performed
+
+            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date
+          nullable: true
+          example: 2001-07-21
+        validFor:
+          minimum: 0
+          required:
+          - "false"
+          type: integer
+          description: the number of months this inspection is valid for
+          format: int32
+          nullable: true
+          example: 12
+        result:
+          description: |-
+            the result of the inspection
+
+            `PASS` - Pass
+
+            `FAIL` - Fail
+          nullable: true
+          example: PASS
+          allOf:
+          - $ref: "#/components/schemas/InspectionResult"
+        inspector:
+          description: the party performing this inspection
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/ExternalParty"
+        comments:
+          required:
+          - "false"
+          type: array
+          description: comments pertaining to this inspection
+          nullable: false
+          items:
+            type: string
+            example: An example inspection note.
+      description: Holds key information and findings from an inspection
+    InspectionResult:
+      type: string
+      description: |-
+        the result of the inspection
+
+        `PASS` - Pass
+
+        `FAIL` - Fail
+      example: PASS
+      enum:
+      - PASS
+      - FAIL
     InsuranceCoverage:
       type: object
       properties:
@@ -3201,6 +3286,21 @@ components:
           nullable: true
           example: 69NT40-541-301
       description: details the cooling machinery attached to a shipping container
+    MandateLevel:
+      type: string
+      description: |-
+        how or by whom the inspection was mandated
+
+        `NATIONAL` - National
+
+        `REGIONAL` - Regional
+
+        `INDUSTRY` - Industry
+      example: INDUSTRY
+      enum:
+      - NATIONAL
+      - REGIONAL
+      - INDUSTRY
     Party:
       required:
       - companyId
@@ -3677,106 +3777,6 @@ components:
       - TIED
       - REMOVED
       - TIN
-    RegulatoryInspection:
-      required:
-      - name
-      - scope
-      type: object
-      properties:
-        scope:
-          description: |-
-            the grain the regulatory inspection applies.
-
-            `NATIONAL` - National
-
-            `REGIONAL` - Regional
-
-            `INDUSTRY` - Industry
-          example: NATIONAL
-          allOf:
-          - $ref: "#/components/schemas/RegulatoryScope"
-        name:
-          maxLength: 16
-          minLength: 1
-          required:
-          - "true"
-          type: string
-          description: the name of the regulatory inspection
-          nullable: false
-          example: FMCSA
-        lastInspection:
-          required:
-          - "false"
-          type: string
-          description: |-
-            the date this inspection was last performed
-
-            ( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
-          format: date
-          nullable: true
-          example: 2001-07-21
-        validFor:
-          minimum: 0
-          required:
-          - "false"
-          type: integer
-          description: the number of months this inspection is valid for
-          format: int32
-          nullable: true
-          example: 12
-        status:
-          description: |-
-            the result of the regulatory inspection.
-
-            `PASS` - Pass
-
-            `FAIL` - Fail
-          nullable: true
-          example: PASS
-          allOf:
-          - $ref: "#/components/schemas/RegulatoryStatus"
-        inspector:
-          description: the party performing this inspection
-          nullable: true
-          allOf:
-          - $ref: "#/components/schemas/ExternalParty"
-        comments:
-          required:
-          - "false"
-          type: array
-          description: comments pertaining to this inspection
-          nullable: false
-          items:
-            type: string
-            example: An example inspection note.
-      description: Provides various equipment information related to a shipping container
-    RegulatoryScope:
-      type: string
-      description: |-
-        the grain the regulatory inspection applies.
-
-        `NATIONAL` - National
-
-        `REGIONAL` - Regional
-
-        `INDUSTRY` - Industry
-      example: INDUSTRY
-      enum:
-      - NATIONAL
-      - REGIONAL
-      - INDUSTRY
-    RegulatoryStatus:
-      type: string
-      description: |-
-        the result of the regulatory inspection.
-
-        `PASS` - Pass
-
-        `FAIL` - Fail
-      example: PASS
-      enum:
-      - PASS
-      - FAIL
     Release:
       required:
       - approvalDate

@@ -20,24 +20,24 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table
-@Schema(description = "Provides various equipment information related to a shipping container")
+@Schema(description = "Holds key information and findings from an inspection")
 @EqualsAndHashCode(of = {"id"})
 @ToString(of = {"id"})
 @Introspected
-public class RegulatoryInspection {
+public class InspectionReport {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
     Long id;
 
-    @Schema(description = "the grain the regulatory inspection applies.\n\n`NATIONAL` - National\n\n`REGIONAL` - Regional\n\n`INDUSTRY` - Industry", example = "NATIONAL", required = true, nullable = false, implementation = RegulatoryScope.class)
-    @Column(nullable = false, length = 8)
-    @Enumerated(EnumType.STRING)
-    RegulatoryScope scope;
-
-    @Schema(description = "the name of the regulatory inspection", required = true, nullable = false, example = "FMCSA", minLength = 1, maxLength = 16)
+    @Schema(description = "a descriptive name to identify this inspection", required = true, nullable = false, example = "FMCSA", minLength = 1, maxLength = 16)
     @Column(nullable = false, length = 16)
     String name;
+
+    @Schema(description = "how or by whom the inspection was mandated\n\n`NATIONAL` - National\n\n`REGIONAL` - Regional\n\n`INDUSTRY` - Industry", example = "NATIONAL", required = true, nullable = false, implementation = MandateLevel.class)
+    @Column(nullable = false, length = 8)
+    @Enumerated(EnumType.STRING)
+    MandateLevel mandateLevel;
 
     @Schema(description = "the date this inspection was last performed\n\n( full-date notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )", example = "2001-07-21", type = "string", format = "date", required = false, nullable = true)
     @Column
@@ -47,10 +47,10 @@ public class RegulatoryInspection {
     @Column(nullable = true)
     Integer validFor;
 
-    @Schema(description = "the result of the regulatory inspection.\n\n`PASS` - Pass\n\n`FAIL` - Fail", example = "PASS", required = false, nullable = true, implementation = RegulatoryStatus.class)
+    @Schema(description = "the result of the inspection\n\n`PASS` - Pass\n\n`FAIL` - Fail", example = "PASS", required = false, nullable = true, implementation = InspectionResult.class)
     @Column(nullable = false, length = 4)
     @Enumerated(EnumType.STRING)
-    RegulatoryStatus status;
+    InspectionResult result;
 
     @Schema(description = "the party performing this inspection", required = false, nullable = true, implementation = ExternalParty.class)
     @ManyToOne(fetch = FetchType.EAGER)
