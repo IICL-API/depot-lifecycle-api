@@ -161,6 +161,7 @@ import java.util.List;
             "    - (api, client, server) Add `loaded` to EquipmentDetail model.\n\n" +
             "    - (api, client, server) Add `cargoSeals` to EquipmentDetail model.\n\n" +
             "    - (doc) Clarify `adviceNumber` on GateCreateRequest.\n\n" +
+            "    - (api, client, server) `loaded` should support `null` for unknown states on the EquipmentDetail model.\n\n" +
             "\n\n\n" +
             " # Security & Authentication\n\n" +
             " To ensure secure communication, all endpoints of this API should use the https protocol instead of http.  Authentication methods will differ between systems, but two popular methods are JSON Web Tokens and Static Tokens.  Examples for both of these follow.\n" +

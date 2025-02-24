@@ -13,7 +13,11 @@
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'loaded'" class="form-label">Loaded</label>
-            <input type="checkbox" class="form-check" th:attr="id=${id} + 'loaded', name=${propertyPath} + 'loaded'" value="true">
+            <select class="form-select" th:attr="id=${id} + 'loaded', name=${propertyPath} + 'loaded'">
+                <option value="" selected>Unknown</option>
+                <option value="true">Loaded</option>
+                <option value="false">Empty</option>
+            </select>
         </div>
         <div class="mb-3" th:attr="id=${id} + 'CargoSealsContainer'">
             <a href="#" class="btn btn-success mb-2" th:attr="hx-get='/client/tag/addTextInput?fieldLabel=Cargo Seal&propertyPath=' + ${propertyPath} + 'cargoSeals', hx-target='#' + ${id} + 'CargoSealsContainer', hx-vals='js:{count: $(\'#' + ${id} + 'CargoSealsContainer\').find(\'.form-control\').length}'" hx-swap="beforeend">Add Cargo Seal</a>

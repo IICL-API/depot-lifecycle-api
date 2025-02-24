@@ -27,8 +27,8 @@ public class EquipmentDetailCommand {
     @NotNull
     LocalDate manufactureDate;
 
-    @NotNull
-    Boolean loaded = false;
+    @Nullable
+    Boolean loaded;
 
     @Nullable
     List<String> cargoSeals;

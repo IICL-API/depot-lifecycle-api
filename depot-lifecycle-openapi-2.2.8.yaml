@@ -125,15 +125,16 @@ info:
     \ to RedeliveryUnit model.\n\n    - (api) Add `chassisInfo` to RedeliveryUnit\
     \ model.\n\n    - (api, client, server) Add `loaded` to EquipmentDetail model.\n\
     \n    - (api, client, server) Add `cargoSeals` to EquipmentDetail model.\n\n \
-    \   - (doc) Clarify `adviceNumber` on GateCreateRequest.\n\n\n\n\n # Security\
-    \ & Authentication\n\n To ensure secure communication, all endpoints of this API\
-    \ should use the https protocol instead of http.  Authentication methods will\
-    \ differ between systems, but two popular methods are JSON Web Tokens and Static\
-    \ Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\n [JSON Web\
-    \ Token, or JWT](https://jwt.io/), is used for stateless authentication.  Since\
-    \ all requests are sent using https, tokens are not encrypted.  Tokens follow\
-    \ the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\n\
-    ### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
+    \   - (doc) Clarify `adviceNumber` on GateCreateRequest.\n\n    - (api, client,\
+    \ server) `loaded` should support `null` for unknown states on the EquipmentDetail\
+    \ model.\n\n\n\n\n # Security & Authentication\n\n To ensure secure communication,\
+    \ all endpoints of this API should use the https protocol instead of http.  Authentication\
+    \ methods will differ between systems, but two popular methods are JSON Web Tokens\
+    \ and Static Tokens.  Examples for both of these follow.\n\n## JSON Web Token\n\
+    \n [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
+    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
+    \n### 1. Example JWT Token\n\n ```\n\n {\n\n \"username\": \"jdoe\",\n\n \"roles\"\
     : [\n\n \"ROLE_GATE_CREATE\",\n\n \"ROLE_GATE_UPDATE\"\n\n ],\n\n \"email\":\"\
     j.doe@example.com\",\n\n \"token_type\":\"Bearer\",\n\n \"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
     ,\n\n \"expires_in\":3600,        \n\n \"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
@@ -1669,7 +1670,7 @@ components:
           - "false"
           type: boolean
           description: indicates if this container has cargo in it
-          nullable: false
+          nullable: true
         cargoSeals:
           required:
           - "false"
