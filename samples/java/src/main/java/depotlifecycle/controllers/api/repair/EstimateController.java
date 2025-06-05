@@ -10,6 +10,7 @@ import depotlifecycle.repositories.repair.EstimateAllocationRepository;
 import depotlifecycle.repositories.repair.EstimateCancelRequestRepository;
 import depotlifecycle.repositories.repair.EstimateCustomerApprovalRepository;
 import depotlifecycle.repositories.repair.EstimateRepository;
+import depotlifecycle.repositories.repair.InsuranceCoverageRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
 import io.micronaut.core.annotation.Nullable;
@@ -54,6 +55,7 @@ import java.util.Optional;
 public class EstimateController {
     private static final Logger LOG = LoggerFactory.getLogger(EstimateController.class);
     private final PartyRepository partyRepository;
+    private final InsuranceCoverageRepository insuranceCoverageRepository;
     private final EstimateRepository estimateRepository;
     private final EstimateCancelRequestRepository estimateCancelRequestRepository;
     private final EstimateAllocationRepository estimateAllocationRepository;
@@ -377,6 +379,10 @@ public class EstimateController {
 
         if (allocation.getDepot() != null) {
             allocation.setDepot(partyRepository.save(allocation.getDepot()));
+        }
+
+        if(allocation.getInsuranceCoverage() != null) {
+            allocation.setInsuranceCoverage(insuranceCoverageRepository.save(allocation.getInsuranceCoverage()));
         }
 
         estimateAllocationRepository.save(allocation);

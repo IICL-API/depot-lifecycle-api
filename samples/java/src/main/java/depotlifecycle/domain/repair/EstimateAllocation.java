@@ -82,4 +82,8 @@ public class EstimateAllocation {
     @Schema(type = "object", description = "when possible, this is set to an expected sell/fix decision to indicate the likely estimate owner approval action", required = false, nullable = true, implementation = PreliminaryDecision.class)
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     PreliminaryDecision preliminaryDecision;
+
+    @Schema(description = "The applicable insurance coverage for damage estimate purposes", required = false, nullable = true)
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    InsuranceCoverage insuranceCoverage;
 }
