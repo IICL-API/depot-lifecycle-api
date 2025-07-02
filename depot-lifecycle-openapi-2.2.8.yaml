@@ -1966,8 +1966,8 @@ components:
             $ref: "#/components/schemas/EstimatePhoto"
         allocation:
           description: the amount break downs by party for this estimate; typically
-            only defined for a response and not included in requests
-          readOnly: true
+            only defined for in the response for depot communication
+          nullable: true
           allOf:
           - $ref: "#/components/schemas/EstimateAllocation"
       description: Represents an estimation of costs to repair or upgrade a shipping
