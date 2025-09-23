@@ -1,0 +1,42 @@
+<div class="card chassisInfo">
+    <div class="card-header">
+        <h5 class="card-title" th:text="${title}"></h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'lastMaintenanceDate'" class="form-label">Last Maintenance Date</label>
+            <input type="date" class="form-control" th:attr="id=${id} + 'lastMaintenanceDate', name=${propertyPath} + 'lastMaintenanceDate'">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'lastMaintenanceHours'" class="form-label">Last Maintenance Hours</label>
+            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'lastMaintenanceHours', name=${propertyPath} + 'lastMaintenanceHours'">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'currentMaintenanceHours'" class="form-label">Current Maintenance Hours</label>
+            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'currentMaintenanceHours', name=${propertyPath} + 'currentMaintenanceHours'">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'lastBeltChangeDate'" class="form-label">Last Belt Change Date</label>
+            <input type="date" class="form-control" th:attr="id=${id} + 'lastBeltChangeDate', name=${propertyPath} + 'lastBeltChangeDate'">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'lastBeltChangeHours'" class="form-label">Last Belt Change Hours</label>
+            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'lastBeltChangeHours', name=${propertyPath} + 'lastBeltChangeHours'">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'totalHours'" class="form-label">Total Hours</label>
+            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'totalHours', name=${propertyPath} + 'totalHours'">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'fuelLevel'" class="form-label">Fuel Level</label>
+            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'fuelLevel', name=${propertyPath} + 'fuelLevel'" min="0" max="100">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'mountType'" class="form-label">Mount Type</label>
+            <select class="form-select" th:attr="id=${id} + 'mountType', name=${propertyPath} + 'mountType'" required>
+                <option></option>
+                <option th:each="mountType : ${mountTypes}" th:attr="value=${mountType.name()}" th:text="${mountType.name() + ' - ' + mountType.description}"></option>
+            </select>
+        </div>
+    </div>
+</div>

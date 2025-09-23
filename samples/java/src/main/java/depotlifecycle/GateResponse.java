@@ -1,7 +1,7 @@
 package depotlifecycle;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import depotlifecycle.domain.InsuranceCoverage;
+import depotlifecycle.domain.repair.InsuranceCoverage;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,8 +9,6 @@ import jakarta.persistence.FetchType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;

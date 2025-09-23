@@ -1,0 +1,19 @@
+<div class="card machineryInfo">
+    <div class="card-header">
+        <h5 class="card-title" th:text="${title}"></h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'manufacturer'" class="form-label">Manufacturer</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'manufacturer', name=${propertyPath} + 'manufacturer'" maxlength="50">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'modelName'" class="form-label">Model Name</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'modelName', name=${propertyPath} + 'modelName'" maxlength="50">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'modelNumber'" class="form-label">Model Number</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'modelNumber', name=${propertyPath} + 'modelNumber'" maxlength="50">
+        </div>
+    </div>
+</div>

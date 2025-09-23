@@ -1,0 +1,25 @@
+<div class="card taxRate mb-2">
+    <div class="card-header">
+        <div class="d-flex flex-row justify-content-between">
+            <h5 class="card-title" th:text="${title}"></h5>
+            <button type="button" class="btn-close" onclick="$(this).closest('div.taxRate').remove();"></button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'description'" class="form-label">Description</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'description', name=${propertyPath} + 'description'" required maxlength="255">
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'rate'" class="form-label">Rate</label>
+            <input type="number" step="0.01" class="form-control" th:attr="id=${id} + 'rate', name=${propertyPath} + 'rate'" min="0" required>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'rule'" class="form-label">Tax Rule</label>
+            <select class="form-select" th:attr="id=${id} + 'rule', name=${propertyPath} + 'rule'" required>
+                <option></option>
+                <option th:each="taxRule : ${taxRules}" th:attr="value=${taxRule.name()}" th:text="${taxRule.name() + ' - ' + taxRule.description}"></option>
+            </select>
+        </div>
+    </div>
+</div>

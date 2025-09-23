@@ -2,7 +2,7 @@ package depotlifecycle;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
-import depotlifecycle.domain.InsuranceCoverage;
+import depotlifecycle.domain.repair.InsuranceCoverage;
 import depotlifecycle.domain.Party;
 import io.micronaut.core.annotation.Introspected;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.Column;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 

@@ -6,6 +6,23 @@ This is an example java application that implements the various Depot Lifecycle 
 
 The only required software to run this sample is java 17.  To start the application: run './gradlew run'
 
+# Server
+
+This application implements a `dummy` server that implements the Depot Lifecycle APIs.  The server is configured to run on port 8086.  Access the api endpoints via the base URL: http://localhost:8086/api
+
+# Client
+
+This application implements a basic client using a web interface to invoke a configured server.  To configure the server the client uses, set the environment variables:
+
+* `LIFECYCLE_ENDPOINT` - the base URL of the server to connect this client to
+* `LIFECYCLE_AUTHORIZATION` - the authorization header value for the client to use
+
+Access the client via the base URL: http://localhost:8086/client
+
+# Generated Documentation
+
+This application is used to generate the IICL API documentation.  Access updated generated documentation via the URL: http://localhost:8086/redoc
+
 # Software Used
 ## Micronaut 4.6.2 Documentation
 

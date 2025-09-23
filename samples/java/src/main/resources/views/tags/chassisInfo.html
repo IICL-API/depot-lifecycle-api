@@ -1,0 +1,27 @@
+<div class="card chassisInfo">
+    <div class="card-header">
+        <h5 class="card-title" th:text="${title}"></h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'licensePlate'" class="form-label">License Plate</label>
+            <input type="text" class="form-control" th:attr="id=${id} + 'licensePlate', name=${propertyPath} + 'licensePlate'" maxlength="14" required>
+        </div>
+        <div class="mb-3" th:attr="id=${id} + 'TireTreadMeasurementContainer'">
+            <a href="#" class="btn btn-success mb-2"
+               th:attr="hx-get='/client/tag/addTireTreadMeasurement?propertyPath=' + ${propertyPath}, hx-target='#' + ${id} + 'TireTreadMeasurementContainer', hx-vals='js:{count: $(\'#' + ${id} + 'TireTreadMeasurementContainer\').find(\'.tireTreadMeasurement\').length}'"
+               hx-swap="beforeend">Add Tire Tread Measurement</a>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'brakeCondition'" class="form-label">Break Condition</label>
+            <select class="form-select" th:attr="id=${id} + 'brakeCondition', name=${propertyPath} + 'brakeCondition'">
+                <option></option>
+                <option th:each="brakeCondition : ${brakeConditions}" th:attr="value=${brakeCondition.name()}" th:text="${brakeCondition.name() + ' - ' + brakeCondition.description}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'hubometer'" class="form-label">Hubometer</label>
+            <input type="number" step="1" class="form-control" th:attr="id=${id} + 'hubometer', name=${propertyPath} + 'hubometer'" min="0">
+        </div>
+    </div>
+</div>

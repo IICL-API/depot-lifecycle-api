@@ -1,0 +1,25 @@
+<div class="card tireTreadMeasurement">
+    <div class="card-header">
+        <h5 class="card-title" th:text="${title}"></h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'location'" class="form-label">Location</label>
+            <select class="form-select" th:attr="id=${id} + 'location', name=${propertyPath} + 'location'" required>
+                <option></option>
+                <option th:each="tireTreadLocation : ${tireTreadLocations}" th:attr="value=${tireTreadLocation.name()}" th:text="${tireTreadLocation.name() + ' - ' + tireTreadLocation.description}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'unitOfMeasure'" class="form-label">Unit of Measure</label>
+            <select class="form-select" th:attr="id=${id} + 'unitOfMeasure', name=${propertyPath} + 'unitOfMeasure'" required>
+                <option></option>
+                <option th:each="unitOfMeasure : ${unitOfMeasures}" th:attr="value=${unitOfMeasure.name()}" th:text="${unitOfMeasure.name()}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label th:attr="for=${id} + 'depth'" class="form-label">Depth</label>
+            <input type="number" step="0.01" class="form-control" th:attr="id=${id} + 'depth', name=${propertyPath} + 'depth'" min="0.00" required>
+        </div>
+    </div>
+</div>
