@@ -40,7 +40,7 @@ import java.util.List;
 @OpenAPIDefinition(
     info = @Info(
         title = "Depot Life Cycle",
-            version = "2.2.8",
+            version = "2.2.9",
         description = "${depotlifecycle.documentation.application.description}",
         license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html"),
         contact = @Contact(email = "technical@iicl.org")
@@ -84,7 +84,7 @@ import java.util.List;
         @Tag(name="m_repair_complete", description="<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="RepairComplete")})})
     },
     extensions = {
-        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Under Development (Beta)\", \"tags\": [ \"redelivery\", \"release\", \"estimate photos\", \"gate photos\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [ \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_tax_rate\", \"m_estimate_allocation\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\" ] }]", parseValue = true)})
+        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Under Development (Beta)\", \"tags\": [\"estimate photos\", \"gate photos\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [  \"redelivery\", \"release\", \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_tax_rate\", \"m_estimate_allocation\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\" ] }]", parseValue = true)})
     },
     servers = {
         @Server(url = "https://api.example.com/examplecontextpath")

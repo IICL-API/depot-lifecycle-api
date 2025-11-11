@@ -167,6 +167,10 @@ depotlifecycle:
             - (api, client, server) `loaded` should support `null` for unknown states on the EquipmentDetail model.
             - (api, server) Add `insuranceCoverage` to EstimateAllocation model.
 
+         * 2.2.9
+            - (client) Add local documentation link to the client.
+            - (doc) mark Redelivery & Release production ready. 
+
 
          # Security & Authentication
 
