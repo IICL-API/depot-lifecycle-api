@@ -40,7 +40,7 @@ import java.util.List;
 @OpenAPIDefinition(
     info = @Info(
         title = "Depot Life Cycle",
-            version = "2.2.9",
+            version = "2.2.10",
         description = "${depotlifecycle.documentation.application.description}",
         license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html"),
         contact = @Contact(email = "technical@iicl.org")
