@@ -172,7 +172,7 @@ depotlifecycle:
             - (doc) mark Redelivery & Release production ready.
 
          * 2.2.10
-            - (api, doc) Add (optional) depreciated value in USD to EstimateAllocation
+            - (api, doc) Add (optional) depreciated value in local currency to EstimateAllocation
 
 
          # Security & Authentication

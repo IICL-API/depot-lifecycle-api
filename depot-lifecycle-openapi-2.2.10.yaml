@@ -128,15 +128,15 @@ info:
     \ model.\n    - (api, server) Add `insuranceCoverage` to EstimateAllocation model.\n\
     \n * 2.2.9\n    - (client) Add local documentation link to the client.\n    -\
     \ (doc) mark Redelivery & Release production ready.\n\n * 2.2.10\n    - (api,\
-    \ doc) Add (optional) depreciated value in USD to EstimateAllocation\n\n\n # Security\
-    \ & Authentication\n\n To ensure secure communication, all endpoints of this API\
-    \ should use the https protocol instead of http.  Authentication methods will\
-    \ differ between systems, but two popular methods are JSON Web Tokens and Static\
-    \ Tokens.  Examples for both of these follow.\n\n\n## JSON Web Token\n\n [JSON\
-    \ Web Token, or JWT](https://jwt.io/), is used for stateless authentication. \
-    \ Since all requests are sent using https, tokens are not encrypted.  Tokens follow\
-    \ the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\n\
-    \n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\",\n\t\"roles\"\
+    \ doc) Add (optional) depreciated value in local currency to EstimateAllocation\n\
+    \n\n # Security & Authentication\n\n To ensure secure communication, all endpoints\
+    \ of this API should use the https protocol instead of http.  Authentication methods\
+    \ will differ between systems, but two popular methods are JSON Web Tokens and\
+    \ Static Tokens.  Examples for both of these follow.\n\n\n## JSON Web Token\n\n\
+    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
+    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
+    \n\n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\",\n\t\"roles\"\
     : [\n\t\t\"ROLE_GATE_CREATE\",\n\t\t\"ROLE_GATE_UPDATE\"\n\t],\n\t\"email\":\"\
     j.doe@example.com\",\n\t\"token_type\":\"Bearer\",\n\t\"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
     ,\n\t\"expires_in\":3600,        \n\t\"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
@@ -2055,12 +2055,12 @@ components:
           format: double
           nullable: false
           example: 121.99
-        depreciatedValueUSD:
+        depreciatedValue:
           minimum: 0
           required:
           - "false"
           type: number
-          description: the depreciated value of the container in USD
+          description: the depreciated value of the container
           format: double
           nullable: true
           example: 1151.84

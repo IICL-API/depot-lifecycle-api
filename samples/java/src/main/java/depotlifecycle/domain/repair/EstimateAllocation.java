@@ -71,9 +71,9 @@ public class EstimateAllocation {
     @Column(nullable = false)
     BigDecimal insuranceTotal;
 
-    @Schema(type = "number", format = "double", minimum = "0.0", example = "1151.84", description = "the depreciated value of the container in USD", required = false, nullable = true)
+    @Schema(type = "number", format = "double", minimum = "0.0", example = "1151.84", description = "the depreciated value of the container", required = false, nullable = true)
     @Column(nullable = true)
-    BigDecimal depreciatedValueUSD;
+    BigDecimal depreciatedValue;
 
     @Schema(type = "boolean", description = "indicates if the estimate causes the unit to be a constructive total lost", example = "false", required = true, nullable = false)
     @Column(nullable = false)

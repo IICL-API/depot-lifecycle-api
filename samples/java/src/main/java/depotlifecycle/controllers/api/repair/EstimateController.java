@@ -154,7 +154,7 @@ public class EstimateController {
         allocation.setCustomerTotal(estimate.getPartyTotal(EstimateLineItemParty.U));
         allocation.setCtl(false); //assume not a CTL for demo purposes
         allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
-        allocation.setDepreciatedValueUSD(null); // do not return the depreciated value for demo purposes
+        allocation.setDepreciatedValue(null); // do not return the depreciated value for demo purposes
 
         PreliminaryDecision preliminaryDecision = new PreliminaryDecision();
         preliminaryDecision.setRecommendation("FIX");
@@ -292,7 +292,7 @@ public class EstimateController {
         allocation.setCustomerTotal(estimate.getPartyTotal(EstimateLineItemParty.U));
         allocation.setCtl(false); //assume not a CTL for demo purposes
         allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
-        allocation.setDepreciatedValueUSD(null); // do not return the depreciated value for demo purposes
+        allocation.setDepreciatedValue(null); // do not return the depreciated value for demo purposes
 
         PreliminaryDecision preliminaryDecision = new PreliminaryDecision();
         preliminaryDecision.setRecommendation("FIX");
