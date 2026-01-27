@@ -173,6 +173,7 @@ depotlifecycle:
 
          * 2.2.10
             - (api, doc) Add (optional) depreciated value in local currency to EstimateAllocation
+            - (client) Fix bad constraint on depot for Estimate Approvals
 
 
          # Security & Authentication
