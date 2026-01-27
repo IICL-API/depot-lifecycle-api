@@ -44,6 +44,262 @@ If a PR touches more than one category, create separate entries (preferred) or a
 
 ---
 
+## Gradle best practices (required)
+
+All Gradle build code must follow current best practices to ensure optimal build performance and maintainability.
+
+### Lazy task configuration (required)
+Gradle's configuration avoidance APIs prevent unnecessary work during the configuration phase, dramatically improving build performance.
+
+**Core principles:**
+- **Always use lazy APIs:** `tasks.register()` instead of `tasks.create()`
+- **Never use eager task realization:** avoid `tasks.getByName()`, `tasks.all {}`, or accessing `tasks.foo` directly
+- **Use lazy properties:** `Property<T>`, `ListProperty<T>`, `MapProperty<T>`, `SetProperty<T>` instead of plain fields in custom tasks
+- **Configure tasks lazily:** use `tasks.named('taskName').configure {}` blocks, not direct property assignment at configuration time
+- **Avoid premature task graph resolution:** don't call `.get()` on `Provider<T>` during configuration phase
+
+### Task configuration examples
+
+**✅ Good (lazy):**
+```gradle
+tasks.register('generateOpenApi', GenerateOpenApiTask) {
+    specFile.set(layout.projectDirectory.file('openapi/depot-lifecycle.yaml'))
+    outputDir.set(layout.buildDirectory.dir('generated/openapi'))
+    doFirst {
+        logger.info("Generating OpenAPI spec from ${specFile.get()}")
+    }
+}
+
+tasks.named('build') {
+    dependsOn('generateOpenApi')
+}
+
+// Configuring existing task lazily
+tasks.named('compileJava') {
+    options.encoding = 'UTF-8'
+}
+```
+
+**❌ Bad (eager):**
+```gradle
+// DON'T: creates task immediately
+tasks.create('generateOpenApi', GenerateOpenApiTask) {
+    specFile = file('openapi/depot-lifecycle.yaml')
+    outputDir = file('build/generated/openapi')
+}
+
+// DON'T: realizes task immediately
+tasks.getByName('generateOpenApi') {
+    // configuration
+}
+
+// DON'T: accesses task directly
+tasks.build.dependsOn generateOpenApi
+
+// DON'T: configures all tasks immediately
+tasks.all {
+    // this runs for EVERY task, even unused ones
+}
+```
+
+### Custom task types
+
+When creating custom Gradle task classes, always use Property APIs:
+
+**✅ Good:**
+```groovy
+abstract class GenerateDocsTask extends DefaultTask {
+    @InputFile
+    abstract RegularFileProperty getSpecFile()
+    
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDir()
+    
+    @Input
+    abstract Property<String> getApiVersion()
+    
+    @TaskAction
+    void generate() {
+        def spec = specFile.get().asFile
+        def output = outputDir.get().asFile
+        // task logic
+    }
+}
+```
+
+**❌ Bad:**
+```groovy
+class GenerateDocsTask extends DefaultTask {
+    @InputFile
+    File specFile  // DON'T: use RegularFileProperty instead
+    
+    @OutputDirectory
+    File outputDir  // DON'T: use DirectoryProperty instead
+    
+    @Input
+    String apiVersion  // DON'T: use Property<String> instead
+}
+```
+
+### Code review guidelines
+
+When reviewing PRs that touch Gradle build files:
+- **Reject** any use of `tasks.create()` — require `tasks.register()` instead
+- **Flag** direct task references like `tasks.foo` or `foo` — require `tasks.named('foo')`
+- **Flag** `tasks.getByName()` — require `tasks.named()`
+- **Flag** `tasks.all {}` or `tasks.withType(SomeType) {}` without lazy equivalents
+- **Require** custom task types use `Property<T>` APIs with proper annotations
+- **Ensure** no `.get()` calls on `Provider<T>` during configuration phase (outside `doFirst`/`doLast`/`@TaskAction`)
+
+### Performance impact
+
+Lazy configuration matters:
+- **Configuration time:** improves by avoiding unnecessary task instantiation (critical for large builds with hundreds of tasks)
+- **IDE responsiveness:** faster project sync in IntelliJ/Android Studio
+- **Gradle daemon efficiency:** less memory pressure, better caching
+
+### Reference
+- [Gradle Task Configuration Avoidance](https://docs.gradle.org/current/userguide/task_configuration_avoidance.html)
+- [Lazy Configuration](https://docs.gradle.org/current/userguide/lazy_configuration.html)
+
+---
+
+## Build organization: build-logic subproject (required)
+
+This project uses the **build-logic** pattern to organize Gradle configuration by purpose, keeping the root `build.gradle` clean and focused.
+
+### Pattern overview
+
+All reusable build logic is organized into convention plugins in the `build-logic/src/main/groovy/` directory. Each plugin handles a specific concern:
+
+- **`org.iicl.gradle.compile`** — Java compilation settings, annotation processing
+- **`org.iicl.gradle.lombok`** — Lombok configuration and validation
+- **`org.iicl.gradle.app`** — Micronaut application configuration, AOT, runtime settings
+- **`org.iicl.gradle.docker`** — Docker image build configuration
+- **`org.iicl.gradle.publish`** — OpenAPI spec publishing, index.html updates
+
+The root `build.gradle` then applies these plugins and declares project-specific dependencies:
+
+```gradle
+plugins {
+    id 'groovy'
+    id 'org.iicl.gradle.compile'
+    id 'org.iicl.gradle.lombok'
+    id 'org.iicl.gradle.app'
+    id 'org.iicl.gradle.docker'
+    id 'org.iicl.gradle.publish'
+}
+
+version "4.0.0"
+group "depotlifecycle"
+
+dependencies {
+    // project-specific dependencies only
+}
+```
+
+### When to add/modify build logic
+
+**✅ Add to build-logic plugins when:**
+- The logic is reusable or addresses a specific concern (compilation, publishing, Docker, etc.)
+- You're configuring a plugin that could benefit other projects
+- You're creating custom tasks that encapsulate a specific workflow (e.g., `publishOpenApi`)
+- The logic would clutter the root build file
+
+**✅ Keep in root build.gradle when:**
+- Declaring project-specific dependencies
+- Setting project version and group
+- Project-specific configuration that's unlikely to be reused
+
+**❌ Never:**
+- Put custom task logic directly in root `build.gradle` — extract to appropriate build-logic plugin
+- Mix concerns across plugins — keep each plugin focused on one purpose
+- Duplicate configuration — use build-logic plugins for shared settings
+
+### Creating a new build-logic plugin
+
+When adding new build logic:
+
+1. **Create the plugin file:** `build-logic/src/main/groovy/org.iicl.gradle.[purpose].gradle`
+2. **Add focused configuration:**
+   ```gradle
+   plugins {
+       id 'some-plugin'
+   }
+   
+   // Configuration for this concern
+   somePlugin {
+       // settings
+   }
+   
+   // Custom tasks for this concern (using lazy APIs)
+   tasks.register('myTask') {
+       // task configuration
+   }
+   ```
+3. **Apply in root build.gradle:** `id 'org.iicl.gradle.[purpose]'`
+
+### Example: Adding a new validation plugin
+
+**Bad (all in root build.gradle):**
+```gradle
+// DON'T put custom task logic in root build.gradle
+task validateApi {
+    doLast {
+        // complex validation logic
+    }
+}
+```
+
+**Good (extract to build-logic):**
+
+Create `build-logic/src/main/groovy/org.iicl.gradle.validation.gradle`:
+```gradle
+/**
+ * API validation and quality checks
+ */
+tasks.register('validateApi') {
+    description = 'Validates API endpoints and schema'
+    group = 'verification'
+    
+    doLast {
+        // validation logic
+        logger.lifecycle("API validation passed")
+    }
+}
+```
+
+Then apply in root `build.gradle`:
+```gradle
+plugins {
+    // ...existing plugins...
+    id 'org.iicl.gradle.validation'
+}
+```
+
+### Code review guidelines
+
+When reviewing PRs that touch Gradle build files:
+- **Reject** complex logic added directly to root `build.gradle` — require extraction to build-logic
+- **Require** new functionality be organized into appropriate convention plugins
+- **Ensure** each plugin maintains a single, clear purpose
+- **Flag** duplication across plugins — consolidate shared logic
+- **Verify** new plugins are properly applied in root `build.gradle`
+
+### Benefits of this pattern
+
+- **Separation of concerns:** Each plugin has a clear, focused purpose
+- **Reusability:** Plugins can be shared across projects
+- **Maintainability:** Easier to find and modify specific build logic
+- **Clean root build file:** Project-specific configuration is immediately visible
+- **Testability:** Convention plugins can be tested independently
+
+### Reference
+- [Sharing Build Logic: Convention Plugins](https://docs.gradle.org/current/userguide/sharing_build_logic_between_subprojects.html#sec:convention_plugins)
+- [Structuring Projects with Gradle](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html)
+
+---
+
 ## Standard workflow (do this for every PR)
 
 ### 1) Make the code/config change in `samples/java`
@@ -136,7 +392,7 @@ If you can run the app locally:
 
 ## Pull request checklist (Definition of Done)
 
-A PR is “done” only if it includes:
+A PR is "done" only if it includes:
 
 - [ ] Code/config changes in `samples/java`
 - [ ] Changelog entry (`doc` / `client` / `api`)
@@ -145,6 +401,16 @@ A PR is “done” only if it includes:
   - [ ] spec filename reference updated (if needed)
   - [ ] rebuild/hash comment updated
 - [ ] Build passes locally (or in CI)
+- [ ] **If Gradle build files changed:**
+  - [ ] Uses `tasks.register()` (never `tasks.create()`)
+  - [ ] Uses `tasks.named()` (never `tasks.getByName()` or direct access)
+  - [ ] Custom tasks use `Property<T>` APIs with proper annotations
+  - [ ] No eager configuration or premature task realization
+  - [ ] **Build logic properly organized:**
+    - [ ] Reusable/concern-specific logic extracted to `build-logic/` plugins
+    - [ ] Root `build.gradle` contains only project-specific dependencies and version
+    - [ ] New plugins follow single-purpose principle
+    - [ ] No complex task logic in root `build.gradle`
 
 ---
 

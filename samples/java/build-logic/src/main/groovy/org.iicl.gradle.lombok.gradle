@@ -1,0 +1,11 @@
+plugins {
+    id 'name.remal.lombok'
+}
+
+lombok {
+    config {
+        validate {
+            disabledRules.add('StopBubblingAtRoot')
+        }
+    }
+}
