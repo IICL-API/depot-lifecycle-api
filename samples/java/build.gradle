@@ -4,6 +4,7 @@ plugins {
     id 'org.iicl.gradle.lombok'
     id 'org.iicl.gradle.app'
     id 'org.iicl.gradle.docker'
+    id 'org.iicl.gradle.publish'
 }
 
 version "4.0.0"

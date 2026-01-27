@@ -1,0 +1,243 @@
+import java.security.MessageDigest
+
+tasks.register('copyOpenapiSpec') {
+    group = 'documentation'
+    description = 'Copies the generated OpenAPI specification to the root repository'
+
+    dependsOn 'compileJava'
+
+    doLast {
+        def swaggerDir = file("${project.layout.buildDirectory.get().asFile}/classes/java/main/META-INF/swagger")
+        if (!swaggerDir.exists()) {
+            throw new GradleException("Swagger directory not found at: ${swaggerDir}")
+        }
+
+        // Find the generated OpenAPI spec file
+        def specFiles = swaggerDir.listFiles(new FilenameFilter() {
+            @Override
+            boolean accept(File dir, String name) {
+                return name.startsWith('depot-life-cycle-') && name.endsWith('.yml')
+            }
+        })
+
+        if (!specFiles || specFiles.length == 0) {
+            throw new GradleException("No OpenAPI specification found in: ${swaggerDir}")
+        }
+
+        if (specFiles.length > 1) {
+            logger.warn("Multiple OpenAPI spec files found, using: ${specFiles[0].name}")
+        }
+
+        def sourceFile = specFiles[0]
+
+        // Extract version from filename (depot-life-cycle-X.Y.Z.yml)
+        def matcher = sourceFile.name =~ /depot-life-cycle-(.+)\.yml/
+        if (!matcher.matches()) {
+            throw new GradleException("Could not extract version from filename: ${sourceFile.name}")
+        }
+        def detectedVersion = matcher.group(1)
+
+        def targetDir = file("${project.rootDir}/../..")
+        def targetFile = new File(targetDir, "depot-lifecycle-openapi-${detectedVersion}.yaml")
+
+        // Store for use by other tasks
+        project.ext.detectedSpecVersion = detectedVersion
+        project.ext.openapiSourceFile = sourceFile
+        project.ext.openapiTargetFile = targetFile
+
+        logger.lifecycle("Detected OpenAPI spec version: ${detectedVersion}")
+        logger.lifecycle("Copying OpenAPI spec from: ${sourceFile}")
+        logger.lifecycle("Copying OpenAPI spec to: ${targetFile}")
+
+        // Compute hash of existing file if it exists
+        def oldHash = null
+        if (targetFile.exists()) {
+            def digest = MessageDigest.getInstance("SHA-1")
+            targetFile.withInputStream { is ->
+                byte[] buffer = new byte[8192]
+                int read
+                while ((read = is.read(buffer)) > 0) {
+                    digest.update(buffer, 0, read)
+                }
+            }
+            oldHash = digest.digest().encodeHex().toString()
+        }
+
+        // Compute hash of new file
+        def digest = MessageDigest.getInstance("SHA-1")
+        sourceFile.withInputStream { is ->
+            byte[] buffer = new byte[8192]
+            int read
+            while ((read = is.read(buffer)) > 0) {
+                digest.update(buffer, 0, read)
+            }
+        }
+        def newHash = digest.digest().encodeHex().toString()
+
+        // Check if file changed
+        def fileChanged = (oldHash != newHash)
+        project.ext.openapiFileChanged = fileChanged
+
+        if (fileChanged) {
+            // Perform the actual copy
+            targetFile.parentFile.mkdirs()
+            targetFile.bytes = sourceFile.bytes
+            logger.lifecycle("Successfully copied OpenAPI specification to: ${targetFile}")
+            logger.lifecycle("File changed: YES")
+        } else {
+            logger.lifecycle("OpenAPI specification unchanged - skipping copy")
+            logger.lifecycle("File changed: NO")
+        }
+    }
+}
+
+tasks.register('cleanOldOpenapiSpecs') {
+    group = 'documentation'
+    description = 'Removes old OpenAPI specification files from the root repository'
+
+    dependsOn 'copyOpenapiSpec'
+
+    doLast {
+        // Only clean if file changed
+        if (!project.ext.has('openapiFileChanged') || !project.ext.openapiFileChanged) {
+            logger.lifecycle("OpenAPI spec unchanged - skipping cleanup")
+            return
+        }
+
+        def specVersion = project.ext.detectedSpecVersion
+        def targetDir = file("${project.rootDir}/../..")
+        def currentSpec = "depot-lifecycle-openapi-${specVersion}.yaml"
+
+        // Find all depot-lifecycle-openapi-*.yaml files
+        def oldSpecs = targetDir.listFiles(new FilenameFilter() {
+            @Override
+            boolean accept(File dir, String name) {
+                return name.startsWith('depot-lifecycle-openapi-') &&
+                       name.endsWith('.yaml') &&
+                       name != currentSpec
+            }
+        })
+
+        if (oldSpecs && oldSpecs.length > 0) {
+            logger.lifecycle("Cleaning up old OpenAPI spec versions:")
+            oldSpecs.each { file ->
+                logger.lifecycle("  Deleting: ${file.name}")
+                file.delete()
+            }
+        } else {
+            logger.lifecycle("No old OpenAPI spec versions to clean up")
+        }
+    }
+}
+
+
+tasks.register('computeOpenapiHash') {
+    group = 'documentation'
+    description = 'Computes SHA-1 hash of the OpenAPI specification for change detection'
+
+    dependsOn 'copyOpenapiSpec'
+
+    doLast {
+        def targetFile = project.ext.openapiTargetFile
+
+        if (targetFile.exists()) {
+            def digest = MessageDigest.getInstance("SHA-1")
+            targetFile.withInputStream { is ->
+                byte[] buffer = new byte[8192]
+                int read
+                while ((read = is.read(buffer)) > 0) {
+                    digest.update(buffer, 0, read)
+                }
+            }
+            def hash = digest.digest().encodeHex().toString().take(7)
+            project.ext.openapiHash = hash
+            logger.lifecycle("OpenAPI spec hash: ${hash}")
+        } else {
+            project.ext.openapiHash = 'unknown'
+            logger.warn("OpenAPI spec file not found for hash computation")
+        }
+    }
+}
+
+tasks.register('updateIndexHtml') {
+    group = 'documentation'
+    description = 'Updates index.html to reference the current OpenAPI specification version'
+
+    dependsOn 'cleanOldOpenapiSpecs', 'computeOpenapiHash'
+
+    doLast {
+        // Only update if file changed
+        if (!project.ext.has('openapiFileChanged') || !project.ext.openapiFileChanged) {
+            logger.lifecycle("OpenAPI spec unchanged - skipping index.html update")
+            return
+        }
+
+        def specVersion = project.ext.detectedSpecVersion
+        def targetDir = file("${project.rootDir}/../..")
+        def indexFile = new File(targetDir, 'index.html')
+
+        if (!indexFile.exists()) {
+            throw new GradleException("index.html not found at: ${indexFile}")
+        }
+
+        // Read the current index.html
+        def content = indexFile.text
+
+        // Use the OpenAPI file hash for cache busting
+        def hashToUse = project.ext.has('openapiHash') ? project.ext.openapiHash : 'unknown'
+
+        // Update the spec-url to reference the new version
+        def newSpecUrl = "depot-lifecycle-openapi-${specVersion}.yaml"
+        content = content.replaceAll(
+            /spec-url='depot-lifecycle-openapi-[^']+'/,
+            "spec-url='${newSpecUrl}'"
+        )
+
+        // Update the comment with the new hash for cache busting
+        content = content.replaceAll(
+            /<!-- json version can be obtained by using swagger-ui to convert - [a-f0-9]+ {1,2}-->/,
+            "<!-- json version can be obtained by using swagger-ui to convert - ${hashToUse}  -->"
+        )
+
+        // Write the updated content back
+        indexFile.text = content
+
+        logger.lifecycle("Successfully updated index.html:")
+        logger.lifecycle("  Spec URL: ${newSpecUrl}")
+        logger.lifecycle("  Cache-busting hash: ${hashToUse}")
+    }
+}
+
+tasks.register('publishOpenapiDocs') {
+    group = 'documentation'
+    description = 'Publishes OpenAPI documentation to the root repository (builds, copies spec, updates index.html)'
+
+    dependsOn 'updateIndexHtml'
+
+    doLast {
+        logger.lifecycle("")
+        logger.lifecycle("=" * 80)
+
+        if (project.ext.has('openapiFileChanged') && project.ext.openapiFileChanged) {
+            logger.lifecycle("OpenAPI documentation publishing complete!")
+            logger.lifecycle("=" * 80)
+            logger.lifecycle("")
+            logger.lifecycle("Next steps:")
+            logger.lifecycle("  1. Review the changes in the root repository")
+            logger.lifecycle("  2. Commit and push to trigger GitHub Pages deployment")
+        } else {
+            logger.lifecycle("OpenAPI documentation unchanged - nothing to publish")
+            logger.lifecycle("=" * 80)
+            logger.lifecycle("")
+            logger.lifecycle("The OpenAPI spec has not changed since the last build.")
+            logger.lifecycle("No updates were made to the root repository.")
+        }
+
+        logger.lifecycle("")
+    }
+}
+
+tasks.named('build') {
+    finalizedBy 'publishOpenapiDocs'
+}
+
