@@ -41,7 +41,6 @@ public class EstimateCreateCommand {
     ZonedDateTime estimateTime;
 
     @Nullable
-    @NotBlank
     @Size(max = 500)
     String comments;
 

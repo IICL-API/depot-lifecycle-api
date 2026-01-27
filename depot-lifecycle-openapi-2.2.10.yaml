@@ -129,7 +129,8 @@ info:
     \n * 2.2.9\n    - (client) Add local documentation link to the client.\n    -\
     \ (doc) mark Redelivery & Release production ready.\n\n * 2.2.10\n    - (api,\
     \ doc) Add (optional) depreciated value in local currency to EstimateAllocation\n\
-    \    - (client) Fix bad constraint on depot for Estimate Approvals\n\n\n # Security\
+    \    - (client) Fix bad constraint on depot for Estimate Approvals\n    - (client)\
+    \ do not require comments since the api does not require them\n\n\n # Security\
     \ & Authentication\n\n To ensure secure communication, all endpoints of this API\
     \ should use the https protocol instead of http.  Authentication methods will\
     \ differ between systems, but two popular methods are JSON Web Tokens and Static\
