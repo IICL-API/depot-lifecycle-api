@@ -39,7 +39,7 @@ public interface EstimateClient {
 
     @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
     @Put("/api/v2/estimate/{estimateNumber}")
-    Publisher<EstimateAllocation> customerApprove(@PathVariable @NonNull String estimateNumber, @QueryValue @NonNull String depot, @RequestBody @NonNull EstimateCustomerApproval customerApproval);
+    Publisher<EstimateAllocation> customerApprove(@PathVariable @NonNull String estimateNumber, @QueryValue @NonNull String depot, @Body @NonNull EstimateCustomerApproval customerApproval);
 
     @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
     @Post("/api/v2/estimate")

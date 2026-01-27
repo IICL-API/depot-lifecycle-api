@@ -174,7 +174,8 @@ depotlifecycle:
          * 2.2.10
             - (api, doc) Add (optional) depreciated value in local currency to EstimateAllocation
             - (client) Fix bad constraint on depot for Estimate Approvals
-            - (client) do not require comments since the api does not require them
+            - (client) No longer require comments since the api does not require them
+            - (client) Fix customer approval to match the API expectations
 
 
          # Security & Authentication

@@ -65,7 +65,7 @@ public class EstimateController {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/customerApprove")
-    @View("estimateAllocationList")
+    @View("repair/estimateAllocationList")
     Mono<Map<String, Object>> customerApprove(@Body EstimateCustomerApproveCommand cmd) {
         LOG.info("Client - Estimate - Customer Approve");
 
@@ -107,7 +107,7 @@ public class EstimateController {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/create")
-    @View("estimateAllocationList")
+    @View("repair/estimateAllocationList")
     Mono<Map<String, Object>> create(@Body EstimateCreateCommand cmd) {
         LOG.info("Client - Estimate - Create");
 
