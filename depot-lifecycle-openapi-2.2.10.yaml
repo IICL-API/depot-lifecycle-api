@@ -131,29 +131,31 @@ info:
     \ doc) Add (optional) depreciated value in local currency to EstimateAllocation\n\
     \    - (client) Fix bad constraint on depot for Estimate Approvals\n    - (client)\
     \ No longer require comments since the api does not require them\n    - (client)\
-    \ Fix customer approval to match the API expectations\n\n\n # Security & Authentication\n\
-    \n To ensure secure communication, all endpoints of this API should use the https\
-    \ protocol instead of http.  Authentication methods will differ between systems,\
-    \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
-    \ both of these follow.\n\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
-    \ is used for stateless authentication.  Since all requests are sent using https,\
-    \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
-    \ format.\n\n\n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\"\
-    ,\n\t\"roles\": [\n\t\t\"ROLE_GATE_CREATE\",\n\t\t\"ROLE_GATE_UPDATE\"\n\t],\n\
-    \t\"email\":\"j.doe@example.com\",\n\t\"token_type\":\"Bearer\",\n\t\"access_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\t\"expires_in\":3600,        \n\t\"refresh_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\"\n }\n ```\n\n An access_token is provided for authentication\
-    \ to API endpoints and a refresh_token is provided to generate a new access_token\
-    \ when one expires.\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
-    \ request to `/api/login` with a username and password payload will cause a JWT\
-    \ token to be issued in the response.\n\n\n ```\n POST /api/login HTTP/1.1\n Content-Type:\
-    \ text/plain; charset=utf-8\n Host: www.example.com\n\n\n {\n\t\"username\": \"\
-    jdoe\",\n\t\"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired\
-    \ token\n\n Tokens created by invoking the login endpoint expire after a determined\
-    \ period.  Issuing a POST request to `/oauth/access_token` with: the refresh_token\
-    \ from the JWT token previously issued and a grant_type of refresh_token will\
-    \ reissue a new JWT token.\n\n ```\n POST /oauth/access_token HTTP/1.1\n Host:\
-    \ www.example.com\n Content-Type: application/x-www-form-urlencoded\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
+    \ Fix customer approval to match the API expectations\n    - (server) Enhance\
+    \ the Estimate model to support sending multiple estimates in a single transmission.\n\
+    \n\n # Security & Authentication\n\n To ensure secure communication, all endpoints\
+    \ of this API should use the https protocol instead of http.  Authentication methods\
+    \ will differ between systems, but two popular methods are JSON Web Tokens and\
+    \ Static Tokens.  Examples for both of these follow.\n\n\n## JSON Web Token\n\n\
+    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
+    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
+    \n\n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\",\n\t\"roles\"\
+    : [\n\t\t\"ROLE_GATE_CREATE\",\n\t\t\"ROLE_GATE_UPDATE\"\n\t],\n\t\"email\":\"\
+    j.doe@example.com\",\n\t\"token_type\":\"Bearer\",\n\t\"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    ,\n\t\"expires_in\":3600,        \n\t\"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    \n }\n ```\n\n An access_token is provided for authentication to API endpoints\
+    \ and a refresh_token is provided to generate a new access_token when one expires.\n\
+    \n\n ### 2. Obtaining an access token\n\n Issuing a POST request to `/api/login`\
+    \ with a username and password payload will cause a JWT token to be issued in\
+    \ the response.\n\n\n ```\n POST /api/login HTTP/1.1\n Content-Type: text/plain;\
+    \ charset=utf-8\n Host: www.example.com\n\n\n {\n\t\"username\": \"jdoe\",\n\t\
+    \"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired token\n\
+    \n Tokens created by invoking the login endpoint expire after a determined period.\
+    \  Issuing a POST request to `/oauth/access_token` with: the refresh_token from\
+    \ the JWT token previously issued and a grant_type of refresh_token will reissue\
+    \ a new JWT token.\n\n ```\n POST /oauth/access_token HTTP/1.1\n Host: www.example.com\n\
+    \ Content-Type: application/x-www-form-urlencoded\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
     \ ```\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked if\
     \ it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n GET\
     \ /api/validate HTTP/1.1\n Host: www.example.com\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n\
@@ -280,6 +282,9 @@ tags:
 - name: m_estimate_allocation
   description: <SchemaDefinition schemaRef="#/components/schemas/EstimateAllocation"/>
   x-displayName: EstimateAllocation
+- name: m_estimate_allocation_type
+  description: <SchemaDefinition schemaRef="#/components/schemas/EstimateAllocationType"/>
+  x-displayName: EstimateAllocationType
 - name: m_preliminary_decision
   description: <SchemaDefinition schemaRef="#/components/schemas/PreliminaryDecision"/>
   x-displayName: PreliminaryDecision
@@ -1964,16 +1969,31 @@ components:
           required:
           - "false"
           type: array
-          description: An optional photo list for the shipping container damages.
+          description: an optional photo list for the shipping container damages.
           nullable: false
           items:
             $ref: "#/components/schemas/EstimatePhoto"
         allocation:
-          description: the amount break downs by party for this estimate; typically
-            only defined for in the response for depot communication
+          description: "the amount break downs by party for all line items on this\
+            \ estimate; when using multiple types, this represents a combined allocation\
+            \ with totals for all estimate types; only transmitted once an estimate\
+            \ has been created and allocated"
           nullable: true
+          readOnly: true
           allOf:
           - $ref: "#/components/schemas/EstimateAllocation"
+        allocationsByType:
+          required:
+          - "false"
+          type: array
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            when multiple types are sent in a single transmission, this represents a breakdown by specific type (estimate type and upgrade type combinations) - this should only be populated when multiple Estimates are sent in a single transmission
+          nullable: false
+          readOnly: true
+          items:
+            $ref: "#/components/schemas/EstimateAllocation"
       description: Represents an estimation of costs to repair or upgrade a shipping
         container.
     EstimateAllocation:
@@ -2099,9 +2119,81 @@ components:
           nullable: true
           allOf:
           - $ref: "#/components/schemas/InsuranceCoverage"
+        allocationType:
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            the estimate (estimate type and upgrade type combination) that this total allocated amounts represent; when not defined, this allocation to applies to all line items on the estimate
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/EstimateAllocationType"
       description: "Indicates the allocated estimate totals, including any comments\
         \ on the allocation and if the box is considered a constructive loss."
       readOnly: true
+    EstimateAllocationType:
+      required:
+      - type
+      type: object
+      properties:
+        type:
+          description: |-
+            delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision
+
+            `R` - Primary (Unknown Estimation Standard)
+
+            `RI` - Primary (IICL)
+
+            `RC` - Primary (CWCA)
+
+            `SC` - Secondary (CWCA)
+
+            `SU` - Secondary Upgrade
+
+            `AS` - Sell Upgrade
+
+            `AU` - Ancillary Upgrade
+
+            `AR` - Ancillary Repair
+          allOf:
+          - $ref: "#/components/schemas/EstimateType"
+          default: R
+        upgradeType:
+          description: |-
+            the type of secondary upgrade this estimate transmission represents.
+
+            `FG` - Food grade
+
+            `ML` - Malt
+
+            `DB` - Dairy Board
+
+            `EV` - Evian
+
+            `WH` - Whiskey
+
+            `SU` - Sugar
+
+            `CF` - Coffee
+
+            `TB` - Tobacco
+
+            `MC` - Milk cartons
+
+            `MP` - Milk powder
+
+            `AM` - Ammunition
+
+            `CH` - Cotton/Hay
+
+            `TE` - Tea
+
+            `FT` - Flexitank
+          nullable: true
+          example: AM
+          allOf:
+          - $ref: "#/components/schemas/UpgradeType"
+      description: Represents a specific estimate transmission defined by a combination
+        of estimate type and optional upgrade type
     EstimateCondition:
       type: string
       description: |-
@@ -2410,6 +2502,14 @@ components:
           nullable: false
           items:
             $ref: "#/components/schemas/EstimateLineItemPhoto"
+        allocationType:
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            the transmission (estimate type and upgrade type combination) this line item belongs to. When specified, this line item is part of a specific transmission. When null, the line item uses the estimate's type and upgradeType fields.
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/EstimateAllocationType"
       description: Represents an estimation of costs to repair or upgrade a single
         instance of damage for a shipping container.
     EstimateLineItemPart:
@@ -4664,6 +4764,7 @@ x-tagGroups:
   - m_estimate_line_item_photo
   - m_estimate_tax_rate
   - m_estimate_allocation
+  - m_estimate_allocation_type
   - m_preliminary_decision
   - m_estimate_customer_approval
   - m_work_order

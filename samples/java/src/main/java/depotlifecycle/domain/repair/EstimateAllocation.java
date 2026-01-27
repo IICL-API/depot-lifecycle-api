@@ -13,6 +13,8 @@ import lombok.ToString;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -90,4 +92,9 @@ public class EstimateAllocation {
     @Schema(description = "The applicable insurance coverage for damage estimate purposes", required = false, nullable = true)
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     InsuranceCoverage insuranceCoverage;
+
+    @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nthe estimate (estimate type and upgrade type combination) that this total allocated amounts represent; when not defined, this allocation to applies to all line items on the estimate", required = false, nullable = true, implementation = EstimateAllocationType.class)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    @JoinColumn(name = "allocationType_id")
+    EstimateAllocationType allocationType;
 }

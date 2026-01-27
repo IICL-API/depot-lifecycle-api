@@ -176,6 +176,7 @@ depotlifecycle:
             - (client) Fix bad constraint on depot for Estimate Approvals
             - (client) No longer require comments since the api does not require them
             - (client) Fix customer approval to match the API expectations
+            - (server) Enhance the Estimate model to support sending multiple estimates in a single transmission.
 
 
          # Security & Authentication

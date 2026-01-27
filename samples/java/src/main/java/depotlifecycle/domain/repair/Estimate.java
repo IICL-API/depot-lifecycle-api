@@ -114,13 +114,18 @@ public class Estimate {
     List<EstimateTaxRate> taxRates = new ArrayList<>();
 
     @ArraySchema(schema = @Schema(implementation = EstimatePhoto.class))
-    @Schema(description = "An optional photo list for the shipping container damages.", required = false, nullable = false)
+    @Schema(description = "an optional photo list for the shipping container damages.", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimatePhoto> photos = new ArrayList<>();
 
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-    @Schema(description = "the amount break downs by party for this estimate; typically only defined for in the response for depot communication", nullable = true, required = false, implementation = EstimateAllocation.class)
+    @Schema(description = "the amount break downs by party for all line items on this estimate; when using multiple types, this represents a combined allocation with totals for all estimate types; only transmitted once an estimate has been created and allocated", nullable = true, required = false, implementation = EstimateAllocation.class, accessMode = Schema.AccessMode.READ_ONLY)
     EstimateAllocation allocation;
+
+    @ArraySchema(schema = @Schema(implementation = EstimateAllocation.class))
+    @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nwhen multiple types are sent in a single transmission, this represents a breakdown by specific type (estimate type and upgrade type combinations) - this should only be populated when multiple Estimates are sent in a single transmission", required = false, nullable = false, accessMode = Schema.AccessMode.READ_ONLY)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    List<EstimateAllocation> allocationsByType = new ArrayList<>();
 
     @JsonIgnore
     public BigDecimal getPartyTotal(EstimateLineItemParty party) {
