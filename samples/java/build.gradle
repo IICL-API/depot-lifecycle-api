@@ -98,3 +98,11 @@ if (hasProperty("debug")) {
 else {
     run.jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
 }
+
+lombok {
+    config {
+        validate {
+            disabledRules.add('StopBubblingAtRoot')
+        }
+    }
+}
