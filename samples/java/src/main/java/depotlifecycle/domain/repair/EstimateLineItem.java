@@ -118,10 +118,10 @@ public class EstimateLineItem {
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimateLineItemPhoto> photos = new ArrayList<>();
 
-    @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nthe transmission (estimate type and upgrade type combination) this line item belongs to. When specified, this line item is part of a specific transmission. When null, the line item uses the estimate's type and upgradeType fields.", required = false, nullable = true, implementation = EstimateAllocationType.class)
-    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
-    @JoinColumn(name = "allocationType_id")
-    EstimateAllocationType allocationType;
+    @ArraySchema(schema = @Schema(implementation = EstimateAllocationType.class))
+    @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nthe transmission (estimate type and upgrade type combination) this line item belongs to. When specified, this line item is part of a specific transmission. When empty, the line item uses the estimate's type and upgradeType fields.", required = false, nullable = false)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    List<EstimateAllocationType> allocationTypes;
 
     @JsonIgnore
     public BigDecimal getTotal() {

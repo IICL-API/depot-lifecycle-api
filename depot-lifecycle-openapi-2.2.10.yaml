@@ -2502,14 +2502,17 @@ components:
           nullable: false
           items:
             $ref: "#/components/schemas/EstimateLineItemPhoto"
-        allocationType:
+        allocationTypes:
+          required:
+          - "false"
+          type: array
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
 
             the transmission (estimate type and upgrade type combination) this line item belongs to. When specified, this line item is part of a specific transmission. When null, the line item uses the estimate's type and upgradeType fields.
-          nullable: true
-          allOf:
-          - $ref: "#/components/schemas/EstimateAllocationType"
+          nullable: false
+          items:
+            $ref: "#/components/schemas/EstimateAllocationType"
       description: Represents an estimation of costs to repair or upgrade a single
         instance of damage for a shipping container.
     EstimateLineItemPart:
