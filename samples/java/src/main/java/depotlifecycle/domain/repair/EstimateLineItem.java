@@ -119,7 +119,7 @@ public class EstimateLineItem {
     List<EstimateLineItemPhoto> photos = new ArrayList<>();
 
     @ArraySchema(schema = @Schema(implementation = EstimateAllocationType.class))
-    @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nthe transmission (estimate type and upgrade type combination) this line item belongs to. When specified, this line item is part of a specific transmission. When empty, the line item uses the estimate's type and upgradeType fields.", required = false, nullable = false)
+    @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nthe transmission (estimate type and upgrade type combination) this line item belongs to. When specified, this line item is part of a specific transmission. When empty or null, the line item uses the estimate's type and upgradeType fields.", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     List<EstimateAllocationType> allocationTypes;
 

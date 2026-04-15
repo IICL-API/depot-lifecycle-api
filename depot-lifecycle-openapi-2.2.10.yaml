@@ -2509,7 +2509,7 @@ components:
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
 
-            the transmission (estimate type and upgrade type combination) this line item belongs to. When specified, this line item is part of a specific transmission. When null, the line item uses the estimate's type and upgradeType fields.
+            the transmission (estimate type and upgrade type combination) this line item belongs to. When specified, this line item is part of a specific transmission. When empty or null, the line item uses the estimate's type and upgradeType fields.
           nullable: false
           items:
             $ref: "#/components/schemas/EstimateAllocationType"
@@ -4708,7 +4708,41 @@ components:
           example: TIED
           allOf:
           - $ref: "#/components/schemas/WorkOrderUnitStatus"
+        approvals:
+          required:
+          - "false"
+          type: array
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            when multiple estimates are approved for this unit, this represents a breakdown of approval amounts by specific estimate type (estimate type and upgrade type combinations). When empty or null, the unit uses the work order's single estimate context or does not have an estimate.
+          nullable: false
+          items:
+            $ref: "#/components/schemas/WorkOrderUnitApproval"
       description: information for a specific unit on a work order
+    WorkOrderUnitApproval:
+      required:
+      - allocationType
+      - approvalTotal
+      type: object
+      properties:
+        allocationType:
+          description: the estimate type and optional upgrade type combination that
+            this approval applies to
+          allOf:
+          - $ref: "#/components/schemas/EstimateAllocationType"
+        approvalTotal:
+          required:
+          - "true"
+          type: number
+          description: the total amount approved for this specific estimate type
+          format: double
+          nullable: false
+          example: 175
+      description: |-
+        *Type is currently proposed to be added - not currently production approved.*
+
+        Represents the approval details for a specific estimate type on a work order unit. When multiple estimates are approved for a unit, each estimate type will have its own approval entry.
     WorkOrderUnitStatus:
       type: string
       description: |-
