@@ -149,9 +149,16 @@ public class EstimateController {
         allocation.setDepot(estimate.getDepot());
         allocation.setRevision(estimate.getRevision());
         allocation.setTotal(estimate.getTotal());
-        allocation.setOwnerTotal(estimate.getPartyTotal(EstimateLineItemParty.O));
-        allocation.setInsuranceTotal(estimate.getPartyTotal(EstimateLineItemParty.I));
-        allocation.setCustomerTotal(estimate.getPartyTotal(EstimateLineItemParty.U));
+        BigDecimal ownerTotal = BigDecimal.ZERO, insuranceTotal = BigDecimal.ZERO, customerTotal = BigDecimal.ZERO;
+        for (EstimateLineItem lineItem : estimate.getLineItems()) {
+            if (lineItem.getParty() == null) continue;
+            if (lineItem.getParty() == EstimateLineItemParty.O) ownerTotal = ownerTotal.add(lineItem.getTotal());
+            else if (lineItem.getParty() == EstimateLineItemParty.I) insuranceTotal = insuranceTotal.add(lineItem.getTotal());
+            else if (lineItem.getParty() == EstimateLineItemParty.U) customerTotal = customerTotal.add(lineItem.getTotal());
+        }
+        allocation.setOwnerTotal(ownerTotal);
+        allocation.setInsuranceTotal(insuranceTotal);
+        allocation.setCustomerTotal(customerTotal);
         allocation.setCtl(false); //assume not a CTL for demo purposes
         allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
         allocation.setDepreciatedValue(null); // do not return the depreciated value for demo purposes
@@ -287,9 +294,16 @@ public class EstimateController {
         allocation.setDepot(estimate.getDepot());
         allocation.setRevision(estimate.getRevision());
         allocation.setTotal(estimate.getTotal());
-        allocation.setOwnerTotal(estimate.getPartyTotal(EstimateLineItemParty.O));
-        allocation.setInsuranceTotal(estimate.getPartyTotal(EstimateLineItemParty.I));
-        allocation.setCustomerTotal(estimate.getPartyTotal(EstimateLineItemParty.U));
+        BigDecimal ownerTotal = BigDecimal.ZERO, insuranceTotal = BigDecimal.ZERO, customerTotal = BigDecimal.ZERO;
+        for (EstimateLineItem lineItem : estimate.getLineItems()) {
+            if (lineItem.getParty() == null) continue;
+            if (lineItem.getParty() == EstimateLineItemParty.O) ownerTotal = ownerTotal.add(lineItem.getTotal());
+            else if (lineItem.getParty() == EstimateLineItemParty.I) insuranceTotal = insuranceTotal.add(lineItem.getTotal());
+            else if (lineItem.getParty() == EstimateLineItemParty.U) customerTotal = customerTotal.add(lineItem.getTotal());
+        }
+        allocation.setOwnerTotal(ownerTotal);
+        allocation.setInsuranceTotal(insuranceTotal);
+        allocation.setCustomerTotal(customerTotal);
         allocation.setCtl(false); //assume not a CTL for demo purposes
         allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
         allocation.setDepreciatedValue(null); // do not return the depreciated value for demo purposes
