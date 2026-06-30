@@ -178,6 +178,9 @@ depotlifecycle:
             - (client) Fix customer approval to match the API expectations
             - (server) Enhance the Estimate model to support sending multiple estimates in a single transmission.
 
+         * 2.2.11
+            - (client) Add sample client support for uploading Gate and Estimate photos (multipart upload).
+
 
          # Security & Authentication
 

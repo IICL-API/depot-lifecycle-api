@@ -3,6 +3,7 @@ package depotlifecycle.controllers.client.gate;
 import depotlifecycle.DepotLifecycleConfiguration;
 import depotlifecycle.GateResponse;
 import depotlifecycle.GateStatus;
+import depotlifecycle.PendingResponse;
 import depotlifecycle.clients.gate.GateClient;
 import depotlifecycle.commands.gate.GateCreateCommand;
 import depotlifecycle.commands.gate.GateDeleteCommand;
@@ -10,9 +11,13 @@ import depotlifecycle.commands.gate.GateFetchCommand;
 import depotlifecycle.commands.gate.GateUpdateCommand;
 import depotlifecycle.domain.gate.*;
 import depotlifecycle.system.ClientErrorHandling;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
+import io.micronaut.http.client.multipart.MultipartBody;
+import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.scheduling.annotation.ExecuteOn;
 import io.micronaut.validation.Validated;
@@ -25,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,5 +160,48 @@ public class GateController {
         return Mono.from(gatePublisher)
                 .onErrorMap(HttpClientResponseException.class, ClientErrorHandling::handleError)
                 .map(gate -> Map.of("gates", List.of(gate)));
+    }
+
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @ExecuteOn(TaskExecutors.BLOCKING)
+    @Post("/uploadPhoto")
+    @View("gate/gateMessage")
+    Mono<Map<String, Object>> uploadPhoto(@Part Long relatedId, @Part CompletedFileUpload file) {
+        LOG.info("Client - Gate - Upload Photo");
+
+        MultipartBody body = buildPhotoBody(file);
+
+        Publisher<HttpResponse<PendingResponse>> publisher = gateClient.uploadPhoto(relatedId, body);
+
+        return Mono.from(publisher)
+                .onErrorMap(HttpClientResponseException.class, ClientErrorHandling::handleError)
+                .map(response -> {
+                    Map<String, Object> results = new HashMap<>();
+                    results.put("title", "Gate Photo Upload Results");
+                    if (response.getStatus() == HttpStatus.ACCEPTED) {
+                        results.put("message", "Photo accepted for processing (pending manual review).");
+                    } else {
+                        results.put("message", "Photo uploaded successfully.");
+                    }
+                    return results;
+                });
+    }
+
+    private static MultipartBody buildPhotoBody(CompletedFileUpload file) {
+        if (file == null || file.getFilename() == null || file.getFilename().isEmpty()) {
+            throw new IllegalArgumentException("Must provide a photo to upload.");
+        }
+
+        try {
+            byte[] bytes = file.getBytes();
+            if (bytes == null || bytes.length == 0) {
+                throw new IllegalArgumentException("Must provide a photo to upload.");
+            }
+            return MultipartBody.builder()
+                    .addPart("file", file.getFilename(), file.getContentType().orElse(MediaType.APPLICATION_OCTET_STREAM_TYPE), bytes)
+                    .build();
+        } catch (IOException ioException) {
+            throw new IllegalArgumentException("Must provide a photo to upload.");
+        }
     }
 }

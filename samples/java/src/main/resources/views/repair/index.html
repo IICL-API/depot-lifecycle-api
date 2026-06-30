@@ -19,6 +19,7 @@
         <button class="nav-link" id="v-estimate-cancel-tab" data-bs-toggle="pill" data-bs-target="#v-estimate-cancel-content" type="button" role="tab" aria-controls="v-estimate-cancel-content" aria-selected="true">Cancel</button>
         <button class="nav-link" id="v-estimate-approve-tab" data-bs-toggle="pill" data-bs-target="#v-estimate-approve-content" type="button" role="tab" aria-controls="v-estimate-approve-content" aria-selected="true">Customer Approve</button>
         <button class="nav-link" id="v-estimate-totals-tab" data-bs-toggle="pill" data-bs-target="#v-estimate-totals-content" type="button" role="tab" aria-controls="v-estimate-totals-content" aria-selected="true">Update Totals</button>
+        <button class="nav-link" id="v-estimate-upload-photo-tab" data-bs-toggle="pill" data-bs-target="#v-estimate-upload-photo-content" type="button" role="tab" aria-controls="v-estimate-upload-photo-content" aria-selected="true">Upload Photo</button>
 
     </div>
     <div class="tab-content w-100" id="v-pills-tabContent">
@@ -255,6 +256,48 @@
                         </div>
                         <div class="mb-3" id="preliminaryDecision">
                             <a href="#" class="btn btn-success mb-2" hx-get="/client/tag/addPreliminaryDecision" hx-target="#preliminaryDecision" hx-swap="innerHTML">Add Preliminary Decision</a>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="v-estimate-upload-photo-content" role="tabpanel" aria-labelledby="v-estimate-upload-photo-tab" tabindex="0">
+            <div class="card" id="estimateUploadPhoto">
+                <form action="/client/estimate/uploadPhoto" method="POST" enctype="multipart/form-data">
+                    <div class="card-header">
+                        <h5 class="card-title">Estimate Upload Photo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="uploadPhotoRelatedId" class="form-label">Related Id</label>
+                            <input type="number" step="1" pattern="[0-9]*" class="form-control" id="uploadPhotoRelatedId" name="relatedId" required>
+                            <div class="form-text">
+                                The related identifier (from the estimate allocation) that this photo should be attached.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="uploadPhotoLine" class="form-label">Line</label>
+                            <input type="number" step="1" pattern="[0-9]*" class="form-control" id="uploadPhotoLine" name="line" min="1">
+                            <div class="form-text">
+                                Optional line number to associate this photo to.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="uploadPhotoStatus" class="form-label">Status</label>
+                            <select class="form-select" name="status" id="uploadPhotoStatus">
+                                <option value="BEFORE">BEFORE</option>
+                                <option value="REPAIRED">REPAIRED</option>
+                            </select>
+                            <div class="form-text">
+                                Indicator of when this photo applies. Defaults to BEFORE.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="uploadPhotoFile" class="form-label">Photo</label>
+                            <input type="file" accept="image/*" class="form-control" id="uploadPhotoFile" name="file" required>
                         </div>
                     </div>
                     <div class="card-footer">

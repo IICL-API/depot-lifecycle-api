@@ -2,6 +2,7 @@ package depotlifecycle.clients.repair;
 
 import depotlifecycle.DepotLifecycleConfiguration;
 import depotlifecycle.ErrorResponse;
+import depotlifecycle.PendingResponse;
 import depotlifecycle.commands.repair.EstimateCreateCommand;
 import depotlifecycle.commands.repair.EstimateTotalsCommand;
 import depotlifecycle.domain.repair.Estimate;
@@ -9,8 +10,11 @@ import depotlifecycle.domain.repair.EstimateAllocation;
 import depotlifecycle.domain.repair.EstimateCustomerApproval;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.multipart.MultipartBody;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.reactivestreams.Publisher;
 
@@ -48,4 +52,11 @@ public interface EstimateClient {
     @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
     @Patch("/api/v2/estimate/{estimateNumber}")
     void update(@PathVariable @NonNull String estimateNumber, @NonNull @Body EstimateTotalsCommand cmd);
+
+    @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
+    @Post(uri = "/api/v2/estimatePhoto/{relatedId}", produces = MediaType.MULTIPART_FORM_DATA)
+    Publisher<HttpResponse<PendingResponse>> uploadPhoto(@PathVariable @NonNull Long relatedId,
+                                                         @Nullable @QueryValue("line") Integer line,
+                                                         @Nullable @QueryValue("status") String status,
+                                                         @Body @NonNull MultipartBody file);
 }
