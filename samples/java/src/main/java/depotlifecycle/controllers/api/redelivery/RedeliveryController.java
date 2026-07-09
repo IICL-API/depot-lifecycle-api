@@ -1,6 +1,6 @@
 package depotlifecycle.controllers.api.redelivery;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.redelivery.Redelivery;
 import depotlifecycle.domain.redelivery.RedeliveryDetail;

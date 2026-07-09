@@ -8,10 +8,10 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.gradleup.shadow:shadow-gradle-plugin:8.3.5'
-    implementation 'io.micronaut.application:io.micronaut.application.gradle.plugin:4.6.1'
-    implementation 'io.micronaut.aot:io.micronaut.aot.gradle.plugin:4.6.1'
-    implementation 'io.micronaut.docker:io.micronaut.docker.gradle.plugin:4.6.1'
-    implementation 'io.micronaut.openapi:io.micronaut.openapi.gradle.plugin:4.6.1'
-    implementation 'name.remal.lombok:name.remal.lombok.gradle.plugin:2.2.7'
+    implementation 'com.gradleup.shadow:shadow-gradle-plugin:9.5.1'
+    implementation 'io.micronaut.application:io.micronaut.application.gradle.plugin:5.0.2'
+    implementation 'io.micronaut.aot:io.micronaut.aot.gradle.plugin:5.0.2'
+    implementation 'io.micronaut.docker:io.micronaut.docker.gradle.plugin:5.0.2'
+    implementation 'io.micronaut.openapi:io.micronaut.openapi.gradle.plugin:5.0.2'
+    implementation 'name.remal.lombok:name.remal.lombok.gradle.plugin:3.2.0'
 }

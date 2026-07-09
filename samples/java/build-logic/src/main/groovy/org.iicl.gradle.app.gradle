@@ -30,9 +30,11 @@ application {
     mainClass.set("depotlifecycle.Application")
 }
 
-if (hasProperty("debug")) {
-    run.jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5007')
-}
-else {
-    run.jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+tasks.named('run') {
+    if (project.hasProperty("debug")) {
+        jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5007')
+    }
+    else {
+        jvmArgs('-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+    }
 }

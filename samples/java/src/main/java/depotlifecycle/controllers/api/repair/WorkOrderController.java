@@ -1,6 +1,6 @@
 package depotlifecycle.controllers.api.repair;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.repair.WorkOrder;
 import depotlifecycle.repositories.PartyRepository;

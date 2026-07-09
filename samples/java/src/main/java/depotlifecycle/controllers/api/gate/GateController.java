@@ -1,6 +1,6 @@
 package depotlifecycle.controllers.api.gate;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.GateResponse;
 import depotlifecycle.GateStatus;

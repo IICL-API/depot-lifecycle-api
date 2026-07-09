@@ -1,6 +1,6 @@
 package depotlifecycle.controllers.api.release;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.release.Release;
 import depotlifecycle.domain.release.ReleaseDetail;

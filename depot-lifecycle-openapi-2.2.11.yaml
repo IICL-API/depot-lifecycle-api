@@ -135,29 +135,33 @@ info:
     \ the Estimate model to support sending multiple estimates in a single transmission.\n\
     \n * 2.2.11\n    - (client) Add sample client support for uploading Gate and Estimate\
     \ photos (multipart upload).\n    - (api) Fix EstimatePhotoStatus enum value `REPAIR`\
-    \ to `REPAIRED` to match the documented value.\n\n\n # Security & Authentication\n\
-    \n To ensure secure communication, all endpoints of this API should use the https\
-    \ protocol instead of http.  Authentication methods will differ between systems,\
-    \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
-    \ both of these follow.\n\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
-    \ is used for stateless authentication.  Since all requests are sent using https,\
-    \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
-    \ format.\n\n\n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\"\
-    ,\n\t\"roles\": [\n\t\t\"ROLE_GATE_CREATE\",\n\t\t\"ROLE_GATE_UPDATE\"\n\t],\n\
-    \t\"email\":\"j.doe@example.com\",\n\t\"token_type\":\"Bearer\",\n\t\"access_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\t\"expires_in\":3600,        \n\t\"refresh_token\"\
-    :\"eyJhbGciOiJIUzI1NiJ9...\"\n }\n ```\n\n An access_token is provided for authentication\
-    \ to API endpoints and a refresh_token is provided to generate a new access_token\
-    \ when one expires.\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
-    \ request to `/api/login` with a username and password payload will cause a JWT\
-    \ token to be issued in the response.\n\n\n ```\n POST /api/login HTTP/1.1\n Content-Type:\
-    \ text/plain; charset=utf-8\n Host: www.example.com\n\n\n {\n\t\"username\": \"\
-    jdoe\",\n\t\"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired\
-    \ token\n\n Tokens created by invoking the login endpoint expire after a determined\
-    \ period.  Issuing a POST request to `/oauth/access_token` with: the refresh_token\
-    \ from the JWT token previously issued and a grant_type of refresh_token will\
-    \ reissue a new JWT token.\n\n ```\n POST /oauth/access_token HTTP/1.1\n Host:\
-    \ www.example.com\n Content-Type: application/x-www-form-urlencoded\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
+    \ to `REPAIRED` to match the documented value.\n    - (server, client) Update\
+    \ the sample application to Micronaut Framework 5 (Java 25 baseline, Gradle 9.5).\n\
+    \    - (doc) Correct the generated multipart photo upload schemas to type `object`\
+    \ and remove erroneous `required` entries (Micronaut OpenAPI 7 generator fixes).\n\
+    \n\n # Security & Authentication\n\n To ensure secure communication, all endpoints\
+    \ of this API should use the https protocol instead of http.  Authentication methods\
+    \ will differ between systems, but two popular methods are JSON Web Tokens and\
+    \ Static Tokens.  Examples for both of these follow.\n\n\n## JSON Web Token\n\n\
+    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
+    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
+    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
+    \n\n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\",\n\t\"roles\"\
+    : [\n\t\t\"ROLE_GATE_CREATE\",\n\t\t\"ROLE_GATE_UPDATE\"\n\t],\n\t\"email\":\"\
+    j.doe@example.com\",\n\t\"token_type\":\"Bearer\",\n\t\"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    ,\n\t\"expires_in\":3600,        \n\t\"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
+    \n }\n ```\n\n An access_token is provided for authentication to API endpoints\
+    \ and a refresh_token is provided to generate a new access_token when one expires.\n\
+    \n\n ### 2. Obtaining an access token\n\n Issuing a POST request to `/api/login`\
+    \ with a username and password payload will cause a JWT token to be issued in\
+    \ the response.\n\n\n ```\n POST /api/login HTTP/1.1\n Content-Type: text/plain;\
+    \ charset=utf-8\n Host: www.example.com\n\n\n {\n\t\"username\": \"jdoe\",\n\t\
+    \"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired token\n\
+    \n Tokens created by invoking the login endpoint expire after a determined period.\
+    \  Issuing a POST request to `/oauth/access_token` with: the refresh_token from\
+    \ the JWT token previously issued and a grant_type of refresh_token will reissue\
+    \ a new JWT token.\n\n ```\n POST /oauth/access_token HTTP/1.1\n Host: www.example.com\n\
+    \ Content-Type: application/x-www-form-urlencoded\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
     \ ```\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked if\
     \ it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n GET\
     \ /api/validate HTTP/1.1\n Host: www.example.com\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n\
@@ -318,10 +322,9 @@ paths:
       - name: estimateNumber
         in: query
         description: the estimate number
+        explode: false
         schema:
           maxLength: 16
-          required:
-          - "false"
           type: string
           nullable: true
           example: DEHAMCE1856373
@@ -329,42 +332,38 @@ paths:
         in: query
         description: the unit number of the shipping container at the time of estimate
           creation
+        explode: false
         schema:
           maxLength: 11
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "false"
           type: string
           nullable: true
           example: CONU1234561
       - name: depot
         in: query
         description: the identifier of the depot
+        explode: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
-          required:
-          - "false"
           type: string
           nullable: true
           example: DEHAMCMRA
       - name: lessee
         in: query
         description: the identifier of the lessee
+        explode: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
-          required:
-          - "false"
           type: string
           nullable: true
           example: SGSINONEA
       - name: revision
         in: query
         description: the revision number of the estimate
+        explode: false
         schema:
-          required:
-          - "false"
           type: integer
           format: int32
           nullable: true
@@ -372,10 +371,9 @@ paths:
       - name: equipmentCode
         in: query
         description: the ISO equipment code of the shipping container
+        explode: false
         schema:
           maxLength: 10
-          required:
-          - "false"
           type: string
           nullable: true
           example: 22G1
@@ -479,6 +477,7 @@ paths:
         in: query
         description: the identifier of the depot
         required: true
+        explode: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
@@ -488,9 +487,8 @@ paths:
         in: query
         description: the revision number to show for the estimate; when not specified
           the current revision will be returned.
+        explode: false
         schema:
-          required:
-          - "false"
           type: integer
           format: int32
           nullable: true
@@ -541,6 +539,7 @@ paths:
         in: query
         description: the identifier of the depot
         required: true
+        explode: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
@@ -610,6 +609,7 @@ paths:
         in: query
         description: the identifier of the depot
         required: true
+        explode: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
@@ -620,7 +620,8 @@ paths:
           description: successfully cancelled the estimate
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
         "400":
           description: an error occurred trying to cancel the estimate
           content:
@@ -708,6 +709,7 @@ paths:
       - name: line
         in: query
         description: an optional line number to associate this photo to
+        explode: false
         schema:
           type: integer
           format: int32
@@ -717,37 +719,38 @@ paths:
         in: query
         description: "indicator of when this photo applies\n\n`REPAIRED` - Photo is\
           \ after repair \n\n`BEFORE` - Photo is before repair"
+        explode: false
         schema:
           maxLength: 8
           type: string
           nullable: true
           example: BEFORE
-          default: BEFORE
           enum:
           - REPAIRED
           - BEFORE
+          default: BEFORE
       requestBody:
         description: The photo to upload (expected name of part is `file`)
         content:
           multipart/form-data:
             schema:
-              type: string
+              type: object
               properties:
                 file:
                   type: string
                   format: binary
-              description: the photo data
-              format: binary
             encoding:
               file:
                 contentType: application/octet-stream
+                explode: false
         required: true
       responses:
         "200":
           description: successfully uploaded an estimate photo
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
         "202":
           description: "photo accepted for processing, but not created due to manual\
             \ processing requirement"
@@ -934,7 +937,8 @@ paths:
           description: successfully delete the gate record
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
         "400":
           description: an error occurred
           content:
@@ -1019,23 +1023,23 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: string
+              type: object
               properties:
                 file:
                   type: string
                   format: binary
-              description: the photo data
-              format: binary
             encoding:
               file:
                 contentType: application/octet-stream
+                explode: false
         required: true
       responses:
         "200":
           description: successfully uploaded a gate photo
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
         "202":
           description: "photo accepted for processing, but not created due to manual\
             \ processing requirement"
@@ -1071,6 +1075,7 @@ paths:
       - name: redeliveryNumber
         in: query
         description: the redelivery number to filter to
+        explode: false
         schema:
           maxLength: 16
           type: string
@@ -1079,6 +1084,7 @@ paths:
       - name: unitNumber
         in: query
         description: the unit number of the shipping container
+        explode: false
         schema:
           maxLength: 11
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
@@ -1089,6 +1095,7 @@ paths:
         in: query
         description: flag to indicate this search is to check if the found advices
           are valid for gate in
+        explode: false
         schema:
           type: boolean
           nullable: true
@@ -1136,7 +1143,8 @@ paths:
           description: successful create
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
         "400":
           description: an error occurred
           content:
@@ -1182,7 +1190,8 @@ paths:
           description: successful update
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
         "400":
           description: an error occurred
           content:
@@ -1211,6 +1220,7 @@ paths:
       - name: releaseNumber
         in: query
         description: the release number to filter to
+        explode: false
         schema:
           maxLength: 16
           type: string
@@ -1219,6 +1229,7 @@ paths:
       - name: includeCandidates
         in: query
         description: whether to include candidate units for any found release
+        explode: false
         schema:
           type: boolean
           nullable: true
@@ -1227,6 +1238,7 @@ paths:
         in: query
         description: flag to indicate this search is to check if the found advices
           are valid for gate out
+        explode: false
         schema:
           type: boolean
           nullable: true
@@ -1274,7 +1286,8 @@ paths:
           description: successful create
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
         "400":
           description: an error occurred
           content:
@@ -1320,7 +1333,8 @@ paths:
           description: successful update
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
         "400":
           description: an error occurred
           content:
@@ -1451,7 +1465,8 @@ paths:
           description: successfully repair completed the workOrder
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
         "400":
           description: an error occurred trying to repair complete the work order
           content:
@@ -1477,8 +1492,6 @@ components:
         userCode:
           maxLength: 16
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the user identifier at this company that concerns this message
           nullable: true
@@ -1486,31 +1499,23 @@ components:
         userName:
           maxLength: 70
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the full name for the user identified by `userCode`
           nullable: true
           example: John Doe
         faxNumber:
-          required:
-          - "false"
           type: array
           description: the contact fax number(s) for this party
           nullable: false
           items:
             type: string
         phoneNumber:
-          required:
-          - "false"
           type: array
           description: the contact phone number(s) for this party
           nullable: false
           items:
             type: string
         emailAddress:
-          required:
-          - "false"
           type: array
           description: the contact email address(es) for this party
           nullable: false
@@ -1519,15 +1524,11 @@ components:
         name:
           maxLength: 150
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the name of this company
           nullable: true
           example: CMR Container Maintenance Rep.
         streetAddress:
-          required:
-          - "false"
           type: array
           description: the street address lines
           nullable: false
@@ -1536,53 +1537,39 @@ components:
         city:
           maxLength: 28
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the city for the address
           nullable: true
         country:
           maxLength: 2
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the 2 digit ISO country code for the address
           nullable: true
         postalCode:
           maxLength: 20
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the postal code for the address
           nullable: true
         stateProvince:
           maxLength: 20
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the optional state or province code for the address
           nullable: true
         licensePlate:
           maxLength: 14
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the license plate for the person represented by this party
           nullable: true
         latitude:
-          required:
-          - "false"
           type: number
           description: "Instead of an address, provides the latitude of this party"
           format: double
           nullable: true
         longitude:
-          required:
-          - "false"
           type: number
           description: "Instead of an address, provides the longitude of this party"
           format: double
@@ -1610,14 +1597,10 @@ components:
         licensePlate:
           maxLength: 14
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the license plate for the person represented by this party
           nullable: false
         treadMeasurements:
-          required:
-          - "false"
           type: array
           description: An optional list of tread depth measurements for this Chassis
             tires
@@ -1639,8 +1622,6 @@ components:
           - $ref: "#/components/schemas/BrakeCondition"
         hubometer:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the current reading of the hubometer on the Chassis
           format: int32
@@ -1656,16 +1637,12 @@ components:
         equipment:
           maxLength: 10
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the equipment type ISO code or an internal code if one does
             not exist for this shipping container
           nullable: false
           example: 22G1
         manufactureDate:
-          required:
-          - "true"
           type: string
           description: |-
             date and month this unit was manufactured
@@ -1675,14 +1652,10 @@ components:
           nullable: false
           example: 2001-07-21
         loaded:
-          required:
-          - "false"
           type: boolean
           description: indicates if this container has cargo in it
           nullable: true
         cargoSeals:
-          required:
-          - "false"
           type: array
           description: the cargo seal identifiers
           nullable: false
@@ -1690,24 +1663,18 @@ components:
             type: string
             example: An example Seal ID
         desiredTemperature:
-          required:
-          - "false"
           type: integer
           description: the reefer setpoint / desired temperature in Celsius
           format: int32
           nullable: true
           example: -23
         desiredHumidity:
-          required:
-          - "false"
           type: integer
           description: the reefer desired humidity percentage
           format: int32
           nullable: true
           example: 65
         inspections:
-          required:
-          - "false"
           type: array
           description: inspections related to this shipping container
           nullable: false
@@ -1738,22 +1705,16 @@ components:
         code:
           maxLength: 6
           pattern: "^[A-Z0-9]{3}[0-9]{3}$"
-          required:
-          - "false"
           type: string
           description: indicator code specific to this error
           nullable: true
           example: TRI521
         message:
-          required:
-          - "false"
           type: string
           description: a descriptive error message
           nullable: true
           example: Info TRI521 - Unit has been gated-in but is not off-hired
         details:
-          required:
-          - "false"
           type: array
           description: details for the descriptive error message
           nullable: false
@@ -1781,8 +1742,6 @@ components:
         estimateNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: The identifier for this estimate
           nullable: false
@@ -1791,8 +1750,6 @@ components:
           maxLength: 11
           minLength: 10
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: The current unit number of the shipping container.
           nullable: false
@@ -1813,8 +1770,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/EstimateCondition"
         estimateTime:
-          required:
-          - "true"
           type: string
           description: "the date and time of the estimate revision activity in local\
             \ time; i.e. `2020-07-21T17:32:28Z` \n\n( notation as defined by [RFC\
@@ -1825,8 +1780,6 @@ components:
         comments:
           maxLength: 500
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the comments concerning this estimate
           nullable: true
@@ -1854,23 +1807,17 @@ components:
           maxLength: 3
           minLength: 3
           pattern: "^[A-Z]{3}$"
-          required:
-          - "true"
           type: string
           description: the currency of amounts entered on this estimate
           nullable: false
           example: EUR
         total:
-          required:
-          - "true"
           type: number
           description: the sum of billed line items for this estimate
           format: double
           nullable: false
           example: 544.95
         exchangeRate:
-          required:
-          - "true"
           type: number
           description: the exchange rate to convert billed currency to the local currency
             of this estimate
@@ -1942,16 +1889,12 @@ components:
           allOf:
           - $ref: "#/components/schemas/UpgradeType"
         revision:
-          required:
-          - "false"
           type: integer
           description: the revision number of the estimate
           format: int32
           nullable: true
           example: 0
         lineItems:
-          required:
-          - "false"
           type: array
           description: detailed damage descriptions that when combined represent the
             damages being repaired by this estimate
@@ -1959,8 +1902,6 @@ components:
           items:
             $ref: "#/components/schemas/EstimateLineItem"
         taxRates:
-          required:
-          - "false"
           type: array
           description: optional estimate tax rates to share tax rate data between
             systems
@@ -1968,8 +1909,6 @@ components:
           items:
             $ref: "#/components/schemas/EstimateTaxRate"
         photos:
-          required:
-          - "false"
           type: array
           description: an optional photo list for the shipping container damages.
           nullable: false
@@ -1985,8 +1924,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/EstimateAllocation"
         allocationsByType:
-          required:
-          - "false"
           type: array
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -2011,8 +1948,6 @@ components:
       type: object
       properties:
         relatedId:
-          required:
-          - "false"
           type: integer
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -2024,15 +1959,11 @@ components:
         estimateNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: The estimate number this allocation applies to
           nullable: false
           example: DEHAMCE1856373
         revision:
-          required:
-          - "true"
           type: integer
           description: the revision number of the estimate this allocation applies
             to
@@ -2044,53 +1975,41 @@ components:
           allOf:
           - $ref: "#/components/schemas/Party"
         total:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.0
           type: number
           description: the total for the estimate
           format: double
           nullable: false
           example: 544.95
         ownerTotal:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.0
           type: number
           description: the total of the owner portion for the estimate
           format: double
           nullable: false
-          example: 0
+          example: 0.00
         customerTotal:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.0
           type: number
           description: the total of the customer portion for the estimate
           format: double
           nullable: false
           example: 422.96
         insuranceTotal:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.0
           type: number
           description: the total of the insurance portion for the estimate
           format: double
           nullable: false
           example: 121.99
         depreciatedValue:
-          minimum: 0
-          required:
-          - "false"
+          minimum: 0.0
           type: number
           description: the depreciated value of the container
           format: double
           nullable: true
           example: 1151.84
         ctl:
-          required:
-          - "true"
           type: boolean
           description: indicates if the estimate causes the unit to be a constructive
             total lost
@@ -2099,8 +2018,6 @@ components:
         comments:
           maxLength: 500
           minLength: 1
-          required:
-          - "false"
           type: string
           description: comments pertaining to the estimate creation
           nullable: true
@@ -2225,15 +2142,11 @@ components:
         approvalNumber:
           maxLength: 128
           minLength: 1
-          required:
-          - "false"
           type: string
           description: The approval number from the customer
           nullable: true
           example: RAMON ROUBAL
         approvalDateTime:
-          required:
-          - "true"
           type: string
           description: "The time the estimate was approved by the customer; i.e. `2017-04-10T19:37:04Z`\
             \ \n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6)\
@@ -2243,17 +2156,13 @@ components:
         approvalUser:
           maxLength: 64
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the user name or code who approved this estimate on behalf
             of the customer
           nullable: true
           example: KAERTS
         approvalTotal:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: the amount in the currency of the estimate that's approved
             by the customer
@@ -2275,8 +2184,6 @@ components:
       type: object
       properties:
         line:
-          required:
-          - "true"
           type: integer
           description: The line number
           format: int32
@@ -2286,8 +2193,6 @@ components:
           maxLength: 4
           minLength: 4
           pattern: "^[A-Z0-9]{4}$"
-          required:
-          - "false"
           type: string
           description: |-
             specifies the damage location code on a container
@@ -2299,8 +2204,6 @@ components:
           maxLength: 3
           minLength: 3
           pattern: "^[A-Z0-9]{3}$"
-          required:
-          - "true"
           type: string
           description: |-
             component code
@@ -2312,8 +2215,6 @@ components:
           maxLength: 2
           minLength: 2
           pattern: "^[A-Z0-9]{2}$"
-          required:
-          - "true"
           type: string
           description: |-
             damage code
@@ -2325,8 +2226,6 @@ components:
           maxLength: 2
           minLength: 2
           pattern: "^[A-Z0-9]{2}$"
-          required:
-          - "true"
           type: string
           description: |-
             repair code
@@ -2338,8 +2237,6 @@ components:
           maxLength: 2
           minLength: 2
           pattern: "^[A-Z0-9]{2}$"
-          required:
-          - "true"
           type: string
           description: |-
             component material code
@@ -2349,8 +2246,6 @@ components:
           example: MU
         length:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the length dimension of the damage
           format: int32
@@ -2358,8 +2253,6 @@ components:
           example: 15
         width:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the width dimension of the damage
           format: int32
@@ -2367,8 +2260,6 @@ components:
           example: 1
         height:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the height dimension of the damage
           format: int32
@@ -2400,40 +2291,32 @@ components:
           allOf:
           - $ref: "#/components/schemas/UnitOfMeasure"
         hours:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: the number of hours to repair this damage
           format: double
           nullable: false
           example: 9.95
         materialCost:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: the cost of materials to repair this damage
           format: double
           nullable: false
           example: 9.95
         laborRate:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: rate to pay the labor to repair this damage
           format: double
           nullable: false
-          example: 35
+          example: 35.00
         tax:
-          required:
-          - "false"
           type: number
           description: the tax amount for this line item
           format: double
           nullable: true
-          example: 0
+          example: 0.00
         party:
           description: |+
             The party that is responsible for the cost of this repair
@@ -2459,8 +2342,6 @@ components:
         comments:
           maxLength: 256
           minLength: 1
-          required:
-          - "false"
           type: string
           description: comments concerning this line item repair
           nullable: true
@@ -2481,32 +2362,24 @@ components:
           - $ref: "#/components/schemas/EstimateTaxRule"
         quantity:
           minimum: 1
-          required:
-          - "false"
           type: integer
           description: the number of damages
           format: int32
           nullable: true
           example: 1
         parts:
-          required:
-          - "false"
           type: array
           description: "An optional, detailed part list used to repair this line item"
           nullable: false
           items:
             $ref: "#/components/schemas/EstimateLineItemPart"
         photos:
-          required:
-          - "false"
           type: array
           description: An optional photo list showing the damage of this line item
           nullable: false
           items:
             $ref: "#/components/schemas/EstimateLineItemPhoto"
         allocationTypes:
-          required:
-          - "false"
           type: array
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -2527,8 +2400,6 @@ components:
         description:
           maxLength: 500
           minLength: 1
-          required:
-          - "false"
           type: string
           description: a description for this part
           nullable: true
@@ -2536,24 +2407,18 @@ components:
         number:
           maxLength: 50
           minLength: 1
-          required:
-          - "true"
           type: string
           description: ID number used to signify what part is being used
           nullable: false
           example: "108106"
         quantity:
           minimum: 1
-          required:
-          - "true"
           type: integer
           description: the number of parts used
           format: int32
           nullable: false
           example: 1
         price:
-          required:
-          - "true"
           type: number
           description: the price per part
           format: double
@@ -2596,8 +2461,6 @@ components:
       type: object
       properties:
         url:
-          required:
-          - "true"
           type: string
           description: "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986)\
             \ that is a photo for this line item."
@@ -2611,6 +2474,7 @@ components:
           allOf:
           - $ref: "#/components/schemas/EstimatePhotoStatus"
           - maxLength: 8
+            type: object
           default: BEFORE
       description: Links to a photo for a single instance of damage for a shipping
         container.
@@ -2620,8 +2484,6 @@ components:
       type: object
       properties:
         url:
-          required:
-          - "true"
           type: string
           description: "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986)\
             \ that is a photo for this estimate."
@@ -2635,6 +2497,7 @@ components:
           allOf:
           - $ref: "#/components/schemas/EstimatePhotoStatus"
           - maxLength: 8
+            type: object
           default: BEFORE
       description: Links to a photo for a damage estimate.
     EstimatePhotoStatus:
@@ -2642,10 +2505,10 @@ components:
       description: "indicator of when this photo applies\n\n`REPAIRED` - Photo is\
         \ after repair \n\n`BEFORE` - Photo is before repair"
       example: BEFORE
-      default: BEFORE
       enum:
       - BEFORE
       - REPAIRED
+      default: BEFORE
     EstimateTaxRate:
       required:
       - description
@@ -2656,8 +2519,6 @@ components:
         description:
           maxLength: 255
           minLength: 1
-          required:
-          - "true"
           type: string
           description: "a unique, descriptive explanation for this tax rate"
           nullable: false
@@ -2677,9 +2538,7 @@ components:
           allOf:
           - $ref: "#/components/schemas/EstimateTaxRule"
         rate:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: the tax rate as a percentage
           format: double
@@ -2723,7 +2582,6 @@ components:
         `AU` - Ancillary Upgrade
 
         `AR` - Ancillary Repair
-      default: R
       enum:
       - R
       - RI
@@ -2733,6 +2591,7 @@ components:
       - AS
       - AU
       - AR
+      default: R
     ExternalParty:
       type: object
       properties:
@@ -2740,8 +2599,6 @@ components:
           maxLength: 9
           minLength: 9
           pattern: "^[A-Z0-9]{9}$"
-          required:
-          - "false"
           type: string
           description: "a possible identifier for this party, often referred to as\
             \ an EDI Address"
@@ -2750,8 +2607,6 @@ components:
         code:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: "a possible identifier for this party using the internal system\
             \ code for this company, will be system specific to the system delivering\
@@ -2776,8 +2631,6 @@ components:
         adviceNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the approval number that allows this box to leave or enter
             the depot (often a redelivery or release advice number)
@@ -2791,8 +2644,6 @@ components:
           maxLength: 11
           minLength: 1
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: the unit number of the shipping container
           nullable: false
@@ -2810,8 +2661,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/GateRequestStatus"
         activityTime:
-          required:
-          - "true"
           type: string
           description: "the date and time of the gate activity in local time; i.e.\
             \ `2019-04-10T19:37:04Z` \n\n( notation as defined by [RFC 3339, section\
@@ -2829,9 +2678,8 @@ components:
           allOf:
           - $ref: "#/components/schemas/GateRequestType"
           - maxLength: 3
+            type: object
         photos:
-          required:
-          - "false"
           type: array
           description: An optional photo list of the shipping container at gate creation
           nullable: false
@@ -2855,8 +2703,6 @@ components:
       type: object
       properties:
         url:
-          required:
-          - "true"
           type: string
           description: "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986)\
             \ that is a photo of the shipping container."
@@ -2899,23 +2745,17 @@ components:
         code:
           maxLength: 6
           pattern: "^[A-Z0-9]{3}[0-9]{3}$"
-          required:
-          - "false"
           type: string
           description: indicator code for this response
           nullable: true
           example: TRI521
         message:
-          required:
-          - "false"
           type: string
           description: A descriptive message concerning this gate in
           nullable: true
           example: Info TRI521 - Unit has been gated-in but is not off-hired
         adviceNumber:
           maxLength: 16
-          required:
-          - "false"
           type: string
           description: either the submitted advice number for the gate record or the
             adjusted one
@@ -2923,8 +2763,6 @@ components:
           example: AHAMG000000
         customerReference:
           maxLength: 35
-          required:
-          - "false"
           type: string
           description: the customer reference for the unit; typically an internal
             customer identifier or contract code
@@ -2932,15 +2770,11 @@ components:
           example: MAEX
         transactionReference:
           maxLength: 35
-          required:
-          - "false"
           type: string
           description: the transaction reference for this activity
           nullable: true
           example: 74454D
         relatedId:
-          required:
-          - "false"
           type: integer
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -2955,8 +2789,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/InsuranceCoverage"
         currentExchangeRate:
-          required:
-          - "false"
           type: number
           description: the exchange rate to convert billed currency to the local currency
             for damage estimate totals
@@ -2964,8 +2796,6 @@ components:
           nullable: true
           example: 0.8133
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this gate record
           nullable: false
@@ -2974,8 +2804,6 @@ components:
             example: ALL CLEANING MUST BE CODED TO 'O' FOR OWNER.
         currentInspectionCriteria:
           maxLength: 10
-          required:
-          - "false"
           type: string
           description: "the grade the unit should be inspected to for estimates; if\
             \ none, no estimate is allowed"
@@ -2992,8 +2820,6 @@ components:
       type: object
       properties:
         relatedId:
-          required:
-          - "false"
           type: integer
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -3004,8 +2830,6 @@ components:
           example: 10102561
         adviceNumber:
           maxLength: 16
-          required:
-          - "true"
           type: string
           description: the redelivery or release advice number for the gate record
           nullable: false
@@ -3016,8 +2840,6 @@ components:
           - $ref: "#/components/schemas/Party"
         status:
           maxLength: 1
-          required:
-          - "true"
           type: string
           description: |-
             the current status
@@ -3034,8 +2856,6 @@ components:
           - D
           - S
         activityTime:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time of the gate activity in local time
@@ -3049,8 +2869,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/InsuranceCoverage"
         currentExchangeRate:
-          required:
-          - "false"
           type: number
           description: the exchange rate to convert billed currency to the local currency
             for damage estimate totals
@@ -3059,8 +2877,6 @@ components:
           example: 0.8133
         currentInspectionCriteria:
           maxLength: 10
-          required:
-          - "false"
           type: string
           description: "the unit should be inspected to this grade; if none, no estimate\
             \ is allowed"
@@ -3068,8 +2884,6 @@ components:
           example: IICL
         type:
           maxLength: 3
-          required:
-          - "false"
           type: string
           description: |-
             current gate type indicator
@@ -3102,8 +2916,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/GateRequestStatus"
         activityTime:
-          required:
-          - "false"
           type: string
           description: "the new date and time of the gate activity in local time;\
             \ i.e. `2019-04-10T19:37:04Z` \n\n( notation as defined by [RFC 3339,\
@@ -3122,9 +2934,8 @@ components:
           allOf:
           - $ref: "#/components/schemas/GateRequestType"
           - maxLength: 3
+            type: object
         photos:
-          required:
-          - "false"
           type: array
           description: An optional photo list of the shipping container at gate update
           nullable: false
@@ -3143,8 +2954,6 @@ components:
       type: object
       properties:
         lastMaintenanceDate:
-          required:
-          - "false"
           type: string
           description: |-
             the last date that maintenance was performed
@@ -3155,8 +2964,6 @@ components:
           example: 2001-07-21
         lastMaintenanceHours:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the number runtime hours at the last maintenance
           format: int32
@@ -3164,8 +2971,6 @@ components:
           example: 12
         currentMaintenanceHours:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the number of hours since the last maintenance; often referred
             to as `Current Hours`
@@ -3173,8 +2978,6 @@ components:
           nullable: true
           example: 1
         lastBeltChangeDate:
-          required:
-          - "false"
           type: string
           description: |-
             the last date that the belt was changed
@@ -3185,8 +2988,6 @@ components:
           example: 2001-07-21
         lastBeltChangeHours:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the number runtime hours at the last belt change
           format: int32
@@ -3194,8 +2995,6 @@ components:
           example: 12
         totalHours:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the total runtime hours
           format: int32
@@ -3204,8 +3003,6 @@ components:
         fuelLevel:
           maximum: 100
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the fuel level as a percentage
           format: int32
@@ -3231,8 +3028,6 @@ components:
         name:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: a descriptive name to identify this inspection
           nullable: false
@@ -3250,8 +3045,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/MandateLevel"
         lastInspection:
-          required:
-          - "false"
           type: string
           description: |-
             the date this inspection was last performed
@@ -3262,8 +3055,6 @@ components:
           example: 2001-07-21
         validFor:
           minimum: 1
-          required:
-          - "false"
           type: integer
           description: the number of months this inspection is valid for
           format: int32
@@ -3286,8 +3077,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/ExternalParty"
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this inspection
           nullable: false
@@ -3311,8 +3100,6 @@ components:
       type: object
       properties:
         amountCovered:
-          required:
-          - "false"
           type: number
           description: the total amount allowable to by covered by insurance
           format: double
@@ -3321,45 +3108,33 @@ components:
           maxLength: 3
           minLength: 3
           pattern: "^[A-Z]{3}$"
-          required:
-          - "false"
           type: string
           description: The currency for the insurance coverage amount
           nullable: true
           example: EUR
         appliesToCTL:
-          required:
-          - "false"
           type: boolean
           description: indicates if this coverage should apply to scenarios where
             the damage exceeds the depreciated value of the container
           nullable: true
         allOrNothing:
-          required:
-          - "false"
           type: boolean
           description: "indicates if the amount of damage exceeds the insurance coverage,\
             \ whether the lessee if fully responsible for the damage"
           nullable: true
         exceptions:
-          required:
-          - "false"
           type: array
           description: any contractual reason why the coverage may not apply
           nullable: false
           items:
             type: string
         exclusions:
-          required:
-          - "false"
           type: array
           description: reasons insurance coverage would be excluded from a repair
           nullable: false
           items:
             type: string
         exclusionItems:
-          required:
-          - "false"
           type: array
           description: "in lieu of a contractual description, this field can be used\
             \ to describe specifically what repairs are excluded"
@@ -3367,16 +3142,12 @@ components:
           items:
             $ref: "#/components/schemas/EstimateLineItemPart"
         inclusions:
-          required:
-          - "false"
           type: array
           description: reasons insurance coverage would include a repair
           nullable: false
           items:
             type: string
         inclusionItems:
-          required:
-          - "false"
           type: array
           description: "in lieu of a contractual description, this field can be used\
             \ to describe specifically what repairs are included"
@@ -3391,8 +3162,6 @@ components:
         manufacturer:
           maxLength: 50
           minLength: 1
-          required:
-          - "false"
           type: string
           description: The cooling machinery manufacturer
           nullable: true
@@ -3400,8 +3169,6 @@ components:
         modelName:
           maxLength: 50
           minLength: 1
-          required:
-          - "false"
           type: string
           description: The machinery model name
           nullable: true
@@ -3409,8 +3176,6 @@ components:
         modelNumber:
           maxLength: 50
           minLength: 1
-          required:
-          - "false"
           type: string
           description: The machinery model number
           nullable: true
@@ -3452,8 +3217,6 @@ components:
           maxLength: 9
           minLength: 9
           pattern: "^[A-Z0-9]{9}$"
-          required:
-          - "true"
           type: string
           description: "the identifier for this party, often referred to as an EDI\
             \ Address"
@@ -3462,8 +3225,6 @@ components:
         code:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: "the internal system code for this company, will be system\
             \ specific to the system delivering or receiving this message"
@@ -3479,15 +3240,11 @@ components:
         code:
           maxLength: 6
           pattern: "^[A-Z0-9]{3}[0-9]{3}$"
-          required:
-          - "false"
           type: string
           description: indicator code for this response
           nullable: true
           example: EXX365
         message:
-          required:
-          - "false"
           type: string
           description: a descriptive reason why the activity was not immediately created
           nullable: true
@@ -3501,8 +3258,6 @@ components:
         recommendation:
           maxLength: 11
           minLength: 1
-          required:
-          - "true"
           type: string
           description: "a speculative repair decision code to indicate if a box will\
             \ be repaired, sold, held for repair, could not determine a decision,\
@@ -3512,16 +3267,12 @@ components:
         reason:
           maxLength: 255
           minLength: 1
-          required:
-          - "false"
           type: string
           description: "in the event a decision could not be determined, or a prerequisite\
             \ exists, a more descriptive message than the code provided by the `recommendation`\
             \ field"
           nullable: true
         difference:
-          required:
-          - "false"
           type: number
           description: A positive or negative amount showing how close the repair
             estimate was to a decision change
@@ -3544,16 +3295,12 @@ components:
         redeliveryNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: "the identifier for this redelivery, also referred to as the\
             \ advice number or redelivery number"
           nullable: false
           example: AHAMG33141
         approvalDate:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this redelivery is considered approved / effective
@@ -3562,8 +3309,6 @@ components:
           format: date-time
           nullable: false
         expirationDate:
-          required:
-          - "false"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this redelivery is considered no longer valid
@@ -3582,8 +3327,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/RedeliveryStatus"
         estimateEmailRecipients:
-          required:
-          - "false"
           type: array
           description: list of emails to notify for an estimate revision
           nullable: false
@@ -3591,8 +3334,6 @@ components:
             type: string
             example: customer@example.com
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -3614,8 +3355,6 @@ components:
           - $ref: "#/components/schemas/ExternalParty"
         quantity:
           minimum: 0
-          required:
-          - "true"
           type: integer
           description: the number of shipping containers assigned to this redelivery.
           format: int32
@@ -3623,8 +3362,6 @@ components:
           example: 1
         details:
           minItems: 1
-          required:
-          - "true"
           type: array
           description: groups of like-criteria units
           nullable: false
@@ -3646,8 +3383,6 @@ components:
         contract:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the contract code for the given shipping containers
           nullable: false
@@ -3655,8 +3390,6 @@ components:
         equipment:
           maxLength: 10
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the equipment type ISO code or an internal code if one does
             not exist for the given shipping containers
@@ -3670,8 +3403,6 @@ components:
         grade:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the grade / category of the unit as it was when it last left
             a depot
@@ -3713,8 +3444,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/UpgradeType"
         units:
-          required:
-          - "false"
           type: array
           description: "the specific units for this redelivery if defined, if not,\
             \ assumed blanket (any unit matching criteria can be tied up to the quantity\
@@ -3724,16 +3453,12 @@ components:
             $ref: "#/components/schemas/RedeliveryUnit"
         quantity:
           minimum: 0
-          required:
-          - "true"
           type: integer
           description: the number of shipping containers assigned to this detail
           format: int32
           nullable: false
           example: 1
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -3769,15 +3494,11 @@ components:
           maxLength: 11
           minLength: 1
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: the current unit number of the shipping container
           nullable: false
           example: CONU1234561
         manufactureDate:
-          required:
-          - "true"
           type: string
           description: |-
             date and month this unit was manufactured
@@ -3787,8 +3508,6 @@ components:
           nullable: false
           example: 2001-07-21
         lastOnHireDate:
-          required:
-          - "false"
           type: string
           description: |-
             the date this unit was on hired to the customer for this unit's detail
@@ -3812,8 +3531,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/RedeliveryUnitStatus"
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -3824,8 +3541,6 @@ components:
         lastCargo:
           maxLength: 255
           minLength: 1
-          required:
-          - "false"
           type: string
           description: a description of the last cargo this shipping container carried
           nullable: true
@@ -3834,16 +3549,12 @@ components:
           maxLength: 7
           minLength: 4
           pattern: "^([A-Z]{2})??\\s?[A-Z0-9]{4}$"
-          required:
-          - "false"
           type: string
           description: A number (such as a UN Number for hazardous materials) used
             to identify the type of cargo this container carried
           nullable: true
           example: UN 0305
         tankGrade:
-          required:
-          - "false"
           type: string
           description: "if this is a tank, then this describes the type of liquids\
             \ it can contain: \n\n`F` - Food\n\n`C` - Chemical "
@@ -3853,8 +3564,6 @@ components:
           - F
           - C
         technicalBulletins:
-          required:
-          - "false"
           type: array
           description: "list of technical bulletins associated to this unit - we suggest\
             \ this be fixed identifiers, codes, or urls"
@@ -3870,8 +3579,6 @@ components:
         inspectionCriteria:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: "conveys the estimate instructions to the depot; if the unit\
             \ is damaged on turn in, the estimate standard that the shipping container\
@@ -3881,8 +3588,6 @@ components:
         targetGrade:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the grade / category to mark the unit when it arrives at the
             depot - often used in lieu of an estimate inspection criteria.
@@ -3936,8 +3641,6 @@ components:
         releaseNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: "the identifier for this release, also referred to as the advice\
             \ number or release number"
@@ -3961,8 +3664,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/ReleaseType"
         approvalDate:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved / effective
@@ -3971,8 +3672,6 @@ components:
           format: date-time
           nullable: false
         expirationDate:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this release is considered no longer valid
@@ -3981,8 +3680,6 @@ components:
           format: date-time
           nullable: false
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -4008,16 +3705,12 @@ components:
             to this release
         quantity:
           minimum: 0
-          required:
-          - "true"
           type: integer
           description: the number of shipping containers assigned to this release.
           format: int32
           example: 1
         details:
           minItems: 1
-          required:
-          - "true"
           type: array
           description: groups of like-criteria units
           nullable: false
@@ -4040,8 +3733,6 @@ components:
         contract:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the contract code for the given shipping containers
           nullable: false
@@ -4049,8 +3740,6 @@ components:
         equipment:
           maxLength: 10
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the equipment type ISO code or an internal code if one does
             not exist for the given shipping containers
@@ -4059,8 +3748,6 @@ components:
         grade:
           maxLength: 10
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the current grade of the unit
           nullable: false
@@ -4101,8 +3788,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/UpgradeType"
         units:
-          required:
-          - "false"
           type: array
           description: "the specific units for this release if defined, if not, assumed\
             \ blanket (any unit matching criteria can be tied up to the quantity limit\
@@ -4111,8 +3796,6 @@ components:
           items:
             $ref: "#/components/schemas/ReleaseUnit"
         criteria:
-          required:
-          - "false"
           type: array
           description: 'additional criteria beyond the required properties of this
             detail to further restrict units.  i.e. <= 2003 manufacture year. '
@@ -4120,8 +3803,6 @@ components:
           items:
             $ref: "#/components/schemas/ReleaseDetailCriteria"
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -4131,31 +3812,23 @@ components:
             example: An example detail level comment.
         quantity:
           minimum: 0
-          required:
-          - "true"
           type: integer
           description: the number of shipping containers assigned to this detail
           format: int32
           nullable: false
           example: 1
         preTripInspectionRequired:
-          required:
-          - "false"
           type: boolean
           description: indicator if mechanical equipment must be tested prior to lease
             out
           nullable: true
         desiredTemperature:
-          required:
-          - "false"
           type: integer
           description: the reefer setpoint / desired temperature in Celsius
           format: int32
           nullable: true
           example: -23
         desiredHumidity:
-          required:
-          - "false"
           type: integer
           description: the reefer desired humidity percentage
           format: int32
@@ -4164,8 +3837,6 @@ components:
         ventilation:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: "if the equipment has fresh air ventilation, the rate of the\
             \ fresh air ventilation"
@@ -4183,8 +3854,6 @@ components:
         fieldName:
           maxLength: 50
           minLength: 1
-          required:
-          - "true"
           type: string
           description: a legible field name
           nullable: false
@@ -4192,8 +3861,6 @@ components:
         fieldId:
           maxLength: 30
           minLength: 1
-          required:
-          - "true"
           type: string
           description: an abbreviated form of the field name
           nullable: false
@@ -4201,8 +3868,6 @@ components:
         fieldDescription:
           maxLength: 255
           minLength: 1
-          required:
-          - "true"
           type: string
           description: an explanation of what the field value is
           nullable: false
@@ -4210,8 +3875,6 @@ components:
         fieldValue:
           maxLength: 500
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the value of the field
           nullable: false
@@ -4252,15 +3915,11 @@ components:
           maxLength: 11
           minLength: 1
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: the current unit number of the shipping container
           nullable: false
           example: CONU1234561
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -4279,15 +3938,11 @@ components:
           allOf:
           - $ref: "#/components/schemas/ReleaseUnitStatus"
         carbCompliant:
-          required:
-          - "false"
           type: boolean
           description: "specific to Genset equipment, indicator for California Air\
             \ Resources Board compliance"
           nullable: true
         manufactureDate:
-          required:
-          - "false"
           type: string
           description: |-
             date and month this unit was manufactured
@@ -4322,8 +3977,6 @@ components:
         workOrderNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the identifier of the work order to repair complete
           nullable: false
@@ -4334,8 +3987,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/Party"
         completionDate:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2018-04-10T19:37:04Z`) that this work order was repaired.
@@ -4347,8 +3998,6 @@ components:
           maxLength: 11
           minLength: 10
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: the unit number of the shipping container at the time of repair
             approval
@@ -4440,9 +4089,7 @@ components:
           allOf:
           - $ref: "#/components/schemas/UnitOfMeasure"
         depth:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: the measurement of the tire depth
           format: double
@@ -4541,8 +4188,6 @@ components:
       type: object
       properties:
         relatedId:
-          required:
-          - "false"
           type: integer
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -4554,8 +4199,6 @@ components:
         workOrderNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the identifier for this work order; this will be the approval
             number for repairs
@@ -4579,15 +4222,11 @@ components:
         type:
           maxLength: 11
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the type of repair approved
           nullable: false
           example: SELLCWCA
         approvalDate:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2017-05-10T19:37:04Z`) that this work order is authorized for repair
@@ -4596,26 +4235,20 @@ components:
           format: date-time
           nullable: false
         approvalTotal:
-          required:
-          - "false"
           type: number
           description: the total amount approved for repair
           format: double
           nullable: true
-          example: 175
+          example: 175.00
         approvalCurrency:
           maxLength: 3
           minLength: 3
           pattern: "^[A-Z]{3}$"
-          required:
-          - "false"
           type: string
           description: the currency of the approval total
           nullable: true
           example: EUR
         expirationDate:
-          required:
-          - "false"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this repair must be completed by
@@ -4626,8 +4259,6 @@ components:
         comments:
           maxLength: 500
           minLength: 1
-          required:
-          - "false"
           type: string
           description: comments pertaining to this repair for the intended recipient
             of this message
@@ -4636,8 +4267,6 @@ components:
         lineItems:
           maxItems: 200
           minItems: 1
-          required:
-          - "true"
           type: array
           description: units associated to this work order
           nullable: false
@@ -4655,8 +4284,6 @@ components:
         estimateNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "false"
           type: string
           description: The estimate number that initiated this unit on this work order
           nullable: true
@@ -4665,8 +4292,6 @@ components:
           maxLength: 11
           minLength: 10
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: the unit number of the shipping container at the time of repair
             approval
@@ -4675,8 +4300,6 @@ components:
         effectiveInspectionCriteria:
           maxLength: 10
           minLength: 1
-          required:
-          - "true"
           type: string
           description: repair the shipping container to this grade or category standard
           nullable: false
@@ -4685,16 +4308,12 @@ components:
           maxLength: 11
           minLength: 10
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "false"
           type: string
           description: the unit number to remark the shipping container on repair
           nullable: true
         releaseNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the Release approved for gate out after repair
           nullable: true
@@ -4711,8 +4330,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/WorkOrderUnitStatus"
         approvals:
-          required:
-          - "false"
           type: array
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -4734,13 +4351,11 @@ components:
           allOf:
           - $ref: "#/components/schemas/EstimateAllocationType"
         approvalTotal:
-          required:
-          - "true"
           type: number
           description: the total amount approved for this specific estimate type
           format: double
           nullable: false
-          example: 175
+          example: 175.00
       description: |-
         *Type is currently proposed to be added - not currently production approved.*
 

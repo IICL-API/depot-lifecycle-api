@@ -12,10 +12,11 @@ group "depotlifecycle"
 
 dependencies {
     // Lombok provided by gradle program to ensure it runs prior to micronaut processors
+    annotationProcessor("org.yaml:snakeyaml")
     annotationProcessor("io.micronaut.validation:micronaut-validation-processor")
     annotationProcessor("io.micronaut.data:micronaut-data-processor")
-    annotationProcessor("io.micronaut.openapi:micronaut-openapi:6.12.3")
-    annotationProcessor("io.micronaut.security:micronaut-security-annotations")
+    annotationProcessor("io.micronaut.openapi:micronaut-openapi:7.0.0")
+    annotationProcessor("io.micronaut.security:micronaut-security-processor")
     implementation("io.micronaut.validation:micronaut-validation")
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut:micronaut-jackson-databind")
@@ -33,10 +34,10 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.yaml:snakeyaml")
-    aotPlugins platform("io.micronaut.platform:micronaut-platform:4.6.2")
+    aotPlugins platform("io.micronaut.platform:micronaut-platform:5.0.4")
     aotPlugins("io.micronaut.security:micronaut-security-aot")
 
     constraints {
-        lombok 'org.projectlombok:lombok:1.18.34'
+        lombok 'org.projectlombok:lombok:1.18.46'
     }
 }
