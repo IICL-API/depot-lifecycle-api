@@ -256,43 +256,38 @@ info:
     \ and remove erroneous `required` entries (Micronaut OpenAPI 7 generator fixes).\n\
     \    - (api, client, server) Add optional `transportType` to GateCreateRequest\
     \ and GateUpdateRequest to indicate how the shipping container was transported.\n\
-    \    - (doc) Add a `Lifecycle Process Flows` section documenting the standard\
-    \ damage repair cycle, undamaged / direct work order / sell variations, and the\
-    \ proposed multiple-estimates-in-a-single-transmission process with illustrative\
-    \ examples.\n    - (api) Multiple estimate proposal - add proposed `allocationsByType`\
-    \ breakdown to EstimateAllocation so estimate create / approve responses return\
-    \ the per-type allocations.\n    - (doc) Multiple estimate proposal - clarify\
-    \ that the estimate types are cumulative (additional types carry only additive\
-    \ line items), that customer approval always applies to the primary repair, that\
-    \ work orders list an approval for every estimate type performed against the latest\
-    \ revision, and that cancellation applies to all types in the transmission.\n\
-    \    - (doc) Clarify that work order `type` codes are not standardized by this\
-    \ API and that `SELL` is a trading partner convention.\n    - (doc) Clarify that\
-    \ work orders always apply to the latest revision of the referenced estimate and\
-    \ that direct work orders (no estimate) may cover multiple units.\n\n\n # Security\
-    \ & Authentication\n\n To ensure secure communication, all endpoints of this API\
-    \ should use the https protocol instead of http.  Authentication methods will\
-    \ differ between systems, but two popular methods are JSON Web Tokens and Static\
-    \ Tokens.  Examples for both of these follow.\n\n\n## JSON Web Token\n\n [JSON\
-    \ Web Token, or JWT](https://jwt.io/), is used for stateless authentication. \
-    \ Since all requests are sent using https, tokens are not encrypted.  Tokens follow\
-    \ the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\n\
-    \n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\",\n\t\"roles\"\
-    : [\n\t\t\"ROLE_GATE_CREATE\",\n\t\t\"ROLE_GATE_UPDATE\"\n\t],\n\t\"email\":\"\
-    j.doe@example.com\",\n\t\"token_type\":\"Bearer\",\n\t\"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
-    ,\n\t\"expires_in\":3600,        \n\t\"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
-    \n }\n ```\n\n An access_token is provided for authentication to API endpoints\
-    \ and a refresh_token is provided to generate a new access_token when one expires.\n\
-    \n\n ### 2. Obtaining an access token\n\n Issuing a POST request to `/api/login`\
-    \ with a username and password payload will cause a JWT token to be issued in\
-    \ the response.\n\n\n ```\n POST /api/login HTTP/1.1\n Content-Type: text/plain;\
-    \ charset=utf-8\n Host: www.example.com\n\n\n {\n\t\"username\": \"jdoe\",\n\t\
-    \"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired token\n\
-    \n Tokens created by invoking the login endpoint expire after a determined period.\
-    \  Issuing a POST request to `/oauth/access_token` with: the refresh_token from\
-    \ the JWT token previously issued and a grant_type of refresh_token will reissue\
-    \ a new JWT token.\n\n ```\n POST /oauth/access_token HTTP/1.1\n Host: www.example.com\n\
-    \ Content-Type: application/x-www-form-urlencoded\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
+    \    - (doc) Add a `Lifecycle Process Flows` section documenting how the multiple\
+    \ estimate workflow & other workflows commonly work.\n    - (api) Revised multiple\
+    \ estimate workflow.\n    - (api, client, server) Add a new proposed (alpha) `inventory`\
+    \ API - `GET /api/v2/inventory/{depot}` - to fetch the current inventory status\
+    \ of shipping containers at a depot for near real time status reconciliation between\
+    \ depot and owner systems.  Either party may implement it; the response reports\
+    \ that system's view of the depot's inventory.\n    - (server) Maintain the example\
+    \ depot inventory as gates, estimates, work orders, repair completes, and releases\
+    \ are processed so the inventory API can be exercised end to end.\n    - (client)\
+    \ Add sample client support for fetching depot inventory.\n\n\n # Security & Authentication\n\
+    \n To ensure secure communication, all endpoints of this API should use the https\
+    \ protocol instead of http.  Authentication methods will differ between systems,\
+    \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
+    \ both of these follow.\n\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
+    \ is used for stateless authentication.  Since all requests are sent using https,\
+    \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
+    \ format.\n\n\n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\"\
+    ,\n\t\"roles\": [\n\t\t\"ROLE_GATE_CREATE\",\n\t\t\"ROLE_GATE_UPDATE\"\n\t],\n\
+    \t\"email\":\"j.doe@example.com\",\n\t\"token_type\":\"Bearer\",\n\t\"access_token\"\
+    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\t\"expires_in\":3600,        \n\t\"refresh_token\"\
+    :\"eyJhbGciOiJIUzI1NiJ9...\"\n }\n ```\n\n An access_token is provided for authentication\
+    \ to API endpoints and a refresh_token is provided to generate a new access_token\
+    \ when one expires.\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
+    \ request to `/api/login` with a username and password payload will cause a JWT\
+    \ token to be issued in the response.\n\n\n ```\n POST /api/login HTTP/1.1\n Content-Type:\
+    \ text/plain; charset=utf-8\n Host: www.example.com\n\n\n {\n\t\"username\": \"\
+    jdoe\",\n\t\"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired\
+    \ token\n\n Tokens created by invoking the login endpoint expire after a determined\
+    \ period.  Issuing a POST request to `/oauth/access_token` with: the refresh_token\
+    \ from the JWT token previously issued and a grant_type of refresh_token will\
+    \ reissue a new JWT token.\n\n ```\n POST /oauth/access_token HTTP/1.1\n Host:\
+    \ www.example.com\n Content-Type: application/x-www-form-urlencoded\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
     \ ```\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked if\
     \ it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n GET\
     \ /api/validate HTTP/1.1\n Host: www.example.com\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n\
@@ -323,6 +318,12 @@ security:
 - Dynamic_Token: []
 - Static_Token: []
 tags:
+- name: inventory
+  description: |-
+    *This API is only proposed at this time and is in an alpha state - it is not production approved and may change without notice.*
+
+    *near real time inventory status of shipping containers at a depot for status reconciliation between depot and owner systems*
+  x-displayName: Inventory
 - name: estimate photos
   description: '*estimate photo uploads*'
 - name: gate photos
@@ -440,6 +441,12 @@ tags:
   description: "<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\"\
     \ showReadOnly={false}/>"
   x-displayName: RepairComplete
+- name: m_inventory_snapshot
+  description: <SchemaDefinition schemaRef="#/components/schemas/InventorySnapshot"/>
+  x-displayName: InventorySnapshot
+- name: m_inventory_unit
+  description: <SchemaDefinition schemaRef="#/components/schemas/InventoryUnit"/>
+  x-displayName: InventoryUnit
 paths:
   /api/v2/estimate:
     get:
@@ -1195,6 +1202,79 @@ paths:
       security:
       - JWT_TOKEN: []
       x-iicl-purpose: activity
+  /api/v2/inventory/{depot}:
+    get:
+      tags:
+      - inventory
+      summary: fetch current inventory for a depot
+      description: |-
+        *This API is only proposed at this time and is in an alpha state - it is not production approved and may change without notice.*
+
+        Lists the shipping containers currently on site at the given depot for the calling party, with the responding system's current lifecycle status for each.  This is a reporting only snapshot intended for near real time inventory status reconciliation; it does not replace gate records.  Either the depot or the owner may implement this API - the response reports that system's view of the depot's inventory and the caller compares it against its own.
+      operationId: indexInventory
+      parameters:
+      - name: depot
+        in: path
+        description: the identifier of the depot
+        required: true
+        schema:
+          maxLength: 9
+          pattern: "^[A-Z0-9]{9}$"
+          type: string
+          example: DEHAMCMRA
+      - name: unitNumber
+        in: query
+        description: the unit number of the shipping container to filter to
+        explode: false
+        schema:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          type: string
+          nullable: true
+          example: CONU1234561
+      - name: status
+        in: query
+        description: the inventory status to filter to
+        explode: false
+        schema:
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/InventoryStatus"
+      - name: statusChangedAfter
+        in: query
+        description: |-
+          only include shipping containers whose status changed after this date and time; used for cheap delta pulls between full snapshots
+
+          ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+        explode: false
+        schema:
+          type: string
+          format: date-time
+          nullable: true
+      responses:
+        "200":
+          description: successfully fetched the depot inventory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventorySnapshot"
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: fetching depot inventory is disallowed by security
+        "404":
+          description: the depot could not be found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - JWT_TOKEN: []
+      x-iicl-purpose: reporting
   /api/v2/redelivery:
     get:
       tags:
@@ -3317,6 +3397,229 @@ components:
             $ref: "#/components/schemas/EstimateLineItemPart"
       description: describes the type of insurance coverage a given shipping container
         has for a damage repair
+    InventorySnapshot:
+      required:
+      - depot
+      - reportedBy
+      - snapshotDateTime
+      - units
+      type: object
+      properties:
+        reportedBy:
+          description: "the party whose system produced this view of the depot inventory;\
+            \ since either the depot or the owner may implement this API, this identifies\
+            \ whose view is being reported"
+          allOf:
+          - $ref: "#/components/schemas/Party"
+        depot:
+          description: the storage location this inventory list is for
+          allOf:
+          - $ref: "#/components/schemas/Party"
+        snapshotDateTime:
+          type: string
+          description: |-
+            the date and time in local time this inventory view was produced; compare unit statuses as of this moment, not the moment the response is read
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+          nullable: false
+        units:
+          type: array
+          description: the shipping containers currently at the depot for the calling
+            party that match the search criteria; an empty array indicates no matching
+            shipping containers are on site
+          nullable: false
+          items:
+            $ref: "#/components/schemas/InventoryUnit"
+      description: |-
+        *This model is only proposed at this time and is in an alpha state - it is not production approved and may change without notice.*
+
+        a point in time view of the shipping containers at a depot for the calling party, as seen by the responding system; used for near real time inventory status reconciliation between depot and owner systems
+    InventoryStatus:
+      type: string
+      description: "Describes where the shipping container currently is in the depot\
+        \ lifecycle.  This status intentionally only conveys lifecycle position; the\
+        \ quality of the unit is reported separately as a grade and holds are reported\
+        \ separately as a flag: \n\n`AWAITING_ESTIMATE` - gated in damaged and no\
+        \ estimate has been submitted\n\n`AWAITING_CUSTOMER_APPROVAL` - an estimate\
+        \ revision is awaiting customer approval\n\n`AWAITING_OWNER_DECISION` - the\
+        \ estimate is awaiting the owner decision (work order)\n\n`REPAIR_AUTHORIZED`\
+        \ - a work order authorizes repair and the repair is not yet complete\n\n\
+        `AVAILABLE` - available for lease out\n\n`FOR_SALE` - designated for sale\n\
+        \n`SOLD` - sold and awaiting removal\n\n`TIED_OUTBOUND` - allocated to an\
+        \ outbound release / booking"
+      example: AVAILABLE
+      enum:
+      - AWAITING_ESTIMATE
+      - AWAITING_CUSTOMER_APPROVAL
+      - AWAITING_OWNER_DECISION
+      - REPAIR_AUTHORIZED
+      - AVAILABLE
+      - FOR_SALE
+      - SOLD
+      - TIED_OUTBOUND
+    InventoryUnit:
+      required:
+      - status
+      - statusDateTime
+      - unitNumber
+      type: object
+      properties:
+        unitNumber:
+          maxLength: 11
+          minLength: 1
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          type: string
+          description: the current unit number of the shipping container
+          nullable: false
+          example: CONU1234561
+        equipment:
+          maxLength: 10
+          minLength: 1
+          type: string
+          description: the equipment type ISO code or an internal code if one does
+            not exist for the given shipping container
+          nullable: true
+          example: 22G1
+        status:
+          description: "Describes where the shipping container currently is in the\
+            \ depot lifecycle.  This status intentionally only conveys lifecycle position;\
+            \ the quality of the unit is reported separately as a grade and holds\
+            \ are reported separately as a flag: \n\n`AWAITING_ESTIMATE` - gated in\
+            \ damaged and no estimate has been submitted\n\n`AWAITING_CUSTOMER_APPROVAL`\
+            \ - an estimate revision is awaiting customer approval\n\n`AWAITING_OWNER_DECISION`\
+            \ - the estimate is awaiting the owner decision (work order)\n\n`REPAIR_AUTHORIZED`\
+            \ - a work order authorizes repair and the repair is not yet complete\n\
+            \n`AVAILABLE` - available for lease out\n\n`FOR_SALE` - designated for\
+            \ sale\n\n`SOLD` - sold and awaiting removal\n\n`TIED_OUTBOUND` - allocated\
+            \ to an outbound release / booking"
+          example: AVAILABLE
+          allOf:
+          - $ref: "#/components/schemas/InventoryStatus"
+        statusDateTime:
+          type: string
+          description: |-
+            the date and time in local time the shipping container entered the current status; used to buffer in-flight status transitions from reconciliation noise
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+          nullable: false
+        currentGrade:
+          maxLength: 10
+          minLength: 1
+          type: string
+          description: the grade / category the shipping container currently holds
+          nullable: true
+          example: IICL
+        targetGrade:
+          maxLength: 10
+          minLength: 1
+          type: string
+          description: the grade / category the shipping container is expected to
+            hold when work is complete - often used in lieu of an estimate inspection
+            criteria.
+          nullable: true
+          example: IICL
+        onHold:
+          type: boolean
+          description: indicates the shipping container is on hold; a hold is reported
+            separately from the lifecycle status since a unit may be held at any lifecycle
+            position
+          nullable: true
+          example: false
+          default: false
+        holdReason:
+          maxLength: 255
+          minLength: 1
+          type: string
+          description: "if the shipping container is on hold, an optional explanation\
+            \ of the hold"
+          nullable: true
+          example: technical hold - pending bulletin TB1234
+        damaged:
+          type: boolean
+          description: an indicator of whether the shipping container is currently
+            considered damaged
+          nullable: true
+          example: false
+        gateInDateTime:
+          type: string
+          description: |-
+            the date and time in local time the shipping container gated in to the depot
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+          nullable: true
+        primaryRepairCompleteDateTime:
+          type: string
+          description: |-
+            the date and time in local time the primary damage repair (see the primary estimate types of `EstimateType`) was completed, if it has been
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+          nullable: true
+        inCustomer:
+          description: the customer that turned the shipping container in to the depot
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/ExternalParty"
+        redeliveryNumber:
+          maxLength: 16
+          minLength: 1
+          type: string
+          description: the redelivery advice number the shipping container turned
+            in against
+          nullable: true
+          example: AHAMG000000
+        estimateNumber:
+          maxLength: 16
+          minLength: 1
+          type: string
+          description: "if an estimate exists for the shipping container, the estimate\
+            \ number"
+          nullable: true
+          example: DEHAMCE1856373
+        estimateRevision:
+          type: integer
+          description: "if an estimate exists for the shipping container, the current\
+            \ revision of that estimate"
+          format: int32
+          nullable: true
+          example: 0
+        workOrderNumber:
+          maxLength: 16
+          minLength: 1
+          type: string
+          description: "if a work order authorizes activity for the shipping container,\
+            \ the work order number"
+          nullable: true
+          example: WHAMG46019
+        outCustomer:
+          description: the customer the shipping container is allocated to lease out
+            to
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/ExternalParty"
+        releaseNumber:
+          maxLength: 16
+          minLength: 1
+          type: string
+          description: "if the shipping container is allocated outbound, the release\
+            \ advice number authorizing it to leave the depot"
+          nullable: true
+          example: RHAMG000000
+        comments:
+          type: array
+          description: comments pertaining to this unit for the intended recipient
+            of this message
+          nullable: false
+          items:
+            type: string
+            example: An example unit level comment.
+      description: |-
+        *This model is only proposed at this time and is in an alpha state - it is not production approved and may change without notice.*
+
+        the current status of a shipping container in a depot's inventory
     MachineryInfo:
       type: object
       properties:
@@ -4543,6 +4846,9 @@ components:
       scheme: bearer
       bearerFormat: JWT
 x-tagGroups:
+- name: "API: Proposed (Alpha)"
+  tags:
+  - inventory
 - name: "API: Under Development (Beta)"
   tags:
   - estimate photos
@@ -4585,3 +4891,5 @@ x-tagGroups:
   - m_work_order
   - m_work_order_unit
   - m_repair_complete
+  - m_inventory_snapshot
+  - m_inventory_unit

@@ -13,6 +13,7 @@ import depotlifecycle.repositories.repair.EstimateRepository;
 import depotlifecycle.repositories.repair.InsuranceCoverageRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
+import depotlifecycle.system.InventoryUpdater;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.data.model.Pageable;
@@ -63,6 +64,7 @@ public class EstimateController {
     private final EstimateCustomerApprovalRepository estimateCustomerApprovalRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
+    private final InventoryUpdater inventoryUpdater;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for estimate(s)",
@@ -141,6 +143,9 @@ public class EstimateController {
         saveParties(estimate);
 
         estimateRepository.save(estimate);
+
+        //Reflect the estimate activity in the example depot inventory
+        inventoryUpdater.recordEstimate(estimate);
 
         //Generate an example allocation for the purposes of this demo
         EstimateAllocation allocation = new EstimateAllocation();

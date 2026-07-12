@@ -10,6 +10,7 @@ import depotlifecycle.repositories.repair.WorkOrderRepository;
 import depotlifecycle.repositories.repair.WorkOrderUnitRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
+import depotlifecycle.system.InventoryUpdater;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.*;
 import io.micronaut.http.annotation.Body;
@@ -48,6 +49,7 @@ public class WorkOrderUnitController {
     private final WorkOrderUnitRepository workOrderUnitRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
+    private final InventoryUpdater inventoryUpdater;
 
     @Put(uri = "/{workOrderNumber}", produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "marks a shipping container repaired",
@@ -95,6 +97,9 @@ public class WorkOrderUnitController {
             unit.get().setStatus(WorkOrderUnitStatus.REPAIRED);
             workOrderUnitRepository.save(unit.get());
         }
+
+        //Reflect the repair completion in the example depot inventory
+        workOrder.map(WorkOrder::getDepot).ifPresent(depot -> inventoryUpdater.recordRepairComplete(depot, repairComplete));
 
 
         return HttpResponse.ok();

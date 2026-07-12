@@ -16,6 +16,7 @@ import depotlifecycle.repositories.gate.GateDeleteRequestRepository;
 import depotlifecycle.repositories.gate.GateUpdateRequestRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
+import depotlifecycle.system.InventoryUpdater;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.*;
 import io.micronaut.http.annotation.Error;
@@ -57,6 +58,7 @@ public class GateController {
     private final GateDeleteRequestRepository gateDeleteRequestRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
+    private final InventoryUpdater inventoryUpdater;
 
     @Post(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "create a gate record",
@@ -91,6 +93,9 @@ public class GateController {
         }
 
         gateCreateRequest = gateCreateRequestRepository.save(gateCreateRequest);
+
+        //Reflect the gate activity in the example depot inventory
+        inventoryUpdater.recordGate(gateCreateRequest);
 
         //Generate an example gate for the purposes of this demo
         GateResponse gate = new GateResponse();

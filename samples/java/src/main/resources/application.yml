@@ -278,6 +278,9 @@ depotlifecycle:
             - (api, client, server) Add optional `transportType` to GateCreateRequest and GateUpdateRequest to indicate how the shipping container was transported.
             - (doc) Add a `Lifecycle Process Flows` section documenting how the multiple estimate workflow & other workflows commonly work.
             - (api) Revised multiple estimate workflow.
+            - (api, client, server) Add a new proposed (alpha) `inventory` API - `GET /api/v2/inventory/{depot}` - to fetch the current inventory status of shipping containers at a depot for near real time status reconciliation between depot and owner systems.  Either party may implement it; the response reports that system's view of the depot's inventory.
+            - (server) Maintain the example depot inventory as gates, estimates, work orders, repair completes, and releases are processed so the inventory API can be exercised end to end.
+            - (client) Add sample client support for fetching depot inventory.
 
 
          # Security & Authentication

@@ -10,6 +10,7 @@ import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.release.ReleaseRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
+import depotlifecycle.system.InventoryUpdater;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.*;
@@ -60,6 +61,7 @@ public class ReleaseController {
     private final ConversionService conversionService;
     private final SecurityService securityService;
     private final ExternalPartyRepository externalPartyRepository;
+    private final InventoryUpdater inventoryUpdater;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a release",
@@ -131,6 +133,10 @@ public class ReleaseController {
         saveParties(release);
 
         releaseRepository.save(release);
+
+        //Reflect the outbound allocation in the example depot inventory
+        inventoryUpdater.recordRelease(release);
+
         return HttpResponse.ok();
     }
 

@@ -7,6 +7,7 @@ import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.repair.WorkOrderRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
+import depotlifecycle.system.InventoryUpdater;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.*;
 import io.micronaut.http.annotation.Body;
@@ -44,6 +45,7 @@ public class WorkOrderController {
     private final WorkOrderRepository workOrderRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
+    private final InventoryUpdater inventoryUpdater;
 
     @Post(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "authorizes a repair",
@@ -71,6 +73,9 @@ public class WorkOrderController {
         saveParties(workOrder);
 
         workOrderRepository.save(workOrder);
+
+        //Reflect the repair authorization in the example depot inventory
+        inventoryUpdater.recordWorkOrder(workOrder);
 
         return HttpResponse.ok();
     }

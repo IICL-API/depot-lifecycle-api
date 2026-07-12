@@ -1,11 +1,14 @@
 package depotlifecycle;
 
 import depotlifecycle.domain.*;
+import depotlifecycle.domain.inventory.InventoryStatus;
+import depotlifecycle.domain.inventory.InventoryUnit;
 import depotlifecycle.domain.redelivery.*;
 import depotlifecycle.domain.release.*;
 import depotlifecycle.domain.repair.InsuranceCoverage;
 import depotlifecycle.repositories.ExternalPartyRepository;
 import depotlifecycle.repositories.PartyRepository;
+import depotlifecycle.repositories.inventory.InventoryUnitRepository;
 import depotlifecycle.repositories.redelivery.RedeliveryRepository;
 import depotlifecycle.repositories.release.ReleaseRepository;
 import io.micronaut.context.event.StartupEvent;
@@ -47,6 +50,7 @@ import java.util.List;
     ),
     externalDocs = @ExternalDocumentation(description = "Find out more about this api", url = "https://github.com/IICL-API/depot-lifecycle-api"),
     tags = {
+        @Tag(name = "inventory", description = "*This API is only proposed at this time and is in an alpha state - it is not production approved and may change without notice.*\n\n*near real time inventory status of shipping containers at a depot for status reconciliation between depot and owner systems*", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="Inventory")})}),
         @Tag(name = "estimate photos", description = "*estimate photo uploads*"),
         @Tag(name = "gate photos", description = "*gate photo uploads*"),
         @Tag(name = "redelivery", description = "*turn in approval for shipping containers*"),
@@ -82,10 +86,12 @@ import java.util.List;
         @Tag(name="m_estimate_customer_approval", description="<SchemaDefinition schemaRef=\"#/components/schemas/EstimateCustomerApproval\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="EstimateCustomerApproval")})}),
         @Tag(name="m_work_order", description="<SchemaDefinition schemaRef=\"#/components/schemas/WorkOrder\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="WorkOrder")})}),
         @Tag(name="m_work_order_unit", description="<SchemaDefinition schemaRef=\"#/components/schemas/WorkOrderUnit\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="WorkOrderUnit")})}),
-        @Tag(name="m_repair_complete", description="<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="RepairComplete")})})
+        @Tag(name="m_repair_complete", description="<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\" showReadOnly={false}/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="RepairComplete")})}),
+        @Tag(name="m_inventory_snapshot", description="<SchemaDefinition schemaRef=\"#/components/schemas/InventorySnapshot\"/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="InventorySnapshot")})}),
+        @Tag(name="m_inventory_unit", description="<SchemaDefinition schemaRef=\"#/components/schemas/InventoryUnit\"/>", extensions = { @Extension(properties = {@ExtensionProperty(name = "x-displayName", value="InventoryUnit")})})
     },
     extensions = {
-        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Under Development (Beta)\", \"tags\": [\"estimate photos\", \"gate photos\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [  \"redelivery\", \"release\", \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_tax_rate\", \"m_estimate_allocation\", \"m_estimate_allocation_type\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\" ] }]", parseValue = true)})
+        @Extension(properties = {@ExtensionProperty(name = "tagGroups", value = "[{ \"name\": \"API: Proposed (Alpha)\", \"tags\": [\"inventory\" ] }, { \"name\": \"API: Under Development (Beta)\", \"tags\": [\"estimate photos\", \"gate photos\" ] }, { \"name\": \"API: Production Ready\", \"tags\": [  \"redelivery\", \"release\", \"gate\", \"estimate\", \"workOrder\" ] }, { \"name\": \"Models\", \"tags\": [ \"m_error_response\", \"m_insurance_coverage\", \"m_party\", \"m_pending_response\", \"m_redelivery\", \"m_redelivery_detail\", \"m_redelivery_unit\", \"m_release\", \"m_release_detail\", \"m_release_detail_criteria\", \"m_release_unit\", \"m_gate_create\", \"m_gate_photo\", \"m_gate_response\", \"m_gate_status\", \"m_gate_update_request\", \"m_estimate\", \"m_estimate_photo\", \"m_estimate_line_item\", \"m_estimate_line_item_part\", \"m_estimate_line_item_photo\", \"m_estimate_tax_rate\", \"m_estimate_allocation\", \"m_estimate_allocation_type\", \"m_preliminary_decision\", \"m_estimate_customer_approval\", \"m_work_order\", \"m_work_order_unit\", \"m_repair_complete\", \"m_inventory_snapshot\", \"m_inventory_unit\" ] }]", parseValue = true)})
     },
     servers = {
         @Server(url = "https://api.example.com/examplecontextpath")
@@ -117,6 +123,7 @@ public class Application {
     private final ReleaseRepository releaseRepository;
     private final PartyRepository partyRepository;
     private final ExternalPartyRepository externalPartyRepository;
+    private final InventoryUnitRepository inventoryUnitRepository;
 
     public static void main(String[] args) {
         Micronaut.run(Application.class);
@@ -165,6 +172,64 @@ public class Application {
 
         buildRedeliveries(depot1, depot2, customer, owner);
         buildReleases(depot1, depot2, customer, owner);
+        buildInventory(depot1, customer);
+    }
+
+    private void buildInventory(Party depot, ExternalParty customer) {
+        InventoryUnit awaitingEstimate = new InventoryUnit();
+        awaitingEstimate.setDepot(depot);
+        awaitingEstimate.setUnitNumber("CONU1234561");
+        awaitingEstimate.setEquipment("22G1");
+        awaitingEstimate.setStatus(InventoryStatus.AWAITING_ESTIMATE);
+        awaitingEstimate.setStatusDateTime(getLocal(LocalDateTime.now().minusDays(2)));
+        awaitingEstimate.setDamaged(true);
+        awaitingEstimate.setTargetGrade("IICL");
+        awaitingEstimate.setGateInDateTime(getLocal(LocalDateTime.now().minusDays(2)));
+        awaitingEstimate.setInCustomer(customer);
+        awaitingEstimate.setRedeliveryNumber("AHAMG33141");
+        awaitingEstimate.setComments(List.of("Example inventory comment #1."));
+
+        InventoryUnit underRepair = new InventoryUnit();
+        underRepair.setDepot(depot);
+        underRepair.setUnitNumber("CONU1234526");
+        underRepair.setEquipment("22G2");
+        underRepair.setStatus(InventoryStatus.REPAIR_AUTHORIZED);
+        underRepair.setStatusDateTime(getLocal(LocalDateTime.now().minusDays(4)));
+        underRepair.setDamaged(true);
+        underRepair.setTargetGrade("CWCA");
+        underRepair.setGateInDateTime(getLocal(LocalDateTime.now().minusDays(12)));
+        underRepair.setInCustomer(customer);
+        underRepair.setRedeliveryNumber("AHAMG33141");
+        underRepair.setEstimateNumber("DEHAMCE1856373");
+        underRepair.setEstimateRevision(1);
+        underRepair.setWorkOrderNumber("WHAMG46019");
+
+        InventoryUnit tiedOutbound = new InventoryUnit();
+        tiedOutbound.setDepot(depot);
+        tiedOutbound.setUnitNumber("CONU1234592");
+        tiedOutbound.setEquipment("42G1");
+        tiedOutbound.setStatus(InventoryStatus.TIED_OUTBOUND);
+        tiedOutbound.setStatusDateTime(getLocal(LocalDateTime.now().minusDays(1)));
+        tiedOutbound.setDamaged(false);
+        tiedOutbound.setCurrentGrade("IICL");
+        tiedOutbound.setGateInDateTime(getLocal(LocalDateTime.now().minusMonths(1)));
+        tiedOutbound.setPrimaryRepairCompleteDateTime(getLocal(LocalDateTime.now().minusDays(9)));
+        tiedOutbound.setOutCustomer(customer);
+        tiedOutbound.setReleaseNumber("RHAMG134512");
+
+        InventoryUnit onHold = new InventoryUnit();
+        onHold.setDepot(depot);
+        onHold.setUnitNumber("CONU1234618");
+        onHold.setEquipment("22G1");
+        onHold.setStatus(InventoryStatus.AVAILABLE);
+        onHold.setStatusDateTime(getLocal(LocalDateTime.now().minusDays(30)));
+        onHold.setDamaged(false);
+        onHold.setCurrentGrade("CWCA");
+        onHold.setOnHold(true);
+        onHold.setHoldReason("technical hold - pending bulletin TB1234");
+        onHold.setGateInDateTime(getLocal(LocalDateTime.now().minusMonths(2)));
+
+        inventoryUnitRepository.saveAll(Arrays.asList(awaitingEstimate, underRepair, tiedOutbound, onHold));
     }
 
     private void buildReleases(Party depot1, Party depot2, ExternalParty customer, Party owner) {
