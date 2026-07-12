@@ -62,6 +62,98 @@ depotlifecycle:
          These APIs allow the Depot to report the initial gate in movement, issue gate data corrections (i.e. the damage status or activity date), participate in the estimate process (i.e. creation, surveys, and customer approval), notify when a shipping container is repaired, and create a gate out for leaving the depot.
 
 
+         # Lifecycle Process Flows
+
+         The following flows illustrate how the individual APIs combine to model the life of a shipping container inside a depot.  These are the common, suggested workflows - the exact sequence, parties involved, and which steps apply may vary by implementation and business relationship (see also `Implementation Expectations`).  JSON examples are abridged to the fields relevant to each step; refer to the schema definitions for complete payloads.
+
+         A key concept throughout: a **work order is an authorization for the depot to take action** on a shipping container - it is broader than "repair this unit".  Depots typically organize their yards into stacks (some possible examples include `to-estimate` stack, `to-fix` stack, `sell` stack, etc.) and a work order authorizes the move/action; the specifics vary by depot and are intentionally not modeled by this API.
+
+         ## Standard Damage Repair Cycle
+
+         The typical flow for a damaged shipping container turned in to a depot:
+
+         1. **Redelivery** (Owner -> Depot / Customer) - before a shipping container may arrive, the owner authorizes the customer to turn it in to the depot: `POST /api/v2/redelivery`.  Redeliveries are always initiated by the owner and may be transmitted to both the customer and the depot.  The redelivery advice is the depot's authority to accept the unit at the gate, and it communicates up front whether an estimate is allowed via the inspection criteria on the `RedeliveryUnit` (the estimation instructions).
+
+         2. **Gate In** (Depot -> Owner) - the depot reports the arrival: `POST /api/v2/gate` with `type` = `IN`, `status` = `D` (damaged), and the redelivery advice number.  When the unit is damaged an estimate is expected to be performed; the presence of inspection criteria (echoed back as `currentInspectionCriteria` on the `GateResponse`) is the indicator to the depot that estimation is allowed and to what grade.  The response also carries the applicable `insuranceCoverage` and `currentExchangeRate`.
+
+         3. **Initial estimate (revision 0)** (Depot -> Owner) - the depot surveys the damage and submits `POST /api/v2/estimate` with `condition` = `D`, `revision` = `0`, and the damage `lineItems`.  The response is an `EstimateAllocation`: the owner / customer / insurance split of the total, plus an optional `preliminaryDecision` indicating the likely repair-or-sell outcome.
+
+         4. **Revisions** (Depot -> Owner, or Owner -> Depot for surveys) - surveys and corrections produce further transmissions of the same `estimateNumber` with an incremented `revision` and an updated `condition` (`E` - customer surveyed, `L` - owner surveyed).  Each revision fully replaces the prior one.  When customer approval is required, the owner notifies the customer (Owner -> Customer) of each revision until the approval has been given.
+
+         5. **Customer approval** (Customer -> Owner, then Owner -> Depot) - when customer approval is required, the customer transmits the approval of their portion to the owner via `PUT /api/v2/estimate/{estimateNumber}` (an `EstimateCustomerApproval`); the owner then notifies the depot by sending an estimate revision with the `customerApproval` embedded and `condition` = `F` (approved, no survey) or `G` (approved, surveyed).  A depot that obtains the approval directly reports it to the owner the same way (Depot -> Owner revision).  In some relationships customer approval is implicit and the first revision is considered approved automatically.
+
+         6. **Owner approval = work order** (Owner -> Depot) - there is no "owner approved" estimate state; the owner's decision *is* the work order, and it always applies to the latest revision of the referenced estimate.  It arrives either as a `201` response to the estimate create/approve call or as a separate `POST /api/v2/workOrder` naming the estimate:
+
+            ```
+            {
+              "workOrderNumber": "WHAMG46019",
+              "type": "CWCA",
+              "approvalTotal": 175.00,
+              "lineItems": [ { "unitNumber": "CONU1234561", "estimateNumber": "DEHAMCE1856373", "status": "TIED", "effectiveInspectionCriteria": "CWCA-1" } ]
+            }
+            ```
+
+         7. **Repair complete** (Depot -> Owner) - when the depot finishes the repair it reports `PUT /api/v2/workOrderUnit/{workOrderNumber}` (a `RepairComplete`) and the unit becomes available.
+
+         8. **Release** (Owner -> Depot) - when the shipping container is leased out again, the owner issues the advice that approves it to leave the depot: `POST /api/v2/release`.  The release advice number authorizes the gate out.
+
+         9. **Gate Out** (Depot -> Owner) - the shipping container leaves the depot: `POST /api/v2/gate` with `type` = `OUT`, `status` = `A`, and the release advice number.
+
+         ## Variations
+
+         **Undamaged turn in** - a unit gated in with `status` = `A` needs no estimate; the flow is simply gate in, then eventually gate out.
+
+         **Direct work order (no estimate)** (Owner -> Depot) - a work order may be issued without any estimate, for example an ancillary upgrade to an undamaged container.  The `WorkOrderUnit` simply omits `estimateNumber`, and a work order not initiated by an estimate may cover multiple units.  The repair complete and gate out steps are unchanged.
+
+         **Sell authorization** (Owner -> Depot) - note that work order `type` codes are **not standardized** by this API; they vary by implementation and are agreed between trading partners.  A common convention is a `SELL` type: a zero-amount work order indicating the container will be sold rather than repaired.  A sell authorization is considered completed automatically - a repair complete message is never sent for it.
+
+         ## Multiple Estimates in a Single Transmission
+
+         *This process is currently a proposal - it is not production approved and the fields it relies upon are individually marked as proposed in the schema definitions.*
+
+         Sometimes an owner needs several what-if estimates for the same shipping container - typically to decide whether, while repairing it, the container should also be upgraded (e.g. a plain CWCA repair versus repair plus food grade upgrade).  Estimate writer time is expensive, so the additional scenarios are written up together with the primary repair as a set rather than as separate estimates - the proposal transmits that set in a single estimate:
+
+         - One `Estimate` is sent (Depot -> Owner) with a single `estimateNumber` and a combined `total`.
+         - **The estimates are cumulative** - the primary repair (e.g. `RC`) contains the repair line items; each additional estimate type (e.g. an `AU` ancillary food grade upgrade) contains only its *additive* line items on top of the primary repair.  Because the set is cumulative it shares one `condition` and one `revision`, and a cancellation cancels every estimate type in the transmission.
+         - Each line item is tagged with the estimate type(s) it belongs to via `allocationTypes` (a combination of estimate `type` and optional `upgradeType`).  A line item shared by several additional estimate types carries multiple tags; a line item with no tags belongs to the estimate's own `type` / `upgradeType`.
+         - The combined allocation is returned with a per-type breakdown in `allocationsByType`; each entry identifies its estimate via `allocationType` and carries the additive totals for that type.
+
+            ```
+            {
+              "estimateNumber": "DEHAMCE1856373",
+              "type": "RC",
+              "total": 800.00,
+              "lineItems": [
+                { "...": "damage repair (primary repair)", "allocationTypes": [ { "type": "RC" } ] },
+                { "...": "additive food grade upgrade work", "allocationTypes": [ { "type": "AU", "upgradeType": "FG" } ] }
+              ]
+            }
+            ```
+
+         - **Customer approval is unchanged** - the customer always approves the primary repair type only (their damage responsibility); the additional estimate types are owner concerns.
+         - **The owner selects via the work order** (Owner -> Depot) - because the estimates are cumulative, the `WorkOrderUnit` lists an approval in `approvals` (`allocationType` + `approvalTotal`) for *every* estimate type being performed.  For example, performing the food grade upgrade means both the primary `RC` approval and the additive `AU` / `FG` approval appear.  As always, the work order applies to the latest revision of the estimate.  Estimate types *not* included on the work order are implicitly declined; no separate cancellation is sent.
+
+            ```
+            {
+              "workOrderNumber": "WHAMG46019",
+              "type": "AU",
+              "approvalTotal": 800.00,
+              "lineItems": [ {
+                "unitNumber": "CONU1234561",
+                "estimateNumber": "DEHAMCE1856373",
+                "status": "TIED",
+                "effectiveInspectionCriteria": "CWCA-1",
+                "approvals": [
+                  { "allocationType": { "type": "RC" }, "approvalTotal": 500.00 },
+                  { "allocationType": { "type": "AU", "upgradeType": "FG" }, "approvalTotal": 300.00 }
+                ]
+              } ]
+            }
+            ```
+
+         - Repair complete and gate out then proceed exactly as in the standard cycle.
+
+
          # Depot Identifiers
 
          Depot or facility identifiers, henceforth referred to as `EDI Address`, `CompanyId`, or `Party Id` in this document, are maintained by The Bureau International des Containers (BIC) and officially known as the BIC Facility Code. For codes and more information please refer to [https://www.bic-code.org/bic-facility-codes](https://www.bic-code.org/bic-facility-codes/).
@@ -184,6 +276,8 @@ depotlifecycle:
             - (server, client) Update the sample application to Micronaut Framework 5 (Java 25 baseline, Gradle 9.5).
             - (doc) Correct the generated multipart photo upload schemas to type `object` and remove erroneous `required` entries (Micronaut OpenAPI 7 generator fixes).
             - (api, client, server) Add optional `transportType` to GateCreateRequest and GateUpdateRequest to indicate how the shipping container was transported.
+            - (doc) Add a `Lifecycle Process Flows` section documenting how the multiple estimate workflow & other workflows commonly work.
+            - (api) Revised multiple estimate workflow.
 
 
          # Security & Authentication

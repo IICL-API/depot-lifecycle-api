@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import depotlifecycle.domain.Party;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,10 +22,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @JsonView
@@ -97,4 +101,9 @@ public class EstimateAllocation {
     @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     @JoinColumn(name = "allocationType_id")
     EstimateAllocationType allocationType;
+
+    @ArraySchema(schema = @Schema(implementation = EstimateAllocation.class))
+    @Schema(description = "*Field is currently proposed to be added - not currently production approved.*\n\nwhen multiple estimates are sent in a single transmission, this represents a breakdown of this combined allocation by specific type (estimate type and upgrade type combinations); each entry identifies its estimate via `allocationType` and carries the additive totals for that type; this list is only populated on the combined (top level) allocation", required = false, nullable = false)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    List<EstimateAllocation> allocationsByType = new ArrayList<>();
 }

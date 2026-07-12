@@ -39,8 +39,123 @@ info:
     \ Depot to report the initial gate in movement, issue gate data corrections (i.e.\
     \ the damage status or activity date), participate in the estimate process (i.e.\
     \ creation, surveys, and customer approval), notify when a shipping container\
-    \ is repaired, and create a gate out for leaving the depot.\n\n\n # Depot Identifiers\n\
-    \n Depot or facility identifiers, henceforth referred to as `EDI Address`, `CompanyId`,\
+    \ is repaired, and create a gate out for leaving the depot.\n\n\n # Lifecycle\
+    \ Process Flows\n\n The following flows illustrate how the individual APIs combine\
+    \ to model the life of a shipping container inside a depot.  These are the common,\
+    \ suggested workflows - the exact sequence, parties involved, and which steps\
+    \ apply may vary by implementation and business relationship (see also `Implementation\
+    \ Expectations`).  JSON examples are abridged to the fields relevant to each step;\
+    \ refer to the schema definitions for complete payloads.\n\n A key concept throughout:\
+    \ a **work order is an authorization for the depot to take action** on a shipping\
+    \ container - it is broader than \"repair this unit\".  Depots typically organize\
+    \ their yards into stacks (some possible examples include `to-estimate` stack,\
+    \ `to-fix` stack, `sell` stack, etc.) and a work order authorizes the move/action;\
+    \ the specifics vary by depot and are intentionally not modeled by this API.\n\
+    \n ## Standard Damage Repair Cycle\n\n The typical flow for a damaged shipping\
+    \ container turned in to a depot:\n\n 1. **Redelivery** (Owner -> Depot / Customer)\
+    \ - before a shipping container may arrive, the owner authorizes the customer\
+    \ to turn it in to the depot: `POST /api/v2/redelivery`.  Redeliveries are always\
+    \ initiated by the owner and may be transmitted to both the customer and the depot.\
+    \  The redelivery advice is the depot's authority to accept the unit at the gate,\
+    \ and it communicates up front whether an estimate is allowed via the inspection\
+    \ criteria on the `RedeliveryUnit` (the estimation instructions).\n\n 2. **Gate\
+    \ In** (Depot -> Owner) - the depot reports the arrival: `POST /api/v2/gate` with\
+    \ `type` = `IN`, `status` = `D` (damaged), and the redelivery advice number. \
+    \ When the unit is damaged an estimate is expected to be performed; the presence\
+    \ of inspection criteria (echoed back as `currentInspectionCriteria` on the `GateResponse`)\
+    \ is the indicator to the depot that estimation is allowed and to what grade.\
+    \  The response also carries the applicable `insuranceCoverage` and `currentExchangeRate`.\n\
+    \n 3. **Initial estimate (revision 0)** (Depot -> Owner) - the depot surveys the\
+    \ damage and submits `POST /api/v2/estimate` with `condition` = `D`, `revision`\
+    \ = `0`, and the damage `lineItems`.  The response is an `EstimateAllocation`:\
+    \ the owner / customer / insurance split of the total, plus an optional `preliminaryDecision`\
+    \ indicating the likely repair-or-sell outcome.\n\n 4. **Revisions** (Depot ->\
+    \ Owner, or Owner -> Depot for surveys) - surveys and corrections produce further\
+    \ transmissions of the same `estimateNumber` with an incremented `revision` and\
+    \ an updated `condition` (`E` - customer surveyed, `L` - owner surveyed).  Each\
+    \ revision fully replaces the prior one.  When customer approval is required,\
+    \ the owner notifies the customer (Owner -> Customer) of each revision until the\
+    \ approval has been given.\n\n 5. **Customer approval** (Customer -> Owner, then\
+    \ Owner -> Depot) - when customer approval is required, the customer transmits\
+    \ the approval of their portion to the owner via `PUT /api/v2/estimate/{estimateNumber}`\
+    \ (an `EstimateCustomerApproval`); the owner then notifies the depot by sending\
+    \ an estimate revision with the `customerApproval` embedded and `condition` =\
+    \ `F` (approved, no survey) or `G` (approved, surveyed).  A depot that obtains\
+    \ the approval directly reports it to the owner the same way (Depot -> Owner revision).\
+    \  In some relationships customer approval is implicit and the first revision\
+    \ is considered approved automatically.\n\n 6. **Owner approval = work order**\
+    \ (Owner -> Depot) - there is no \"owner approved\" estimate state; the owner's\
+    \ decision *is* the work order, and it always applies to the latest revision of\
+    \ the referenced estimate.  It arrives either as a `201` response to the estimate\
+    \ create/approve call or as a separate `POST /api/v2/workOrder` naming the estimate:\n\
+    \n    ```\n    {\n      \"workOrderNumber\": \"WHAMG46019\",\n      \"type\":\
+    \ \"CWCA\",\n      \"approvalTotal\": 175.00,\n      \"lineItems\": [ { \"unitNumber\"\
+    : \"CONU1234561\", \"estimateNumber\": \"DEHAMCE1856373\", \"status\": \"TIED\"\
+    , \"effectiveInspectionCriteria\": \"CWCA-1\" } ]\n    }\n    ```\n\n 7. **Repair\
+    \ complete** (Depot -> Owner) - when the depot finishes the repair it reports\
+    \ `PUT /api/v2/workOrderUnit/{workOrderNumber}` (a `RepairComplete`) and the unit\
+    \ becomes available.\n\n 8. **Release** (Owner -> Depot) - when the shipping container\
+    \ is leased out again, the owner issues the advice that approves it to leave the\
+    \ depot: `POST /api/v2/release`.  The release advice number authorizes the gate\
+    \ out.\n\n 9. **Gate Out** (Depot -> Owner) - the shipping container leaves the\
+    \ depot: `POST /api/v2/gate` with `type` = `OUT`, `status` = `A`, and the release\
+    \ advice number.\n\n ## Variations\n\n **Undamaged turn in** - a unit gated in\
+    \ with `status` = `A` needs no estimate; the flow is simply gate in, then eventually\
+    \ gate out.\n\n **Direct work order (no estimate)** (Owner -> Depot) - a work\
+    \ order may be issued without any estimate, for example an ancillary upgrade to\
+    \ an undamaged container.  The `WorkOrderUnit` simply omits `estimateNumber`,\
+    \ and a work order not initiated by an estimate may cover multiple units.  The\
+    \ repair complete and gate out steps are unchanged.\n\n **Sell authorization**\
+    \ (Owner -> Depot) - note that work order `type` codes are **not standardized**\
+    \ by this API; they vary by implementation and are agreed between trading partners.\
+    \  A common convention is a `SELL` type: a zero-amount work order indicating the\
+    \ container will be sold rather than repaired.  A sell authorization is considered\
+    \ completed automatically - a repair complete message is never sent for it.\n\n\
+    \ ## Multiple Estimates in a Single Transmission\n\n *This process is currently\
+    \ a proposal - it is not production approved and the fields it relies upon are\
+    \ individually marked as proposed in the schema definitions.*\n\n Sometimes an\
+    \ owner needs several what-if estimates for the same shipping container - typically\
+    \ to decide whether, while repairing it, the container should also be upgraded\
+    \ (e.g. a plain CWCA repair versus repair plus food grade upgrade).  Estimate\
+    \ writer time is expensive, so the additional scenarios are written up together\
+    \ with the primary repair as a set rather than as separate estimates - the proposal\
+    \ transmits that set in a single estimate:\n\n - One `Estimate` is sent (Depot\
+    \ -> Owner) with a single `estimateNumber` and a combined `total`.\n - **The estimates\
+    \ are cumulative** - the primary repair (e.g. `RC`) contains the repair line items;\
+    \ each additional estimate type (e.g. an `AU` ancillary food grade upgrade) contains\
+    \ only its *additive* line items on top of the primary repair.  Because the set\
+    \ is cumulative it shares one `condition` and one `revision`, and a cancellation\
+    \ cancels every estimate type in the transmission.\n - Each line item is tagged\
+    \ with the estimate type(s) it belongs to via `allocationTypes` (a combination\
+    \ of estimate `type` and optional `upgradeType`).  A line item shared by several\
+    \ additional estimate types carries multiple tags; a line item with no tags belongs\
+    \ to the estimate's own `type` / `upgradeType`.\n - The combined allocation is\
+    \ returned with a per-type breakdown in `allocationsByType`; each entry identifies\
+    \ its estimate via `allocationType` and carries the additive totals for that type.\n\
+    \n    ```\n    {\n      \"estimateNumber\": \"DEHAMCE1856373\",\n      \"type\"\
+    : \"RC\",\n      \"total\": 800.00,\n      \"lineItems\": [\n        { \"...\"\
+    : \"damage repair (primary repair)\", \"allocationTypes\": [ { \"type\": \"RC\"\
+    \ } ] },\n        { \"...\": \"additive food grade upgrade work\", \"allocationTypes\"\
+    : [ { \"type\": \"AU\", \"upgradeType\": \"FG\" } ] }\n      ]\n    }\n    ```\n\
+    \n - **Customer approval is unchanged** - the customer always approves the primary\
+    \ repair type only (their damage responsibility); the additional estimate types\
+    \ are owner concerns.\n - **The owner selects via the work order** (Owner -> Depot)\
+    \ - because the estimates are cumulative, the `WorkOrderUnit` lists an approval\
+    \ in `approvals` (`allocationType` + `approvalTotal`) for *every* estimate type\
+    \ being performed.  For example, performing the food grade upgrade means both\
+    \ the primary `RC` approval and the additive `AU` / `FG` approval appear.  As\
+    \ always, the work order applies to the latest revision of the estimate.  Estimate\
+    \ types *not* included on the work order are implicitly declined; no separate\
+    \ cancellation is sent.\n\n    ```\n    {\n      \"workOrderNumber\": \"WHAMG46019\"\
+    ,\n      \"type\": \"AU\",\n      \"approvalTotal\": 800.00,\n      \"lineItems\"\
+    : [ {\n        \"unitNumber\": \"CONU1234561\",\n        \"estimateNumber\": \"\
+    DEHAMCE1856373\",\n        \"status\": \"TIED\",\n        \"effectiveInspectionCriteria\"\
+    : \"CWCA-1\",\n        \"approvals\": [\n          { \"allocationType\": { \"\
+    type\": \"RC\" }, \"approvalTotal\": 500.00 },\n          { \"allocationType\"\
+    : { \"type\": \"AU\", \"upgradeType\": \"FG\" }, \"approvalTotal\": 300.00 }\n\
+    \        ]\n      } ]\n    }\n    ```\n\n - Repair complete and gate out then\
+    \ proceed exactly as in the standard cycle.\n\n\n # Depot Identifiers\n\n Depot\
+    \ or facility identifiers, henceforth referred to as `EDI Address`, `CompanyId`,\
     \ or `Party Id` in this document, are maintained by The Bureau International des\
     \ Containers (BIC) and officially known as the BIC Facility Code. For codes and\
     \ more information please refer to [https://www.bic-code.org/bic-facility-codes](https://www.bic-code.org/bic-facility-codes/).\n\
@@ -141,14 +256,28 @@ info:
     \ and remove erroneous `required` entries (Micronaut OpenAPI 7 generator fixes).\n\
     \    - (api, client, server) Add optional `transportType` to GateCreateRequest\
     \ and GateUpdateRequest to indicate how the shipping container was transported.\n\
-    \n\n # Security & Authentication\n\n To ensure secure communication, all endpoints\
-    \ of this API should use the https protocol instead of http.  Authentication methods\
-    \ will differ between systems, but two popular methods are JSON Web Tokens and\
-    \ Static Tokens.  Examples for both of these follow.\n\n\n## JSON Web Token\n\n\
-    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
-    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
-    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
-    \n\n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\",\n\t\"roles\"\
+    \    - (doc) Add a `Lifecycle Process Flows` section documenting the standard\
+    \ damage repair cycle, undamaged / direct work order / sell variations, and the\
+    \ proposed multiple-estimates-in-a-single-transmission process with illustrative\
+    \ examples.\n    - (api) Multiple estimate proposal - add proposed `allocationsByType`\
+    \ breakdown to EstimateAllocation so estimate create / approve responses return\
+    \ the per-type allocations.\n    - (doc) Multiple estimate proposal - clarify\
+    \ that the estimate types are cumulative (additional types carry only additive\
+    \ line items), that customer approval always applies to the primary repair, that\
+    \ work orders list an approval for every estimate type performed against the latest\
+    \ revision, and that cancellation applies to all types in the transmission.\n\
+    \    - (doc) Clarify that work order `type` codes are not standardized by this\
+    \ API and that `SELL` is a trading partner convention.\n    - (doc) Clarify that\
+    \ work orders always apply to the latest revision of the referenced estimate and\
+    \ that direct work orders (no estimate) may cover multiple units.\n\n\n # Security\
+    \ & Authentication\n\n To ensure secure communication, all endpoints of this API\
+    \ should use the https protocol instead of http.  Authentication methods will\
+    \ differ between systems, but two popular methods are JSON Web Tokens and Static\
+    \ Tokens.  Examples for both of these follow.\n\n\n## JSON Web Token\n\n [JSON\
+    \ Web Token, or JWT](https://jwt.io/), is used for stateless authentication. \
+    \ Since all requests are sent using https, tokens are not encrypted.  Tokens follow\
+    \ the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\n\
+    \n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\",\n\t\"roles\"\
     : [\n\t\t\"ROLE_GATE_CREATE\",\n\t\t\"ROLE_GATE_UPDATE\"\n\t],\n\t\"email\":\"\
     j.doe@example.com\",\n\t\"token_type\":\"Bearer\",\n\t\"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
     ,\n\t\"expires_in\":3600,        \n\t\"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
@@ -2048,6 +2177,15 @@ components:
           nullable: true
           allOf:
           - $ref: "#/components/schemas/EstimateAllocationType"
+        allocationsByType:
+          type: array
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            when multiple estimates are sent in a single transmission, this represents a breakdown of this combined allocation by specific type (estimate type and upgrade type combinations); each entry identifies its estimate via `allocationType` and carries the additive totals for that type; this list is only populated on the combined (top level) allocation
+          nullable: false
+          items:
+            $ref: "#/components/schemas/EstimateAllocation"
       description: "Indicates the allocated estimate totals, including any comments\
         \ on the allocation and if the box is considered a constructive loss."
       readOnly: true
