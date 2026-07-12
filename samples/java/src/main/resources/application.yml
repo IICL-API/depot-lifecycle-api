@@ -183,6 +183,7 @@ depotlifecycle:
             - (api) Fix EstimatePhotoStatus enum value `REPAIR` to `REPAIRED` to match the documented value.
             - (server, client) Update the sample application to Micronaut Framework 5 (Java 25 baseline, Gradle 9.5).
             - (doc) Correct the generated multipart photo upload schemas to type `object` and remove erroneous `required` entries (Micronaut OpenAPI 7 generator fixes).
+            - (api, client, server) Add optional `transportType` to GateCreateRequest and GateUpdateRequest to indicate how the shipping container was transported.
 
 
          # Security & Authentication

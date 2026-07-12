@@ -138,6 +138,14 @@
                                         th:text="${gateType.name()}"></option>
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label for="updateTransportType" class="form-label">Transport Type</label>
+                            <select class="form-select" name="transportType" id="updateTransportType">
+                                <option></option>
+                                <option th:each="gateTransportType : ${gateTransportTypes}" th:attr="value=${gateTransportType.name()}"
+                                        th:text="${gateTransportType.name()}"></option>
+                            </select>
+                        </div>
                         <div class="mb-3" id="updatePhotoContainer">
                             <a href="#" class="btn btn-success mb-2" hx-get='/client/tag/addGatePhoto?id=update'
                                hx-target='#updatePhotoContainer'
@@ -198,6 +206,14 @@
                             <select class="form-select" name="type" id="createType" required>
                                 <option th:each="gateType : ${gateTypes}" th:attr="value=${gateType.name()}"
                                         th:text="${gateType.name()}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createTransportType" class="form-label">Transport Type</label>
+                            <select class="form-select" name="transportType" id="createTransportType">
+                                <option></option>
+                                <option th:each="gateTransportType : ${gateTransportTypes}" th:attr="value=${gateTransportType.name()}"
+                                        th:text="${gateTransportType.name()}"></option>
                             </select>
                         </div>
                         <div class="mb-3" id="createPhotoContainer">

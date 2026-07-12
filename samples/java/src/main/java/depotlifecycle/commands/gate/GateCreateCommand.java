@@ -6,6 +6,7 @@ import depotlifecycle.commands.PartyCommand;
 import depotlifecycle.commands.equipment.EquipmentDetailCommand;
 import depotlifecycle.domain.gate.GateRequestStatus;
 import depotlifecycle.domain.gate.GateRequestType;
+import depotlifecycle.domain.gate.GateTransportType;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +43,9 @@ public class GateCreateCommand {
 
     @NotNull
     GateRequestType type;
+
+    @Nullable
+    GateTransportType transportType;
 
     @Nullable
     List<GatePhotoCommand> photos;

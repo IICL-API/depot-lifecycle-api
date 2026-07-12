@@ -139,6 +139,8 @@ info:
     \ the sample application to Micronaut Framework 5 (Java 25 baseline, Gradle 9.5).\n\
     \    - (doc) Correct the generated multipart photo upload schemas to type `object`\
     \ and remove erroneous `required` entries (Micronaut OpenAPI 7 generator fixes).\n\
+    \    - (api, client, server) Add optional `transportType` to GateCreateRequest\
+    \ and GateUpdateRequest to indicate how the shipping container was transported.\n\
     \n\n # Security & Authentication\n\n To ensure secure communication, all endpoints\
     \ of this API should use the https protocol instead of http.  Authentication methods\
     \ will differ between systems, but two popular methods are JSON Web Tokens and\
@@ -2679,6 +2681,12 @@ components:
           - $ref: "#/components/schemas/GateRequestType"
           - maxLength: 3
             type: object
+        transportType:
+          description: How the shipping container was transported
+          nullable: true
+          example: TRUCK
+          allOf:
+          - $ref: "#/components/schemas/GateTransportType"
         photos:
           type: array
           description: An optional photo list of the shipping container at gate creation
@@ -2899,6 +2907,15 @@ components:
           - IN
           - OUT
       description: the current gate status of a given shipping container
+    GateTransportType:
+      maxLength: 5
+      type: string
+      description: How the shipping container was transported
+      example: TRUCK
+      enum:
+      - RAIL
+      - TRUCK
+      - BARGE
     GateUpdateRequest:
       type: object
       properties:
@@ -2935,6 +2952,12 @@ components:
           - $ref: "#/components/schemas/GateRequestType"
           - maxLength: 3
             type: object
+        transportType:
+          description: How the shipping container was transported
+          nullable: true
+          example: TRUCK
+          allOf:
+          - $ref: "#/components/schemas/GateTransportType"
         photos:
           type: array
           description: An optional photo list of the shipping container at gate update

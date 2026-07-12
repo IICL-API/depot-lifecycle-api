@@ -48,6 +48,11 @@ public class GateUpdateRequest {
     @Enumerated(EnumType.STRING)
     GateRequestType type;
 
+    @Schema(description = "How the shipping container was transported", example = "TRUCK", required = false, nullable = true, implementation = GateTransportType.class)
+    @Column(nullable = true, length = 5)
+    @Enumerated(EnumType.STRING)
+    GateTransportType transportType;
+
     @ArraySchema(schema = @Schema(implementation = GatePhoto.class))
     @Schema(description = "An optional photo list of the shipping container at gate update", required = false, nullable = false)
     @OneToMany(orphanRemoval = true, cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)

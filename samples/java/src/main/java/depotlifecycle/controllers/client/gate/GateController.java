@@ -53,7 +53,8 @@ public class GateController {
         Map<String, Object> model = Map.ofEntries(
                 Map.entry("projectConfig", projectConfig),
                 Map.entry("gateStatuses", GateRequestStatus.values()),
-                Map.entry("gateTypes", GateRequestType.values())
+                Map.entry("gateTypes", GateRequestType.values()),
+                Map.entry("gateTransportTypes", GateTransportType.values())
         );
         return Mono.just(model);
     }
@@ -107,6 +108,7 @@ public class GateController {
         gateRequest.setStatus(cmd.getStatus());
         gateRequest.setActivityTime(cmd.getActivityTime());
         gateRequest.setType(cmd.getType());
+        gateRequest.setTransportType(cmd.getTransportType());
         if (cmd.getPhotos() != null) {
             gateRequest.setPhotos(cmd.getPhotos().stream().map(photo -> {
                 GatePhoto gatePhoto = new GatePhoto();
@@ -141,6 +143,7 @@ public class GateController {
         gateRequest.setStatus(cmd.getStatus());
         gateRequest.setActivityTime(cmd.getActivityTime());
         gateRequest.setType(cmd.getType());
+        gateRequest.setTransportType(cmd.getTransportType());
         if (cmd.getPhotos() != null) {
             gateRequest.setPhotos(cmd.getPhotos().stream().map(photo -> {
                 GatePhoto gatePhoto = new GatePhoto();
