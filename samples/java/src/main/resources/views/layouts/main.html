@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" th:fragment="layout (title, content)" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" th:fragment="layout (pageTitle, content)" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="utf-8">
@@ -11,7 +11,7 @@
 
     <link rel="preconnect" href="https://fonts.gstatic.com">
 
-    <title th:replace="${title}">Layout Title</title>
+    <title th:replace="${pageTitle}">Layout Title</title>
 
     <link href="https://unpkg.com/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
