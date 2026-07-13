@@ -58,7 +58,7 @@ public class EstimateController {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/updateTotals")
-    @View("estimateMessage")
+    @View("repair/estimateMessage")
     Mono<Map<String, Object>> updateTotals(@Body EstimateTotalsCommand cmd) {
         LOG.info("Client - Estimate - Update Totals");
 
@@ -93,7 +93,7 @@ public class EstimateController {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/cancel")
-    @View("estimateMessage")
+    @View("repair/estimateMessage")
     Mono<Map<String, Object>> delete(@Body EstimateCancelCommand cmd) {
         LOG.info("Client - Estimate - Cancel");
 
@@ -130,9 +130,10 @@ public class EstimateController {
     }
 
 
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/fetch")
-    @View("estimateList")
+    @View("repair/estimateList")
     Mono<Map<String, Object>> fetch(@Body EstimateFetchCommand cmd) {
         LOG.info("Client - Estimate - Fetch");
 
@@ -148,7 +149,7 @@ public class EstimateController {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/list")
-    @View("estimateList")
+    @View("repair/estimateList")
     Mono<Map<String, Object>> list(@Body EstimateSearchCommand cmd) {
         LOG.info("Client - Estimate - List");
 
@@ -164,7 +165,7 @@ public class EstimateController {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @ExecuteOn(TaskExecutors.BLOCKING)
     @Post("/uploadPhoto")
-    @View("estimateMessage")
+    @View("repair/estimateMessage")
     Mono<Map<String, Object>> uploadPhoto(@Part Long relatedId,
                                           @Nullable @Part Integer line,
                                           @Nullable @Part String status,
@@ -182,7 +183,7 @@ public class EstimateController {
                 throw new IllegalArgumentException("Must provide a photo to upload.");
             }
             body = MultipartBody.builder()
-                    .addPart("file", file.getFilename(), file.getContentType().orElse(MediaType.APPLICATION_OCTET_STREAM_TYPE), bytes)
+                    .addPart("file", file.getFilename(), file.getContentType().orElseGet(() -> MediaType.forFilename(file.getFilename())), bytes)
                     .build();
         } catch (IOException ioException) {
             throw new IllegalArgumentException("Must provide a photo to upload.");

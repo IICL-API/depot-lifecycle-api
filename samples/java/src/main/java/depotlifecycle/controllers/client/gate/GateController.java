@@ -201,7 +201,7 @@ public class GateController {
                 throw new IllegalArgumentException("Must provide a photo to upload.");
             }
             return MultipartBody.builder()
-                    .addPart("file", file.getFilename(), file.getContentType().orElse(MediaType.APPLICATION_OCTET_STREAM_TYPE), bytes)
+                    .addPart("file", file.getFilename(), file.getContentType().orElseGet(() -> MediaType.forFilename(file.getFilename())), bytes)
                     .build();
         } catch (IOException ioException) {
             throw new IllegalArgumentException("Must provide a photo to upload.");
