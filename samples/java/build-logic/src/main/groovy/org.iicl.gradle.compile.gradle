@@ -9,4 +9,11 @@ java {
 
 tasks.named('compileJava') {
     options.compilerArgs.add('-parameters')
+
+    // The micronaut-openapi annotation processor reads application.yml (spec
+    // preamble, changelog, security docs) while generating the OpenAPI spec, so
+    // changes to it must invalidate compilation or the generated spec goes stale.
+    inputs.file(layout.projectDirectory.file('src/main/resources/application.yml'))
+        .withPropertyName('openapiApplicationConfig')
+        .withPathSensitivity(PathSensitivity.RELATIVE)
 }

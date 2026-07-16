@@ -281,6 +281,8 @@ depotlifecycle:
             - (api, client, server) Add a new proposed (alpha) `inventory` API - `GET /api/v2/inventory/{depot}` - to fetch the current inventory status of shipping containers at a depot for near real time status reconciliation between depot and owner systems.  Either party may implement it; the response reports that system's view of the depot's inventory.
             - (server) Maintain the example depot inventory as gates, estimates, work orders, repair completes, and releases are processed so the inventory API can be exercised end to end.
             - (client) Add sample client support for fetching depot inventory.
+            - (doc) Clarify authentication endpoints url.
+            - (server) Declare `application.yml` as a `compileJava` input so `publishOpenapiDocs` regenerates the OpenAPI spec when only the documentation configuration changes.
 
 
          # Security & Authentication
@@ -316,13 +318,13 @@ depotlifecycle:
 
          ### 2. Obtaining an access token
 
-         Issuing a POST request to `/api/login` with a username and password payload will cause a JWT token to be issued in the response.
+         Issuing a POST request to `/login` with a username and password payload will cause a JWT token to be issued in the response.  For a base URL of `https://api.example.com/examplecontextpath/api` the full login URL is `https://api.example.com/examplecontextpath/api/login`.
 
 
          ```
-         POST /api/login HTTP/1.1
+         POST /examplecontextpath/api/login HTTP/1.1
          Content-Type: text/plain; charset=utf-8
-         Host: www.example.com
+         Host: api.example.com
 
 
          {
@@ -333,11 +335,11 @@ depotlifecycle:
 
          ### 3. Refreshing an expired token
 
-         Tokens created by invoking the login endpoint expire after a determined period.  Issuing a POST request to `/oauth/access_token` with: the refresh_token from the JWT token previously issued and a grant_type of refresh_token will reissue a new JWT token.
+         Tokens created by invoking the login endpoint expire after a determined period.  Issuing a POST request to `/oauth/access_token` (full URL `https://api.example.com/examplecontextpath/oauth/access_token`) with: the refresh_token from the JWT token previously issued and a grant_type of refresh_token will reissue a new JWT token.
 
          ```
-         POST /oauth/access_token HTTP/1.1
-         Host: www.example.com
+         POST /examplecontextpath/oauth/access_token HTTP/1.1
+         Host: api.example.com
          Content-Type: application/x-www-form-urlencoded
          grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...
          ```
@@ -345,11 +347,11 @@ depotlifecycle:
 
          ### 4. Checking if a token is valid
 
-         Any token can be checked if it's still valid by issuing a POST request to `/api/validate`.
+         Any token can be checked if it's still valid by issuing a request to `/validate` (full URL `https://api.example.com/examplecontextpath/api/validate`).
 
          ```
-         GET /api/validate HTTP/1.1
-         Host: www.example.com
+         GET /examplecontextpath/api/validate HTTP/1.1
+         Host: api.example.com
          Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
          Content-Type: application/json; charset=utf-8
          ```
@@ -360,8 +362,8 @@ depotlifecycle:
          Use the 'Authorization' header to supply the JWT for authentication to a protected resource.
 
          ```
-         GET /api/v2/gate/CONU1234561 HTTP/1.1
-         Host: www.example.com
+         GET /examplecontextpath/api/v2/gate/CONU1234561 HTTP/1.1
+         Host: api.example.com
          Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
          ```
 
@@ -376,8 +378,8 @@ depotlifecycle:
          Assuming an assigned JWT of "eyJhbGciOiJIUzI1NiJ9", an API gate show request would look like: 
 
         ```
-         GET /api/v2/gate/CONU1234561 HTTP/1.1
-         Host: www.example.com
+         GET /examplecontextpath/api/v2/gate/CONU1234561 HTTP/1.1
+         Host: api.example.com
          Authorization: Bearer eyJhbGciOiJIUzI1NiJ9
          ```
 micronaut:

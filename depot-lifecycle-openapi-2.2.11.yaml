@@ -265,7 +265,10 @@ info:
     \ that system's view of the depot's inventory.\n    - (server) Maintain the example\
     \ depot inventory as gates, estimates, work orders, repair completes, and releases\
     \ are processed so the inventory API can be exercised end to end.\n    - (client)\
-    \ Add sample client support for fetching depot inventory.\n\n\n # Security & Authentication\n\
+    \ Add sample client support for fetching depot inventory.\n    - (doc) Clarify\
+    \ authentication endpoints url.\n    - (server) Declare `application.yml` as a\
+    \ `compileJava` input so `publishOpenapiDocs` regenerates the OpenAPI spec when\
+    \ only the documentation configuration changes.\n\n\n # Security & Authentication\n\
     \n To ensure secure communication, all endpoints of this API should use the https\
     \ protocol instead of http.  Authentication methods will differ between systems,\
     \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
@@ -279,30 +282,34 @@ info:
     :\"eyJhbGciOiJIUzI1NiJ9...\"\n }\n ```\n\n An access_token is provided for authentication\
     \ to API endpoints and a refresh_token is provided to generate a new access_token\
     \ when one expires.\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
-    \ request to `/api/login` with a username and password payload will cause a JWT\
-    \ token to be issued in the response.\n\n\n ```\n POST /api/login HTTP/1.1\n Content-Type:\
-    \ text/plain; charset=utf-8\n Host: www.example.com\n\n\n {\n\t\"username\": \"\
-    jdoe\",\n\t\"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired\
-    \ token\n\n Tokens created by invoking the login endpoint expire after a determined\
-    \ period.  Issuing a POST request to `/oauth/access_token` with: the refresh_token\
-    \ from the JWT token previously issued and a grant_type of refresh_token will\
-    \ reissue a new JWT token.\n\n ```\n POST /oauth/access_token HTTP/1.1\n Host:\
-    \ www.example.com\n Content-Type: application/x-www-form-urlencoded\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
-    \ ```\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked if\
-    \ it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n GET\
-    \ /api/validate HTTP/1.1\n Host: www.example.com\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n\
-    \ Content-Type: application/json; charset=utf-8\n ```\n\n\n ### 5. Accessing a\
-    \ protected resource\n\n Use the 'Authorization' header to supply the JWT for\
-    \ authentication to a protected resource.\n\n ```\n GET /api/v2/gate/CONU1234561\
-    \ HTTP/1.1\n Host: www.example.com\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n\
-    \ ```\n\n\n## Static Tokens\n\n A static token is assigned by an external process\
-    \ or system.  After assignment, any documented API endpoint can be invoked by\
-    \ including a header of \"Authorizaton\" and the value of the token.  Some systems\
-    \ will assign static tokens that are JWTs, in that case \"Bearer \" should prefix\
-    \ the token in the header value.\n\n\n### Static (JWT) Token Example\n\n Assuming\
-    \ an assigned JWT of \"eyJhbGciOiJIUzI1NiJ9\", an API gate show request would\
-    \ look like: \n\n```\n GET /api/v2/gate/CONU1234561 HTTP/1.1\n Host: www.example.com\n\
-    \ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9\n ```\n"
+    \ request to `/login` with a username and password payload will cause a JWT token\
+    \ to be issued in the response.  For a base URL of `https://api.example.com/examplecontextpath/api`\
+    \ the full login URL is `https://api.example.com/examplecontextpath/api/login`.\n\
+    \n\n ```\n POST /examplecontextpath/api/login HTTP/1.1\n Content-Type: text/plain;\
+    \ charset=utf-8\n Host: api.example.com\n\n\n {\n\t\"username\": \"jdoe\",\n\t\
+    \"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired token\n\
+    \n Tokens created by invoking the login endpoint expire after a determined period.\
+    \  Issuing a POST request to `/oauth/access_token` (full URL `https://api.example.com/examplecontextpath/oauth/access_token`)\
+    \ with: the refresh_token from the JWT token previously issued and a grant_type\
+    \ of refresh_token will reissue a new JWT token.\n\n ```\n POST /examplecontextpath/oauth/access_token\
+    \ HTTP/1.1\n Host: api.example.com\n Content-Type: application/x-www-form-urlencoded\n\
+    \ grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n ```\n\n\n ###\
+    \ 4. Checking if a token is valid\n\n Any token can be checked if it's still valid\
+    \ by issuing a request to `/validate` (full URL `https://api.example.com/examplecontextpath/api/validate`).\n\
+    \n ```\n GET /examplecontextpath/api/validate HTTP/1.1\n Host: api.example.com\n\
+    \ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n Content-Type: application/json;\
+    \ charset=utf-8\n ```\n\n\n ### 5. Accessing a protected resource\n\n Use the\
+    \ 'Authorization' header to supply the JWT for authentication to a protected resource.\n\
+    \n ```\n GET /examplecontextpath/api/v2/gate/CONU1234561 HTTP/1.1\n Host: api.example.com\n\
+    \ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n ```\n\n\n## Static Tokens\n\n\
+    \ A static token is assigned by an external process or system.  After assignment,\
+    \ any documented API endpoint can be invoked by including a header of \"Authorizaton\"\
+    \ and the value of the token.  Some systems will assign static tokens that are\
+    \ JWTs, in that case \"Bearer \" should prefix the token in the header value.\n\
+    \n\n### Static (JWT) Token Example\n\n Assuming an assigned JWT of \"eyJhbGciOiJIUzI1NiJ9\"\
+    , an API gate show request would look like: \n\n```\n GET /examplecontextpath/api/v2/gate/CONU1234561\
+    \ HTTP/1.1\n Host: api.example.com\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9\n\
+    \ ```\n"
   contact:
     email: technical@iicl.org
   license:
