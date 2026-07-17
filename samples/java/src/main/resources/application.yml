@@ -72,17 +72,17 @@ depotlifecycle:
 
          The typical flow for a damaged shipping container turned in to a depot:
 
-         1. **Redelivery** (Owner -> Depot / Customer) - before a shipping container may arrive, the owner authorizes the customer to turn it in to the depot: `POST /api/v2/redelivery`.  Redeliveries are always initiated by the owner and may be transmitted to both the customer and the depot.  The redelivery advice is the depot's authority to accept the unit at the gate, and it communicates up front whether an estimate is allowed via the inspection criteria on the `RedeliveryUnit` (the estimation instructions).
+         1. **Redelivery** (Owner -> Depot / Customer) - before a shipping container may arrive, the owner authorizes the customer to turn it in to the depot: `POST /v2/redelivery`.  Redeliveries are always initiated by the owner and may be transmitted to both the customer and the depot.  The redelivery advice is the depot's authority to accept the unit at the gate, and it communicates up front whether an estimate is allowed via the inspection criteria on the `RedeliveryUnit` (the estimation instructions).
 
-         2. **Gate In** (Depot -> Owner) - the depot reports the arrival: `POST /api/v2/gate` with `type` = `IN`, `status` = `D` (damaged), and the redelivery advice number.  When the unit is damaged an estimate is expected to be performed; the presence of inspection criteria (echoed back as `currentInspectionCriteria` on the `GateResponse`) is the indicator to the depot that estimation is allowed and to what grade.  The response also carries the applicable `insuranceCoverage` and `currentExchangeRate`.
+         2. **Gate In** (Depot -> Owner) - the depot reports the arrival: `POST /v2/gate` with `type` = `IN`, `status` = `D` (damaged), and the redelivery advice number.  When the unit is damaged an estimate is expected to be performed; the presence of inspection criteria (echoed back as `currentInspectionCriteria` on the `GateResponse`) is the indicator to the depot that estimation is allowed and to what grade.  The response also carries the applicable `insuranceCoverage` and `currentExchangeRate`.
 
-         3. **Initial estimate (revision 0)** (Depot -> Owner) - the depot surveys the damage and submits `POST /api/v2/estimate` with `condition` = `D`, `revision` = `0`, and the damage `lineItems`.  The response is an `EstimateAllocation`: the owner / customer / insurance split of the total, plus an optional `preliminaryDecision` indicating the likely repair-or-sell outcome.
+         3. **Initial estimate (revision 0)** (Depot -> Owner) - the depot surveys the damage and submits `POST /v2/estimate` with `condition` = `D`, `revision` = `0`, and the damage `lineItems`.  The response is an `EstimateAllocation`: the owner / customer / insurance split of the total, plus an optional `preliminaryDecision` indicating the likely repair-or-sell outcome.
 
          4. **Revisions** (Depot -> Owner, or Owner -> Depot for surveys) - surveys and corrections produce further transmissions of the same `estimateNumber` with an incremented `revision` and an updated `condition` (`E` - customer surveyed, `L` - owner surveyed).  Each revision fully replaces the prior one.  When customer approval is required, the owner notifies the customer (Owner -> Customer) of each revision until the approval has been given.
 
-         5. **Customer approval** (Customer -> Owner, then Owner -> Depot) - when customer approval is required, the customer transmits the approval of their portion to the owner via `PUT /api/v2/estimate/{estimateNumber}` (an `EstimateCustomerApproval`); the owner then notifies the depot by sending an estimate revision with the `customerApproval` embedded and `condition` = `F` (approved, no survey) or `G` (approved, surveyed).  A depot that obtains the approval directly reports it to the owner the same way (Depot -> Owner revision).  In some relationships customer approval is implicit and the first revision is considered approved automatically.
+         5. **Customer approval** (Customer -> Owner, then Owner -> Depot) - when customer approval is required, the customer transmits the approval of their portion to the owner via `PUT /v2/estimate/{estimateNumber}` (an `EstimateCustomerApproval`); the owner then notifies the depot by sending an estimate revision with the `customerApproval` embedded and `condition` = `F` (approved, no survey) or `G` (approved, surveyed).  A depot that obtains the approval directly reports it to the owner the same way (Depot -> Owner revision).  In some relationships customer approval is implicit and the first revision is considered approved automatically.
 
-         6. **Owner approval = work order** (Owner -> Depot) - there is no "owner approved" estimate state; the owner's decision *is* the work order, and it always applies to the latest revision of the referenced estimate.  It arrives either as a `201` response to the estimate create/approve call or as a separate `POST /api/v2/workOrder` naming the estimate:
+         6. **Owner approval = work order** (Owner -> Depot) - there is no "owner approved" estimate state; the owner's decision *is* the work order, and it always applies to the latest revision of the referenced estimate.  It arrives either as a `201` response to the estimate create/approve call or as a separate `POST /v2/workOrder` naming the estimate:
 
             ```
             {
@@ -93,11 +93,11 @@ depotlifecycle:
             }
             ```
 
-         7. **Repair complete** (Depot -> Owner) - when the depot finishes the repair it reports `PUT /api/v2/workOrderUnit/{workOrderNumber}` (a `RepairComplete`) and the unit becomes available.
+         7. **Repair complete** (Depot -> Owner) - when the depot finishes the repair it reports `PUT /v2/workOrderUnit/{workOrderNumber}` (a `RepairComplete`) and the unit becomes available.
 
-         8. **Release** (Owner -> Depot) - when the shipping container is leased out again, the owner issues the advice that approves it to leave the depot: `POST /api/v2/release`.  The release advice number authorizes the gate out.
+         8. **Release** (Owner -> Depot) - when the shipping container is leased out again, the owner issues the advice that approves it to leave the depot: `POST /v2/release`.  The release advice number authorizes the gate out.
 
-         9. **Gate Out** (Depot -> Owner) - the shipping container leaves the depot: `POST /api/v2/gate` with `type` = `OUT`, `status` = `A`, and the release advice number.
+         9. **Gate Out** (Depot -> Owner) - the shipping container leaves the depot: `POST /v2/gate` with `type` = `OUT`, `status` = `A`, and the release advice number.
 
          ## Variations
 
@@ -278,7 +278,7 @@ depotlifecycle:
             - (api, client, server) Add optional `transportType` to GateCreateRequest and GateUpdateRequest to indicate how the shipping container was transported.
             - (doc) Add a `Lifecycle Process Flows` section documenting how the multiple estimate workflow & other workflows commonly work.
             - (api) Revised multiple estimate workflow.
-            - (api, client, server) Add a new proposed (alpha) `inventory` API - `GET /api/v2/inventory/{depot}` - to fetch the current inventory status of shipping containers at a depot for near real time status reconciliation between depot and owner systems.  Either party may implement it; the response reports that system's view of the depot's inventory.
+            - (api, client, server) Add a new proposed (alpha) `inventory` API
             - (server) Maintain the example depot inventory as gates, estimates, work orders, repair completes, and releases are processed so the inventory API can be exercised end to end.
             - (client) Add sample client support for fetching depot inventory.
             - (doc) Clarify authentication endpoints url.
