@@ -33,6 +33,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Validated
@@ -201,7 +202,7 @@ public class GateController {
                 throw new IllegalArgumentException("Must provide a photo to upload.");
             }
             return MultipartBody.builder()
-                    .addPart("file", file.getFilename(), file.getContentType().orElseGet(() -> MediaType.forFilename(file.getFilename())), bytes)
+                    .addPart("file", file.getFilename(), file.getContentType().orElseGet(() -> MediaType.forFilename(file.getFilename().toLowerCase(Locale.ROOT))), bytes)
                     .build();
         } catch (IOException ioException) {
             throw new IllegalArgumentException("Must provide a photo to upload.");
