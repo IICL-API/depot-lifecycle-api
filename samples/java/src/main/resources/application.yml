@@ -285,6 +285,7 @@ depotlifecycle:
             - (client) Add sample client support for fetching depot inventory.
             - (doc) Clarify authentication endpoints url.
             - (server) Declare `application.yml` as a `compileJava` input so `publishOpenapiDocs` regenerates the OpenAPI spec when only the documentation configuration changes.
+            - (api) Add proposed `RW` & `SW` estimate types for UCIRC estimates.        
 
 
          # Security & Authentication

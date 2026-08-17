@@ -270,7 +270,8 @@ info:
     \ end to end.\n    - (client) Add sample client support for fetching depot inventory.\n\
     \    - (doc) Clarify authentication endpoints url.\n    - (server) Declare `application.yml`\
     \ as a `compileJava` input so `publishOpenapiDocs` regenerates the OpenAPI spec\
-    \ when only the documentation configuration changes.\n\n\n # Security & Authentication\n\
+    \ when only the documentation configuration changes.\n    - (api) Add proposed\
+    \ `RW` & `SW` estimate types for UCIRC estimates.        \n\n\n # Security & Authentication\n\
     \n To ensure secure communication, all endpoints of this API should use the https\
     \ protocol instead of http.  Authentication methods will differ between systems,\
     \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
@@ -2060,7 +2061,11 @@ components:
 
             `RC` - Primary (CWCA)
 
+            `RW` - Primary (UCIRC)
+
             `SC` - Secondary (CWCA)
+
+            `SW` - Secondary (UCIRC)
 
             `SU` - Secondary Upgrade
 
@@ -2293,7 +2298,11 @@ components:
 
             `RC` - Primary (CWCA)
 
+            `RW` - Primary (UCIRC)
+
             `SC` - Secondary (CWCA)
+
+            `SW` - Secondary (UCIRC)
 
             `SU` - Secondary Upgrade
 
@@ -2802,7 +2811,11 @@ components:
 
         `RC` - Primary (CWCA)
 
+        `RW` - Primary (UCIRC)
+
         `SC` - Secondary (CWCA)
+
+        `SW` - Secondary (UCIRC)
 
         `SU` - Secondary Upgrade
 
@@ -2815,7 +2828,9 @@ components:
       - R
       - RI
       - RC
+      - RW
       - SC
+      - SW
       - SU
       - AS
       - AU

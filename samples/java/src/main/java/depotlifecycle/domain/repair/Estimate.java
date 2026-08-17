@@ -89,7 +89,7 @@ public class Estimate {
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     EstimateCustomerApproval customerApproval;
 
-    @Schema(defaultValue = "R", description = "delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision\n\n`R` - Primary (Unknown Estimation Standard)\n\n`RI` - Primary (IICL)\n\n`RC` - Primary (CWCA)\n\n`SC` - Secondary (CWCA)\n\n`SU` - Secondary Upgrade\n\n`AS` - Sell Upgrade\n\n`AU` - Ancillary Upgrade\n\n`AR` - Ancillary Repair", required = false, nullable = true, implementation = EstimateType.class)
+    @Schema(defaultValue = "R", description = "delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision\n\n`R` - Primary (Unknown Estimation Standard)\n\n`RI` - Primary (IICL)\n\n`RC` - Primary (CWCA)\n\n`RW` - Primary (UCIRC)\n\n`SC` - Secondary (CWCA)\n\n`SW` - Secondary (UCIRC)\n\n`SU` - Secondary Upgrade\n\n`AS` - Sell Upgrade\n\n`AU` - Ancillary Upgrade\n\n`AR` - Ancillary Repair", required = false, nullable = true, implementation = EstimateType.class)
     @Column(length = 2)
     @Enumerated(EnumType.STRING)
     EstimateType type = EstimateType.R;
