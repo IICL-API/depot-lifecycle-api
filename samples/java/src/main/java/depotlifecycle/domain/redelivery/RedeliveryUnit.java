@@ -84,9 +84,13 @@ public class RedeliveryUnit {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     Party billingParty;
 
-    @Schema(description = "conveys the estimate instructions to the depot; if the unit is damaged on turn in, the estimate standard that the shipping container should be estimated to and if it should not be estimated, then null", required = false, nullable = true, example = "IICL", minLength = 1, maxLength = 10)
+    @Schema(description = "conveys the primary estimate instructions to the depot; if the unit is damaged on turn in, the estimate standard that the shipping container should be estimated to and if it should not be estimated, then null.  When the owner needs more than one estimate for this unit, this is the primary estimate and the additional estimates are conveyed via `secondaryInspectionCriteria`.", required = false, nullable = true, example = "IICL", minLength = 1, maxLength = 10)
     @Column(nullable = true, length = 10)
     String inspectionCriteria;
+
+    @Schema(description = "additional estimate instructions beyond the primary `inspectionCriteria`; each entry drives one more estimate the depot should produce for this unit (currently proposed as part of the multiple estimate workflow - not production approved).", required = false, nullable = true)
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    List<SecondaryInspectionCriteria> secondaryInspectionCriteria;
 
     @Schema(description = "the grade / category to mark the unit when it arrives at the depot - often used in lieu of an estimate inspection criteria.", required = false, nullable = true, example = "IICL", minLength = 1, maxLength = 10)
     @Column(nullable = true, length = 10)

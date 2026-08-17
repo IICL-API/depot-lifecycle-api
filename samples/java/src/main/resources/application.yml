@@ -113,6 +113,7 @@ depotlifecycle:
 
          Sometimes an owner needs several what-if estimates for the same shipping container - typically to decide whether, while repairing it, the container should also be upgraded (e.g. a plain CWCA repair versus repair plus food grade upgrade).  Estimate writer time is expensive, so the additional scenarios are written up together with the primary repair as a set rather than as separate estimates - the proposal transmits that set in a single estimate:
 
+         - The owner requests multiple estimates via the redelivery advice (Owner -> Depot) - the `RedeliveryUnit` encodes the expected primary estimate type via the `inspectionCriteria` field and any additional required types via the `secondaryInspectionCriteria` array field.
          - One `Estimate` is sent (Depot -> Owner) with a single `estimateNumber` and a combined `total`.
          - **The estimates are cumulative** - the primary repair (e.g. `RC`) contains the repair line items; each additional estimate type (e.g. an `AU` ancillary food grade upgrade) contains only its *additive* line items on top of the primary repair.  Because the set is cumulative it shares one `condition` and one `revision`, and a cancellation cancels every estimate type in the transmission.
          - Each line item is tagged with the estimate type(s) it belongs to via `allocationTypes` (a combination of estimate `type` and optional `upgradeType`).  A line item shared by several additional estimate types carries multiple tags; a line item with no tags belongs to the estimate's own `type` / `upgradeType`.
@@ -278,7 +279,8 @@ depotlifecycle:
             - (api, client, server) Add optional `transportType` to GateCreateRequest and GateUpdateRequest to indicate how the shipping container was transported.
             - (doc) Add a `Lifecycle Process Flows` section documenting how the multiple estimate workflow & other workflows commonly work.
             - (api) Revised multiple estimate workflow.
-            - (api, client, server) Add a new proposed (alpha) `inventory` API
+            - (api) Add proposed `secondaryInspectionCriteria` (criteria + optional `upgradeType`) to `RedeliveryUnit` so the owner can request multiple estimates per unit; the existing `inspectionCriteria` is the primary.
+            - (api, client, server) Add a new proposed (alpha) `inventory` API.
             - (server) Maintain the example depot inventory as gates, estimates, work orders, repair completes, and releases are processed so the inventory API can be exercised end to end.
             - (client) Add sample client support for fetching depot inventory.
             - (doc) Clarify authentication endpoints url.

@@ -119,25 +119,29 @@ info:
     \ versus repair plus food grade upgrade).  Estimate writer time is expensive,\
     \ so the additional scenarios are written up together with the primary repair\
     \ as a set rather than as separate estimates - the proposal transmits that set\
-    \ in a single estimate:\n\n - One `Estimate` is sent (Depot -> Owner) with a single\
-    \ `estimateNumber` and a combined `total`.\n - **The estimates are cumulative**\
-    \ - the primary repair (e.g. `RC`) contains the repair line items; each additional\
-    \ estimate type (e.g. an `AU` ancillary food grade upgrade) contains only its\
-    \ *additive* line items on top of the primary repair.  Because the set is cumulative\
-    \ it shares one `condition` and one `revision`, and a cancellation cancels every\
-    \ estimate type in the transmission.\n - Each line item is tagged with the estimate\
-    \ type(s) it belongs to via `allocationTypes` (a combination of estimate `type`\
-    \ and optional `upgradeType`).  A line item shared by several additional estimate\
-    \ types carries multiple tags; a line item with no tags belongs to the estimate's\
-    \ own `type` / `upgradeType`.\n - The combined allocation is returned with a per-type\
-    \ breakdown in `allocationsByType`; each entry identifies its estimate via `allocationType`\
-    \ and carries the additive totals for that type.\n\n    ```\n    {\n      \"estimateNumber\"\
-    : \"DEHAMCE1856373\",\n      \"type\": \"RC\",\n      \"total\": 800.00,\n   \
-    \   \"lineItems\": [\n        { \"...\": \"damage repair (primary repair)\", \"\
-    allocationTypes\": [ { \"type\": \"RC\" } ] },\n        { \"...\": \"additive\
-    \ food grade upgrade work\", \"allocationTypes\": [ { \"type\": \"AU\", \"upgradeType\"\
-    : \"FG\" } ] }\n      ]\n    }\n    ```\n\n - **Customer approval is unchanged**\
-    \ - the customer always approves the primary repair type only (their damage responsibility);\
+    \ in a single estimate:\n\n - The owner requests multiple estimates via the redelivery\
+    \ advice (Owner -> Depot) - the `RedeliveryUnit` encodes the expected primary\
+    \ estimate type via the `inspectionCriteria` field and any additional required\
+    \ types via the `secondaryInspectionCriteria` array field.\n - One `Estimate`\
+    \ is sent (Depot -> Owner) with a single `estimateNumber` and a combined `total`.\n\
+    \ - **The estimates are cumulative** - the primary repair (e.g. `RC`) contains\
+    \ the repair line items; each additional estimate type (e.g. an `AU` ancillary\
+    \ food grade upgrade) contains only its *additive* line items on top of the primary\
+    \ repair.  Because the set is cumulative it shares one `condition` and one `revision`,\
+    \ and a cancellation cancels every estimate type in the transmission.\n - Each\
+    \ line item is tagged with the estimate type(s) it belongs to via `allocationTypes`\
+    \ (a combination of estimate `type` and optional `upgradeType`).  A line item\
+    \ shared by several additional estimate types carries multiple tags; a line item\
+    \ with no tags belongs to the estimate's own `type` / `upgradeType`.\n - The combined\
+    \ allocation is returned with a per-type breakdown in `allocationsByType`; each\
+    \ entry identifies its estimate via `allocationType` and carries the additive\
+    \ totals for that type.\n\n    ```\n    {\n      \"estimateNumber\": \"DEHAMCE1856373\"\
+    ,\n      \"type\": \"RC\",\n      \"total\": 800.00,\n      \"lineItems\": [\n\
+    \        { \"...\": \"damage repair (primary repair)\", \"allocationTypes\": [\
+    \ { \"type\": \"RC\" } ] },\n        { \"...\": \"additive food grade upgrade\
+    \ work\", \"allocationTypes\": [ { \"type\": \"AU\", \"upgradeType\": \"FG\" }\
+    \ ] }\n      ]\n    }\n    ```\n\n - **Customer approval is unchanged** - the\
+    \ customer always approves the primary repair type only (their damage responsibility);\
     \ the additional estimate types are owner concerns.\n - **The owner selects via\
     \ the work order** (Owner -> Depot) - because the estimates are cumulative, the\
     \ `WorkOrderUnit` lists an approval in `approvals` (`allocationType` + `approvalTotal`)\
@@ -257,35 +261,37 @@ info:
     \ and GateUpdateRequest to indicate how the shipping container was transported.\n\
     \    - (doc) Add a `Lifecycle Process Flows` section documenting how the multiple\
     \ estimate workflow & other workflows commonly work.\n    - (api) Revised multiple\
-    \ estimate workflow.\n    - (api, client, server) Add a new proposed (alpha) `inventory`\
-    \ API\n    - (server) Maintain the example depot inventory as gates, estimates,\
-    \ work orders, repair completes, and releases are processed so the inventory API\
-    \ can be exercised end to end.\n    - (client) Add sample client support for fetching\
-    \ depot inventory.\n    - (doc) Clarify authentication endpoints url.\n    - (server)\
-    \ Declare `application.yml` as a `compileJava` input so `publishOpenapiDocs` regenerates\
-    \ the OpenAPI spec when only the documentation configuration changes.\n\n\n #\
-    \ Security & Authentication\n\n To ensure secure communication, all endpoints\
-    \ of this API should use the https protocol instead of http.  Authentication methods\
-    \ will differ between systems, but two popular methods are JSON Web Tokens and\
-    \ Static Tokens.  Examples for both of these follow.\n\n\n## JSON Web Token\n\n\
-    \ [JSON Web Token, or JWT](https://jwt.io/), is used for stateless authentication.\
-    \  Since all requests are sent using https, tokens are not encrypted.  Tokens\
-    \ follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750) format.\n\
-    \n\n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\",\n\t\"roles\"\
-    : [\n\t\t\"ROLE_GATE_CREATE\",\n\t\t\"ROLE_GATE_UPDATE\"\n\t],\n\t\"email\":\"\
-    j.doe@example.com\",\n\t\"token_type\":\"Bearer\",\n\t\"access_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
-    ,\n\t\"expires_in\":3600,        \n\t\"refresh_token\":\"eyJhbGciOiJIUzI1NiJ9...\"\
-    \n }\n ```\n\n An access_token is provided for authentication to API endpoints\
-    \ and a refresh_token is provided to generate a new access_token when one expires.\n\
-    \n\n ### 2. Obtaining an access token\n\n Issuing a POST request to `/login` with\
-    \ a username and password payload will cause a JWT token to be issued in the response.\
-    \  For a base URL of `https://api.example.com/examplecontextpath/api` the full\
-    \ login URL is `https://api.example.com/examplecontextpath/api/login`.\n\n\n ```\n\
-    \ POST /examplecontextpath/api/login HTTP/1.1\n Content-Type: text/plain; charset=utf-8\n\
-    \ Host: api.example.com\n\n\n {\n\t\"username\": \"jdoe\",\n\t\"password\": \"\
-    jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired token\n\n Tokens created\
-    \ by invoking the login endpoint expire after a determined period.  Issuing a\
-    \ POST request to `/oauth/access_token` (full URL `https://api.example.com/examplecontextpath/oauth/access_token`)\
+    \ estimate workflow.\n    - (api) Add proposed `secondaryInspectionCriteria` (criteria\
+    \ + optional `upgradeType`) to `RedeliveryUnit` so the owner can request multiple\
+    \ estimates per unit; the existing `inspectionCriteria` is the primary.\n    -\
+    \ (api, client, server) Add a new proposed (alpha) `inventory` API.\n    - (server)\
+    \ Maintain the example depot inventory as gates, estimates, work orders, repair\
+    \ completes, and releases are processed so the inventory API can be exercised\
+    \ end to end.\n    - (client) Add sample client support for fetching depot inventory.\n\
+    \    - (doc) Clarify authentication endpoints url.\n    - (server) Declare `application.yml`\
+    \ as a `compileJava` input so `publishOpenapiDocs` regenerates the OpenAPI spec\
+    \ when only the documentation configuration changes.\n\n\n # Security & Authentication\n\
+    \n To ensure secure communication, all endpoints of this API should use the https\
+    \ protocol instead of http.  Authentication methods will differ between systems,\
+    \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
+    \ both of these follow.\n\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
+    \ is used for stateless authentication.  Since all requests are sent using https,\
+    \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
+    \ format.\n\n\n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\"\
+    ,\n\t\"roles\": [\n\t\t\"ROLE_GATE_CREATE\",\n\t\t\"ROLE_GATE_UPDATE\"\n\t],\n\
+    \t\"email\":\"j.doe@example.com\",\n\t\"token_type\":\"Bearer\",\n\t\"access_token\"\
+    :\"eyJhbGciOiJIUzI1NiJ9...\",\n\t\"expires_in\":3600,        \n\t\"refresh_token\"\
+    :\"eyJhbGciOiJIUzI1NiJ9...\"\n }\n ```\n\n An access_token is provided for authentication\
+    \ to API endpoints and a refresh_token is provided to generate a new access_token\
+    \ when one expires.\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
+    \ request to `/login` with a username and password payload will cause a JWT token\
+    \ to be issued in the response.  For a base URL of `https://api.example.com/examplecontextpath/api`\
+    \ the full login URL is `https://api.example.com/examplecontextpath/api/login`.\n\
+    \n\n ```\n POST /examplecontextpath/api/login HTTP/1.1\n Content-Type: text/plain;\
+    \ charset=utf-8\n Host: api.example.com\n\n\n {\n\t\"username\": \"jdoe\",\n\t\
+    \"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired token\n\
+    \n Tokens created by invoking the login endpoint expire after a determined period.\
+    \  Issuing a POST request to `/oauth/access_token` (full URL `https://api.example.com/examplecontextpath/oauth/access_token`)\
     \ with: the refresh_token from the JWT token previously issued and a grant_type\
     \ of refresh_token will reissue a new JWT token.\n\n ```\n POST /examplecontextpath/oauth/access_token\
     \ HTTP/1.1\n Host: api.example.com\n Content-Type: application/x-www-form-urlencoded\n\
@@ -4047,11 +4053,23 @@ components:
           maxLength: 10
           minLength: 1
           type: string
-          description: "conveys the estimate instructions to the depot; if the unit\
-            \ is damaged on turn in, the estimate standard that the shipping container\
-            \ should be estimated to and if it should not be estimated, then null"
+          description: "conveys the primary estimate instructions to the depot; if\
+            \ the unit is damaged on turn in, the estimate standard that the shipping\
+            \ container should be estimated to and if it should not be estimated,\
+            \ then null.  When the owner needs more than one estimate for this unit,\
+            \ this is the primary estimate and the additional estimates are conveyed\
+            \ via `secondaryInspectionCriteria`."
           nullable: true
           example: IICL
+        secondaryInspectionCriteria:
+          type: array
+          description: additional estimate instructions beyond the primary `inspectionCriteria`;
+            each entry drives one more estimate the depot should produce for this
+            unit (currently proposed as part of the multiple estimate workflow - not
+            production approved).
+          nullable: true
+          items:
+            $ref: "#/components/schemas/SecondaryInspectionCriteria"
         targetGrade:
           maxLength: 10
           minLength: 1
@@ -4472,6 +4490,57 @@ components:
           example: CONU1234561
       description: Necessary information to mark a specific unit under a work order
         repaired
+    SecondaryInspectionCriteria:
+      required:
+      - inspectionCriteria
+      type: object
+      properties:
+        inspectionCriteria:
+          maxLength: 10
+          minLength: 1
+          type: string
+          description: the estimate standard this additional estimate should be estimated
+            to
+          nullable: false
+          example: SC
+        upgradeType:
+          description: |-
+            the type of secondary upgrade this estimate transmission represents.
+
+            `FG` - Food grade
+
+            `ML` - Malt
+
+            `DB` - Dairy Board
+
+            `EV` - Evian
+
+            `WH` - Whiskey
+
+            `SU` - Sugar
+
+            `CF` - Coffee
+
+            `TB` - Tobacco
+
+            `MC` - Milk cartons
+
+            `MP` - Milk powder
+
+            `AM` - Ammunition
+
+            `CH` - Cotton/Hay
+
+            `TE` - Tea
+
+            `FT` - Flexitank
+          nullable: true
+          example: AM
+          allOf:
+          - $ref: "#/components/schemas/UpgradeType"
+      description: "an additional estimate the depot should produce for this unit,\
+        \ beyond the primary `inspectionCriteria`; the criteria dictates the estimate\
+        \ type"
     TireTreadLocation:
       type: string
       description: |-
