@@ -766,10 +766,6 @@ paths:
       responses:
         "200":
           description: successfully cancelled the estimate
-          content:
-            application/json:
-              schema:
-                type: object
         "400":
           description: an error occurred trying to cancel the estimate
           content:
@@ -895,10 +891,6 @@ paths:
       responses:
         "200":
           description: successfully uploaded an estimate photo
-          content:
-            application/json:
-              schema:
-                type: object
         "202":
           description: "photo accepted for processing, but not created due to manual\
             \ processing requirement"
@@ -1083,10 +1075,6 @@ paths:
       responses:
         "200":
           description: successfully delete the gate record
-          content:
-            application/json:
-              schema:
-                type: object
         "400":
           description: an error occurred
           content:
@@ -1184,10 +1172,6 @@ paths:
       responses:
         "200":
           description: successfully uploaded a gate photo
-          content:
-            application/json:
-              schema:
-                type: object
         "202":
           description: "photo accepted for processing, but not created due to manual\
             \ processing requirement"
@@ -1362,10 +1346,6 @@ paths:
       responses:
         "200":
           description: successful create
-          content:
-            application/json:
-              schema:
-                type: object
         "400":
           description: an error occurred
           content:
@@ -1409,10 +1389,6 @@ paths:
       responses:
         "200":
           description: successful update
-          content:
-            application/json:
-              schema:
-                type: object
         "400":
           description: an error occurred
           content:
@@ -1505,10 +1481,6 @@ paths:
       responses:
         "200":
           description: successful create
-          content:
-            application/json:
-              schema:
-                type: object
         "400":
           description: an error occurred
           content:
@@ -1552,10 +1524,6 @@ paths:
       responses:
         "200":
           description: successful update
-          content:
-            application/json:
-              schema:
-                type: object
         "400":
           description: an error occurred
           content:
@@ -1684,10 +1652,6 @@ paths:
       responses:
         "200":
           description: successfully repair completed the workOrder
-          content:
-            application/json:
-              schema:
-                type: object
         "400":
           description: an error occurred trying to repair complete the work order
           content:

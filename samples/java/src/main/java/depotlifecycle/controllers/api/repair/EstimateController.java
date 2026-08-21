@@ -331,14 +331,14 @@ public class EstimateController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully cancelled the estimate", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successfully cancelled the estimate"),
         @ApiResponse(responseCode = "400", description = "an error occurred trying to cancel the estimate", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "cancel estimate is disallowed by security"),
         @ApiResponse(responseCode = "404", description = "the estimate or depot was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> delete(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
+    public HttpResponse<Void> delete(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
                                            @QueryValue("depot") @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot) {
         LOG.info("Received Estimate Cancel for {} @ {}", estimateNumber, depot);
 

@@ -114,14 +114,14 @@ public class ReleaseController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful create", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successful create"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the release depot was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, @Parameter(hidden = true) HttpHeaders headers) {
+    public HttpResponse<Void> create(@Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Release Create");
         conversionService.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
         Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v)->m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
@@ -183,14 +183,14 @@ public class ReleaseController {
         operationId = "updateRelease",
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) }))
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful update", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successful update"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the release was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(type = "string", example = "RHAMG000000", maxLength = 16)) String releaseNumber,
+    public HttpResponse<Void> update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(type = "string", example = "RHAMG000000", maxLength = 16)) String releaseNumber,
                        @Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Release Update");
         conversionService.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
