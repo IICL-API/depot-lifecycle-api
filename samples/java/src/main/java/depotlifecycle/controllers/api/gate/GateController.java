@@ -1,6 +1,7 @@
 package depotlifecycle.controllers.api.gate;
 
 import tools.jackson.databind.JsonNode;
+import depotlifecycle.system.PartyResolver;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.GateResponse;
 import depotlifecycle.GateStatus;
@@ -52,7 +53,7 @@ import java.util.Optional;
 public class GateController {
     private static final Logger LOG = LoggerFactory.getLogger(GateController.class);
     private final PartyRepository partyRepository;
-    private final ExternalPartyRepository externalPartyRepository;
+    private final PartyResolver partyResolver;
     private final GateCreateRequestRepository gateCreateRequestRepository;
     private final GateUpdateRequestRepository gateUpdateRequestRepository;
     private final GateDeleteRequestRepository gateDeleteRequestRepository;
@@ -85,11 +86,11 @@ public class GateController {
         }
 
         if (gateCreateRequest.getDepot() != null) {
-            gateCreateRequest.setDepot(partyRepository.save(gateCreateRequest.getDepot()));
+            gateCreateRequest.setDepot(partyResolver.resolve(gateCreateRequest.getDepot()));
         }
 
         if (gateCreateRequest.getTrucker() != null) {
-            gateCreateRequest.setTrucker(externalPartyRepository.save(gateCreateRequest.getTrucker()));
+            gateCreateRequest.setTrucker(partyResolver.resolve(gateCreateRequest.getTrucker()));
         }
 
         gateCreateRequest = gateCreateRequestRepository.save(gateCreateRequest);
@@ -167,7 +168,7 @@ public class GateController {
         }
 
         if (gateUpdateRequest.getTrucker() != null) {
-            gateUpdateRequest.setTrucker(externalPartyRepository.save(gateUpdateRequest.getTrucker()));
+            gateUpdateRequest.setTrucker(partyResolver.resolve(gateUpdateRequest.getTrucker()));
         }
 
         gateUpdateRequest = gateUpdateRequestRepository.save(gateUpdateRequest);
@@ -227,7 +228,7 @@ public class GateController {
         else {
             depotParty = Optional.of(new Party());
             depotParty.get().setCompanyId(depot);
-            depotParty = Optional.of(partyRepository.save(depotParty.get()));
+            depotParty = Optional.of(partyResolver.resolve(depotParty.get()));
         }
 
         GateDeleteRequest gateDeleteRequest = new GateDeleteRequest();

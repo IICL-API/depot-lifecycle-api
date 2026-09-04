@@ -1,6 +1,7 @@
 package depotlifecycle.controllers.api.repair;
 
 import tools.jackson.databind.JsonNode;
+import depotlifecycle.system.PartyResolver;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.*;
@@ -57,6 +58,7 @@ import java.util.Optional;
 public class EstimateController {
     private static final Logger LOG = LoggerFactory.getLogger(EstimateController.class);
     private final PartyRepository partyRepository;
+    private final PartyResolver partyResolver;
     private final InsuranceCoverageRepository insuranceCoverageRepository;
     private final EstimateRepository estimateRepository;
     private final EstimateCancelRequestRepository estimateCancelRequestRepository;
@@ -192,25 +194,25 @@ public class EstimateController {
         }
 
         if (estimate.getDepot() != null) {
-            estimate.setDepot(partyRepository.save(estimate.getDepot()));
+            estimate.setDepot(partyResolver.resolve(estimate.getDepot()));
         }
 
         if (estimate.getRequester() != null) {
-            estimate.setRequester(partyRepository.save(estimate.getRequester()));
+            estimate.setRequester(partyResolver.resolve(estimate.getRequester()));
         }
 
         if (estimate.getOwner() != null) {
-            estimate.setOwner(partyRepository.save(estimate.getOwner()));
+            estimate.setOwner(partyResolver.resolve(estimate.getOwner()));
         }
 
         if (estimate.getCustomer() != null) {
-            estimate.setCustomer(partyRepository.save(estimate.getCustomer()));
+            estimate.setCustomer(partyResolver.resolve(estimate.getCustomer()));
         }
 
         if (estimate.getAllocation() != null) {
             EstimateAllocation allocation = estimate.getAllocation();
             if (allocation.getDepot() != null) {
-                allocation.setDepot(partyRepository.save(allocation.getDepot()));
+                allocation.setDepot(partyResolver.resolve(allocation.getDepot()));
             }
         }
     }
@@ -362,7 +364,7 @@ public class EstimateController {
         else if (depotParty.isEmpty()) {
             depotParty = Optional.of(new Party());
             depotParty.get().setCompanyId(depot);
-            depotParty = Optional.of(partyRepository.save(depotParty.get()));
+            depotParty = Optional.of(partyResolver.resolve(depotParty.get()));
         }
 
         EstimateCancelRequest cancelRequest = new EstimateCancelRequest();
@@ -400,7 +402,7 @@ public class EstimateController {
         }
 
         if (allocation.getDepot() != null) {
-            allocation.setDepot(partyRepository.save(allocation.getDepot()));
+            allocation.setDepot(partyResolver.resolve(allocation.getDepot()));
         }
 
         if(allocation.getInsuranceCoverage() != null) {

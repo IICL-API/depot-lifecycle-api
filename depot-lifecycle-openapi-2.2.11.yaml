@@ -251,27 +251,28 @@ info:
     \ No longer require comments since the api does not require them\n    - (client)\
     \ Fix customer approval to match the API expectations\n    - (server) Enhance\
     \ the Estimate model to support sending multiple estimates in a single transmission.\n\
-    \n * 2.2.11\n    - (client) Add sample client support for uploading Gate and Estimate\
-    \ photos (multipart upload).\n    - (api) Fix EstimatePhotoStatus enum value `REPAIR`\
-    \ to `REPAIRED` to match the documented value.\n    - (server, client) Update\
-    \ the sample application to Micronaut Framework 5 (Java 25 baseline, Gradle 9.5).\n\
-    \    - (doc) Correct the generated multipart photo upload schemas to type `object`\
-    \ and remove erroneous `required` entries (Micronaut OpenAPI 7 generator fixes).\n\
-    \    - (api, client, server) Add optional `transportType` to GateCreateRequest\
-    \ and GateUpdateRequest to indicate how the shipping container was transported.\n\
-    \    - (doc) Add a `Lifecycle Process Flows` section documenting how the multiple\
-    \ estimate workflow & other workflows commonly work.\n    - (api) Revised multiple\
-    \ estimate workflow.\n    - (api) Add proposed `secondaryInspectionCriteria` (criteria\
-    \ + optional `upgradeType`) to `RedeliveryUnit` so the owner can request multiple\
-    \ estimates per unit; the existing `inspectionCriteria` is the primary.\n    -\
-    \ (api, client, server) Add a new proposed (alpha) `inventory` API.\n    - (server)\
-    \ Maintain the example depot inventory as gates, estimates, work orders, repair\
-    \ completes, and releases are processed so the inventory API can be exercised\
-    \ end to end.\n    - (client) Add sample client support for fetching depot inventory.\n\
-    \    - (doc) Clarify authentication endpoints url.\n    - (server) Declare `application.yml`\
-    \ as a `compileJava` input so `publishOpenapiDocs` regenerates the OpenAPI spec\
-    \ when only the documentation configuration changes.\n    - (api) Add proposed\
-    \ `RW` & `SW` estimate types for UCIRC estimates.        \n\n\n # Security & Authentication\n\
+    \n * 2.2.11\n    - (server) fix an edge case when saving a party\n    - (client)\
+    \ Add sample client support for uploading Gate and Estimate photos (multipart\
+    \ upload).\n    - (api) Fix EstimatePhotoStatus enum value `REPAIR` to `REPAIRED`\
+    \ to match the documented value.\n    - (server, client) Update the sample application\
+    \ to Micronaut Framework 5 (Java 25 baseline, Gradle 9.5).\n    - (doc) Correct\
+    \ the generated multipart photo upload schemas to type `object` and remove erroneous\
+    \ `required` entries (Micronaut OpenAPI 7 generator fixes).\n    - (api, client,\
+    \ server) Add optional `transportType` to GateCreateRequest and GateUpdateRequest\
+    \ to indicate how the shipping container was transported.\n    - (doc) Add a `Lifecycle\
+    \ Process Flows` section documenting how the multiple estimate workflow & other\
+    \ workflows commonly work.\n    - (api) Revised multiple estimate workflow.\n\
+    \    - (api) Add proposed `secondaryInspectionCriteria` (criteria + optional `upgradeType`)\
+    \ to `RedeliveryUnit` so the owner can request multiple estimates per unit; the\
+    \ existing `inspectionCriteria` is the primary.\n    - (api, client, server) Add\
+    \ a new proposed (alpha) `inventory` API.\n    - (server) Maintain the example\
+    \ depot inventory as gates, estimates, work orders, repair completes, and releases\
+    \ are processed so the inventory API can be exercised end to end.\n    - (client)\
+    \ Add sample client support for fetching depot inventory.\n    - (doc) Clarify\
+    \ authentication endpoints url.\n    - (server) Declare `application.yml` as a\
+    \ `compileJava` input so `publishOpenapiDocs` regenerates the OpenAPI spec when\
+    \ only the documentation configuration changes.\n    - (api) Add proposed `RW`\
+    \ & `SW` estimate types for UCIRC estimates.        \n\n\n # Security & Authentication\n\
     \n To ensure secure communication, all endpoints of this API should use the https\
     \ protocol instead of http.  Authentication methods will differ between systems,\
     \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\

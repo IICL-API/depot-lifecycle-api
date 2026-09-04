@@ -1,12 +1,11 @@
 package depotlifecycle.controllers.api.release;
 
 import tools.jackson.databind.JsonNode;
+import depotlifecycle.system.PartyResolver;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.release.Release;
 import depotlifecycle.domain.release.ReleaseDetail;
 import depotlifecycle.domain.release.ReleaseDetailCriteria;
-import depotlifecycle.repositories.ExternalPartyRepository;
-import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.release.ReleaseRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
@@ -56,11 +55,10 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ReleaseController {
     private static final Logger LOG = LoggerFactory.getLogger(ReleaseController.class);
-    private final PartyRepository partyRepository;
+    private final PartyResolver partyResolver;
     private final ReleaseRepository releaseRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
-    private final ExternalPartyRepository externalPartyRepository;
     private final InventoryUpdater inventoryUpdater;
 
     @Get(produces = MediaType.APPLICATION_JSON)
@@ -144,7 +142,7 @@ public class ReleaseController {
         for (ReleaseDetail detail : release.getDetails()) {
             if (detail.getCustomer() != null) {
                 try {
-                    detail.setCustomer(externalPartyRepository.save(detail.getCustomer()));
+                    detail.setCustomer(partyResolver.resolve(detail.getCustomer()));
                 }
                 catch(Exception e) {
                     throw new IllegalArgumentException(String.format("Customer - %s", e.getMessage()));
@@ -159,16 +157,16 @@ public class ReleaseController {
         }
 
         if (release.getOwner() != null) {
-            release.setOwner(partyRepository.save(release.getOwner()));
+            release.setOwner(partyResolver.resolve(release.getOwner()));
         }
 
         if (release.getDepot() != null) {
-            release.setDepot(partyRepository.save(release.getDepot()));
+            release.setDepot(partyResolver.resolve(release.getDepot()));
         }
 
         if (release.getRecipient() != null) {
             try {
-                release.setRecipient(externalPartyRepository.save(release.getRecipient()));
+                release.setRecipient(partyResolver.resolve(release.getRecipient()));
             }
             catch(Exception e) {
                 throw new IllegalArgumentException(String.format("Recipient - %s", e.getMessage()));

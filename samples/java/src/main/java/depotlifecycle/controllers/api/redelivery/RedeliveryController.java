@@ -1,12 +1,11 @@
 package depotlifecycle.controllers.api.redelivery;
 
 import tools.jackson.databind.JsonNode;
+import depotlifecycle.system.PartyResolver;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.redelivery.Redelivery;
 import depotlifecycle.domain.redelivery.RedeliveryDetail;
 import depotlifecycle.domain.redelivery.RedeliveryUnit;
-import depotlifecycle.repositories.ExternalPartyRepository;
-import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.redelivery.RedeliveryRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
@@ -57,11 +56,10 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class RedeliveryController {
     private static final Logger LOG = LoggerFactory.getLogger(RedeliveryController.class);
-    private final PartyRepository partyRepository;
+    private final PartyResolver partyResolver;
     private final RedeliveryRepository redeliveryRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
-    private final ExternalPartyRepository externalPartyRepository;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a redelivery",
@@ -158,7 +156,7 @@ public class RedeliveryController {
         for (RedeliveryDetail detail : redelivery.getDetails()) {
             if (detail.getCustomer() != null) {
                 try {
-                    detail.setCustomer(externalPartyRepository.save(detail.getCustomer()));
+                    detail.setCustomer(partyResolver.resolve(detail.getCustomer()));
                 }
                 catch(Exception e) {
                     throw new IllegalArgumentException(String.format("Customer - %s", e.getMessage()));
@@ -167,25 +165,25 @@ public class RedeliveryController {
 
             for (RedeliveryUnit unit : detail.getUnits()) {
                 if (unit.getLastOnHireLocation() != null) {
-                    unit.setLastOnHireLocation(partyRepository.save(unit.getLastOnHireLocation()));
+                    unit.setLastOnHireLocation(partyResolver.resolve(unit.getLastOnHireLocation()));
                 }
                 if (unit.getBillingParty() != null) {
-                    unit.setBillingParty(partyRepository.save(unit.getBillingParty()));
+                    unit.setBillingParty(partyResolver.resolve(unit.getBillingParty()));
                 }
             }
         }
 
         if (redelivery.getOwner() != null) {
-            redelivery.setOwner(partyRepository.save(redelivery.getOwner()));
+            redelivery.setOwner(partyResolver.resolve(redelivery.getOwner()));
         }
 
         if (redelivery.getDepot() != null) {
-            redelivery.setDepot(partyRepository.save(redelivery.getDepot()));
+            redelivery.setDepot(partyResolver.resolve(redelivery.getDepot()));
         }
 
         if (redelivery.getRecipient() != null) {
             try {
-                redelivery.setRecipient(externalPartyRepository.save(redelivery.getRecipient()));
+                redelivery.setRecipient(partyResolver.resolve(redelivery.getRecipient()));
             }
             catch(Exception e) {
                 throw new IllegalArgumentException(String.format("Recipient - %s", e.getMessage()));

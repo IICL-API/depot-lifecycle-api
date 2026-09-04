@@ -272,6 +272,7 @@ depotlifecycle:
             - (server) Enhance the Estimate model to support sending multiple estimates in a single transmission.
 
          * 2.2.11
+            - (server) fix an edge case when saving a party
             - (client) Add sample client support for uploading Gate and Estimate photos (multipart upload).
             - (api) Fix EstimatePhotoStatus enum value `REPAIR` to `REPAIRED` to match the documented value.
             - (server, client) Update the sample application to Micronaut Framework 5 (Java 25 baseline, Gradle 9.5).

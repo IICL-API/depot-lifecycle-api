@@ -16,7 +16,6 @@ import depotlifecycle.domain.repair.EstimateCondition;
 import depotlifecycle.domain.repair.RepairComplete;
 import depotlifecycle.domain.repair.WorkOrder;
 import depotlifecycle.domain.repair.WorkOrderUnit;
-import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.inventory.InventoryUnitRepository;
 import depotlifecycle.repositories.redelivery.RedeliveryRepository;
 import jakarta.inject.Singleton;
@@ -39,7 +38,7 @@ public class InventoryUpdater {
     private static final Logger LOG = LoggerFactory.getLogger(InventoryUpdater.class);
     private final InventoryUnitRepository inventoryUnitRepository;
     private final RedeliveryRepository redeliveryRepository;
-    private final PartyRepository partyRepository;
+    private final PartyResolver partyResolver;
 
     public void recordGate(GateCreateRequest gate) {
         Party depot = resolveDepot(gate.getDepot());
@@ -168,14 +167,11 @@ public class InventoryUpdater {
     }
 
     /**
-     * Parties are saved per transmission in this example application, so multiple rows may share a
-     * companyId; resolve to the first known row for the companyId so inventory lookups are stable.
+     * Resolves the depot carried on a message to the stored party row for its identity, so
+     * inventory lookups key off the same row {@link PartyResolver} stores.
      */
     private Party resolveDepot(Party depot) {
-        if (depot == null || depot.getCompanyId() == null) {
-            return depot;
-        }
-        return partyRepository.findByCompanyId(depot.getCompanyId()).orElse(depot);
+        return partyResolver.find(depot).orElse(depot);
     }
 
     private void save(InventoryUnit unit) {

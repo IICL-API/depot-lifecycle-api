@@ -1,9 +1,9 @@
 package depotlifecycle.controllers.api.repair;
 
 import tools.jackson.databind.JsonNode;
+import depotlifecycle.system.PartyResolver;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.repair.WorkOrder;
-import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.repair.WorkOrderRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 @RequiredArgsConstructor
 public class WorkOrderController {
     private static final Logger LOG = LoggerFactory.getLogger(WorkOrderController.class);
-    private final PartyRepository partyRepository;
+    private final PartyResolver partyResolver;
     private final WorkOrderRepository workOrderRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
@@ -82,15 +82,15 @@ public class WorkOrderController {
 
     private void saveParties(WorkOrder workOrder) {
         if (workOrder.getDepot() != null) {
-            workOrder.setDepot(partyRepository.save(workOrder.getDepot()));
+            workOrder.setDepot(partyResolver.resolve(workOrder.getDepot()));
         }
 
         if (workOrder.getOwner() != null) {
-            workOrder.setOwner(partyRepository.save(workOrder.getOwner()));
+            workOrder.setOwner(partyResolver.resolve(workOrder.getOwner()));
         }
 
         if (workOrder.getBillingParty() != null) {
-            workOrder.setBillingParty(partyRepository.save(workOrder.getBillingParty()));
+            workOrder.setBillingParty(partyResolver.resolve(workOrder.getBillingParty()));
         }
     }
 

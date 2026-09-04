@@ -11,4 +11,8 @@ import java.util.Optional;
 @Repository
 public interface PartyRepository extends CrudRepository<Party, Long> {
     Optional<Party> findByCompanyId(@NotNull @NonNull String companyId);
+
+    Optional<Party> findByCode(@NotNull @NonNull String code);
+
+    Optional<Party> findByName(@NotNull @NonNull String name);
 }
