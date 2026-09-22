@@ -40,7 +40,7 @@ public class GateUpdateCommand {
     GateRequestStatus status;
 
     @Nullable
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Z")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm[:ss][XXX]", timezone = "Z")
     ZonedDateTime activityTime;
 
     @Nullable

@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import depotlifecycle.domain.equipment.MachineryInfo;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -14,18 +13,15 @@ import lombok.Data;
 @Introspected
 public class MachineryInfoCommand {
     @Nullable
-    @Max(50)
-    @NotBlank
+    @Size(max = 50)
     String manufacturer;
 
     @Nullable
-    @Max(50)
-    @NotBlank
+    @Size(max = 50)
     String modelName;
 
     @Nullable
-    @Max(50)
-    @NotBlank
+    @Size(max = 50)
     String modelNumber;
 
     @JsonIgnore

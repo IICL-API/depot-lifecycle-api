@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 @Introspected
 public class EstimateLineItemPartCommand {
     @Nullable
-    @NotBlank
     @Size(max = 500)
     String description;
 

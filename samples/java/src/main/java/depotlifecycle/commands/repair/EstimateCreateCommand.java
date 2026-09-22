@@ -37,7 +37,7 @@ public class EstimateCreateCommand {
     EstimateCondition condition;
 
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Z")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm[:ss][XXX]", timezone = "Z")
     ZonedDateTime estimateTime;
 
     @Nullable
@@ -58,7 +58,8 @@ public class EstimateCreateCommand {
 
     @NotNull
     @NotBlank
-    @Size(max = 3)
+    @Size(min = 3, max = 3)
+    @Pattern(regexp = "^[A-Z]{3}$", message = "Currency must be a 3 character ISO currency code.")
     String currency;
 
     @NotNull

@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import depotlifecycle.domain.Party;
 import io.micronaut.core.annotation.Introspected;
-import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -17,12 +17,13 @@ import lombok.EqualsAndHashCode;
 @Introspected
 @EqualsAndHashCode(callSuper=true)
 public class PartyCommand extends BasePartyCommand {
-    @Nonnull
+    @NotNull
+    @NotBlank
+    @Size(min = 9, max = 9)
     @Pattern(regexp = "^[A-Z0-9]{9}$", message = "CompanyId must be a valid EDI Address.")
     String companyId;
 
     @Nullable
-    @NotBlank
     @Size(max = 10)
     String code;
 

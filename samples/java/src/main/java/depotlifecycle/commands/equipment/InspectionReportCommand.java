@@ -33,7 +33,7 @@ public class InspectionReportCommand {
     LocalDate lastInspection;
 
     @Nullable
-    @Min(0)
+    @Min(1)
     Integer validFor;
 
     @Nullable

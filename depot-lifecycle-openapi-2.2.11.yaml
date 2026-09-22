@@ -272,8 +272,11 @@ info:
     \ authentication endpoints url.\n    - (server) Declare `application.yml` as a\
     \ `compileJava` input so `publishOpenapiDocs` regenerates the OpenAPI spec when\
     \ only the documentation configuration changes.\n    - (api) Add proposed `RW`\
-    \ & `SW` estimate types for UCIRC estimates.        \n\n\n # Security & Authentication\n\
-    \n To ensure secure communication, all endpoints of this API should use the https\
+    \ & `SW` estimate types for UCIRC estimates.\n    - (client) Align the sample\
+    \ client command objects with the API models - optional fields no longer reject\
+    \ null, string lengths & patterns match the documented schemas, and date/times\
+    \ serialize in the documented format.\n\n\n # Security & Authentication\n\n To\
+    \ ensure secure communication, all endpoints of this API should use the https\
     \ protocol instead of http.  Authentication methods will differ between systems,\
     \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
     \ both of these follow.\n\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
