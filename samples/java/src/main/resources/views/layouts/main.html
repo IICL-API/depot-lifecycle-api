@@ -35,6 +35,14 @@
 </main>
 
 <script src=" https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js "></script>
+<script>
+    // Optional enum selects left blank are omitted from the submission so they bind as null instead of an empty string.
+    document.addEventListener('submit', function (event) {
+        event.target.querySelectorAll('[data-omit-when-blank]').forEach(function (field) {
+            field.disabled = field.value === '';
+        });
+    });
+</script>
 </body>
 
 </html>

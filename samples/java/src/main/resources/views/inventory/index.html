@@ -52,7 +52,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="fetchStatus" class="form-label">Status</label>
-                            <select class="form-select" name="status" id="fetchStatus">
+                            <select class="form-select" name="status" id="fetchStatus" data-omit-when-blank>
                                 <option></option>
                                 <option th:each="inventoryStatus : ${inventoryStatuses}"
                                         th:value="${inventoryStatus}" th:text="${inventoryStatus}"></option>

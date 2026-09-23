@@ -116,7 +116,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="updateStatus" class="form-label">Status</label>
-                            <select class="form-select" name="status" id="updateStatus">
+                            <select class="form-select" name="status" id="updateStatus" data-omit-when-blank>
                                 <option></option>
                                 <option th:each="gateStatus : ${gateStatuses}" th:attr="value=${gateStatus.name()}"
                                         th:text="${gateStatus.name()}"></option>
@@ -132,7 +132,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="updateType" class="form-label">Type</label>
-                            <select class="form-select" name="type" id="updateType">
+                            <select class="form-select" name="type" id="updateType" data-omit-when-blank>
                                 <option></option>
                                 <option th:each="gateType : ${gateTypes}" th:attr="value=${gateType.name()}"
                                         th:text="${gateType.name()}"></option>
@@ -140,7 +140,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="updateTransportType" class="form-label">Transport Type</label>
-                            <select class="form-select" name="transportType" id="updateTransportType">
+                            <select class="form-select" name="transportType" id="updateTransportType" data-omit-when-blank>
                                 <option></option>
                                 <option th:each="gateTransportType : ${gateTransportTypes}" th:attr="value=${gateTransportType.name()}"
                                         th:text="${gateTransportType.name()}"></option>
@@ -210,7 +210,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="createTransportType" class="form-label">Transport Type</label>
-                            <select class="form-select" name="transportType" id="createTransportType">
+                            <select class="form-select" name="transportType" id="createTransportType" data-omit-when-blank>
                                 <option></option>
                                 <option th:each="gateTransportType : ${gateTransportTypes}" th:attr="value=${gateTransportType.name()}"
                                         th:text="${gateTransportType.name()}"></option>

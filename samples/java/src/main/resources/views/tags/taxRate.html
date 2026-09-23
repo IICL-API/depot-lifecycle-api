@@ -16,7 +16,7 @@
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'rule'" class="form-label">Tax Rule</label>
-            <select class="form-select" th:attr="id=${id} + 'rule', name=${propertyPath} + 'rule'" required>
+            <select class="form-select" th:attr="id=${id} + 'rule', name=${propertyPath} + 'rule'" required data-omit-when-blank>
                 <option></option>
                 <option th:each="taxRule : ${taxRules}" th:attr="value=${taxRule.name()}" th:text="${taxRule.name() + ' - ' + taxRule.description}"></option>
             </select>

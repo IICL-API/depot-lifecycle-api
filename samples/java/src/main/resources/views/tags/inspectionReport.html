@@ -9,7 +9,7 @@
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'mandateLevel'" class="form-label">Mandate Level</label>
-            <select class="form-select" th:attr="id=${id} + 'mandateLevel', name=${propertyPath} + 'mandateLevel'" required>
+            <select class="form-select" th:attr="id=${id} + 'mandateLevel', name=${propertyPath} + 'mandateLevel'" required data-omit-when-blank>
                 <option></option>
                 <option th:each="mandateLevel : ${mandateLevels}" th:attr="value=${mandateLevel.name()}" th:text="${mandateLevel.name() + ' - ' + mandateLevel.description}"></option>
             </select>
@@ -24,7 +24,7 @@
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'result'" class="form-label">Result</label>
-            <select class="form-select" th:attr="id=${id} + 'result', name=${propertyPath} + 'result'">
+            <select class="form-select" th:attr="id=${id} + 'result', name=${propertyPath} + 'result'" data-omit-when-blank>
                 <option></option>
                 <option th:each="inspectionResult : ${inspectionResults}" th:attr="value=${inspectionResult.name()}" th:text="${inspectionResult.name() + ' - ' + inspectionResult.description}"></option>
             </select>

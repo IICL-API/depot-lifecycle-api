@@ -148,14 +148,14 @@
                         </div>
                         <div class="mb-3">
                             <label for="createType" class="form-label">Type</label>
-                            <select class="form-select" name="type" id="createType">
+                            <select class="form-select" name="type" id="createType" data-omit-when-blank>
                                 <option></option>
                                 <option th:each="estimateType : ${estimateTypes}" th:attr="value=${estimateType.name()}" th:text="${estimateType.name()}"></option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="createUpgradeType" class="form-label">Upgrade Type</label>
-                            <select class="form-select" name="upgradeType" id="createUpgradeType">
+                            <select class="form-select" name="upgradeType" id="createUpgradeType" data-omit-when-blank>
                                 <option></option>
                                 <option th:each="upgradeType : ${upgradeTypes}" th:attr="value=${upgradeType.name()}" th:text="${upgradeType.name()}"></option>
                             </select>
