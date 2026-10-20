@@ -2,7 +2,7 @@ name: Publish API docs
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   workflow_dispatch:
 
 permissions:
@@ -16,6 +16,10 @@ concurrency:
 
 jobs:
   build:
+    # Only the configured branch deploys. Set the repository variable PAGES_BRANCH
+    # (Settings > Secrets and variables > Actions > Variables) to e.g. develop on a
+    # fork. It defaults to main when unset.
+    if: github.ref_name == (vars.PAGES_BRANCH || 'main')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
