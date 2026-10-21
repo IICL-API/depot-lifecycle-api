@@ -6,9 +6,9 @@ import depotlifecycle.domain.equipment.EquipmentDetail;
 import depotlifecycle.domain.equipment.InspectionReport;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -20,8 +20,8 @@ import java.util.List;
 @Introspected
 public class EquipmentDetailCommand {
     @NotNull
-    @Max(10)
     @NotBlank
+    @Size(max = 10)
     String equipment;
 
     @NotNull

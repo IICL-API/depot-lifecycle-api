@@ -1,12 +1,13 @@
 package depotlifecycle.controllers.api.repair;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
+import depotlifecycle.system.PartyResolver;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.repair.WorkOrder;
-import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.repair.WorkOrderRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
+import depotlifecycle.system.InventoryUpdater;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.*;
 import io.micronaut.http.annotation.Body;
@@ -40,10 +41,11 @@ import org.slf4j.LoggerFactory;
 @RequiredArgsConstructor
 public class WorkOrderController {
     private static final Logger LOG = LoggerFactory.getLogger(WorkOrderController.class);
-    private final PartyRepository partyRepository;
+    private final PartyResolver partyResolver;
     private final WorkOrderRepository workOrderRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
+    private final InventoryUpdater inventoryUpdater;
 
     @Post(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "authorizes a repair",
@@ -72,20 +74,23 @@ public class WorkOrderController {
 
         workOrderRepository.save(workOrder);
 
+        //Reflect the repair authorization in the example depot inventory
+        inventoryUpdater.recordWorkOrder(workOrder);
+
         return HttpResponse.ok();
     }
 
     private void saveParties(WorkOrder workOrder) {
         if (workOrder.getDepot() != null) {
-            workOrder.setDepot(partyRepository.save(workOrder.getDepot()));
+            workOrder.setDepot(partyResolver.resolve(workOrder.getDepot()));
         }
 
         if (workOrder.getOwner() != null) {
-            workOrder.setOwner(partyRepository.save(workOrder.getOwner()));
+            workOrder.setOwner(partyResolver.resolve(workOrder.getOwner()));
         }
 
         if (workOrder.getBillingParty() != null) {
-            workOrder.setBillingParty(partyRepository.save(workOrder.getBillingParty()));
+            workOrder.setBillingParty(partyResolver.resolve(workOrder.getBillingParty()));
         }
     }
 

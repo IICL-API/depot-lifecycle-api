@@ -1,12 +1,11 @@
 package depotlifecycle.controllers.api.redelivery;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
+import depotlifecycle.system.PartyResolver;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.redelivery.Redelivery;
 import depotlifecycle.domain.redelivery.RedeliveryDetail;
 import depotlifecycle.domain.redelivery.RedeliveryUnit;
-import depotlifecycle.repositories.ExternalPartyRepository;
-import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.redelivery.RedeliveryRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
@@ -57,11 +56,10 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class RedeliveryController {
     private static final Logger LOG = LoggerFactory.getLogger(RedeliveryController.class);
-    private final PartyRepository partyRepository;
+    private final PartyResolver partyResolver;
     private final RedeliveryRepository redeliveryRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
-    private final ExternalPartyRepository externalPartyRepository;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a redelivery",
@@ -96,14 +94,14 @@ public class RedeliveryController {
         extensions = @Extension(properties = {@ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true)})
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful create", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successful create"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the redelivery depot was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, @Parameter(hidden = true) HttpHeaders headers) {
+    public HttpResponse<Void> create(@Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Redelivery Create");
         conversionService.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
         Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v) -> m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
@@ -126,14 +124,14 @@ public class RedeliveryController {
         extensions = @Extension(properties = {@ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true)})
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful update", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successful update"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the redelivery was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(type = "string", example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
+    public HttpResponse<Void> update(@Parameter(description = "the redelivery number that needs updated", required = true, in = ParameterIn.PATH, schema = @Schema(type = "string", example = "AHAMG000000", maxLength = 16)) String redeliveryNumber,
                                            @Body @RequestBody(description = "Data to use to update the given Redelivery", required = true, content = {@Content(schema = @Schema(implementation = Redelivery.class))}) Redelivery redelivery, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Redelivery Update");
         conversionService.convert(redelivery, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
@@ -158,7 +156,7 @@ public class RedeliveryController {
         for (RedeliveryDetail detail : redelivery.getDetails()) {
             if (detail.getCustomer() != null) {
                 try {
-                    detail.setCustomer(externalPartyRepository.save(detail.getCustomer()));
+                    detail.setCustomer(partyResolver.resolve(detail.getCustomer()));
                 }
                 catch(Exception e) {
                     throw new IllegalArgumentException(String.format("Customer - %s", e.getMessage()));
@@ -167,25 +165,25 @@ public class RedeliveryController {
 
             for (RedeliveryUnit unit : detail.getUnits()) {
                 if (unit.getLastOnHireLocation() != null) {
-                    unit.setLastOnHireLocation(partyRepository.save(unit.getLastOnHireLocation()));
+                    unit.setLastOnHireLocation(partyResolver.resolve(unit.getLastOnHireLocation()));
                 }
                 if (unit.getBillingParty() != null) {
-                    unit.setBillingParty(partyRepository.save(unit.getBillingParty()));
+                    unit.setBillingParty(partyResolver.resolve(unit.getBillingParty()));
                 }
             }
         }
 
         if (redelivery.getOwner() != null) {
-            redelivery.setOwner(partyRepository.save(redelivery.getOwner()));
+            redelivery.setOwner(partyResolver.resolve(redelivery.getOwner()));
         }
 
         if (redelivery.getDepot() != null) {
-            redelivery.setDepot(partyRepository.save(redelivery.getDepot()));
+            redelivery.setDepot(partyResolver.resolve(redelivery.getDepot()));
         }
 
         if (redelivery.getRecipient() != null) {
             try {
-                redelivery.setRecipient(externalPartyRepository.save(redelivery.getRecipient()));
+                redelivery.setRecipient(partyResolver.resolve(redelivery.getRecipient()));
             }
             catch(Exception e) {
                 throw new IllegalArgumentException(String.format("Recipient - %s", e.getMessage()));

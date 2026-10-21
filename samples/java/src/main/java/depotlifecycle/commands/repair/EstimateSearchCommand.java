@@ -3,7 +3,6 @@ package depotlifecycle.commands.repair;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -12,7 +11,6 @@ import lombok.Data;
 @Introspected
 public class EstimateSearchCommand {
     @Nullable
-    @NotBlank
     @Size(max = 16)
     String estimateNumber;
 
@@ -36,7 +34,6 @@ public class EstimateSearchCommand {
     Integer revision;
 
     @Nullable
-    @NotBlank
     @Size(max = 10)
     String equipmentCode;
 }

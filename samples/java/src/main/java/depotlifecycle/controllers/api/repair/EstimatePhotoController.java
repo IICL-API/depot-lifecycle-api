@@ -56,7 +56,7 @@ public class EstimatePhotoController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully uploaded an estimate photo", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successfully uploaded an estimate photo"),
         @ApiResponse(responseCode = "202", description = "photo accepted for processing, but not created due to manual processing requirement", content = {@Content(schema = @Schema(implementation = PendingResponse.class))}),
         @ApiResponse(responseCode = "400", description = "an invalid request was provided", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "uploading an estimate photo is disallowed by security"),
@@ -65,7 +65,7 @@ public class EstimatePhotoController {
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
     @RequestBody(description = "The photo to upload (expected name of part is `file`)", required = true, content = {@Content(mediaType = MediaType.MULTIPART_FORM_DATA, schema = @Schema(name="file", type = "string", format = "binary", description = "the photo data"))})
-    public HttpResponse<HttpStatus> create(@Parameter(name = "relatedId", description = "the related identifier (from the estimate allocation) that this photo should be attached", in = ParameterIn.PATH, required = true, schema = @Schema(example = "10102561", type = "integer", format = "int64")) Long relatedId,
+    public HttpResponse<Void> create(@Parameter(name = "relatedId", description = "the related identifier (from the estimate allocation) that this photo should be attached", in = ParameterIn.PATH, required = true, schema = @Schema(example = "10102561", type = "integer", format = "int64")) Long relatedId,
                                            @Nullable @QueryValue("line") @Parameter(name = "line", description = "an optional line number to associate this photo to", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "integer", format="int32", example = "1")) Integer line,
                                            @Nullable @QueryValue("status") @Parameter(name = "status", description = "indicator of when this photo applies\n\n`REPAIRED` - Photo is after repair \n\n`BEFORE` - Photo is before repair", in = ParameterIn.QUERY, required = false, schema = @Schema(type = "string", allowableValues = {"REPAIRED", "BEFORE"}, defaultValue = "BEFORE", example = "BEFORE", maxLength = 8)) String status,
                                            CompletedFileUpload file) {

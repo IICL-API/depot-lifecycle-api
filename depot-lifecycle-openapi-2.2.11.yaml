@@ -39,11 +39,129 @@ info:
     \ Depot to report the initial gate in movement, issue gate data corrections (i.e.\
     \ the damage status or activity date), participate in the estimate process (i.e.\
     \ creation, surveys, and customer approval), notify when a shipping container\
-    \ is repaired, and create a gate out for leaving the depot.\n\n\n # Depot Identifiers\n\
-    \n Depot or facility identifiers, henceforth referred to as `EDI Address`, `CompanyId`,\
-    \ or `Party Id` in this document, are maintained by The Bureau International des\
-    \ Containers (BIC) and officially known as the BIC Facility Code. For codes and\
-    \ more information please refer to [https://www.bic-code.org/bic-facility-codes](https://www.bic-code.org/bic-facility-codes/).\n\
+    \ is repaired, and create a gate out for leaving the depot.\n\n\n # Lifecycle\
+    \ Process Flows\n\n The following flows illustrate how the individual APIs combine\
+    \ to model the life of a shipping container inside a depot.  These are the common,\
+    \ suggested workflows - the exact sequence, parties involved, and which steps\
+    \ apply may vary by implementation and business relationship (see also `Implementation\
+    \ Expectations`).  JSON examples are abridged to the fields relevant to each step;\
+    \ refer to the schema definitions for complete payloads.\n\n A key concept throughout:\
+    \ a **work order is an authorization for the depot to take action** on a shipping\
+    \ container - it is broader than \"repair this unit\".  Depots typically organize\
+    \ their yards into stacks (some possible examples include `to-estimate` stack,\
+    \ `to-fix` stack, `sell` stack, etc.) and a work order authorizes the move/action;\
+    \ the specifics vary by depot and are intentionally not modeled by this API.\n\
+    \n ## Standard Damage Repair Cycle\n\n The typical flow for a damaged shipping\
+    \ container turned in to a depot:\n\n 1. **Redelivery** (Owner -> Depot / Customer)\
+    \ - before a shipping container may arrive, the owner authorizes the customer\
+    \ to turn it in to the depot: `POST /v2/redelivery`.  Redeliveries are always\
+    \ initiated by the owner and may be transmitted to both the customer and the depot.\
+    \  The redelivery advice is the depot's authority to accept the unit at the gate,\
+    \ and it communicates up front whether an estimate is allowed via the inspection\
+    \ criteria on the `RedeliveryUnit` (the estimation instructions).\n\n 2. **Gate\
+    \ In** (Depot -> Owner) - the depot reports the arrival: `POST /v2/gate` with\
+    \ `type` = `IN`, `status` = `D` (damaged), and the redelivery advice number. \
+    \ When the unit is damaged an estimate is expected to be performed; the presence\
+    \ of inspection criteria (echoed back as `currentInspectionCriteria` on the `GateResponse`)\
+    \ is the indicator to the depot that estimation is allowed and to what grade.\
+    \  The response also carries the applicable `insuranceCoverage` and `currentExchangeRate`.\n\
+    \n 3. **Initial estimate (revision 0)** (Depot -> Owner) - the depot surveys the\
+    \ damage and submits `POST /v2/estimate` with `condition` = `D`, `revision` =\
+    \ `0`, and the damage `lineItems`.  The response is an `EstimateAllocation`: the\
+    \ owner / customer / insurance split of the total, plus an optional `preliminaryDecision`\
+    \ indicating the likely repair-or-sell outcome.\n\n 4. **Revisions** (Depot ->\
+    \ Owner, or Owner -> Depot for surveys) - surveys and corrections produce further\
+    \ transmissions of the same `estimateNumber` with an incremented `revision` and\
+    \ an updated `condition` (`E` - customer surveyed, `L` - owner surveyed).  Each\
+    \ revision fully replaces the prior one.  When customer approval is required,\
+    \ the owner notifies the customer (Owner -> Customer) of each revision until the\
+    \ approval has been given.\n\n 5. **Customer approval** (Customer -> Owner, then\
+    \ Owner -> Depot) - when customer approval is required, the customer transmits\
+    \ the approval of their portion to the owner via `PUT /v2/estimate/{estimateNumber}`\
+    \ (an `EstimateCustomerApproval`); the owner then notifies the depot by sending\
+    \ an estimate revision with the `customerApproval` embedded and `condition` =\
+    \ `F` (approved, no survey) or `G` (approved, surveyed).  A depot that obtains\
+    \ the approval directly reports it to the owner the same way (Depot -> Owner revision).\
+    \  In some relationships customer approval is implicit and the first revision\
+    \ is considered approved automatically.\n\n 6. **Owner approval = work order**\
+    \ (Owner -> Depot) - there is no \"owner approved\" estimate state; the owner's\
+    \ decision *is* the work order, and it always applies to the latest revision of\
+    \ the referenced estimate.  It arrives either as a `201` response to the estimate\
+    \ create/approve call or as a separate `POST /v2/workOrder` naming the estimate:\n\
+    \n    ```\n    {\n      \"workOrderNumber\": \"WHAMG46019\",\n      \"type\":\
+    \ \"CWCA\",\n      \"approvalTotal\": 175.00,\n      \"lineItems\": [ { \"unitNumber\"\
+    : \"CONU1234561\", \"estimateNumber\": \"DEHAMCE1856373\", \"status\": \"TIED\"\
+    , \"effectiveInspectionCriteria\": \"CWCA-1\" } ]\n    }\n    ```\n\n 7. **Repair\
+    \ complete** (Depot -> Owner) - when the depot finishes the repair it reports\
+    \ `PUT /v2/workOrderUnit/{workOrderNumber}` (a `RepairComplete`) and the unit\
+    \ becomes available.\n\n 8. **Release** (Owner -> Depot) - when the shipping container\
+    \ is leased out again, the owner issues the advice that approves it to leave the\
+    \ depot: `POST /v2/release`.  The release advice number authorizes the gate out.\n\
+    \n 9. **Gate Out** (Depot -> Owner) - the shipping container leaves the depot:\
+    \ `POST /v2/gate` with `type` = `OUT`, `status` = `A`, and the release advice\
+    \ number.\n\n ## Variations\n\n **Undamaged turn in** - a unit gated in with `status`\
+    \ = `A` needs no estimate; the flow is simply gate in, then eventually gate out.\n\
+    \n **Direct work order (no estimate)** (Owner -> Depot) - a work order may be\
+    \ issued without any estimate, for example an ancillary upgrade to an undamaged\
+    \ container.  The `WorkOrderUnit` simply omits `estimateNumber`, and a work order\
+    \ not initiated by an estimate may cover multiple units.  The repair complete\
+    \ and gate out steps are unchanged.\n\n **Sell authorization** (Owner -> Depot)\
+    \ - note that work order `type` codes are **not standardized** by this API; they\
+    \ vary by implementation and are agreed between trading partners.  A common convention\
+    \ is a `SELL` type: a zero-amount work order indicating the container will be\
+    \ sold rather than repaired.  A sell authorization is considered completed automatically\
+    \ - a repair complete message is never sent for it.\n\n ## Multiple Estimates\
+    \ in a Single Transmission\n\n *This process is currently a proposal - it is not\
+    \ production approved and the fields it relies upon are individually marked as\
+    \ proposed in the schema definitions.*\n\n Sometimes an owner needs several what-if\
+    \ estimates for the same shipping container - typically to decide whether, while\
+    \ repairing it, the container should also be upgraded (e.g. a plain CWCA repair\
+    \ versus repair plus food grade upgrade).  Estimate writer time is expensive,\
+    \ so the additional scenarios are written up together with the primary repair\
+    \ as a set rather than as separate estimates - the proposal transmits that set\
+    \ in a single estimate:\n\n - The owner requests multiple estimates via the redelivery\
+    \ advice (Owner -> Depot) - the `RedeliveryUnit` encodes the expected primary\
+    \ estimate type via the `inspectionCriteria` field and any additional required\
+    \ types via the `secondaryInspectionCriteria` array field.\n - One `Estimate`\
+    \ is sent (Depot -> Owner) with a single `estimateNumber` and a combined `total`.\n\
+    \ - **The estimates are cumulative** - the primary repair (e.g. `RC`) contains\
+    \ the repair line items; each additional estimate type (e.g. an `AU` ancillary\
+    \ food grade upgrade) contains only its *additive* line items on top of the primary\
+    \ repair.  Because the set is cumulative it shares one `condition` and one `revision`,\
+    \ and a cancellation cancels every estimate type in the transmission.\n - Each\
+    \ line item is tagged with the estimate type(s) it belongs to via `allocationTypes`\
+    \ (a combination of estimate `type` and optional `upgradeType`).  A line item\
+    \ shared by several additional estimate types carries multiple tags; a line item\
+    \ with no tags belongs to the estimate's own `type` / `upgradeType`.\n - The combined\
+    \ allocation is returned with a per-type breakdown in `allocationsByType`; each\
+    \ entry identifies its estimate via `allocationType` and carries the additive\
+    \ totals for that type.\n\n    ```\n    {\n      \"estimateNumber\": \"DEHAMCE1856373\"\
+    ,\n      \"type\": \"RC\",\n      \"total\": 800.00,\n      \"lineItems\": [\n\
+    \        { \"...\": \"damage repair (primary repair)\", \"allocationTypes\": [\
+    \ { \"type\": \"RC\" } ] },\n        { \"...\": \"additive food grade upgrade\
+    \ work\", \"allocationTypes\": [ { \"type\": \"AU\", \"upgradeType\": \"FG\" }\
+    \ ] }\n      ]\n    }\n    ```\n\n - **Customer approval is unchanged** - the\
+    \ customer always approves the primary repair type only (their damage responsibility);\
+    \ the additional estimate types are owner concerns.\n - **The owner selects via\
+    \ the work order** (Owner -> Depot) - because the estimates are cumulative, the\
+    \ `WorkOrderUnit` lists an approval in `approvals` (`allocationType` + `approvalTotal`)\
+    \ for *every* estimate type being performed.  For example, performing the food\
+    \ grade upgrade means both the primary `RC` approval and the additive `AU` / `FG`\
+    \ approval appear.  As always, the work order applies to the latest revision of\
+    \ the estimate.  Estimate types *not* included on the work order are implicitly\
+    \ declined; no separate cancellation is sent.\n\n    ```\n    {\n      \"workOrderNumber\"\
+    : \"WHAMG46019\",\n      \"type\": \"AU\",\n      \"approvalTotal\": 800.00,\n\
+    \      \"lineItems\": [ {\n        \"unitNumber\": \"CONU1234561\",\n        \"\
+    estimateNumber\": \"DEHAMCE1856373\",\n        \"status\": \"TIED\",\n       \
+    \ \"effectiveInspectionCriteria\": \"CWCA-1\",\n        \"approvals\": [\n   \
+    \       { \"allocationType\": { \"type\": \"RC\" }, \"approvalTotal\": 500.00\
+    \ },\n          { \"allocationType\": { \"type\": \"AU\", \"upgradeType\": \"\
+    FG\" }, \"approvalTotal\": 300.00 }\n        ]\n      } ]\n    }\n    ```\n\n\
+    \ - Repair complete and gate out then proceed exactly as in the standard cycle.\n\
+    \n\n # Depot Identifiers\n\n Depot or facility identifiers, henceforth referred\
+    \ to as `EDI Address`, `CompanyId`, or `Party Id` in this document, are maintained\
+    \ by The Bureau International des Containers (BIC) and officially known as the\
+    \ BIC Facility Code. For codes and more information please refer to [https://www.bic-code.org/bic-facility-codes](https://www.bic-code.org/bic-facility-codes/).\n\
     \n\n # Deprecation\n\n If this API version were to be discontinued, a minimum\
     \ of 6 months time would pass before it's removal.\n\n\n # Change Log Types\n\n\
     \ * api - a backend api change that will require development to support\n * doc\
@@ -127,12 +245,42 @@ info:
     \ server) `loaded` should support `null` for unknown states on the EquipmentDetail\
     \ model.\n    - (api, server) Add `insuranceCoverage` to EstimateAllocation model.\n\
     \n * 2.2.9\n    - (client) Add local documentation link to the client.\n    -\
-    \ (doc) mark Redelivery & Release production ready. \n    - (doc) mark Estimate\
-    \ & Gate photo upload apis production ready.\n\n\n # Security & Authentication\n\
-    \n To ensure secure communication, all endpoints of this API should use the https\
-    \ protocol instead of http.  Authentication methods will differ between systems,\
-    \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
-    \ both of these follow.\n\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
+    \ (doc) mark Redelivery & Release production ready.\n\n * 2.2.10\n    - (api,\
+    \ doc) Add (optional) depreciated value in local currency to EstimateAllocation\n\
+    \    - (client) Fix bad constraint on depot for Estimate Approvals\n    - (client)\
+    \ No longer require comments since the api does not require them\n    - (client)\
+    \ Fix customer approval to match the API expectations\n    - (server) Enhance\
+    \ the Estimate model to support sending multiple estimates in a single transmission.\n\
+    \n * 2.2.11\n    - (server) fix an edge case when saving a party\n    - (client)\
+    \ Add sample client support for uploading Gate and Estimate photos (multipart\
+    \ upload).\n    - (api) Fix EstimatePhotoStatus enum value `REPAIR` to `REPAIRED`\
+    \ to match the documented value.\n    - (server, client) Update the sample application\
+    \ to Micronaut Framework 5 (Java 25 baseline, Gradle 9.5).\n    - (doc) Correct\
+    \ the generated multipart photo upload schemas to type `object` and remove erroneous\
+    \ `required` entries (Micronaut OpenAPI 7 generator fixes).\n    - (api, client,\
+    \ server) Add optional `transportType` to GateCreateRequest and GateUpdateRequest\
+    \ to indicate how the shipping container was transported.\n    - (doc) Add a `Lifecycle\
+    \ Process Flows` section documenting how the multiple estimate workflow & other\
+    \ workflows commonly work.\n    - (api) Revised multiple estimate workflow.\n\
+    \    - (api) Add proposed `secondaryInspectionCriteria` (criteria + optional `upgradeType`)\
+    \ to `RedeliveryUnit` so the owner can request multiple estimates per unit; the\
+    \ existing `inspectionCriteria` is the primary.\n    - (api, client, server) Add\
+    \ a new proposed (alpha) `inventory` API.\n    - (server) Maintain the example\
+    \ depot inventory as gates, estimates, work orders, repair completes, and releases\
+    \ are processed so the inventory API can be exercised end to end.\n    - (client)\
+    \ Add sample client support for fetching depot inventory.\n    - (doc) Clarify\
+    \ authentication endpoints url.\n    - (server) Declare `application.yml` as a\
+    \ `compileJava` input so `publishOpenapiDocs` regenerates the OpenAPI spec when\
+    \ only the documentation configuration changes.\n    - (api) Add proposed `RW`\
+    \ & `SW` estimate types for UCIRC estimates.\n    - (client) Align the sample\
+    \ client command objects with the API models - optional fields no longer reject\
+    \ null, string lengths & patterns match the documented schemas, and date/times\
+    \ serialize in the documented format.\n    - (doc) mark Estimate & Gate photo\
+    \ upload apis production ready.\n\n\n # Security & Authentication\n\n To ensure\
+    \ secure communication, all endpoints of this API should use the https protocol\
+    \ instead of http.  Authentication methods will differ between systems, but two\
+    \ popular methods are JSON Web Tokens and Static Tokens.  Examples for both of\
+    \ these follow.\n\n\n## JSON Web Token\n\n [JSON Web Token, or JWT](https://jwt.io/),\
     \ is used for stateless authentication.  Since all requests are sent using https,\
     \ tokens are not encrypted.  Tokens follow the [RFC 6750 Bearer Token](https://tools.ietf.org/html/rfc6750)\
     \ format.\n\n\n### 1. Example JWT Token\n\n\n ```\n {\n\t\"username\": \"jdoe\"\
@@ -142,36 +290,40 @@ info:
     :\"eyJhbGciOiJIUzI1NiJ9...\"\n }\n ```\n\n An access_token is provided for authentication\
     \ to API endpoints and a refresh_token is provided to generate a new access_token\
     \ when one expires.\n\n\n ### 2. Obtaining an access token\n\n Issuing a POST\
-    \ request to `/api/login` with a username and password payload will cause a JWT\
-    \ token to be issued in the response.\n\n\n ```\n POST /api/login HTTP/1.1\n Content-Type:\
-    \ text/plain; charset=utf-8\n Host: www.example.com\n\n\n {\n\t\"username\": \"\
-    jdoe\",\n\t\"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired\
-    \ token\n\n Tokens created by invoking the login endpoint expire after a determined\
-    \ period.  Issuing a POST request to `/oauth/access_token` with: the refresh_token\
-    \ from the JWT token previously issued and a grant_type of refresh_token will\
-    \ reissue a new JWT token.\n\n ```\n POST /oauth/access_token HTTP/1.1\n Host:\
-    \ www.example.com\n Content-Type: application/x-www-form-urlencoded\n grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n\
-    \ ```\n\n\n ### 4. Checking if a token is valid\n\n Any token can be checked if\
-    \ it's still valid by issuing a POST request to `/api/validate`.\n\n ```\n GET\
-    \ /api/validate HTTP/1.1\n Host: www.example.com\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n\
-    \ Content-Type: application/json; charset=utf-8\n ```\n\n\n ### 5. Accessing a\
-    \ protected resource\n\n Use the 'Authorization' header to supply the JWT for\
-    \ authentication to a protected resource.\n\n ```\n GET /api/v2/gate/CONU1234561\
-    \ HTTP/1.1\n Host: www.example.com\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n\
-    \ ```\n\n\n## Static Tokens\n\n A static token is assigned by an external process\
-    \ or system.  After assignment, any documented API endpoint can be invoked by\
-    \ including a header of \"Authorizaton\" and the value of the token.  Some systems\
-    \ will assign static tokens that are JWTs, in that case \"Bearer \" should prefix\
-    \ the token in the header value.\n\n\n### Static (JWT) Token Example\n\n Assuming\
-    \ an assigned JWT of \"eyJhbGciOiJIUzI1NiJ9\", an API gate show request would\
-    \ look like: \n\n```\n GET /api/v2/gate/CONU1234561 HTTP/1.1\n Host: www.example.com\n\
-    \ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9\n ```\n"
+    \ request to `/login` with a username and password payload will cause a JWT token\
+    \ to be issued in the response.  For a base URL of `https://api.example.com/examplecontextpath/api`\
+    \ the full login URL is `https://api.example.com/examplecontextpath/api/login`.\n\
+    \n\n ```\n POST /examplecontextpath/api/login HTTP/1.1\n Content-Type: text/plain;\
+    \ charset=utf-8\n Host: api.example.com\n\n\n {\n\t\"username\": \"jdoe\",\n\t\
+    \"password\": \"jdoepassword\"\n }\n ```\n\n ### 3. Refreshing an expired token\n\
+    \n Tokens created by invoking the login endpoint expire after a determined period.\
+    \  Issuing a POST request to `/oauth/access_token` (full URL `https://api.example.com/examplecontextpath/oauth/access_token`)\
+    \ with: the refresh_token from the JWT token previously issued and a grant_type\
+    \ of refresh_token will reissue a new JWT token.\n\n ```\n POST /examplecontextpath/oauth/access_token\
+    \ HTTP/1.1\n Host: api.example.com\n Content-Type: application/x-www-form-urlencoded\n\
+    \ grant_type=refresh_token&refresh_token=eyJhbGciOiJIUzI1NiJ9...\n ```\n\n\n ###\
+    \ 4. Checking if a token is valid\n\n Any token can be checked if it's still valid\
+    \ by issuing a request to `/validate` (full URL `https://api.example.com/examplecontextpath/api/validate`).\n\
+    \n ```\n GET /examplecontextpath/api/validate HTTP/1.1\n Host: api.example.com\n\
+    \ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n Content-Type: application/json;\
+    \ charset=utf-8\n ```\n\n\n ### 5. Accessing a protected resource\n\n Use the\
+    \ 'Authorization' header to supply the JWT for authentication to a protected resource.\n\
+    \n ```\n GET /examplecontextpath/api/v2/gate/CONU1234561 HTTP/1.1\n Host: api.example.com\n\
+    \ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...\n ```\n\n\n## Static Tokens\n\n\
+    \ A static token is assigned by an external process or system.  After assignment,\
+    \ any documented API endpoint can be invoked by including a header of \"Authorizaton\"\
+    \ and the value of the token.  Some systems will assign static tokens that are\
+    \ JWTs, in that case \"Bearer \" should prefix the token in the header value.\n\
+    \n\n### Static (JWT) Token Example\n\n Assuming an assigned JWT of \"eyJhbGciOiJIUzI1NiJ9\"\
+    , an API gate show request would look like: \n\n```\n GET /examplecontextpath/api/v2/gate/CONU1234561\
+    \ HTTP/1.1\n Host: api.example.com\n Authorization: Bearer eyJhbGciOiJIUzI1NiJ9\n\
+    \ ```\n"
   contact:
     email: technical@iicl.org
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 2.2.9
+  version: 2.2.11
 externalDocs:
   description: Find out more about this api
   url: https://github.com/IICL-API/depot-lifecycle-api
@@ -181,6 +333,12 @@ security:
 - Dynamic_Token: []
 - Static_Token: []
 tags:
+- name: inventory
+  description: |-
+    *This API is only proposed at this time and is in an alpha state - it is not production approved and may change without notice.*
+
+    *near real time inventory status of shipping containers at a depot for status reconciliation between depot and owner systems*
+  x-displayName: Inventory
 - name: estimate photos
   description: '*estimate photo uploads*'
 - name: gate photos
@@ -277,6 +435,9 @@ tags:
 - name: m_estimate_allocation
   description: <SchemaDefinition schemaRef="#/components/schemas/EstimateAllocation"/>
   x-displayName: EstimateAllocation
+- name: m_estimate_allocation_type
+  description: <SchemaDefinition schemaRef="#/components/schemas/EstimateAllocationType"/>
+  x-displayName: EstimateAllocationType
 - name: m_preliminary_decision
   description: <SchemaDefinition schemaRef="#/components/schemas/PreliminaryDecision"/>
   x-displayName: PreliminaryDecision
@@ -295,6 +456,12 @@ tags:
   description: "<SchemaDefinition schemaRef=\"#/components/schemas/RepairComplete\"\
     \ showReadOnly={false}/>"
   x-displayName: RepairComplete
+- name: m_inventory_snapshot
+  description: <SchemaDefinition schemaRef="#/components/schemas/InventorySnapshot"/>
+  x-displayName: InventorySnapshot
+- name: m_inventory_unit
+  description: <SchemaDefinition schemaRef="#/components/schemas/InventoryUnit"/>
+  x-displayName: InventoryUnit
 paths:
   /api/v2/estimate:
     get:
@@ -308,10 +475,9 @@ paths:
       - name: estimateNumber
         in: query
         description: the estimate number
+        explode: false
         schema:
           maxLength: 16
-          required:
-          - "false"
           type: string
           nullable: true
           example: DEHAMCE1856373
@@ -319,42 +485,38 @@ paths:
         in: query
         description: the unit number of the shipping container at the time of estimate
           creation
+        explode: false
         schema:
           maxLength: 11
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "false"
           type: string
           nullable: true
           example: CONU1234561
       - name: depot
         in: query
         description: the identifier of the depot
+        explode: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
-          required:
-          - "false"
           type: string
           nullable: true
           example: DEHAMCMRA
       - name: lessee
         in: query
         description: the identifier of the lessee
+        explode: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
-          required:
-          - "false"
           type: string
           nullable: true
           example: SGSINONEA
       - name: revision
         in: query
         description: the revision number of the estimate
+        explode: false
         schema:
-          required:
-          - "false"
           type: integer
           format: int32
           nullable: true
@@ -362,10 +524,9 @@ paths:
       - name: equipmentCode
         in: query
         description: the ISO equipment code of the shipping container
+        explode: false
         schema:
           maxLength: 10
-          required:
-          - "false"
           type: string
           nullable: true
           example: 22G1
@@ -469,6 +630,7 @@ paths:
         in: query
         description: the identifier of the depot
         required: true
+        explode: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
@@ -478,9 +640,8 @@ paths:
         in: query
         description: the revision number to show for the estimate; when not specified
           the current revision will be returned.
+        explode: false
         schema:
-          required:
-          - "false"
           type: integer
           format: int32
           nullable: true
@@ -531,6 +692,7 @@ paths:
         in: query
         description: the identifier of the depot
         required: true
+        explode: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
@@ -600,6 +762,7 @@ paths:
         in: query
         description: the identifier of the depot
         required: true
+        explode: false
         schema:
           maxLength: 9
           pattern: "^[A-Z0-9]{9}$"
@@ -608,9 +771,6 @@ paths:
       responses:
         "200":
           description: successfully cancelled the estimate
-          content:
-            application/json:
-              schema: {}
         "400":
           description: an error occurred trying to cancel the estimate
           content:
@@ -698,6 +858,7 @@ paths:
       - name: line
         in: query
         description: an optional line number to associate this photo to
+        explode: false
         schema:
           type: integer
           format: int32
@@ -707,37 +868,34 @@ paths:
         in: query
         description: "indicator of when this photo applies\n\n`REPAIRED` - Photo is\
           \ after repair \n\n`BEFORE` - Photo is before repair"
+        explode: false
         schema:
           maxLength: 8
           type: string
           nullable: true
           example: BEFORE
-          default: BEFORE
           enum:
           - REPAIRED
           - BEFORE
+          default: BEFORE
       requestBody:
         description: The photo to upload (expected name of part is `file`)
         content:
           multipart/form-data:
             schema:
-              type: string
+              type: object
               properties:
                 file:
                   type: string
                   format: binary
-              description: the photo data
-              format: binary
             encoding:
               file:
                 contentType: application/octet-stream
+                explode: false
         required: true
       responses:
         "200":
           description: successfully uploaded an estimate photo
-          content:
-            application/json:
-              schema: {}
         "202":
           description: "photo accepted for processing, but not created due to manual\
             \ processing requirement"
@@ -922,9 +1080,6 @@ paths:
       responses:
         "200":
           description: successfully delete the gate record
-          content:
-            application/json:
-              schema: {}
         "400":
           description: an error occurred
           content:
@@ -1009,23 +1164,19 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: string
+              type: object
               properties:
                 file:
                   type: string
                   format: binary
-              description: the photo data
-              format: binary
             encoding:
               file:
                 contentType: application/octet-stream
+                explode: false
         required: true
       responses:
         "200":
           description: successfully uploaded a gate photo
-          content:
-            application/json:
-              schema: {}
         "202":
           description: "photo accepted for processing, but not created due to manual\
             \ processing requirement"
@@ -1050,6 +1201,79 @@ paths:
       security:
       - JWT_TOKEN: []
       x-iicl-purpose: activity
+  /api/v2/inventory/{depot}:
+    get:
+      tags:
+      - inventory
+      summary: fetch current inventory for a depot
+      description: |-
+        *This API is only proposed at this time and is in an alpha state - it is not production approved and may change without notice.*
+
+        Lists the shipping containers currently on site at the given depot for the calling party, with the responding system's current lifecycle status for each.  This is a reporting only snapshot intended for near real time inventory status reconciliation; it does not replace gate records.  Either the depot or the owner may implement this API - the response reports that system's view of the depot's inventory and the caller compares it against its own.
+      operationId: indexInventory
+      parameters:
+      - name: depot
+        in: path
+        description: the identifier of the depot
+        required: true
+        schema:
+          maxLength: 9
+          pattern: "^[A-Z0-9]{9}$"
+          type: string
+          example: DEHAMCMRA
+      - name: unitNumber
+        in: query
+        description: the unit number of the shipping container to filter to
+        explode: false
+        schema:
+          maxLength: 11
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          type: string
+          nullable: true
+          example: CONU1234561
+      - name: status
+        in: query
+        description: the inventory status to filter to
+        explode: false
+        schema:
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/InventoryStatus"
+      - name: statusChangedAfter
+        in: query
+        description: |-
+          only include shipping containers whose status changed after this date and time; used for cheap delta pulls between full snapshots
+
+          ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+        explode: false
+        schema:
+          type: string
+          format: date-time
+          nullable: true
+      responses:
+        "200":
+          description: successfully fetched the depot inventory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventorySnapshot"
+        "400":
+          description: an error occurred
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: fetching depot inventory is disallowed by security
+        "404":
+          description: the depot could not be found
+        "501":
+          description: this feature is not supported by this server
+        "503":
+          description: "API is temporarily paused, and not accepting any activity"
+      security:
+      - JWT_TOKEN: []
+      x-iicl-purpose: reporting
   /api/v2/redelivery:
     get:
       tags:
@@ -1061,6 +1285,7 @@ paths:
       - name: redeliveryNumber
         in: query
         description: the redelivery number to filter to
+        explode: false
         schema:
           maxLength: 16
           type: string
@@ -1069,6 +1294,7 @@ paths:
       - name: unitNumber
         in: query
         description: the unit number of the shipping container
+        explode: false
         schema:
           maxLength: 11
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
@@ -1079,6 +1305,7 @@ paths:
         in: query
         description: flag to indicate this search is to check if the found advices
           are valid for gate in
+        explode: false
         schema:
           type: boolean
           nullable: true
@@ -1124,9 +1351,6 @@ paths:
       responses:
         "200":
           description: successful create
-          content:
-            application/json:
-              schema: {}
         "400":
           description: an error occurred
           content:
@@ -1170,9 +1394,6 @@ paths:
       responses:
         "200":
           description: successful update
-          content:
-            application/json:
-              schema: {}
         "400":
           description: an error occurred
           content:
@@ -1201,6 +1422,7 @@ paths:
       - name: releaseNumber
         in: query
         description: the release number to filter to
+        explode: false
         schema:
           maxLength: 16
           type: string
@@ -1209,6 +1431,7 @@ paths:
       - name: includeCandidates
         in: query
         description: whether to include candidate units for any found release
+        explode: false
         schema:
           type: boolean
           nullable: true
@@ -1217,6 +1440,7 @@ paths:
         in: query
         description: flag to indicate this search is to check if the found advices
           are valid for gate out
+        explode: false
         schema:
           type: boolean
           nullable: true
@@ -1262,9 +1486,6 @@ paths:
       responses:
         "200":
           description: successful create
-          content:
-            application/json:
-              schema: {}
         "400":
           description: an error occurred
           content:
@@ -1308,9 +1529,6 @@ paths:
       responses:
         "200":
           description: successful update
-          content:
-            application/json:
-              schema: {}
         "400":
           description: an error occurred
           content:
@@ -1439,9 +1657,6 @@ paths:
       responses:
         "200":
           description: successfully repair completed the workOrder
-          content:
-            application/json:
-              schema: {}
         "400":
           description: an error occurred trying to repair complete the work order
           content:
@@ -1467,8 +1682,6 @@ components:
         userCode:
           maxLength: 16
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the user identifier at this company that concerns this message
           nullable: true
@@ -1476,31 +1689,23 @@ components:
         userName:
           maxLength: 70
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the full name for the user identified by `userCode`
           nullable: true
           example: John Doe
         faxNumber:
-          required:
-          - "false"
           type: array
           description: the contact fax number(s) for this party
           nullable: false
           items:
             type: string
         phoneNumber:
-          required:
-          - "false"
           type: array
           description: the contact phone number(s) for this party
           nullable: false
           items:
             type: string
         emailAddress:
-          required:
-          - "false"
           type: array
           description: the contact email address(es) for this party
           nullable: false
@@ -1509,15 +1714,11 @@ components:
         name:
           maxLength: 150
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the name of this company
           nullable: true
           example: CMR Container Maintenance Rep.
         streetAddress:
-          required:
-          - "false"
           type: array
           description: the street address lines
           nullable: false
@@ -1526,53 +1727,39 @@ components:
         city:
           maxLength: 28
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the city for the address
           nullable: true
         country:
           maxLength: 2
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the 2 digit ISO country code for the address
           nullable: true
         postalCode:
           maxLength: 20
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the postal code for the address
           nullable: true
         stateProvince:
           maxLength: 20
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the optional state or province code for the address
           nullable: true
         licensePlate:
           maxLength: 14
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the license plate for the person represented by this party
           nullable: true
         latitude:
-          required:
-          - "false"
           type: number
           description: "Instead of an address, provides the latitude of this party"
           format: double
           nullable: true
         longitude:
-          required:
-          - "false"
           type: number
           description: "Instead of an address, provides the longitude of this party"
           format: double
@@ -1600,14 +1787,10 @@ components:
         licensePlate:
           maxLength: 14
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the license plate for the person represented by this party
           nullable: false
         treadMeasurements:
-          required:
-          - "false"
           type: array
           description: An optional list of tread depth measurements for this Chassis
             tires
@@ -1629,8 +1812,6 @@ components:
           - $ref: "#/components/schemas/BrakeCondition"
         hubometer:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the current reading of the hubometer on the Chassis
           format: int32
@@ -1646,16 +1827,12 @@ components:
         equipment:
           maxLength: 10
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the equipment type ISO code or an internal code if one does
             not exist for this shipping container
           nullable: false
           example: 22G1
         manufactureDate:
-          required:
-          - "true"
           type: string
           description: |-
             date and month this unit was manufactured
@@ -1665,14 +1842,10 @@ components:
           nullable: false
           example: 2001-07-21
         loaded:
-          required:
-          - "false"
           type: boolean
           description: indicates if this container has cargo in it
           nullable: true
         cargoSeals:
-          required:
-          - "false"
           type: array
           description: the cargo seal identifiers
           nullable: false
@@ -1680,24 +1853,18 @@ components:
             type: string
             example: An example Seal ID
         desiredTemperature:
-          required:
-          - "false"
           type: integer
           description: the reefer setpoint / desired temperature in Celsius
           format: int32
           nullable: true
           example: -23
         desiredHumidity:
-          required:
-          - "false"
           type: integer
           description: the reefer desired humidity percentage
           format: int32
           nullable: true
           example: 65
         inspections:
-          required:
-          - "false"
           type: array
           description: inspections related to this shipping container
           nullable: false
@@ -1728,22 +1895,16 @@ components:
         code:
           maxLength: 6
           pattern: "^[A-Z0-9]{3}[0-9]{3}$"
-          required:
-          - "false"
           type: string
           description: indicator code specific to this error
           nullable: true
           example: TRI521
         message:
-          required:
-          - "false"
           type: string
           description: a descriptive error message
           nullable: true
           example: Info TRI521 - Unit has been gated-in but is not off-hired
         details:
-          required:
-          - "false"
           type: array
           description: details for the descriptive error message
           nullable: false
@@ -1771,8 +1932,6 @@ components:
         estimateNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: The identifier for this estimate
           nullable: false
@@ -1781,8 +1940,6 @@ components:
           maxLength: 11
           minLength: 10
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: The current unit number of the shipping container.
           nullable: false
@@ -1803,8 +1960,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/EstimateCondition"
         estimateTime:
-          required:
-          - "true"
           type: string
           description: "the date and time of the estimate revision activity in local\
             \ time; i.e. `2020-07-21T17:32:28Z` \n\n( notation as defined by [RFC\
@@ -1815,8 +1970,6 @@ components:
         comments:
           maxLength: 500
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the comments concerning this estimate
           nullable: true
@@ -1844,23 +1997,17 @@ components:
           maxLength: 3
           minLength: 3
           pattern: "^[A-Z]{3}$"
-          required:
-          - "true"
           type: string
           description: the currency of amounts entered on this estimate
           nullable: false
           example: EUR
         total:
-          required:
-          - "true"
           type: number
           description: the sum of billed line items for this estimate
           format: double
           nullable: false
           example: 544.95
         exchangeRate:
-          required:
-          - "true"
           type: number
           description: the exchange rate to convert billed currency to the local currency
             of this estimate
@@ -1883,7 +2030,11 @@ components:
 
             `RC` - Primary (CWCA)
 
+            `RW` - Primary (UCIRC)
+
             `SC` - Secondary (CWCA)
+
+            `SW` - Secondary (UCIRC)
 
             `SU` - Secondary Upgrade
 
@@ -1932,16 +2083,12 @@ components:
           allOf:
           - $ref: "#/components/schemas/UpgradeType"
         revision:
-          required:
-          - "false"
           type: integer
           description: the revision number of the estimate
           format: int32
           nullable: true
           example: 0
         lineItems:
-          required:
-          - "false"
           type: array
           description: detailed damage descriptions that when combined represent the
             damages being repaired by this estimate
@@ -1949,8 +2096,6 @@ components:
           items:
             $ref: "#/components/schemas/EstimateLineItem"
         taxRates:
-          required:
-          - "false"
           type: array
           description: optional estimate tax rates to share tax rate data between
             systems
@@ -1958,19 +2103,30 @@ components:
           items:
             $ref: "#/components/schemas/EstimateTaxRate"
         photos:
-          required:
-          - "false"
           type: array
-          description: An optional photo list for the shipping container damages.
+          description: an optional photo list for the shipping container damages.
           nullable: false
           items:
             $ref: "#/components/schemas/EstimatePhoto"
         allocation:
-          description: the amount break downs by party for this estimate; typically
-            only defined for in the response for depot communication
+          description: "the amount break downs by party for all line items on this\
+            \ estimate; when using multiple types, this represents a combined allocation\
+            \ with totals for all estimate types; only transmitted once an estimate\
+            \ has been created and allocated"
           nullable: true
+          readOnly: true
           allOf:
           - $ref: "#/components/schemas/EstimateAllocation"
+        allocationsByType:
+          type: array
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            when multiple types are sent in a single transmission, this represents a breakdown by specific type (estimate type and upgrade type combinations) - this should only be populated when multiple Estimates are sent in a single transmission
+          nullable: false
+          readOnly: true
+          items:
+            $ref: "#/components/schemas/EstimateAllocation"
       description: Represents an estimation of costs to repair or upgrade a shipping
         container.
     EstimateAllocation:
@@ -1986,8 +2142,6 @@ components:
       type: object
       properties:
         relatedId:
-          required:
-          - "false"
           type: integer
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -1999,15 +2153,11 @@ components:
         estimateNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: The estimate number this allocation applies to
           nullable: false
           example: DEHAMCE1856373
         revision:
-          required:
-          - "true"
           type: integer
           description: the revision number of the estimate this allocation applies
             to
@@ -2019,44 +2169,41 @@ components:
           allOf:
           - $ref: "#/components/schemas/Party"
         total:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.0
           type: number
           description: the total for the estimate
           format: double
           nullable: false
           example: 544.95
         ownerTotal:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.0
           type: number
           description: the total of the owner portion for the estimate
           format: double
           nullable: false
-          example: 0
+          example: 0.00
         customerTotal:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.0
           type: number
           description: the total of the customer portion for the estimate
           format: double
           nullable: false
           example: 422.96
         insuranceTotal:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.0
           type: number
           description: the total of the insurance portion for the estimate
           format: double
           nullable: false
           example: 121.99
+        depreciatedValue:
+          minimum: 0.0
+          type: number
+          description: the depreciated value of the container
+          format: double
+          nullable: true
+          example: 1151.84
         ctl:
-          required:
-          - "true"
           type: boolean
           description: indicates if the estimate causes the unit to be a constructive
             total lost
@@ -2065,8 +2212,6 @@ components:
         comments:
           maxLength: 500
           minLength: 1
-          required:
-          - "false"
           type: string
           description: comments pertaining to the estimate creation
           nullable: true
@@ -2087,9 +2232,94 @@ components:
           nullable: true
           allOf:
           - $ref: "#/components/schemas/InsuranceCoverage"
+        allocationType:
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            the estimate (estimate type and upgrade type combination) that this total allocated amounts represent; when not defined, this allocation to applies to all line items on the estimate
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/EstimateAllocationType"
+        allocationsByType:
+          type: array
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            when multiple estimates are sent in a single transmission, this represents a breakdown of this combined allocation by specific type (estimate type and upgrade type combinations); each entry identifies its estimate via `allocationType` and carries the additive totals for that type; this list is only populated on the combined (top level) allocation
+          nullable: false
+          items:
+            $ref: "#/components/schemas/EstimateAllocation"
       description: "Indicates the allocated estimate totals, including any comments\
         \ on the allocation and if the box is considered a constructive loss."
       readOnly: true
+    EstimateAllocationType:
+      required:
+      - type
+      type: object
+      properties:
+        type:
+          description: |-
+            delineates the type of estimate; whether it was the initial, primary estimate or an ancillary / secondary repair after the initial decision
+
+            `R` - Primary (Unknown Estimation Standard)
+
+            `RI` - Primary (IICL)
+
+            `RC` - Primary (CWCA)
+
+            `RW` - Primary (UCIRC)
+
+            `SC` - Secondary (CWCA)
+
+            `SW` - Secondary (UCIRC)
+
+            `SU` - Secondary Upgrade
+
+            `AS` - Sell Upgrade
+
+            `AU` - Ancillary Upgrade
+
+            `AR` - Ancillary Repair
+          allOf:
+          - $ref: "#/components/schemas/EstimateType"
+          default: R
+        upgradeType:
+          description: |-
+            the type of secondary upgrade this estimate transmission represents.
+
+            `FG` - Food grade
+
+            `ML` - Malt
+
+            `DB` - Dairy Board
+
+            `EV` - Evian
+
+            `WH` - Whiskey
+
+            `SU` - Sugar
+
+            `CF` - Coffee
+
+            `TB` - Tobacco
+
+            `MC` - Milk cartons
+
+            `MP` - Milk powder
+
+            `AM` - Ammunition
+
+            `CH` - Cotton/Hay
+
+            `TE` - Tea
+
+            `FT` - Flexitank
+          nullable: true
+          example: AM
+          allOf:
+          - $ref: "#/components/schemas/UpgradeType"
+      description: Represents a specific estimate transmission defined by a combination
+        of estimate type and optional upgrade type
     EstimateCondition:
       type: string
       description: |-
@@ -2119,15 +2349,11 @@ components:
         approvalNumber:
           maxLength: 128
           minLength: 1
-          required:
-          - "false"
           type: string
           description: The approval number from the customer
           nullable: true
           example: RAMON ROUBAL
         approvalDateTime:
-          required:
-          - "true"
           type: string
           description: "The time the estimate was approved by the customer; i.e. `2017-04-10T19:37:04Z`\
             \ \n\n( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6)\
@@ -2137,17 +2363,13 @@ components:
         approvalUser:
           maxLength: 64
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the user name or code who approved this estimate on behalf
             of the customer
           nullable: true
           example: KAERTS
         approvalTotal:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: the amount in the currency of the estimate that's approved
             by the customer
@@ -2169,8 +2391,6 @@ components:
       type: object
       properties:
         line:
-          required:
-          - "true"
           type: integer
           description: The line number
           format: int32
@@ -2180,8 +2400,6 @@ components:
           maxLength: 4
           minLength: 4
           pattern: "^[A-Z0-9]{4}$"
-          required:
-          - "false"
           type: string
           description: |-
             specifies the damage location code on a container
@@ -2193,8 +2411,6 @@ components:
           maxLength: 3
           minLength: 3
           pattern: "^[A-Z0-9]{3}$"
-          required:
-          - "true"
           type: string
           description: |-
             component code
@@ -2206,8 +2422,6 @@ components:
           maxLength: 2
           minLength: 2
           pattern: "^[A-Z0-9]{2}$"
-          required:
-          - "true"
           type: string
           description: |-
             damage code
@@ -2219,8 +2433,6 @@ components:
           maxLength: 2
           minLength: 2
           pattern: "^[A-Z0-9]{2}$"
-          required:
-          - "true"
           type: string
           description: |-
             repair code
@@ -2232,8 +2444,6 @@ components:
           maxLength: 2
           minLength: 2
           pattern: "^[A-Z0-9]{2}$"
-          required:
-          - "true"
           type: string
           description: |-
             component material code
@@ -2243,8 +2453,6 @@ components:
           example: MU
         length:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the length dimension of the damage
           format: int32
@@ -2252,8 +2460,6 @@ components:
           example: 15
         width:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the width dimension of the damage
           format: int32
@@ -2261,8 +2467,6 @@ components:
           example: 1
         height:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the height dimension of the damage
           format: int32
@@ -2294,40 +2498,32 @@ components:
           allOf:
           - $ref: "#/components/schemas/UnitOfMeasure"
         hours:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: the number of hours to repair this damage
           format: double
           nullable: false
           example: 9.95
         materialCost:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: the cost of materials to repair this damage
           format: double
           nullable: false
           example: 9.95
         laborRate:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: rate to pay the labor to repair this damage
           format: double
           nullable: false
-          example: 35
+          example: 35.00
         tax:
-          required:
-          - "false"
           type: number
           description: the tax amount for this line item
           format: double
           nullable: true
-          example: 0
+          example: 0.00
         party:
           description: |+
             The party that is responsible for the cost of this repair
@@ -2353,8 +2549,6 @@ components:
         comments:
           maxLength: 256
           minLength: 1
-          required:
-          - "false"
           type: string
           description: comments concerning this line item repair
           nullable: true
@@ -2375,29 +2569,32 @@ components:
           - $ref: "#/components/schemas/EstimateTaxRule"
         quantity:
           minimum: 1
-          required:
-          - "false"
           type: integer
           description: the number of damages
           format: int32
           nullable: true
           example: 1
         parts:
-          required:
-          - "false"
           type: array
           description: "An optional, detailed part list used to repair this line item"
           nullable: false
           items:
             $ref: "#/components/schemas/EstimateLineItemPart"
         photos:
-          required:
-          - "false"
           type: array
           description: An optional photo list showing the damage of this line item
           nullable: false
           items:
             $ref: "#/components/schemas/EstimateLineItemPhoto"
+        allocationTypes:
+          type: array
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            the transmission (estimate type and upgrade type combination) this line item belongs to. When specified, this line item is part of a specific transmission. When empty or null, the line item uses the estimate's type and upgradeType fields.
+          nullable: false
+          items:
+            $ref: "#/components/schemas/EstimateAllocationType"
       description: Represents an estimation of costs to repair or upgrade a single
         instance of damage for a shipping container.
     EstimateLineItemPart:
@@ -2410,8 +2607,6 @@ components:
         description:
           maxLength: 500
           minLength: 1
-          required:
-          - "false"
           type: string
           description: a description for this part
           nullable: true
@@ -2419,24 +2614,18 @@ components:
         number:
           maxLength: 50
           minLength: 1
-          required:
-          - "true"
           type: string
           description: ID number used to signify what part is being used
           nullable: false
           example: "108106"
         quantity:
           minimum: 1
-          required:
-          - "true"
           type: integer
           description: the number of parts used
           format: int32
           nullable: false
           example: 1
         price:
-          required:
-          - "true"
           type: number
           description: the price per part
           format: double
@@ -2479,8 +2668,6 @@ components:
       type: object
       properties:
         url:
-          required:
-          - "true"
           type: string
           description: "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986)\
             \ that is a photo for this line item."
@@ -2494,6 +2681,7 @@ components:
           allOf:
           - $ref: "#/components/schemas/EstimatePhotoStatus"
           - maxLength: 8
+            type: object
           default: BEFORE
       description: Links to a photo for a single instance of damage for a shipping
         container.
@@ -2503,8 +2691,6 @@ components:
       type: object
       properties:
         url:
-          required:
-          - "true"
           type: string
           description: "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986)\
             \ that is a photo for this estimate."
@@ -2518,6 +2704,7 @@ components:
           allOf:
           - $ref: "#/components/schemas/EstimatePhotoStatus"
           - maxLength: 8
+            type: object
           default: BEFORE
       description: Links to a photo for a damage estimate.
     EstimatePhotoStatus:
@@ -2525,10 +2712,10 @@ components:
       description: "indicator of when this photo applies\n\n`REPAIRED` - Photo is\
         \ after repair \n\n`BEFORE` - Photo is before repair"
       example: BEFORE
-      default: BEFORE
       enum:
       - BEFORE
-      - REPAIR
+      - REPAIRED
+      default: BEFORE
     EstimateTaxRate:
       required:
       - description
@@ -2539,8 +2726,6 @@ components:
         description:
           maxLength: 255
           minLength: 1
-          required:
-          - "true"
           type: string
           description: "a unique, descriptive explanation for this tax rate"
           nullable: false
@@ -2560,9 +2745,7 @@ components:
           allOf:
           - $ref: "#/components/schemas/EstimateTaxRule"
         rate:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: the tax rate as a percentage
           format: double
@@ -2597,7 +2780,11 @@ components:
 
         `RC` - Primary (CWCA)
 
+        `RW` - Primary (UCIRC)
+
         `SC` - Secondary (CWCA)
+
+        `SW` - Secondary (UCIRC)
 
         `SU` - Secondary Upgrade
 
@@ -2606,16 +2793,18 @@ components:
         `AU` - Ancillary Upgrade
 
         `AR` - Ancillary Repair
-      default: R
       enum:
       - R
       - RI
       - RC
+      - RW
       - SC
+      - SW
       - SU
       - AS
       - AU
       - AR
+      default: R
     ExternalParty:
       type: object
       properties:
@@ -2623,8 +2812,6 @@ components:
           maxLength: 9
           minLength: 9
           pattern: "^[A-Z0-9]{9}$"
-          required:
-          - "false"
           type: string
           description: "a possible identifier for this party, often referred to as\
             \ an EDI Address"
@@ -2633,8 +2820,6 @@ components:
         code:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: "a possible identifier for this party using the internal system\
             \ code for this company, will be system specific to the system delivering\
@@ -2659,8 +2844,6 @@ components:
         adviceNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the approval number that allows this box to leave or enter
             the depot (often a redelivery or release advice number)
@@ -2674,8 +2857,6 @@ components:
           maxLength: 11
           minLength: 1
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: the unit number of the shipping container
           nullable: false
@@ -2693,8 +2874,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/GateRequestStatus"
         activityTime:
-          required:
-          - "true"
           type: string
           description: "the date and time of the gate activity in local time; i.e.\
             \ `2019-04-10T19:37:04Z` \n\n( notation as defined by [RFC 3339, section\
@@ -2712,9 +2891,14 @@ components:
           allOf:
           - $ref: "#/components/schemas/GateRequestType"
           - maxLength: 3
+            type: object
+        transportType:
+          description: How the shipping container was transported
+          nullable: true
+          example: TRUCK
+          allOf:
+          - $ref: "#/components/schemas/GateTransportType"
         photos:
-          required:
-          - "false"
           type: array
           description: An optional photo list of the shipping container at gate creation
           nullable: false
@@ -2738,8 +2922,6 @@ components:
       type: object
       properties:
         url:
-          required:
-          - "true"
           type: string
           description: "a URL as defined by [RFC 3986](https://tools.ietf.org/html/rfc3986)\
             \ that is a photo of the shipping container."
@@ -2782,23 +2964,17 @@ components:
         code:
           maxLength: 6
           pattern: "^[A-Z0-9]{3}[0-9]{3}$"
-          required:
-          - "false"
           type: string
           description: indicator code for this response
           nullable: true
           example: TRI521
         message:
-          required:
-          - "false"
           type: string
           description: A descriptive message concerning this gate in
           nullable: true
           example: Info TRI521 - Unit has been gated-in but is not off-hired
         adviceNumber:
           maxLength: 16
-          required:
-          - "false"
           type: string
           description: either the submitted advice number for the gate record or the
             adjusted one
@@ -2806,8 +2982,6 @@ components:
           example: AHAMG000000
         customerReference:
           maxLength: 35
-          required:
-          - "false"
           type: string
           description: the customer reference for the unit; typically an internal
             customer identifier or contract code
@@ -2815,15 +2989,11 @@ components:
           example: MAEX
         transactionReference:
           maxLength: 35
-          required:
-          - "false"
           type: string
           description: the transaction reference for this activity
           nullable: true
           example: 74454D
         relatedId:
-          required:
-          - "false"
           type: integer
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -2838,8 +3008,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/InsuranceCoverage"
         currentExchangeRate:
-          required:
-          - "false"
           type: number
           description: the exchange rate to convert billed currency to the local currency
             for damage estimate totals
@@ -2847,8 +3015,6 @@ components:
           nullable: true
           example: 0.8133
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this gate record
           nullable: false
@@ -2857,8 +3023,6 @@ components:
             example: ALL CLEANING MUST BE CODED TO 'O' FOR OWNER.
         currentInspectionCriteria:
           maxLength: 10
-          required:
-          - "false"
           type: string
           description: "the grade the unit should be inspected to for estimates; if\
             \ none, no estimate is allowed"
@@ -2875,8 +3039,6 @@ components:
       type: object
       properties:
         relatedId:
-          required:
-          - "false"
           type: integer
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -2887,8 +3049,6 @@ components:
           example: 10102561
         adviceNumber:
           maxLength: 16
-          required:
-          - "true"
           type: string
           description: the redelivery or release advice number for the gate record
           nullable: false
@@ -2899,8 +3059,6 @@ components:
           - $ref: "#/components/schemas/Party"
         status:
           maxLength: 1
-          required:
-          - "true"
           type: string
           description: |-
             the current status
@@ -2917,8 +3075,6 @@ components:
           - D
           - S
         activityTime:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time of the gate activity in local time
@@ -2932,8 +3088,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/InsuranceCoverage"
         currentExchangeRate:
-          required:
-          - "false"
           type: number
           description: the exchange rate to convert billed currency to the local currency
             for damage estimate totals
@@ -2942,8 +3096,6 @@ components:
           example: 0.8133
         currentInspectionCriteria:
           maxLength: 10
-          required:
-          - "false"
           type: string
           description: "the unit should be inspected to this grade; if none, no estimate\
             \ is allowed"
@@ -2951,8 +3103,6 @@ components:
           example: IICL
         type:
           maxLength: 3
-          required:
-          - "false"
           type: string
           description: |-
             current gate type indicator
@@ -2968,6 +3118,15 @@ components:
           - IN
           - OUT
       description: the current gate status of a given shipping container
+    GateTransportType:
+      maxLength: 5
+      type: string
+      description: How the shipping container was transported
+      example: TRUCK
+      enum:
+      - RAIL
+      - TRUCK
+      - BARGE
     GateUpdateRequest:
       type: object
       properties:
@@ -2985,8 +3144,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/GateRequestStatus"
         activityTime:
-          required:
-          - "false"
           type: string
           description: "the new date and time of the gate activity in local time;\
             \ i.e. `2019-04-10T19:37:04Z` \n\n( notation as defined by [RFC 3339,\
@@ -3005,9 +3162,14 @@ components:
           allOf:
           - $ref: "#/components/schemas/GateRequestType"
           - maxLength: 3
+            type: object
+        transportType:
+          description: How the shipping container was transported
+          nullable: true
+          example: TRUCK
+          allOf:
+          - $ref: "#/components/schemas/GateTransportType"
         photos:
-          required:
-          - "false"
           type: array
           description: An optional photo list of the shipping container at gate update
           nullable: false
@@ -3026,8 +3188,6 @@ components:
       type: object
       properties:
         lastMaintenanceDate:
-          required:
-          - "false"
           type: string
           description: |-
             the last date that maintenance was performed
@@ -3038,8 +3198,6 @@ components:
           example: 2001-07-21
         lastMaintenanceHours:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the number runtime hours at the last maintenance
           format: int32
@@ -3047,8 +3205,6 @@ components:
           example: 12
         currentMaintenanceHours:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the number of hours since the last maintenance; often referred
             to as `Current Hours`
@@ -3056,8 +3212,6 @@ components:
           nullable: true
           example: 1
         lastBeltChangeDate:
-          required:
-          - "false"
           type: string
           description: |-
             the last date that the belt was changed
@@ -3068,8 +3222,6 @@ components:
           example: 2001-07-21
         lastBeltChangeHours:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the number runtime hours at the last belt change
           format: int32
@@ -3077,8 +3229,6 @@ components:
           example: 12
         totalHours:
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the total runtime hours
           format: int32
@@ -3087,8 +3237,6 @@ components:
         fuelLevel:
           maximum: 100
           minimum: 0
-          required:
-          - "false"
           type: integer
           description: the fuel level as a percentage
           format: int32
@@ -3114,8 +3262,6 @@ components:
         name:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: a descriptive name to identify this inspection
           nullable: false
@@ -3133,8 +3279,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/MandateLevel"
         lastInspection:
-          required:
-          - "false"
           type: string
           description: |-
             the date this inspection was last performed
@@ -3145,8 +3289,6 @@ components:
           example: 2001-07-21
         validFor:
           minimum: 1
-          required:
-          - "false"
           type: integer
           description: the number of months this inspection is valid for
           format: int32
@@ -3169,8 +3311,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/ExternalParty"
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this inspection
           nullable: false
@@ -3194,8 +3334,6 @@ components:
       type: object
       properties:
         amountCovered:
-          required:
-          - "false"
           type: number
           description: the total amount allowable to by covered by insurance
           format: double
@@ -3204,45 +3342,33 @@ components:
           maxLength: 3
           minLength: 3
           pattern: "^[A-Z]{3}$"
-          required:
-          - "false"
           type: string
           description: The currency for the insurance coverage amount
           nullable: true
           example: EUR
         appliesToCTL:
-          required:
-          - "false"
           type: boolean
           description: indicates if this coverage should apply to scenarios where
             the damage exceeds the depreciated value of the container
           nullable: true
         allOrNothing:
-          required:
-          - "false"
           type: boolean
           description: "indicates if the amount of damage exceeds the insurance coverage,\
             \ whether the lessee if fully responsible for the damage"
           nullable: true
         exceptions:
-          required:
-          - "false"
           type: array
           description: any contractual reason why the coverage may not apply
           nullable: false
           items:
             type: string
         exclusions:
-          required:
-          - "false"
           type: array
           description: reasons insurance coverage would be excluded from a repair
           nullable: false
           items:
             type: string
         exclusionItems:
-          required:
-          - "false"
           type: array
           description: "in lieu of a contractual description, this field can be used\
             \ to describe specifically what repairs are excluded"
@@ -3250,16 +3376,12 @@ components:
           items:
             $ref: "#/components/schemas/EstimateLineItemPart"
         inclusions:
-          required:
-          - "false"
           type: array
           description: reasons insurance coverage would include a repair
           nullable: false
           items:
             type: string
         inclusionItems:
-          required:
-          - "false"
           type: array
           description: "in lieu of a contractual description, this field can be used\
             \ to describe specifically what repairs are included"
@@ -3268,14 +3390,235 @@ components:
             $ref: "#/components/schemas/EstimateLineItemPart"
       description: describes the type of insurance coverage a given shipping container
         has for a damage repair
+    InventorySnapshot:
+      required:
+      - depot
+      - reportedBy
+      - snapshotDateTime
+      - units
+      type: object
+      properties:
+        reportedBy:
+          description: "the party whose system produced this view of the depot inventory;\
+            \ since either the depot or the owner may implement this API, this identifies\
+            \ whose view is being reported"
+          allOf:
+          - $ref: "#/components/schemas/Party"
+        depot:
+          description: the storage location this inventory list is for
+          allOf:
+          - $ref: "#/components/schemas/Party"
+        snapshotDateTime:
+          type: string
+          description: |-
+            the date and time in local time this inventory view was produced; compare unit statuses as of this moment, not the moment the response is read
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+          nullable: false
+        units:
+          type: array
+          description: the shipping containers currently at the depot for the calling
+            party that match the search criteria; an empty array indicates no matching
+            shipping containers are on site
+          nullable: false
+          items:
+            $ref: "#/components/schemas/InventoryUnit"
+      description: |-
+        *This model is only proposed at this time and is in an alpha state - it is not production approved and may change without notice.*
+
+        a point in time view of the shipping containers at a depot for the calling party, as seen by the responding system; used for near real time inventory status reconciliation between depot and owner systems
+    InventoryStatus:
+      type: string
+      description: "Describes where the shipping container currently is in the depot\
+        \ lifecycle.  This status intentionally only conveys lifecycle position; the\
+        \ quality of the unit is reported separately as a grade and holds are reported\
+        \ separately as a flag: \n\n`AWAITING_ESTIMATE` - gated in damaged and no\
+        \ estimate has been submitted\n\n`AWAITING_CUSTOMER_APPROVAL` - an estimate\
+        \ revision is awaiting customer approval\n\n`AWAITING_OWNER_DECISION` - the\
+        \ estimate is awaiting the owner decision (work order)\n\n`REPAIR_AUTHORIZED`\
+        \ - a work order authorizes repair and the repair is not yet complete\n\n\
+        `AVAILABLE` - available for lease out\n\n`FOR_SALE` - designated for sale\n\
+        \n`SOLD` - sold and awaiting removal\n\n`TIED_OUTBOUND` - allocated to an\
+        \ outbound release / booking"
+      example: AVAILABLE
+      enum:
+      - AWAITING_ESTIMATE
+      - AWAITING_CUSTOMER_APPROVAL
+      - AWAITING_OWNER_DECISION
+      - REPAIR_AUTHORIZED
+      - AVAILABLE
+      - FOR_SALE
+      - SOLD
+      - TIED_OUTBOUND
+    InventoryUnit:
+      required:
+      - status
+      - statusDateTime
+      - unitNumber
+      type: object
+      properties:
+        unitNumber:
+          maxLength: 11
+          minLength: 1
+          pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
+          type: string
+          description: the current unit number of the shipping container
+          nullable: false
+          example: CONU1234561
+        equipment:
+          maxLength: 10
+          minLength: 1
+          type: string
+          description: the equipment type ISO code or an internal code if one does
+            not exist for the given shipping container
+          nullable: true
+          example: 22G1
+        status:
+          description: "Describes where the shipping container currently is in the\
+            \ depot lifecycle.  This status intentionally only conveys lifecycle position;\
+            \ the quality of the unit is reported separately as a grade and holds\
+            \ are reported separately as a flag: \n\n`AWAITING_ESTIMATE` - gated in\
+            \ damaged and no estimate has been submitted\n\n`AWAITING_CUSTOMER_APPROVAL`\
+            \ - an estimate revision is awaiting customer approval\n\n`AWAITING_OWNER_DECISION`\
+            \ - the estimate is awaiting the owner decision (work order)\n\n`REPAIR_AUTHORIZED`\
+            \ - a work order authorizes repair and the repair is not yet complete\n\
+            \n`AVAILABLE` - available for lease out\n\n`FOR_SALE` - designated for\
+            \ sale\n\n`SOLD` - sold and awaiting removal\n\n`TIED_OUTBOUND` - allocated\
+            \ to an outbound release / booking"
+          example: AVAILABLE
+          allOf:
+          - $ref: "#/components/schemas/InventoryStatus"
+        statusDateTime:
+          type: string
+          description: |-
+            the date and time in local time the shipping container entered the current status; used to buffer in-flight status transitions from reconciliation noise
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+          nullable: false
+        currentGrade:
+          maxLength: 10
+          minLength: 1
+          type: string
+          description: the grade / category the shipping container currently holds
+          nullable: true
+          example: IICL
+        targetGrade:
+          maxLength: 10
+          minLength: 1
+          type: string
+          description: the grade / category the shipping container is expected to
+            hold when work is complete - often used in lieu of an estimate inspection
+            criteria.
+          nullable: true
+          example: IICL
+        onHold:
+          type: boolean
+          description: indicates the shipping container is on hold; a hold is reported
+            separately from the lifecycle status since a unit may be held at any lifecycle
+            position
+          nullable: true
+          example: false
+          default: false
+        holdReason:
+          maxLength: 255
+          minLength: 1
+          type: string
+          description: "if the shipping container is on hold, an optional explanation\
+            \ of the hold"
+          nullable: true
+          example: technical hold - pending bulletin TB1234
+        damaged:
+          type: boolean
+          description: an indicator of whether the shipping container is currently
+            considered damaged
+          nullable: true
+          example: false
+        gateInDateTime:
+          type: string
+          description: |-
+            the date and time in local time the shipping container gated in to the depot
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+          nullable: true
+        primaryRepairCompleteDateTime:
+          type: string
+          description: |-
+            the date and time in local time the primary damage repair (see the primary estimate types of `EstimateType`) was completed, if it has been
+
+            ( notation as defined by [RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6) )
+          format: date-time
+          nullable: true
+        inCustomer:
+          description: the customer that turned the shipping container in to the depot
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/ExternalParty"
+        redeliveryNumber:
+          maxLength: 16
+          minLength: 1
+          type: string
+          description: the redelivery advice number the shipping container turned
+            in against
+          nullable: true
+          example: AHAMG000000
+        estimateNumber:
+          maxLength: 16
+          minLength: 1
+          type: string
+          description: "if an estimate exists for the shipping container, the estimate\
+            \ number"
+          nullable: true
+          example: DEHAMCE1856373
+        estimateRevision:
+          type: integer
+          description: "if an estimate exists for the shipping container, the current\
+            \ revision of that estimate"
+          format: int32
+          nullable: true
+          example: 0
+        workOrderNumber:
+          maxLength: 16
+          minLength: 1
+          type: string
+          description: "if a work order authorizes activity for the shipping container,\
+            \ the work order number"
+          nullable: true
+          example: WHAMG46019
+        outCustomer:
+          description: the customer the shipping container is allocated to lease out
+            to
+          nullable: true
+          allOf:
+          - $ref: "#/components/schemas/ExternalParty"
+        releaseNumber:
+          maxLength: 16
+          minLength: 1
+          type: string
+          description: "if the shipping container is allocated outbound, the release\
+            \ advice number authorizing it to leave the depot"
+          nullable: true
+          example: RHAMG000000
+        comments:
+          type: array
+          description: comments pertaining to this unit for the intended recipient
+            of this message
+          nullable: false
+          items:
+            type: string
+            example: An example unit level comment.
+      description: |-
+        *This model is only proposed at this time and is in an alpha state - it is not production approved and may change without notice.*
+
+        the current status of a shipping container in a depot's inventory
     MachineryInfo:
       type: object
       properties:
         manufacturer:
           maxLength: 50
           minLength: 1
-          required:
-          - "false"
           type: string
           description: The cooling machinery manufacturer
           nullable: true
@@ -3283,8 +3626,6 @@ components:
         modelName:
           maxLength: 50
           minLength: 1
-          required:
-          - "false"
           type: string
           description: The machinery model name
           nullable: true
@@ -3292,8 +3633,6 @@ components:
         modelNumber:
           maxLength: 50
           minLength: 1
-          required:
-          - "false"
           type: string
           description: The machinery model number
           nullable: true
@@ -3335,8 +3674,6 @@ components:
           maxLength: 9
           minLength: 9
           pattern: "^[A-Z0-9]{9}$"
-          required:
-          - "true"
           type: string
           description: "the identifier for this party, often referred to as an EDI\
             \ Address"
@@ -3345,8 +3682,6 @@ components:
         code:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: "the internal system code for this company, will be system\
             \ specific to the system delivering or receiving this message"
@@ -3362,15 +3697,11 @@ components:
         code:
           maxLength: 6
           pattern: "^[A-Z0-9]{3}[0-9]{3}$"
-          required:
-          - "false"
           type: string
           description: indicator code for this response
           nullable: true
           example: EXX365
         message:
-          required:
-          - "false"
           type: string
           description: a descriptive reason why the activity was not immediately created
           nullable: true
@@ -3384,8 +3715,6 @@ components:
         recommendation:
           maxLength: 11
           minLength: 1
-          required:
-          - "true"
           type: string
           description: "a speculative repair decision code to indicate if a box will\
             \ be repaired, sold, held for repair, could not determine a decision,\
@@ -3395,16 +3724,12 @@ components:
         reason:
           maxLength: 255
           minLength: 1
-          required:
-          - "false"
           type: string
           description: "in the event a decision could not be determined, or a prerequisite\
             \ exists, a more descriptive message than the code provided by the `recommendation`\
             \ field"
           nullable: true
         difference:
-          required:
-          - "false"
           type: number
           description: A positive or negative amount showing how close the repair
             estimate was to a decision change
@@ -3427,16 +3752,12 @@ components:
         redeliveryNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: "the identifier for this redelivery, also referred to as the\
             \ advice number or redelivery number"
           nullable: false
           example: AHAMG33141
         approvalDate:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this redelivery is considered approved / effective
@@ -3445,8 +3766,6 @@ components:
           format: date-time
           nullable: false
         expirationDate:
-          required:
-          - "false"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this redelivery is considered no longer valid
@@ -3465,8 +3784,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/RedeliveryStatus"
         estimateEmailRecipients:
-          required:
-          - "false"
           type: array
           description: list of emails to notify for an estimate revision
           nullable: false
@@ -3474,8 +3791,6 @@ components:
             type: string
             example: customer@example.com
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -3497,8 +3812,6 @@ components:
           - $ref: "#/components/schemas/ExternalParty"
         quantity:
           minimum: 0
-          required:
-          - "true"
           type: integer
           description: the number of shipping containers assigned to this redelivery.
           format: int32
@@ -3506,8 +3819,6 @@ components:
           example: 1
         details:
           minItems: 1
-          required:
-          - "true"
           type: array
           description: groups of like-criteria units
           nullable: false
@@ -3529,8 +3840,6 @@ components:
         contract:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the contract code for the given shipping containers
           nullable: false
@@ -3538,8 +3847,6 @@ components:
         equipment:
           maxLength: 10
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the equipment type ISO code or an internal code if one does
             not exist for the given shipping containers
@@ -3553,8 +3860,6 @@ components:
         grade:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the grade / category of the unit as it was when it last left
             a depot
@@ -3596,8 +3901,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/UpgradeType"
         units:
-          required:
-          - "false"
           type: array
           description: "the specific units for this redelivery if defined, if not,\
             \ assumed blanket (any unit matching criteria can be tied up to the quantity\
@@ -3607,16 +3910,12 @@ components:
             $ref: "#/components/schemas/RedeliveryUnit"
         quantity:
           minimum: 0
-          required:
-          - "true"
           type: integer
           description: the number of shipping containers assigned to this detail
           format: int32
           nullable: false
           example: 1
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -3652,15 +3951,11 @@ components:
           maxLength: 11
           minLength: 1
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: the current unit number of the shipping container
           nullable: false
           example: CONU1234561
         manufactureDate:
-          required:
-          - "true"
           type: string
           description: |-
             date and month this unit was manufactured
@@ -3670,8 +3965,6 @@ components:
           nullable: false
           example: 2001-07-21
         lastOnHireDate:
-          required:
-          - "false"
           type: string
           description: |-
             the date this unit was on hired to the customer for this unit's detail
@@ -3695,8 +3988,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/RedeliveryUnitStatus"
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -3707,8 +3998,6 @@ components:
         lastCargo:
           maxLength: 255
           minLength: 1
-          required:
-          - "false"
           type: string
           description: a description of the last cargo this shipping container carried
           nullable: true
@@ -3717,16 +4006,12 @@ components:
           maxLength: 7
           minLength: 4
           pattern: "^([A-Z]{2})??\\s?[A-Z0-9]{4}$"
-          required:
-          - "false"
           type: string
           description: A number (such as a UN Number for hazardous materials) used
             to identify the type of cargo this container carried
           nullable: true
           example: UN 0305
         tankGrade:
-          required:
-          - "false"
           type: string
           description: "if this is a tank, then this describes the type of liquids\
             \ it can contain: \n\n`F` - Food\n\n`C` - Chemical "
@@ -3736,8 +4021,6 @@ components:
           - F
           - C
         technicalBulletins:
-          required:
-          - "false"
           type: array
           description: "list of technical bulletins associated to this unit - we suggest\
             \ this be fixed identifiers, codes, or urls"
@@ -3753,19 +4036,27 @@ components:
         inspectionCriteria:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
-          description: "conveys the estimate instructions to the depot; if the unit\
-            \ is damaged on turn in, the estimate standard that the shipping container\
-            \ should be estimated to and if it should not be estimated, then null"
+          description: "conveys the primary estimate instructions to the depot; if\
+            \ the unit is damaged on turn in, the estimate standard that the shipping\
+            \ container should be estimated to and if it should not be estimated,\
+            \ then null.  When the owner needs more than one estimate for this unit,\
+            \ this is the primary estimate and the additional estimates are conveyed\
+            \ via `secondaryInspectionCriteria`."
           nullable: true
           example: IICL
+        secondaryInspectionCriteria:
+          type: array
+          description: additional estimate instructions beyond the primary `inspectionCriteria`;
+            each entry drives one more estimate the depot should produce for this
+            unit (currently proposed as part of the multiple estimate workflow - not
+            production approved).
+          nullable: true
+          items:
+            $ref: "#/components/schemas/SecondaryInspectionCriteria"
         targetGrade:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the grade / category to mark the unit when it arrives at the
             depot - often used in lieu of an estimate inspection criteria.
@@ -3819,8 +4110,6 @@ components:
         releaseNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: "the identifier for this release, also referred to as the advice\
             \ number or release number"
@@ -3844,8 +4133,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/ReleaseType"
         approvalDate:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2019-07-21T17:32:28Z`) that this release is considered approved / effective
@@ -3854,8 +4141,6 @@ components:
           format: date-time
           nullable: false
         expirationDate:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this release is considered no longer valid
@@ -3864,8 +4149,6 @@ components:
           format: date-time
           nullable: false
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -3891,16 +4174,12 @@ components:
             to this release
         quantity:
           minimum: 0
-          required:
-          - "true"
           type: integer
           description: the number of shipping containers assigned to this release.
           format: int32
           example: 1
         details:
           minItems: 1
-          required:
-          - "true"
           type: array
           description: groups of like-criteria units
           nullable: false
@@ -3923,8 +4202,6 @@ components:
         contract:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the contract code for the given shipping containers
           nullable: false
@@ -3932,8 +4209,6 @@ components:
         equipment:
           maxLength: 10
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the equipment type ISO code or an internal code if one does
             not exist for the given shipping containers
@@ -3942,8 +4217,6 @@ components:
         grade:
           maxLength: 10
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the current grade of the unit
           nullable: false
@@ -3984,8 +4257,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/UpgradeType"
         units:
-          required:
-          - "false"
           type: array
           description: "the specific units for this release if defined, if not, assumed\
             \ blanket (any unit matching criteria can be tied up to the quantity limit\
@@ -3994,8 +4265,6 @@ components:
           items:
             $ref: "#/components/schemas/ReleaseUnit"
         criteria:
-          required:
-          - "false"
           type: array
           description: 'additional criteria beyond the required properties of this
             detail to further restrict units.  i.e. <= 2003 manufacture year. '
@@ -4003,8 +4272,6 @@ components:
           items:
             $ref: "#/components/schemas/ReleaseDetailCriteria"
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -4014,31 +4281,23 @@ components:
             example: An example detail level comment.
         quantity:
           minimum: 0
-          required:
-          - "true"
           type: integer
           description: the number of shipping containers assigned to this detail
           format: int32
           nullable: false
           example: 1
         preTripInspectionRequired:
-          required:
-          - "false"
           type: boolean
           description: indicator if mechanical equipment must be tested prior to lease
             out
           nullable: true
         desiredTemperature:
-          required:
-          - "false"
           type: integer
           description: the reefer setpoint / desired temperature in Celsius
           format: int32
           nullable: true
           example: -23
         desiredHumidity:
-          required:
-          - "false"
           type: integer
           description: the reefer desired humidity percentage
           format: int32
@@ -4047,8 +4306,6 @@ components:
         ventilation:
           maxLength: 10
           minLength: 1
-          required:
-          - "false"
           type: string
           description: "if the equipment has fresh air ventilation, the rate of the\
             \ fresh air ventilation"
@@ -4066,8 +4323,6 @@ components:
         fieldName:
           maxLength: 50
           minLength: 1
-          required:
-          - "true"
           type: string
           description: a legible field name
           nullable: false
@@ -4075,8 +4330,6 @@ components:
         fieldId:
           maxLength: 30
           minLength: 1
-          required:
-          - "true"
           type: string
           description: an abbreviated form of the field name
           nullable: false
@@ -4084,8 +4337,6 @@ components:
         fieldDescription:
           maxLength: 255
           minLength: 1
-          required:
-          - "true"
           type: string
           description: an explanation of what the field value is
           nullable: false
@@ -4093,8 +4344,6 @@ components:
         fieldValue:
           maxLength: 500
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the value of the field
           nullable: false
@@ -4135,15 +4384,11 @@ components:
           maxLength: 11
           minLength: 1
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: the current unit number of the shipping container
           nullable: false
           example: CONU1234561
         comments:
-          required:
-          - "false"
           type: array
           description: comments pertaining to this unit for the intended recipient
             of this message
@@ -4162,15 +4407,11 @@ components:
           allOf:
           - $ref: "#/components/schemas/ReleaseUnitStatus"
         carbCompliant:
-          required:
-          - "false"
           type: boolean
           description: "specific to Genset equipment, indicator for California Air\
             \ Resources Board compliance"
           nullable: true
         manufactureDate:
-          required:
-          - "false"
           type: string
           description: |-
             date and month this unit was manufactured
@@ -4205,8 +4446,6 @@ components:
         workOrderNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the identifier of the work order to repair complete
           nullable: false
@@ -4217,8 +4456,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/Party"
         completionDate:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2018-04-10T19:37:04Z`) that this work order was repaired.
@@ -4230,8 +4467,6 @@ components:
           maxLength: 11
           minLength: 10
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: the unit number of the shipping container at the time of repair
             approval
@@ -4239,6 +4474,57 @@ components:
           example: CONU1234561
       description: Necessary information to mark a specific unit under a work order
         repaired
+    SecondaryInspectionCriteria:
+      required:
+      - inspectionCriteria
+      type: object
+      properties:
+        inspectionCriteria:
+          maxLength: 10
+          minLength: 1
+          type: string
+          description: the estimate standard this additional estimate should be estimated
+            to
+          nullable: false
+          example: SC
+        upgradeType:
+          description: |-
+            the type of secondary upgrade this estimate transmission represents.
+
+            `FG` - Food grade
+
+            `ML` - Malt
+
+            `DB` - Dairy Board
+
+            `EV` - Evian
+
+            `WH` - Whiskey
+
+            `SU` - Sugar
+
+            `CF` - Coffee
+
+            `TB` - Tobacco
+
+            `MC` - Milk cartons
+
+            `MP` - Milk powder
+
+            `AM` - Ammunition
+
+            `CH` - Cotton/Hay
+
+            `TE` - Tea
+
+            `FT` - Flexitank
+          nullable: true
+          example: AM
+          allOf:
+          - $ref: "#/components/schemas/UpgradeType"
+      description: "an additional estimate the depot should produce for this unit,\
+        \ beyond the primary `inspectionCriteria`; the criteria dictates the estimate\
+        \ type"
     TireTreadLocation:
       type: string
       description: |-
@@ -4323,9 +4609,7 @@ components:
           allOf:
           - $ref: "#/components/schemas/UnitOfMeasure"
         depth:
-          minimum: 0
-          required:
-          - "true"
+          minimum: 0.00
           type: number
           description: the measurement of the tire depth
           format: double
@@ -4424,8 +4708,6 @@ components:
       type: object
       properties:
         relatedId:
-          required:
-          - "false"
           type: integer
           description: |-
             *Field is currently proposed to be added - not currently production approved.*
@@ -4437,8 +4719,6 @@ components:
         workOrderNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the identifier for this work order; this will be the approval
             number for repairs
@@ -4462,15 +4742,11 @@ components:
         type:
           maxLength: 11
           minLength: 1
-          required:
-          - "true"
           type: string
           description: the type of repair approved
           nullable: false
           example: SELLCWCA
         approvalDate:
-          required:
-          - "true"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2017-05-10T19:37:04Z`) that this work order is authorized for repair
@@ -4479,26 +4755,20 @@ components:
           format: date-time
           nullable: false
         approvalTotal:
-          required:
-          - "false"
           type: number
           description: the total amount approved for repair
           format: double
           nullable: true
-          example: 175
+          example: 175.00
         approvalCurrency:
           maxLength: 3
           minLength: 3
           pattern: "^[A-Z]{3}$"
-          required:
-          - "false"
           type: string
           description: the currency of the approval total
           nullable: true
           example: EUR
         expirationDate:
-          required:
-          - "false"
           type: string
           description: |-
             the date and time in the depot local time zone (i.e. `2020-07-21T17:32:28Z`) that this repair must be completed by
@@ -4509,8 +4779,6 @@ components:
         comments:
           maxLength: 500
           minLength: 1
-          required:
-          - "false"
           type: string
           description: comments pertaining to this repair for the intended recipient
             of this message
@@ -4519,8 +4787,6 @@ components:
         lineItems:
           maxItems: 200
           minItems: 1
-          required:
-          - "true"
           type: array
           description: units associated to this work order
           nullable: false
@@ -4538,8 +4804,6 @@ components:
         estimateNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "false"
           type: string
           description: The estimate number that initiated this unit on this work order
           nullable: true
@@ -4548,8 +4812,6 @@ components:
           maxLength: 11
           minLength: 10
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "true"
           type: string
           description: the unit number of the shipping container at the time of repair
             approval
@@ -4558,8 +4820,6 @@ components:
         effectiveInspectionCriteria:
           maxLength: 10
           minLength: 1
-          required:
-          - "true"
           type: string
           description: repair the shipping container to this grade or category standard
           nullable: false
@@ -4568,16 +4828,12 @@ components:
           maxLength: 11
           minLength: 10
           pattern: "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$"
-          required:
-          - "false"
           type: string
           description: the unit number to remark the shipping container on repair
           nullable: true
         releaseNumber:
           maxLength: 16
           minLength: 1
-          required:
-          - "false"
           type: string
           description: the Release approved for gate out after repair
           nullable: true
@@ -4593,7 +4849,37 @@ components:
           example: TIED
           allOf:
           - $ref: "#/components/schemas/WorkOrderUnitStatus"
+        approvals:
+          type: array
+          description: |-
+            *Field is currently proposed to be added - not currently production approved.*
+
+            when multiple estimates are approved for this unit, this represents a breakdown of approval amounts by specific estimate type (estimate type and upgrade type combinations). When empty or null, the unit uses the work order's single estimate context or does not have an estimate.
+          nullable: false
+          items:
+            $ref: "#/components/schemas/WorkOrderUnitApproval"
       description: information for a specific unit on a work order
+    WorkOrderUnitApproval:
+      required:
+      - allocationType
+      - approvalTotal
+      type: object
+      properties:
+        allocationType:
+          description: the estimate type and optional upgrade type combination that
+            this approval applies to
+          allOf:
+          - $ref: "#/components/schemas/EstimateAllocationType"
+        approvalTotal:
+          type: number
+          description: the total amount approved for this specific estimate type
+          format: double
+          nullable: false
+          example: 175.00
+      description: |-
+        *Type is currently proposed to be added - not currently production approved.*
+
+        Represents the approval details for a specific estimate type on a work order unit. When multiple estimates are approved for a unit, each estimate type will have its own approval entry.
     WorkOrderUnitStatus:
       type: string
       description: |-
@@ -4616,6 +4902,9 @@ components:
       scheme: bearer
       bearerFormat: JWT
 x-tagGroups:
+- name: "API: Proposed (Alpha)"
+  tags:
+  - inventory
 - name: "API: Production Ready"
   tags:
   - redelivery
@@ -4650,8 +4939,11 @@ x-tagGroups:
   - m_estimate_line_item_photo
   - m_estimate_tax_rate
   - m_estimate_allocation
+  - m_estimate_allocation_type
   - m_preliminary_decision
   - m_estimate_customer_approval
   - m_work_order
   - m_work_order_unit
   - m_repair_complete
+  - m_inventory_snapshot
+  - m_inventory_unit

@@ -34,7 +34,7 @@ This application is used to generate the IICL API documentation.  Access updated
 
 - [Micronaut Gradle Plugin documentation](https://micronaut-projects.github.io/micronaut-gradle-plugin/latest/)
 - [GraalVM Gradle Plugin documentation](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html)
-- [Shadow Gradle Plugin](https://plugins.gradle.org/plugin/com.github.johnrengelman.shadow)
+- [Shadow Gradle Plugin](https://plugins.gradle.org/plugin/com.gradleup.shadow)
 ## Feature hibernate-jpa documentation
 
 - [Micronaut Hibernate JPA documentation](https://micronaut-projects.github.io/micronaut-sql/latest/guide/index.html#hibernate)

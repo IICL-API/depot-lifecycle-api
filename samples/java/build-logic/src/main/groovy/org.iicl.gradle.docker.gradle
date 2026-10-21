@@ -1,0 +1,19 @@
+import io.micronaut.gradle.docker.MicronautDockerfile
+
+plugins {
+    id 'io.micronaut.docker'
+}
+
+boolean isCIBuild = System.getenv('CI') != null
+docker {
+    url = isCIBuild ? "tcp://127.0.0.1:2375" : "unix:///var/run/docker.sock"
+}
+
+tasks.withType(MicronautDockerfile) {
+    baseImage = baseDockerImage
+    exposedPorts = [8086]
+    targetWorkingDirectory = "/app"
+    runCommand("mkdir -p /app && addgroup -g 1000 depotlifecycle && adduser -u 1000 -G depotlifecycle -h /app -D depotlifecycle")
+    user( "depotlifecycle:depotlifecycle")
+    environmentVariable("JAVA_TOOL_OPTIONS", "-XX:MaxRAMPercentage=80.0 -XX:InitialRAMPercentage=40.0 -Djava.awt.headless=true -Dfile.encoding=UTF-8")
+}

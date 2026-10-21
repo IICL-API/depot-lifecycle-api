@@ -17,7 +17,6 @@ import java.util.List;
 @Introspected
 public class EstimateLineItemCommand {
     @NotNull
-    @NotBlank
     Integer line;
 
     @Nullable
@@ -60,23 +59,25 @@ public class EstimateLineItemCommand {
     UnitOfMeasure unitOfMeasure;
 
     @NotNull
+    @Min(0)
     BigDecimal hours;
 
     @Nullable
     BigDecimal tax;
 
     @NotNull
+    @Min(0)
     BigDecimal materialCost;
 
     @NotNull
+    @Min(0)
     BigDecimal laborRate;
 
     @NotNull
     EstimateLineItemParty party;
 
     @Nullable
-    @NotBlank
-    @Size(max = 500)
+    @Size(max = 256)
     String comments;
 
     @Nullable

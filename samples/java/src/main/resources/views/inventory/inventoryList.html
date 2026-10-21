@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layouts/main :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Inventory Results</title>
+</head>
+<body th:fragment="section">
+<div class="align-middle flex-column">
+    <div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Results:</h5>
+                <div class="card-subtitle text-muted">
+                    <span class="fw-bold">Reported By:</span> <span th:text="${snapshot.reportedBy?.companyId}"></span>
+                    <span class="fw-bold ms-3">Depot:</span> <span th:text="${snapshot.depot?.companyId}"></span>
+                    <span class="fw-bold ms-3">Snapshot Time:</span> <span th:text="${snapshot.snapshotDateTime}"></span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(snapshot.units)}" class="alert alert-warning" role="alert">
+                    No matching shipping containers are currently in inventory.
+                </div>
+
+                <table class="table" th:if="${!#lists.isEmpty(snapshot.units)}">
+                    <thead>
+                    <tr>
+                        <th>Unit Number</th>
+                        <th>Equipment</th>
+                        <th>Status</th>
+                        <th>Status Time</th>
+                        <th>Current Grade</th>
+                        <th>Target Grade</th>
+                        <th>On Hold</th>
+                        <th>Hold Reason</th>
+                        <th>Damaged</th>
+                        <th>Gate In</th>
+                        <th>Primary Repair Complete</th>
+                        <th>In Customer</th>
+                        <th>Redelivery #</th>
+                        <th>Estimate #</th>
+                        <th>Estimate Rev</th>
+                        <th>Work Order #</th>
+                        <th>Out Customer</th>
+                        <th>Release #</th>
+                        <th>Comments</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="unit : ${snapshot.units}">
+                        <td th:text="${unit.unitNumber}"></td>
+                        <td th:text="${unit.equipment}"></td>
+                        <td th:text="${unit.status}"></td>
+                        <td th:text="${unit.statusDateTime}"></td>
+                        <td th:text="${unit.currentGrade}"></td>
+                        <td th:text="${unit.targetGrade}"></td>
+                        <td th:text="${unit.onHold}"></td>
+                        <td th:text="${unit.holdReason}"></td>
+                        <td th:text="${unit.damaged}"></td>
+                        <td th:text="${unit.gateInDateTime}"></td>
+                        <td th:text="${unit.primaryRepairCompleteDateTime}"></td>
+                        <td th:text="${unit.inCustomer?.code}"></td>
+                        <td th:text="${unit.redeliveryNumber}"></td>
+                        <td th:text="${unit.estimateNumber}"></td>
+                        <td th:text="${unit.estimateRevision}"></td>
+                        <td th:text="${unit.workOrderNumber}"></td>
+                        <td th:text="${unit.outCustomer?.code}"></td>
+                        <td th:text="${unit.releaseNumber}"></td>
+                        <td th:text="${unit.comments}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

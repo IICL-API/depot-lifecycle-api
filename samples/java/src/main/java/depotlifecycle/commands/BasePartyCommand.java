@@ -3,7 +3,6 @@ package depotlifecycle.commands;
 import depotlifecycle.domain.BaseParty;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -14,11 +13,11 @@ import java.util.List;
 @Introspected
 public abstract class BasePartyCommand {
     @Nullable
-    @NotBlank
+    @Size(max = 16)
     String userCode;
 
     @Nullable
-    @NotBlank
+    @Size(max = 70)
     String userName;
 
     @Nullable
@@ -31,7 +30,6 @@ public abstract class BasePartyCommand {
     List<String> emailAddress;
 
     @Nullable
-    @NotBlank
     @Size(max = 150)
     String name;
 
@@ -39,27 +37,22 @@ public abstract class BasePartyCommand {
     List<String> streetAddress;
 
     @Nullable
-    @NotBlank
     @Size(max = 28)
     String city;
 
     @Nullable
-    @NotBlank
     @Size(max = 2)
     String country;
 
     @Nullable
-    @NotBlank
     @Size(max = 20)
     String postalCode;
 
     @Nullable
-    @NotBlank
     @Size(max = 20)
     String stateProvince;
 
     @Nullable
-    @NotBlank
     @Size(max = 14)
     String licensePlate;
 

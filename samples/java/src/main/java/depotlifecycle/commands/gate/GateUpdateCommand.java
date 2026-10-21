@@ -5,6 +5,7 @@ import depotlifecycle.commands.ExternalPartyCommand;
 import depotlifecycle.commands.equipment.EquipmentDetailCommand;
 import depotlifecycle.domain.gate.GateRequestStatus;
 import depotlifecycle.domain.gate.GateRequestType;
+import depotlifecycle.domain.gate.GateTransportType;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
@@ -39,11 +40,14 @@ public class GateUpdateCommand {
     GateRequestStatus status;
 
     @Nullable
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm", timezone = "Z")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm[:ss][XXX]", timezone = "Z")
     ZonedDateTime activityTime;
 
     @Nullable
     GateRequestType type;
+
+    @Nullable
+    GateTransportType transportType;
 
     @Nullable
     List<GatePhotoCommand> photos;

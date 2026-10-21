@@ -21,7 +21,7 @@ public class EstimateCustomerApproveCommand extends BaseCustomerApprovalCommand 
 
     @NotNull
     @NotBlank
-    @Size(min = 10, max = 9)
+    @Size(min = 9, max = 10)
     @Pattern(regexp = "^[A-Z0-9]{9}$", message = "Depot must match the Company Id pattern.")
     String depot;
 }

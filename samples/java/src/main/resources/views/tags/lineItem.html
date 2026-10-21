@@ -44,7 +44,7 @@
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'unitOfMeasure'" class="form-label">Unit of Measure</label>
-            <select class="form-select" th:attr="id=${id} + 'unitOfMeasure', name=${propertyPath} + 'unitOfMeasure'">
+            <select class="form-select" th:attr="id=${id} + 'unitOfMeasure', name=${propertyPath} + 'unitOfMeasure'" data-omit-when-blank>
                 <option></option>
                 <option th:each="unitOfMeasure : ${unitOfMeasures}" th:attr="value=${unitOfMeasure.name()}" th:text="${unitOfMeasure.name()}"></option>
             </select>
@@ -77,7 +77,7 @@
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'taxRule'" class="form-label">Tax Rule</label>
-            <select class="form-select" th:attr="id=${id} + 'taxRule', name=${propertyPath} + 'taxRule'">
+            <select class="form-select" th:attr="id=${id} + 'taxRule', name=${propertyPath} + 'taxRule'" data-omit-when-blank>
                 <option></option>
                 <option th:each="taxRule : ${taxRules}" th:attr="value=${taxRule.name()}" th:text="${taxRule.name()}"></option>
             </select>

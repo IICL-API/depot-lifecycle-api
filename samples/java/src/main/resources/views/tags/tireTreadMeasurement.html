@@ -5,14 +5,14 @@
     <div class="card-body">
         <div class="mb-3">
             <label th:attr="for=${id} + 'location'" class="form-label">Location</label>
-            <select class="form-select" th:attr="id=${id} + 'location', name=${propertyPath} + 'location'" required>
+            <select class="form-select" th:attr="id=${id} + 'location', name=${propertyPath} + 'location'" required data-omit-when-blank>
                 <option></option>
                 <option th:each="tireTreadLocation : ${tireTreadLocations}" th:attr="value=${tireTreadLocation.name()}" th:text="${tireTreadLocation.name() + ' - ' + tireTreadLocation.description}"></option>
             </select>
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'unitOfMeasure'" class="form-label">Unit of Measure</label>
-            <select class="form-select" th:attr="id=${id} + 'unitOfMeasure', name=${propertyPath} + 'unitOfMeasure'" required>
+            <select class="form-select" th:attr="id=${id} + 'unitOfMeasure', name=${propertyPath} + 'unitOfMeasure'" required data-omit-when-blank>
                 <option></option>
                 <option th:each="unitOfMeasure : ${unitOfMeasures}" th:attr="value=${unitOfMeasure.name()}" th:text="${unitOfMeasure.name()}"></option>
             </select>

@@ -1,6 +1,7 @@
 package depotlifecycle.controllers.api.gate;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
+import depotlifecycle.system.PartyResolver;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.GateResponse;
 import depotlifecycle.GateStatus;
@@ -16,6 +17,7 @@ import depotlifecycle.repositories.gate.GateDeleteRequestRepository;
 import depotlifecycle.repositories.gate.GateUpdateRequestRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
+import depotlifecycle.system.InventoryUpdater;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.*;
 import io.micronaut.http.annotation.Error;
@@ -51,12 +53,13 @@ import java.util.Optional;
 public class GateController {
     private static final Logger LOG = LoggerFactory.getLogger(GateController.class);
     private final PartyRepository partyRepository;
-    private final ExternalPartyRepository externalPartyRepository;
+    private final PartyResolver partyResolver;
     private final GateCreateRequestRepository gateCreateRequestRepository;
     private final GateUpdateRequestRepository gateUpdateRequestRepository;
     private final GateDeleteRequestRepository gateDeleteRequestRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
+    private final InventoryUpdater inventoryUpdater;
 
     @Post(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "create a gate record",
@@ -83,14 +86,17 @@ public class GateController {
         }
 
         if (gateCreateRequest.getDepot() != null) {
-            gateCreateRequest.setDepot(partyRepository.save(gateCreateRequest.getDepot()));
+            gateCreateRequest.setDepot(partyResolver.resolve(gateCreateRequest.getDepot()));
         }
 
         if (gateCreateRequest.getTrucker() != null) {
-            gateCreateRequest.setTrucker(externalPartyRepository.save(gateCreateRequest.getTrucker()));
+            gateCreateRequest.setTrucker(partyResolver.resolve(gateCreateRequest.getTrucker()));
         }
 
         gateCreateRequest = gateCreateRequestRepository.save(gateCreateRequest);
+
+        //Reflect the gate activity in the example depot inventory
+        inventoryUpdater.recordGate(gateCreateRequest);
 
         //Generate an example gate for the purposes of this demo
         GateResponse gate = new GateResponse();
@@ -162,7 +168,7 @@ public class GateController {
         }
 
         if (gateUpdateRequest.getTrucker() != null) {
-            gateUpdateRequest.setTrucker(externalPartyRepository.save(gateUpdateRequest.getTrucker()));
+            gateUpdateRequest.setTrucker(partyResolver.resolve(gateUpdateRequest.getTrucker()));
         }
 
         gateUpdateRequest = gateUpdateRequestRepository.save(gateUpdateRequest);
@@ -192,14 +198,14 @@ public class GateController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully delete the gate record", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successfully delete the gate record"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "delete a gate record is disallowed by security"),
         @ApiResponse(responseCode = "404", description = "the shipping container or depot could not be found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> delete(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number to identify which gate record to delete", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
+    public HttpResponse<Void> delete(@Parameter(name = "adviceNumber", description = "the redelivery or release advice number to identify which gate record to delete", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "AHAMG000000", minLength = 1, maxLength = 16)) String adviceNumber,
                                        @Parameter(name = "unitNumber", description = "the current unit number of the shipping container", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "CONU1234561", pattern = "^[A-Z]{4}[X0-9]{6}[A-Z0-9]{0,1}$", maxLength = 11)) String unitNumber,
                                        @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot) {
         LOG.info("Received Gate Delete for {}, {}, {}", depot, adviceNumber, unitNumber);
@@ -222,7 +228,7 @@ public class GateController {
         else {
             depotParty = Optional.of(new Party());
             depotParty.get().setCompanyId(depot);
-            depotParty = Optional.of(partyRepository.save(depotParty.get()));
+            depotParty = Optional.of(partyResolver.resolve(depotParty.get()));
         }
 
         GateDeleteRequest gateDeleteRequest = new GateDeleteRequest();

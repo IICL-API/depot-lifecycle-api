@@ -14,7 +14,7 @@
         </div>
         <div class="mb-3">
             <label th:attr="for=${id} + 'brakeCondition'" class="form-label">Break Condition</label>
-            <select class="form-select" th:attr="id=${id} + 'brakeCondition', name=${propertyPath} + 'brakeCondition'">
+            <select class="form-select" th:attr="id=${id} + 'brakeCondition', name=${propertyPath} + 'brakeCondition'" data-omit-when-blank>
                 <option></option>
                 <option th:each="brakeCondition : ${brakeConditions}" th:attr="value=${brakeCondition.name()}" th:text="${brakeCondition.name() + ' - ' + brakeCondition.description}"></option>
             </select>

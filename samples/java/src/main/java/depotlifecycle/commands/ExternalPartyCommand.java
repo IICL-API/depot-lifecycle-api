@@ -6,21 +6,21 @@ import depotlifecycle.domain.ExternalParty;
 import depotlifecycle.domain.Party;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @JsonView
 @Introspected
+@EqualsAndHashCode(callSuper=true)
 public class ExternalPartyCommand extends BasePartyCommand {
     @Nullable
     @Pattern(regexp = "^[A-Z0-9]{9}$", message = "CompanyId must be a valid EDI Address.")
     String companyId;
 
     @Nullable
-    @NotBlank
     @Size(max = 10)
     String code;
 

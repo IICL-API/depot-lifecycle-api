@@ -13,6 +13,7 @@ public class DepotLifecycleConfiguration extends HttpClientConfiguration {
     public static final String PREFIX = "depotlifecycle.client";
 
     private final DepotLifecycleConnectionPoolConfiguration connectionPoolConfiguration;
+    private final DepotLifecycleHttp2Configuration http2Configuration;
 
     @Getter
     @Setter
@@ -22,9 +23,10 @@ public class DepotLifecycleConfiguration extends HttpClientConfiguration {
     @Setter
     private String authorization;
 
-    public DepotLifecycleConfiguration(ApplicationConfiguration applicationConfiguration, DepotLifecycleConnectionPoolConfiguration connectionPoolConfiguration) {
+    public DepotLifecycleConfiguration(ApplicationConfiguration applicationConfiguration, DepotLifecycleConnectionPoolConfiguration connectionPoolConfiguration, DepotLifecycleHttp2Configuration http2Configuration) {
         super(applicationConfiguration);
         this.connectionPoolConfiguration = connectionPoolConfiguration;
+        this.http2Configuration = http2Configuration;
     }
 
     @Override
@@ -32,8 +34,18 @@ public class DepotLifecycleConfiguration extends HttpClientConfiguration {
         return connectionPoolConfiguration;
     }
 
+    @Override
+    public Http2ClientConfiguration getHttp2Configuration() {
+        return http2Configuration;
+    }
+
     @ConfigurationProperties(PREFIX)
     public static class DepotLifecycleConnectionPoolConfiguration extends HttpClientConfiguration.ConnectionPoolConfiguration {
+
+    }
+
+    @ConfigurationProperties(PREFIX)
+    public static class DepotLifecycleHttp2Configuration extends HttpClientConfiguration.Http2ClientConfiguration {
 
     }
 }

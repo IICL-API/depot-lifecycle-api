@@ -50,7 +50,6 @@ public class EstimateTotalsCommand {
     Boolean ctl = false;
 
     @Nullable
-    @NotBlank
     @Size(max = 500)
     String comments;
 

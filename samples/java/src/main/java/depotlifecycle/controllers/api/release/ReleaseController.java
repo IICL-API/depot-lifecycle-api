@@ -1,15 +1,15 @@
 package depotlifecycle.controllers.api.release;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
+import depotlifecycle.system.PartyResolver;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.release.Release;
 import depotlifecycle.domain.release.ReleaseDetail;
 import depotlifecycle.domain.release.ReleaseDetailCriteria;
-import depotlifecycle.repositories.ExternalPartyRepository;
-import depotlifecycle.repositories.PartyRepository;
 import depotlifecycle.repositories.release.ReleaseRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
+import depotlifecycle.system.InventoryUpdater;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.*;
@@ -55,11 +55,11 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ReleaseController {
     private static final Logger LOG = LoggerFactory.getLogger(ReleaseController.class);
-    private final PartyRepository partyRepository;
+    private final PartyResolver partyResolver;
     private final ReleaseRepository releaseRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
-    private final ExternalPartyRepository externalPartyRepository;
+    private final InventoryUpdater inventoryUpdater;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for a release",
@@ -112,14 +112,14 @@ public class ReleaseController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful create", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successful create"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the release depot was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> create(@Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, @Parameter(hidden = true) HttpHeaders headers) {
+    public HttpResponse<Void> create(@Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Release Create");
         conversionService.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
         Optional.of(headers.names().stream().collect(LinkedHashMap::new, (m, v)->m.put(v, headers.get(v)), HashMap::putAll).toString()).ifPresent(LOG::info);
@@ -131,6 +131,10 @@ public class ReleaseController {
         saveParties(release);
 
         releaseRepository.save(release);
+
+        //Reflect the outbound allocation in the example depot inventory
+        inventoryUpdater.recordRelease(release);
+
         return HttpResponse.ok();
     }
 
@@ -138,7 +142,7 @@ public class ReleaseController {
         for (ReleaseDetail detail : release.getDetails()) {
             if (detail.getCustomer() != null) {
                 try {
-                    detail.setCustomer(externalPartyRepository.save(detail.getCustomer()));
+                    detail.setCustomer(partyResolver.resolve(detail.getCustomer()));
                 }
                 catch(Exception e) {
                     throw new IllegalArgumentException(String.format("Customer - %s", e.getMessage()));
@@ -153,16 +157,16 @@ public class ReleaseController {
         }
 
         if (release.getOwner() != null) {
-            release.setOwner(partyRepository.save(release.getOwner()));
+            release.setOwner(partyResolver.resolve(release.getOwner()));
         }
 
         if (release.getDepot() != null) {
-            release.setDepot(partyRepository.save(release.getDepot()));
+            release.setDepot(partyResolver.resolve(release.getDepot()));
         }
 
         if (release.getRecipient() != null) {
             try {
-                release.setRecipient(externalPartyRepository.save(release.getRecipient()));
+                release.setRecipient(partyResolver.resolve(release.getRecipient()));
             }
             catch(Exception e) {
                 throw new IllegalArgumentException(String.format("Recipient - %s", e.getMessage()));
@@ -177,14 +181,14 @@ public class ReleaseController {
         operationId = "updateRelease",
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) }))
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successful update", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successful update"),
         @ApiResponse(responseCode = "400", description = "an error occurred", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "security disallows access"),
         @ApiResponse(responseCode = "404", description = "the release was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(type = "string", example = "RHAMG000000", maxLength = 16)) String releaseNumber,
+    public HttpResponse<Void> update(@Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, schema = @Schema(type = "string", example = "RHAMG000000", maxLength = 16)) String releaseNumber,
                        @Body @RequestBody(description = "Data to use to update the given Release", required = true, content = {@Content(schema = @Schema(implementation = Release.class))}) Release release, @Parameter(hidden = true) HttpHeaders headers) {
         LOG.info("Received Release Update");
         conversionService.convert(release, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));

@@ -4,11 +4,15 @@ import depotlifecycle.DepotLifecycleConfiguration;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.GateResponse;
 import depotlifecycle.GateStatus;
+import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.gate.GateCreateRequest;
 import depotlifecycle.domain.gate.GateUpdateRequest;
 import io.micronaut.core.annotation.NonNull;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.multipart.MultipartBody;
 import org.reactivestreams.Publisher;
 
 import static io.micronaut.http.HttpHeaders.ACCEPT;
@@ -33,4 +37,8 @@ public interface GateClient {
     @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
     @Delete("/api/v2/gate/{depot}/{adviceNumber}/{unitNumber}")
     void delete(@PathVariable @NonNull String depot, @PathVariable @NonNull String adviceNumber, @PathVariable @NonNull String unitNumber);
+
+    @Header(name = "Authorization", value = "${" + DepotLifecycleConfiguration.PREFIX + ".authorization}")
+    @Post(uri = "/api/v2/gatePhoto/{relatedId}", produces = MediaType.MULTIPART_FORM_DATA)
+    Publisher<HttpResponse<PendingResponse>> uploadPhoto(@PathVariable @NonNull Long relatedId, @Body @NonNull MultipartBody file);
 }

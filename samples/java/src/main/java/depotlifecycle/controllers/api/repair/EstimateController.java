@@ -1,6 +1,7 @@
 package depotlifecycle.controllers.api.repair;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
+import depotlifecycle.system.PartyResolver;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.PendingResponse;
 import depotlifecycle.domain.*;
@@ -13,6 +14,7 @@ import depotlifecycle.repositories.repair.EstimateRepository;
 import depotlifecycle.repositories.repair.InsuranceCoverageRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
+import depotlifecycle.system.InventoryUpdater;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.data.model.Pageable;
@@ -43,6 +45,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -55,6 +58,7 @@ import java.util.Optional;
 public class EstimateController {
     private static final Logger LOG = LoggerFactory.getLogger(EstimateController.class);
     private final PartyRepository partyRepository;
+    private final PartyResolver partyResolver;
     private final InsuranceCoverageRepository insuranceCoverageRepository;
     private final EstimateRepository estimateRepository;
     private final EstimateCancelRequestRepository estimateCancelRequestRepository;
@@ -62,6 +66,7 @@ public class EstimateController {
     private final EstimateCustomerApprovalRepository estimateCustomerApprovalRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
+    private final InventoryUpdater inventoryUpdater;
 
     @Get(produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "search for estimate(s)",
@@ -141,6 +146,9 @@ public class EstimateController {
 
         estimateRepository.save(estimate);
 
+        //Reflect the estimate activity in the example depot inventory
+        inventoryUpdater.recordEstimate(estimate);
+
         //Generate an example allocation for the purposes of this demo
         EstimateAllocation allocation = new EstimateAllocation();
         allocation.setRelatedId(estimate.getId());
@@ -148,11 +156,19 @@ public class EstimateController {
         allocation.setDepot(estimate.getDepot());
         allocation.setRevision(estimate.getRevision());
         allocation.setTotal(estimate.getTotal());
-        allocation.setOwnerTotal(estimate.getPartyTotal(EstimateLineItemParty.O));
-        allocation.setInsuranceTotal(estimate.getPartyTotal(EstimateLineItemParty.I));
-        allocation.setCustomerTotal(estimate.getPartyTotal(EstimateLineItemParty.U));
+        BigDecimal ownerTotal = BigDecimal.ZERO, insuranceTotal = BigDecimal.ZERO, customerTotal = BigDecimal.ZERO;
+        for (EstimateLineItem lineItem : estimate.getLineItems()) {
+            if (lineItem.getParty() == null) continue;
+            if (lineItem.getParty() == EstimateLineItemParty.O) ownerTotal = ownerTotal.add(lineItem.getTotal());
+            else if (lineItem.getParty() == EstimateLineItemParty.I) insuranceTotal = insuranceTotal.add(lineItem.getTotal());
+            else if (lineItem.getParty() == EstimateLineItemParty.U) customerTotal = customerTotal.add(lineItem.getTotal());
+        }
+        allocation.setOwnerTotal(ownerTotal);
+        allocation.setInsuranceTotal(insuranceTotal);
+        allocation.setCustomerTotal(customerTotal);
         allocation.setCtl(false); //assume not a CTL for demo purposes
         allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
+        allocation.setDepreciatedValue(null); // do not return the depreciated value for demo purposes
 
         PreliminaryDecision preliminaryDecision = new PreliminaryDecision();
         preliminaryDecision.setRecommendation("FIX");
@@ -178,25 +194,25 @@ public class EstimateController {
         }
 
         if (estimate.getDepot() != null) {
-            estimate.setDepot(partyRepository.save(estimate.getDepot()));
+            estimate.setDepot(partyResolver.resolve(estimate.getDepot()));
         }
 
         if (estimate.getRequester() != null) {
-            estimate.setRequester(partyRepository.save(estimate.getRequester()));
+            estimate.setRequester(partyResolver.resolve(estimate.getRequester()));
         }
 
         if (estimate.getOwner() != null) {
-            estimate.setOwner(partyRepository.save(estimate.getOwner()));
+            estimate.setOwner(partyResolver.resolve(estimate.getOwner()));
         }
 
         if (estimate.getCustomer() != null) {
-            estimate.setCustomer(partyRepository.save(estimate.getCustomer()));
+            estimate.setCustomer(partyResolver.resolve(estimate.getCustomer()));
         }
 
         if (estimate.getAllocation() != null) {
             EstimateAllocation allocation = estimate.getAllocation();
             if (allocation.getDepot() != null) {
-                allocation.setDepot(partyRepository.save(allocation.getDepot()));
+                allocation.setDepot(partyResolver.resolve(allocation.getDepot()));
             }
         }
     }
@@ -285,11 +301,19 @@ public class EstimateController {
         allocation.setDepot(estimate.getDepot());
         allocation.setRevision(estimate.getRevision());
         allocation.setTotal(estimate.getTotal());
-        allocation.setOwnerTotal(estimate.getPartyTotal(EstimateLineItemParty.O));
-        allocation.setInsuranceTotal(estimate.getPartyTotal(EstimateLineItemParty.I));
-        allocation.setCustomerTotal(estimate.getPartyTotal(EstimateLineItemParty.U));
+        BigDecimal ownerTotal = BigDecimal.ZERO, insuranceTotal = BigDecimal.ZERO, customerTotal = BigDecimal.ZERO;
+        for (EstimateLineItem lineItem : estimate.getLineItems()) {
+            if (lineItem.getParty() == null) continue;
+            if (lineItem.getParty() == EstimateLineItemParty.O) ownerTotal = ownerTotal.add(lineItem.getTotal());
+            else if (lineItem.getParty() == EstimateLineItemParty.I) insuranceTotal = insuranceTotal.add(lineItem.getTotal());
+            else if (lineItem.getParty() == EstimateLineItemParty.U) customerTotal = customerTotal.add(lineItem.getTotal());
+        }
+        allocation.setOwnerTotal(ownerTotal);
+        allocation.setInsuranceTotal(insuranceTotal);
+        allocation.setCustomerTotal(customerTotal);
         allocation.setCtl(false); //assume not a CTL for demo purposes
         allocation.setComments(estimate.getComments());//Assume the returned comments are the same for demo
+        allocation.setDepreciatedValue(null); // do not return the depreciated value for demo purposes
 
         PreliminaryDecision preliminaryDecision = new PreliminaryDecision();
         preliminaryDecision.setRecommendation("FIX");
@@ -309,14 +333,14 @@ public class EstimateController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully cancelled the estimate", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successfully cancelled the estimate"),
         @ApiResponse(responseCode = "400", description = "an error occurred trying to cancel the estimate", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "cancel estimate is disallowed by security"),
         @ApiResponse(responseCode = "404", description = "the estimate or depot was not found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> delete(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
+    public HttpResponse<Void> delete(@Parameter(name = "estimateNumber", description = "the estimate number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "DEHAMCE1856373", maxLength = 16)) String estimateNumber,
                                            @QueryValue("depot") @Parameter(name = "depot", description = "the identifier of the depot", in = ParameterIn.QUERY, required = true, schema = @Schema(type = "string", pattern = "^[A-Z0-9]{9}$", example = "DEHAMCMRA", maxLength = 9)) String depot) {
         LOG.info("Received Estimate Cancel for {} @ {}", estimateNumber, depot);
 
@@ -340,7 +364,7 @@ public class EstimateController {
         else if (depotParty.isEmpty()) {
             depotParty = Optional.of(new Party());
             depotParty.get().setCompanyId(depot);
-            depotParty = Optional.of(partyRepository.save(depotParty.get()));
+            depotParty = Optional.of(partyResolver.resolve(depotParty.get()));
         }
 
         EstimateCancelRequest cancelRequest = new EstimateCancelRequest();
@@ -378,7 +402,7 @@ public class EstimateController {
         }
 
         if (allocation.getDepot() != null) {
-            allocation.setDepot(partyRepository.save(allocation.getDepot()));
+            allocation.setDepot(partyResolver.resolve(allocation.getDepot()));
         }
 
         if(allocation.getInsuranceCoverage() != null) {

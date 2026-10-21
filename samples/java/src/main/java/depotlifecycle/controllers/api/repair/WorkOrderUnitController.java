@@ -1,6 +1,6 @@
 package depotlifecycle.controllers.api.repair;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import depotlifecycle.ErrorResponse;
 import depotlifecycle.domain.repair.RepairComplete;
 import depotlifecycle.domain.repair.WorkOrder;
@@ -10,6 +10,7 @@ import depotlifecycle.repositories.repair.WorkOrderRepository;
 import depotlifecycle.repositories.repair.WorkOrderUnitRepository;
 import depotlifecycle.security.AuthenticationProviderUserPassword;
 import depotlifecycle.system.ApiErrorHandling;
+import depotlifecycle.system.InventoryUpdater;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.http.*;
 import io.micronaut.http.annotation.Body;
@@ -48,6 +49,7 @@ public class WorkOrderUnitController {
     private final WorkOrderUnitRepository workOrderUnitRepository;
     private final ConversionService conversionService;
     private final SecurityService securityService;
+    private final InventoryUpdater inventoryUpdater;
 
     @Put(uri = "/{workOrderNumber}", produces = MediaType.APPLICATION_JSON)
     @Operation(summary = "marks a shipping container repaired",
@@ -57,14 +59,14 @@ public class WorkOrderUnitController {
         extensions = @Extension(properties = { @ExtensionProperty(name = "iicl-purpose", value = "activity", parseValue = true) })
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "successfully repair completed the workOrder", content = {@Content(schema = @Schema())}),
+        @ApiResponse(responseCode = "200", description = "successfully repair completed the workOrder"),
         @ApiResponse(responseCode = "400", description = "an error occurred trying to repair complete the work order", content = {@Content(schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "repair completion is not allowed by security"),
         @ApiResponse(responseCode = "404", description = "shipping container, depot, or work order could not be found"),
         @ApiResponse(responseCode = "501", description = "this feature is not supported by this server"),
         @ApiResponse(responseCode = "503", description = "API is temporarily paused, and not accepting any activity"),
     })
-    public HttpResponse<HttpStatus> update(@Parameter(name = "workOrderNumber", description = "the work order number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "WHAMG30001", maxLength = 16)) String workOrderNumber,
+    public HttpResponse<Void> update(@Parameter(name = "workOrderNumber", description = "the work order number", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string", example = "WHAMG30001", maxLength = 16)) String workOrderNumber,
                                            @Body @RequestBody(description = "Necessary information to mark a shipping container repair complete", required = true, content = {@Content(schema = @Schema(implementation = RepairComplete.class))}) RepairComplete repairComplete) {
         LOG.info("Received Work Order Repair Complete for {}:", workOrderNumber);
         conversionService.convert(repairComplete, JsonNode.class).ifPresent(jsonNode -> LOG.info(jsonNode.toString()));
@@ -95,6 +97,9 @@ public class WorkOrderUnitController {
             unit.get().setStatus(WorkOrderUnitStatus.REPAIRED);
             workOrderUnitRepository.save(unit.get());
         }
+
+        //Reflect the repair completion in the example depot inventory
+        workOrder.map(WorkOrder::getDepot).ifPresent(depot -> inventoryUpdater.recordRepairComplete(depot, repairComplete));
 
 
         return HttpResponse.ok();
