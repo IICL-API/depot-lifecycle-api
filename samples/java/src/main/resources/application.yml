@@ -170,6 +170,7 @@ depotlifecycle:
          * 2.2.9
             - (client) Add local documentation link to the client.
             - (doc) mark Redelivery & Release production ready. 
+            - (doc) mark Estimate & Gate photo upload apis production ready.
 
 
          # Security & Authentication

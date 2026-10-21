@@ -127,7 +127,8 @@ info:
     \ server) `loaded` should support `null` for unknown states on the EquipmentDetail\
     \ model.\n    - (api, server) Add `insuranceCoverage` to EstimateAllocation model.\n\
     \n * 2.2.9\n    - (client) Add local documentation link to the client.\n    -\
-    \ (doc) mark Redelivery & Release production ready. \n\n\n # Security & Authentication\n\
+    \ (doc) mark Redelivery & Release production ready. \n    - (doc) mark Estimate\
+    \ & Gate photo upload apis production ready.\n\n\n # Security & Authentication\n\
     \n To ensure secure communication, all endpoints of this API should use the https\
     \ protocol instead of http.  Authentication methods will differ between systems,\
     \ but two popular methods are JSON Web Tokens and Static Tokens.  Examples for\
@@ -4615,16 +4616,14 @@ components:
       scheme: bearer
       bearerFormat: JWT
 x-tagGroups:
-- name: "API: Under Development (Beta)"
-  tags:
-  - estimate photos
-  - gate photos
 - name: "API: Production Ready"
   tags:
   - redelivery
   - release
   - gate
+  - gate photos
   - estimate
+  - estimate photos
   - workOrder
 - name: Models
   tags:
